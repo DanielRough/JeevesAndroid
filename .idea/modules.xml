@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/Jeeves.iml" filepath="$PROJECT_DIR$/Jeeves.iml" />
+      <module fileurl="file://$PROJECT_DIR$/SensorManager/SensorManager.iml" filepath="$PROJECT_DIR$/SensorManager/SensorManager.iml" />
+      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/SensorDataManager/sensorDataManager.iml" filepath="$PROJECT_DIR$/SensorDataManager/sensorDataManager.iml" />
+      <module fileurl="file://$PROJECT_DIR$/triggermanager/triggermanager.iml" filepath="$PROJECT_DIR$/triggermanager/triggermanager.iml" />
+    </modules>
+  </component>
+</project>

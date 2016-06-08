@@ -1,0 +1,1 @@
+include ':app', ':SensorManager', ':SensorDataManager', ':triggermanager'
