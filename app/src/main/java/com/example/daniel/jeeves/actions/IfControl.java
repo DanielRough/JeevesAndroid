@@ -14,26 +14,30 @@ import java.util.ArrayList;
 /**
  * Created by Daniel on 08/06/15.
  */
-public class IfControl extends FirebaseControl implements IControl {
+public class IfControl extends FirebaseControl {
     public ArrayList<FirebaseAction> controlactions = new ArrayList<FirebaseAction>();
-    ActionExecutorService mService;
+  //  ActionExecutorService mService;
     boolean mBound = false;
 
     @Override
     public void execute() {
         Log.d("CONTROLIF", "IF CONTROL");
-        FirebaseExpression expression = getcondition();
+      //  FirebaseExpression expression = getcondition();
         Context app = ApplicationContext.getContext();
         ArrayList<FirebaseAction> toExecute = new ArrayList<FirebaseAction>();
         ExpressionParser parser = new ExpressionParser(ApplicationContext.getContext());
+        FirebaseExpression expression = null;
+        expression = getcondition();
 
-        controlactions = (ArrayList<FirebaseAction>) params.get("actions");
+        controlactions = (ArrayList<FirebaseAction>) getactions();
         Intent actionIntent = new Intent(app,ActionExecutorService.class);
         actionIntent.putExtra("com/example/daniel/jeeves/actions",controlactions);
+        actionIntent.putExtra("expression",expression);
+
         app.startService(actionIntent);
     }
     @Override
     public ArrayList<FirebaseAction> getControlActions() {
         return controlactions;
-    }
+   }
 }

@@ -1,6 +1,5 @@
 package com.example.daniel.jeeves.actions;
 
-import com.example.daniel.jeeves.actions.IAction;
 import com.shaded.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import java.io.Serializable;
@@ -41,13 +40,13 @@ public abstract class FirebaseAction implements Serializable,IAction {
         return yPos;
     }
 
-    public String description;
-    public long id;
-    public String name;
-    public Map<String,Object> params;
-    public String type;
-    public long xPos;
-    public long yPos;
+    private String description;
+    private long id;
+    private String name;
+    private Map<String,Object> params;
+    private String type;
+    private long xPos;
+    private long yPos;
 
     public void execute(){
 

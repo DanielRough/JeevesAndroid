@@ -13,8 +13,8 @@ import java.util.ArrayList;
 /**
  * Created by Daniel on 08/06/15.
  */
-public class ForControl extends FirebaseControl implements IControl {
-    ActionExecutorService mService;
+public class ForControl extends FirebaseControl implements IAction {
+  //  ActionExecutorService mService;
     boolean mBound = false;
     public ArrayList<FirebaseAction> controlactions = new ArrayList<FirebaseAction>();
 
@@ -22,13 +22,14 @@ public class ForControl extends FirebaseControl implements IControl {
     public void execute() {
 
         Log.d("CONTROLFOR", "FOR CONTROL");
-        FirebaseExpression expression = getcondition();
+      //  FirebaseExpression expression = getcondition();
 
         Context app = ApplicationContext.getContext();
-        controlactions = (ArrayList<FirebaseAction>) params.get("actions");
+        controlactions = (ArrayList<FirebaseAction>) getactions();
+        FirebaseExpression expression = (FirebaseExpression)getparams().get("expression");
         Intent actionIntent = new Intent(app,ActionExecutorService.class);
         actionIntent.putExtra("com/example/daniel/jeeves/actions",controlactions);
-      //  actionIntent.putExtra("expression",expression);
+        actionIntent.putExtra("expression",expression);
         app.startService(actionIntent);
     }
     @Override

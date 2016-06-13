@@ -16,8 +16,8 @@ public class SendTextAction extends FirebaseAction {
     @Override
     public void execute() {
         Context app = ApplicationContext.getContext();
-        String recipient = params.get("recipient").toString();
-        String message = params.get("msgtext").toString();
+        String recipient = getparams().get("recipient").toString();
+        String message = getparams().get("msgtext").toString();
         Log.d("ACTIONSMS", "SENT AN SMS");
         SharedPreferences pref = app.getSharedPreferences("userPrefs", Context.MODE_PRIVATE);
         SmsManager sms = SmsManager.getDefault();

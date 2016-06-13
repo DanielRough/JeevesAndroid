@@ -12,6 +12,7 @@ import android.widget.Button;
 import com.example.daniel.jeeves.firebase.FirebaseProject;
 import com.example.daniel.jeeves.firebase.FirebaseSurvey;
 import com.example.daniel.jeeves.firebase.FirebaseTrigger;
+import com.example.daniel.jeeves.firebase.UserVariable;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
@@ -128,10 +129,20 @@ public class SenseActivity extends Activity {
         List<FirebaseSurvey> surveys = app.getsurveys();
         List<FirebaseTrigger> currentTriggers = currentConfig.gettriggers();
         List<FirebaseTrigger> triggers = app.gettriggers();
+        List<UserVariable> variables = app.getvariables();
         String researcherno = app.getresearcherno();
         SharedPreferences prefs = this.getSharedPreferences("userPrefs", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
         editor.putString("researcherno",researcherno);
+        for(UserVariable var : variables){
+            String type = var.getvartype();
+            switch(type){
+                case "Time" : editor.putString(var.getname(),var.getvalue()); break;
+                case "Boolean" : editor.putBoolean(var.getname(), Boolean.parseBoolean(var.getvalue())); break;
+                case "Text" : editor.putString(var.getname(),var.getvalue()); break;
+                case "Numeric" : editor.putLong(var.getname(), Long.parseLong(var.getvalue()));break;
+            }
+        }
         editor.commit();
         ArrayList<Long> newIds = new ArrayList<Long>();
         for (int i = 0; i < triggers.size(); i++) {

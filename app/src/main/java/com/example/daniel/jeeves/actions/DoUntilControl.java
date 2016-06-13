@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.util.Log;
 
 import com.example.daniel.jeeves.ActionExecutorService;
+import com.example.daniel.jeeves.ExpressionParser;
 import com.example.daniel.jeeves.firebase.FirebaseExpression;
 import com.example.daniel.jeeves.ApplicationContext;
 
@@ -13,25 +14,23 @@ import java.util.ArrayList;
 /**
  * Created by Daniel on 08/06/15.
  */
-public class DoUntilControl extends FirebaseControl implements IControl {
+public class DoUntilControl extends FirebaseControl{
     public ArrayList<FirebaseAction> controlactions = new ArrayList<FirebaseAction>();
-    private Object var;
+   private Object var;
     private Object val;
     private String op;
-    ActionExecutorService mService;
+ //   ActionExecutorService mService;
     boolean mBound = false;
-
-    @Override
     public void execute() {
         Log.d("CONTROLDO", "DO CONTROL");
-        FirebaseExpression expression = getcondition();
+       // FirebaseExpression expression = getcondition();
         Context app = ApplicationContext.getContext();
         ArrayList<FirebaseAction> toExecute = new ArrayList<FirebaseAction>();
-        toExecute = (ArrayList<FirebaseAction>) params.get("actions");
-        expression = (FirebaseExpression)params.get("expression");
+        toExecute = (ArrayList<FirebaseAction>) getactions();
+        FirebaseExpression expression = (FirebaseExpression)getparams().get("expression");
         Intent actionIntent = new Intent(app,ActionExecutorService.class);
         actionIntent.putExtra("com/example/daniel/jeeves/actions",toExecute);
-       // actionIntent.putExtra("expression",expression);
+        actionIntent.putExtra("expression",expression);
         app.startService(actionIntent);
     }
 

@@ -1,6 +1,7 @@
 package com.example.daniel.jeeves.firebase;
 
 import com.example.daniel.jeeves.actions.FirebaseAction;
+import com.example.daniel.jeeves.actions.IAction;
 
 import java.util.List;
 import java.util.Map;

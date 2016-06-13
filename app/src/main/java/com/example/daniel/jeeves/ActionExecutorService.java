@@ -98,12 +98,13 @@ public class ActionExecutorService extends IntentService{
      */
     public void checkCondition(){
         ExpressionParser parser = new ExpressionParser(ApplicationContext.getContext());
-        if((boolean) parser.evaluate(expr) == true){ //expressionw will be null if we don't have an expression in the first place
-            Log.d("TRUE","our expression is true, stop executing");
+        if((boolean) parser.evaluate(expr) == false){ //expressionw will be null if we don't have an expression in the first place
+            Log.d("FALSE","our expression is FALSE, stop executing");
             return; //Our expression is true, STOP EXECUTING
         }
         else{
-            Log.d("FALSE","our expression is false, keep calm and carry on");
+            Log.d("TRUE","our expression is TRUE, keep calm and carry on");
+            expr = null; //Stop it looping forever (for now at least)
             executeActions(); //Let's go round again!
         }
     }

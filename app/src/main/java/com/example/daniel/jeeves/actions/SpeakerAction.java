@@ -17,7 +17,7 @@ public class SpeakerAction extends FirebaseAction {
         Log.d("ACTIONMUTE", "MUTED PHONE");
         Context app = ApplicationContext.getContext();
 
-        String volume = params.get("volume").toString();
+        String volume = getparams().get("volume").toString();
         AudioManager audioManager = (AudioManager)app.getSystemService(Context.AUDIO_SERVICE);
         if(volume.equals("Off"))
             audioManager.setRingerMode(AudioManager.RINGER_MODE_VIBRATE);

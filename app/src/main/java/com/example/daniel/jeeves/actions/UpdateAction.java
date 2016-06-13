@@ -20,17 +20,17 @@ public class UpdateAction extends FirebaseAction {
         Log.d("ACTIONUPDATEUSER", "UPDATED USER VAR");
         Context app = ApplicationContext.getContext();
         SharedPreferences pref = app.getSharedPreferences("userPrefs", Context.MODE_PRIVATE);
-        Map<String,Object> variable = (Map<String,Object>)params.get("variable");
+        Map<String,Object> variable = (Map<String,Object>)getparams().get("variable");
             String varName = variable.get("name").toString();
-            String varType = params.get("vartype").toString();
+            String varType = getparams().get("vartype").toString();
             SharedPreferences.Editor editor = pref.edit();
             Object valueresult = null;
             ExpressionParser parser = new ExpressionParser(ApplicationContext.getContext());
-            if(params.get("value") instanceof FirebaseExpression){
-                valueresult = parser.evaluate((FirebaseExpression) params.get("value"));
+            if(getparams().get("value") instanceof FirebaseExpression){
+                valueresult = parser.evaluate((FirebaseExpression) getparams().get("value"));
             }
             else{
-                valueresult = params.get("value");
+                valueresult = getparams().get("value");
             }
 
             if (varType.equals("Text")) {

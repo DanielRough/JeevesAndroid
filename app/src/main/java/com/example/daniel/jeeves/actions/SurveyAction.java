@@ -26,7 +26,7 @@ public class SurveyAction extends FirebaseAction {
         Log.d("ACTIONSURVEY","SENT A SURVEY");
         Context app = ApplicationContext.getContext();
 
-        String surveyname = params.get("survey").toString();
+        String surveyname = getparams().get("survey").toString();
         NotificationManager notificationManager =
                 (NotificationManager) app.getSystemService(app.NOTIFICATION_SERVICE);
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(app)

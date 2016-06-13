@@ -1,7 +1,5 @@
 package com.example.daniel.jeeves.firebase;
 
-import com.example.daniel.jeeves.firebase.FirebaseTrigger;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,8 +39,8 @@ public class FirebaseProject {
     List<FirebaseSurvey> surveys = new ArrayList<>();
     List<FirebaseTrigger> triggers = new ArrayList<>();
     String type;
-    List<Object> variables = new ArrayList<>();
-    List<Object> expressions = new ArrayList<>();
+    List<UserVariable> variables = new ArrayList<>();
+    List<FirebaseExpression> expressions = new ArrayList<>();
     long xPos;
     long yPos;
     String researcherno;
@@ -57,7 +55,7 @@ public class FirebaseProject {
     public List<FirebaseTrigger> gettriggers() {
         return triggers;
     }
-    public List<Object> getvariables() { return variables; }
-    public List<Object> getexpressions() { return expressions; }
+    public List<UserVariable> getvariables() { return variables; }
+    public List<FirebaseExpression> getexpressions() { return expressions; }
     public long getmaxNotifications(){ return maxNotifications;}
 }
