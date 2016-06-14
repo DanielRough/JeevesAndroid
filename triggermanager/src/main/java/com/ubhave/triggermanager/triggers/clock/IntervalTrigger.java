@@ -72,10 +72,10 @@ public class IntervalTrigger extends AbstractClockTrigger
 			calendar.set(Calendar.MINUTE, (firstTime % 60));
 			calendar.set(Calendar.SECOND,0);
 			//I've added this in the hope that it can schedule random triggers for the next day
-			if (calendar.getTimeInMillis() < System.currentTimeMillis())
-			{
-				calendar.add(Calendar.DATE, 1);
-			}
+//			if (calendar.getTimeInMillis() < System.currentTimeMillis())
+//			{
+//				calendar.add(Calendar.DATE, 1);
+//			}
 		long actualStartDelay = calendar.getTimeInMillis();
 		long firstAlarmTime = actualStartDelay;
 		long intervalLengthInMillis = getIntervalLength()*6000;

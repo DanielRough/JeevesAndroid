@@ -33,6 +33,7 @@ public class IfControl extends FirebaseControl {
         Intent actionIntent = new Intent(app,ActionExecutorService.class);
         actionIntent.putExtra("com/example/daniel/jeeves/actions",controlactions);
         actionIntent.putExtra("expression",expression);
+        actionIntent.putExtra("controltype","if");
 
         app.startService(actionIntent);
     }

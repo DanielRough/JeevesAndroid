@@ -7,6 +7,7 @@ import android.util.Log;
 import com.example.daniel.jeeves.ApplicationContext;
 import com.example.daniel.jeeves.ExpressionParser;
 import com.example.daniel.jeeves.firebase.FirebaseExpression;
+import com.example.daniel.jeeves.firebase.UserVariable;
 
 import java.util.Map;
 
@@ -15,6 +16,10 @@ import java.util.Map;
  */
 public class UpdateAction extends FirebaseAction {
 
+    private FirebaseExpression value;
+    public FirebaseExpression getvalue(){
+        return value;
+    }
     @Override
     public void execute() {
         Log.d("ACTIONUPDATEUSER", "UPDATED USER VAR");
@@ -26,17 +31,14 @@ public class UpdateAction extends FirebaseAction {
             SharedPreferences.Editor editor = pref.edit();
             Object valueresult = null;
             ExpressionParser parser = new ExpressionParser(ApplicationContext.getContext());
-            if(getparams().get("value") instanceof FirebaseExpression){
-                valueresult = parser.evaluate((FirebaseExpression) getparams().get("value"));
-            }
-            else{
-                valueresult = getparams().get("value");
-            }
+            FirebaseExpression expr = null;
+            expr = (FirebaseExpression)(getparams().get("value"));
+                valueresult = parser.evaluate(getvalue());
 
             if (varType.equals("Text")) {
                 editor.putString(varName, (String)valueresult);
             } else if (varType.equals("Numeric")) {
-                editor.putInt(varName, Integer.parseInt((String)valueresult));
+                editor.putLong(varName, (Long)valueresult);
             } else if (varType.equals("Boolean")) {
                 editor.putBoolean(varName, (boolean)valueresult);
             } else if (varType.equals("Time")) {

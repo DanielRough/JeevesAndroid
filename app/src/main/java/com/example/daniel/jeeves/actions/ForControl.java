@@ -26,10 +26,11 @@ public class ForControl extends FirebaseControl implements IAction {
 
         Context app = ApplicationContext.getContext();
         controlactions = (ArrayList<FirebaseAction>) getactions();
-        FirebaseExpression expression = (FirebaseExpression)getparams().get("expression");
+        FirebaseExpression expression = getcondition();
         Intent actionIntent = new Intent(app,ActionExecutorService.class);
         actionIntent.putExtra("com/example/daniel/jeeves/actions",controlactions);
         actionIntent.putExtra("expression",expression);
+        actionIntent.putExtra("controltype","for");
         app.startService(actionIntent);
     }
     @Override

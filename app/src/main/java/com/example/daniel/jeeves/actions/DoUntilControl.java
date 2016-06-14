@@ -27,10 +27,12 @@ public class DoUntilControl extends FirebaseControl{
         Context app = ApplicationContext.getContext();
         ArrayList<FirebaseAction> toExecute = new ArrayList<FirebaseAction>();
         toExecute = (ArrayList<FirebaseAction>) getactions();
-        FirebaseExpression expression = (FirebaseExpression)getparams().get("expression");
+        FirebaseExpression expression = getcondition();
         Intent actionIntent = new Intent(app,ActionExecutorService.class);
         actionIntent.putExtra("com/example/daniel/jeeves/actions",toExecute);
         actionIntent.putExtra("expression",expression);
+        actionIntent.putExtra("controltype","do");
+
         app.startService(actionIntent);
     }
 

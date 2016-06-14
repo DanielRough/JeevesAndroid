@@ -8,6 +8,9 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import com.example.daniel.jeeves.actions.DoUntilControl;
+import com.example.daniel.jeeves.actions.ForControl;
+import com.example.daniel.jeeves.actions.IfControl;
 import com.example.daniel.jeeves.actions.WaitingAction;
 import com.example.daniel.jeeves.actions.FirebaseAction;
 import com.example.daniel.jeeves.firebase.FirebaseExpression;
@@ -19,6 +22,7 @@ public class ActionExecutorService extends IntentService{
     private Context serviceContext;
     private ArrayList<FirebaseAction> actions;
     private FirebaseExpression expr;
+    private String controlType;
     //Default constructor
     public ActionExecutorService(){
         super("HelloIntentService");
@@ -61,6 +65,7 @@ public class ActionExecutorService extends IntentService{
         //  final Handler h = new Handler(); //In case some of our com.example.daniel.jeeves.actions have delayed execution
         ArrayList<FirebaseAction> remainingActions = (ArrayList<FirebaseAction>)intent.getExtras().get("com/example/daniel/jeeves/actions");
         FirebaseExpression expression = (FirebaseExpression)intent.getExtras().get("expression");
+        controlType = (String)intent.getExtras().get("controltype");
         this.actions = remainingActions;
         this.expr = expression;
         if(expr != null)
@@ -89,8 +94,6 @@ public class ActionExecutorService extends IntentService{
             }
             newaction.execute();
         }
-        if(expr != null)
-            checkCondition();
 
     }
     /**
@@ -98,15 +101,28 @@ public class ActionExecutorService extends IntentService{
      */
     public void checkCondition(){
         ExpressionParser parser = new ExpressionParser(ApplicationContext.getContext());
-        if((boolean) parser.evaluate(expr) == false){ //expressionw will be null if we don't have an expression in the first place
-            Log.d("FALSE","our expression is FALSE, stop executing");
-            return; //Our expression is true, STOP EXECUTING
+        switch(controlType) {
+            case "for":
+                    long numberOfTimes = (long)parser.evaluate(expr);
+                for(long i = 0; i < numberOfTimes; i++)
+                    executeActions();
+                break;
+            case "do":
+                if((boolean) parser.evaluate(expr) == true)
+                    return; //Our expression is true, STOP EXECUTING
+                else {
+                    executeActions(); //Let's go round again!
+                    checkCondition();
+                }
+                    break;
+            case "if":
+                if((boolean) parser.evaluate(expr) == false) //expressionw will be null if we don't have an expression in the first place
+                    return; //Our expression is true, STOP EXECUTING
+                else
+                    executeActions(); //Let's go round again!
+                break;
         }
-        else{
-            Log.d("TRUE","our expression is TRUE, keep calm and carry on");
-            expr = null; //Stop it looping forever (for now at least)
-            executeActions(); //Let's go round again!
-        }
+
     }
     ActionExecutorService getService(){
         return ActionExecutorService.this;
