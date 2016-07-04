@@ -32,7 +32,7 @@ import com.ubhave.sensormanager.data.pull.LocationData;
 public class LocationDataClassifier implements SensorDataClassifier
 {
 	@Override
-	public boolean isInteresting(final SensorData sensorData, final SensorConfig sensorConfig)
+	public boolean isInteresting(final SensorData sensorData, final SensorConfig sensorConfig, String value)
 	{
 		LocationData data = (LocationData) sensorData;
 		LocationData prevData = (LocationData) sensorData.getPrevSensorData();

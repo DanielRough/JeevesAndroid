@@ -57,7 +57,7 @@ public class DelayedSensorTrigger extends ImmediateSensorTrigger
 	@Override
 	public void onDataSensed(SensorData sensorData)
 	{
-		isDataInteresting = classifier.isInteresting(sensorData, sensorData.getSensorConfig());
+		isDataInteresting = classifier.isInteresting(sensorData, sensorData.getSensorConfig(), "");
 		if (isDataInteresting)
 		{
 			if (waitThread == null)

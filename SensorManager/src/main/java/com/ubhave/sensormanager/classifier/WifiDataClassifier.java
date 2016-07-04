@@ -32,7 +32,7 @@ import com.ubhave.sensormanager.data.pull.WifiScanResult;
 public class WifiDataClassifier extends SocialClassifier implements SensorDataClassifier
 {
 	@Override
-	public boolean isInteresting(final SensorData sensorData, final SensorConfig sensorConfig)
+	public boolean isInteresting(final SensorData sensorData, final SensorConfig sensorConfig, String value)
 	{
 		WifiData data = (WifiData) sensorData;
 		WifiData prevData = (WifiData) sensorData.getPrevSensorData();

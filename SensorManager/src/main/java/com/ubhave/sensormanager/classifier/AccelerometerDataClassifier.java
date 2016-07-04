@@ -32,7 +32,7 @@ import com.ubhave.sensormanager.data.pull.AccelerometerData;
 public class AccelerometerDataClassifier implements SensorDataClassifier
 {
 	@Override
-	public boolean isInteresting(final SensorData sensorData, final SensorConfig sensorConfig)
+	public boolean isInteresting(final SensorData sensorData, final SensorConfig sensorConfig, String value)
 	{
 
 		AccelerometerData data = (AccelerometerData) sensorData;

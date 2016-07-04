@@ -30,7 +30,7 @@ import com.ubhave.sensormanager.data.pull.MicrophoneData;
 public class MicrophoneDataClassifier implements SensorDataClassifier
 {
 	@Override
-	public boolean isInteresting(final SensorData sensorData, final SensorConfig sensorConfig)
+	public boolean isInteresting(final SensorData sensorData, final SensorConfig sensorConfig, String value)
 	{
 		MicrophoneData data = (MicrophoneData) sensorData;
 		if (isSilent(data.getAmplitudeArray(), (Integer) sensorConfig.getParameter(MicrophoneConfig.SOUND_THRESHOLD)))

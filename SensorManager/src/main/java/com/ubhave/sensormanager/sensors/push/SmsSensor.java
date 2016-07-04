@@ -76,10 +76,15 @@ public class SmsSensor extends AbstractPushSensor
 		return smsSensor;
 	}
 
+	//From http://stackoverflow.com/questions/5808577/listen-to-outgoing-sms-or-sent-box
+	private static final int MESSAGE_TYPE_SENT = 2;
 	private SmsSensor(final Context context)
 	{
 		super(context);
+//		ContentResolver contentResolver = context.getContentResolver();
+//		contentResolver.registerContentObserver(Uri.parse("content:// sms"),true, observer);
 		// Create a content observer for sms
+		//I have no idea if this will work
 		observer = new ContentObserver(new Handler())
 		{
 
@@ -90,36 +95,45 @@ public class SmsSensor extends AbstractPushSensor
 					try
 					{
 						// check last sent message
-						Uri smsUri = Uri.parse("content://sms");
+						Uri smsUri = Uri.parse("content://sms/");
 						ContentResolver resolver = applicationContext.getContentResolver();
 						if (resolver != null)
 						{
+							Log.d("WOO HA URI",Telephony.Sms.Sent.CONTENT_URI.toString());
 							Cursor cursor = resolver.query(smsUri, null, null, null, null);
 							if (cursor != null)
 							{
 								// last sms sent is the fist in the list
-								cursor.moveToNext();
+								cursor.moveToFirst();
 								if (!cursor.isAfterLast())
 								{
+									int type = cursor.getInt(cursor.getColumnIndex("type"));
+									//	Log.d("WOO HA","how often is this happening?");
 									String content = cursor.getString(cursor.getColumnIndex("body"));
+							//		Log.d("WOO HA",content);
 									String sentTo = cursor.getString(cursor.getColumnIndex("address"));
 									SharedPreferences prefs = context.getSharedPreferences("userprefs",Context.MODE_PRIVATE);
 									SharedPreferences.Editor editor = prefs.edit();
 									editor.putString("lastSender",sentTo);
 									editor.commit();
 									Log.d("LAST SENDER","Last sender is now " + sentTo);
+
 									String messageId = cursor.getString(cursor.getColumnIndex("_id"));
 									// messageType - sent / received / draft etc.
 									String messageType = cursor.getString(cursor.getColumnIndex(ContentReaderConfig.SMS_CONTENT_TYPE_KEY));
+
+	//DJR: From what I can see here, it is ignored when a message is SENT, thus the messages received don't change. Removing the 'ignore' bit means it's logged whether sent or received
+
 									if ((prevMessageId != null) && (prevMessageId.length() > 0)
 											&& (prevMessageId.equals(messageId)))
 									{
-										// ignore, message already logged
+									//	Log.d("WOO HA", "Does this ever happen I wonder?");
 									}
 									else
 									{
+
 										prevMessageId = messageId;
-										logDataSensed(System.currentTimeMillis(), content, sentTo, messageType, 
+										logDataSensed(System.currentTimeMillis(), content, sentTo, messageType,
 												SmsData.SMS_CONTENT_CHANGED);
 									}
 								}
@@ -133,6 +147,7 @@ public class SmsSensor extends AbstractPushSensor
 				}
 			}
 		};
+
 	}
 
 	private void logDataSensed(long timestamp, String content, String addr, String messageType, String eventType)
@@ -184,6 +199,9 @@ public class SmsSensor extends AbstractPushSensor
 					e.printStackTrace();
 				}
 			}
+		}
+		else{
+
 		}
 	}
 

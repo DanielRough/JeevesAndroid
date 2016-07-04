@@ -133,7 +133,7 @@ public class AdaptiveSensing implements SensorDataListener
 		SensorDataClassifier classifier = sensorDetails.classifier;
 
 		// classify as interesting or not
-		if (classifier.isInteresting(data, data.getSensorConfig()))
+		if (classifier.isInteresting(data, data.getSensorConfig(), ""))
 		{
 			probability = probability + (PullSensorConfig.ALPHA_VALUE * (1 - probability));
 		}

@@ -38,6 +38,7 @@ public class SmsData extends SensorData
 	private String address;
 	private String messageType;
 	private String eventType;
+	private String content;
 	private final HashMap<String, Integer> wordCategories;
 	
 	public SmsData(long recvTimestamp, SensorConfig config)
@@ -55,7 +56,11 @@ public class SmsData extends SensorData
 		}
 		wordCategories.put(key, count + 1);
 	}
-	
+
+	public void setContent(String content) {this.content = content; }
+
+	public String getContent(){ return content; }
+
 	public void setContentLength(int n)
 	{
 		contentLength = n;

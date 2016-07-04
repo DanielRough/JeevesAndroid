@@ -32,7 +32,7 @@ import com.ubhave.sensormanager.data.pull.ESBluetoothDevice;
 public class BluetoothDataClassifier extends SocialClassifier implements SensorDataClassifier
 {
 	@Override
-	public boolean isInteresting(final SensorData sensorData, final SensorConfig sensorConfig)
+	public boolean isInteresting(final SensorData sensorData, final SensorConfig sensorConfig, String value)
 	{
 		BluetoothData data = (BluetoothData) sensorData;
 		BluetoothData prevData = (BluetoothData) sensorData.getPrevSensorData();

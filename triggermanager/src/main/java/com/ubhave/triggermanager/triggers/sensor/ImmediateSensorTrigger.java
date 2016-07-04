@@ -125,8 +125,12 @@ public class ImmediateSensorTrigger extends Trigger implements SensorDataListene
 		{
 			Log.d("ImmediateSensorTrigger", "onDataSensed() "+sensorData.toString());
 		}
-
-		if (classifier.isInteresting(sensorData,sensorData.getSensorConfig()))
+		String value = "";
+		if (params.containsKey(TriggerConfig.INTERESTING_VALUE))
+		{
+			value = params.getParameter(TriggerConfig.INTERESTING_VALUE).toString();
+		}
+		if (classifier.isInteresting(sensorData,sensorData.getSensorConfig(),value))
 		{
 			sendNotification();
 		}
