@@ -13,15 +13,28 @@
     android:focusableInTouchMode="true"
     android:weightSum="1">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Survey"
-        android:id="@+id/txtSurveyName"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentStart="false"
-        android:textSize="32dp" />
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="37dp"
+        android:layout_weight="0.78">
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Back"
+            android:id="@+id/btnBack"
+            android:layout_centerVertical="true"
+            android:layout_alignParentStart="true" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Next"
+            android:id="@+id/btnNext"
+            android:layout_gravity="right"
+            android:layout_centerVertical="true"
+            android:layout_alignParentEnd="true" />
+    </RelativeLayout>
 
     <TextView
         android:layout_width="wrap_content"
@@ -60,7 +73,7 @@
 
             <RadioGroup
                 android:layout_width="match_parent"
-                android:layout_height="284dp"
+                android:layout_height="match_parent"
                 android:id="@+id/grpMultSingle"></RadioGroup>
 
         </LinearLayout>
@@ -74,7 +87,7 @@
             <LinearLayout
                 android:orientation="vertical"
                 android:layout_width="match_parent"
-                android:layout_height="286dp"
+                android:layout_height="match_parent"
                 android:id="@+id/grpMultMany"></LinearLayout>
         </LinearLayout>
 
@@ -151,29 +164,5 @@
         </LinearLayout>
 
     </ViewFlipper>
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="37dp"
-        android:layout_weight="0.78">
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Next"
-            android:id="@+id/btnNext"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentTop="true" />
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Back"
-            android:id="@+id/btnBack"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentTop="true" />
-    </RelativeLayout>
 
 </LinearLayout>

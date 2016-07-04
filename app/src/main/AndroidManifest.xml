@@ -32,24 +32,42 @@
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
             android:value="AIzaSyD7-fA8i8ZRE1ckm7MlDAbkgt22pLLwZTs" />
-        <activity android:name=".MainActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+        <activity android:name=".MainActivity"
+>
+
         </activity>
-        <activity android:name=".SenseActivity" />
+        <activity
+            android:name=".SenseActivity"
+            android:launchMode="singleTop" />
+        <!-- Stops it restarting -->
+        <receiver android:name=".actions.SurveyAction$AlarmManagerBroadcastReceiver"></receiver>
 
+        <service android:name=".actions.SurveyAction$NotificationActionService" />
         <service
             android:name=".ActionExecutorService"
             android:enabled="true"
             android:exported="true" />
 
-        <activity android:name=".UpdateSettingsActivity" />
-        <activity android:name=".ContactActivity" />
-        <activity android:name=".MissedSurveyActivity" />
-        <activity android:name=".SurveyActivity"></activity>
+        <activity
+            android:name=".UpdateSettingsActivity"
+            android:parentActivityName=".SenseActivity" />
+        <activity
+            android:name=".ContactActivity"
+            android:parentActivityName=".SenseActivity" />
+        <activity
+            android:name=".MissedSurveyActivity"
+            android:parentActivityName=".SenseActivity" />
+        <activity android:name=".SurveyActivity" />
+        <activity android:name=".LauncherActivity"
+            android:noHistory="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+        </activity>
     </application>
 
 </manifest>

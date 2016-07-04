@@ -20,6 +20,13 @@
         android:textAlignment="center">
 
         <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:id="@+id/txtWelcome"
+            android:layout_weight="0.04" />
+
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="This is the Jeeves ESM application. From here, you can edit your settings, complete missed surveys, or contact your researcher"
@@ -72,4 +79,5 @@
             android:id="@+id/btnContact"
             android:layout_weight="0.04" />
     </LinearLayout>
+
 </RelativeLayout>

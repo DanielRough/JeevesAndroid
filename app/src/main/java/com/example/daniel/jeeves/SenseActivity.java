@@ -8,7 +8,9 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
+import com.example.daniel.jeeves.firebase.FirebasePatient;
 import com.example.daniel.jeeves.firebase.FirebaseProject;
 import com.example.daniel.jeeves.firebase.FirebaseSurvey;
 import com.example.daniel.jeeves.firebase.FirebaseTrigger;
@@ -40,10 +42,12 @@ import com.example.daniel.jeeves.actions.FirebaseAction;
 public class SenseActivity extends Activity {
     private static SenseActivity instance;
     Firebase myFirebaseRef;
+    Firebase firebaseUserInfo;
     FirebaseProject currentConfig = new FirebaseProject();
-
+    TextView txtWelcome;
     public static boolean hasSensorBegun, hasTriggerBegun;
 
+    public String userid;
     public ArrayList<Long> triggerids = new ArrayList<Long>();
     public static HashMap<Long, TriggerListener> triggerlisteners = new HashMap<Long, TriggerListener>();
     public static HashMap<Integer, SensorListener> sensorlisteners = new HashMap<Integer, SensorListener>();
@@ -73,9 +77,36 @@ public class SenseActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         instance = this;
 
+
+
         super.onCreate(savedInstanceState);
         //    SharedPreferences sharedPref = getApplicationContext().getSharedPreferences(getString(R.string.configurations), Context.MODE_PRIVATE);
         setContentView(R.layout.activity_sense);
+
+        txtWelcome = (TextView)findViewById(R.id.txtWelcome);
+        userid = getIntent().getStringExtra("userid");
+        Log.d("USERID", "User id is " + userid);
+        firebaseUserInfo = new Firebase("https://incandescent-torch-8695.firebaseio.com/patients/"+userid);
+        SharedPreferences prefs = getApplicationContext().getSharedPreferences("userprefs",Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString("userid",userid);
+        editor.commit(); //Save the current user for future reference
+        //Get the user's additional info
+        firebaseUserInfo.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                Log.d("Snappyshot123", snapshot.getValue().toString());
+
+                firebaseUserInfo.removeEventListener(this);
+                FirebasePatient user = snapshot.getValue(FirebasePatient.class);
+                txtWelcome.setText("Welcome, " + user.getfirstName());
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+                System.out.println("The read failed: " + firebaseError.getMessage());
+            }
+        });
         Button btnContact = (Button) findViewById(R.id.btnContact);
         Button btnSettings = (Button) findViewById(R.id.btnSettings);
         Button btnSurveys = (Button) findViewById(R.id.btnSurvey);

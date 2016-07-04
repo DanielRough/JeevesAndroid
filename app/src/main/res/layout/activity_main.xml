@@ -17,8 +17,7 @@
         android:layout_marginTop="64dp"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
-        android:layout_alignLeft="@+id/btnTest"
-        android:layout_alignStart="@+id/btnTest" />
+        android:layout_alignStart="@+id/textView" />
 
     <EditText
         android:layout_width="wrap_content"
@@ -71,14 +70,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/txtUpdate"
-        android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true" />
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Data sensing"
-        android:id="@+id/btnTest"
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true" />
 

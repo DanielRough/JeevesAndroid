@@ -1,5 +1,4 @@
 package com.example.daniel.jeeves;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -7,10 +6,12 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.ContactsContract;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.telephony.PhoneNumberUtils;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 
@@ -24,7 +25,11 @@ public class UpdateSettingsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
+
         setContentView(R.layout.activity_update_setting);
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
 
         contact = (EditText)findViewById(R.id.txtContact);
         btnSelectContact = (Button)findViewById(R.id.btnSelectContact);

@@ -103,7 +103,7 @@ public class SmsSensor extends AbstractPushSensor
 								{
 									String content = cursor.getString(cursor.getColumnIndex("body"));
 									String sentTo = cursor.getString(cursor.getColumnIndex("address"));
-									SharedPreferences prefs = context.getSharedPreferences("userPrefs",Context.MODE_PRIVATE);
+									SharedPreferences prefs = context.getSharedPreferences("userprefs",Context.MODE_PRIVATE);
 									SharedPreferences.Editor editor = prefs.edit();
 									editor.putString("lastSender",sentTo);
 									editor.commit();

@@ -3,6 +3,7 @@ package com.example.daniel.jeeves;
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -27,13 +28,13 @@ public class MainActivity extends AppCompatActivity {
     TextView txtUpdate;
     String username,password;
     Button login;
-    Button test;
     Firebase myFirebaseRef;
     Context context;
     private AbstractDataLogger logger;
     private static final int MY_PERMISSIONS = 12345;
 
     private ProgressBar spinner;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,7 +54,6 @@ public class MainActivity extends AppCompatActivity {
                         Manifest.permission.READ_CALL_LOG,
                         Manifest.permission.READ_PHONE_STATE},
                 MY_PERMISSIONS);
-        Firebase.setAndroidContext(this);
 
         context = this.getApplicationContext();
         setContentView(R.layout.activity_main);
@@ -62,16 +62,9 @@ public class MainActivity extends AppCompatActivity {
         spinner.setVisibility(View.GONE);
 
         login = (Button)findViewById(R.id.btnLogin);
-        test = (Button)findViewById(R.id.btnTest);
         txtusername = (EditText)findViewById(R.id.txtUser);
         txtpassword = (EditText)findViewById(R.id.txtPass);
         txtUpdate = (TextView)findViewById(R.id.txtUpdate);
-        test.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                goToTestActivity();
-            }
-        });
         login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -86,8 +79,8 @@ public class MainActivity extends AppCompatActivity {
                         txtUpdate.setText("");
 
                         Log.d("SUCCSS", "Great success!");
-                        Toast.makeText(getApplicationContext(),"successfully logged in!",Toast.LENGTH_LONG).show();
-                        goToSecondActivity();
+                        String id = authData.getUid();
+                        goToSecondActivity(id);
                     }
                     @Override
                     public void onAuthenticationError(FirebaseError firebaseError) {
@@ -102,21 +95,14 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-    private void goToSecondActivity(){
+    private void goToSecondActivity(String id){
         Intent intent = new Intent(this,SenseActivity.class);
+        intent.putExtra("userid",id);
         startActivity(intent);
-    }
-    private void goToTestActivity(){
-        try {
-            ESSensorManager sm = ESSensorManager.getSensorManager(context);
-            Intent intent = new Intent(this,SenseActivity.class);
-            startActivity(intent);
-        } catch (ESException e) {
-            e.printStackTrace();
-        }
+        finish();
 
-//        Intent intent = new Intent(this,TestActivity.class);
-//        startActivity(intent);
+     //   finish(); //Stops them going back to the login screen EVER
     }
+
 
 }
