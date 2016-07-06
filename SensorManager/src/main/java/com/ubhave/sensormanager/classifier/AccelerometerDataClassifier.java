@@ -31,6 +31,7 @@ import com.ubhave.sensormanager.data.pull.AccelerometerData;
 
 public class AccelerometerDataClassifier implements SensorDataClassifier
 {
+	private static int lastStatus = -1;
 	@Override
 	public boolean isInteresting(final SensorData sensorData, final SensorConfig sensorConfig, String value)
 	{
@@ -139,15 +140,39 @@ public class AccelerometerDataClassifier implements SensorDataClassifier
 			}
 		}
 
-		if (status < 0)
-		{
-			// stationary
-			return false;
+		if( value.equals("Started")){
+			if (status >= 0 && lastStatus <0)
+			{
+				lastStatus = status;
+				// stationary
+				return true;
+			}
 		}
-		else
-		{
-			return true;
+		else if(value.equals("Stopped")){
+			if (status < 0 && lastStatus >=0)
+			{
+				lastStatus = status;
+				// stationary
+				return true;
+			}
 		}
+		else if(value.equals("Moving")){
+			if (status >= 0 && lastStatus >=0)
+			{
+				lastStatus = status;
+				// stationary
+				return true;
+			}
+		}
+		else if(value.equals("Stationary")){
+			if (status < 0 && lastStatus < 0)
+			{
+				lastStatus = status;
+				// stationary
+				return true;
+			}
+		}
+		return false;
 	}
 
 }

@@ -225,6 +225,11 @@ public class SenseActivity extends Activity {
             Log.d("WEHASAPARAM", param);
             Object value = null;
             value = params.get(param);
+            if(param.equals("result")){ //This is a sensor trigger
+                if(value instanceof Map){ //Then the result value is a map, meaning it's a user variable
+
+                }
+            }
             config.addParameter(param, value);
         }
         ArrayList<FirebaseAction> toExecute = new ArrayList<FirebaseAction>();

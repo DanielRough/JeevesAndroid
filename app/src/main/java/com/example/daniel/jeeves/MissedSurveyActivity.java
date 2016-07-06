@@ -89,7 +89,7 @@ public class MissedSurveyActivity extends AppCompatActivity {
         firebaseSurvey.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
-                firebaseSurvey.removeEventListener(this); //Get rid of it again or it causes problems
+           //     firebaseSurvey.removeEventListener(this); //Get rid of it again or it causes problems
 
                 Log.d("Snappyshot99999999", snapshot.getValue().toString());
                 //FirebasePatient patient = (FirebasePatient)snapshot.getValue();

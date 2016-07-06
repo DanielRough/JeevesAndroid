@@ -22,6 +22,9 @@ IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 package com.ubhave.sensormanager.classifier;
 
+import android.app.Application;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.location.Location;
 
 import com.ubhave.sensormanager.config.SensorConfig;
@@ -31,42 +34,54 @@ import com.ubhave.sensormanager.data.pull.LocationData;
 
 public class LocationDataClassifier implements SensorDataClassifier
 {
+	private static boolean wasSameLastTime = false;
 	@Override
 	public boolean isInteresting(final SensorData sensorData, final SensorConfig sensorConfig, String value)
 	{
+		//First, we need to find the lat/long that this location name corresponds to
+		String[] locationInfo = value.split(";");
+		double latitude = Double.parseDouble(locationInfo[0]);
+		double longitude = Double.parseDouble(locationInfo[1]);
+		Location targetLocation = new Location("");//provider name is unecessary
+		targetLocation.setLatitude(latitude);//your coords of course
+		targetLocation.setLongitude(longitude);
+
 		LocationData data = (LocationData) sensorData;
-		LocationData prevData = (LocationData) sensorData.getPrevSensorData();
+		//LocationData prevData = (LocationData) sensorData.getPrevSensorData();
 
 		Location currLoc = null;
-		Location prevLoc = null;
+		//Location prevLoc = null;
 
 		if (data != null)
 		{
 			currLoc = data.getLastLocation();
 		}
 
-		if (prevData != null)
-		{
-			prevLoc = prevData.getLastLocation();
-		}
+	//	if (prevData != null)
+	//	{
+	//		prevLoc = prevData.getLastLocation();
+	//	}
 
 		// Interesting = different locations
-		return !areSameLocations(currLoc, prevLoc);
+		return !areSameLocations(currLoc, targetLocation);
 	}
 
 	private boolean areSameLocations(Location loc1, Location loc2)
 	{
 		if ((loc1 != null) && (loc2 != null))
 		{
-			if (loc1.distanceTo(loc2) < LocationConfig.LOCATION_CHANGE_DISTANCE_THRESHOLD)
+			if ((loc1.distanceTo(loc2) < LocationConfig.LOCATION_CHANGE_DISTANCE_THRESHOLD) && wasSameLastTime == false)
 			{
+				wasSameLastTime = true;
 				return true;
 			}
 		}
-		else if ((loc1 == null) && (loc2 == null))
+		else if ((loc1 == null) && (loc2 == null) && wasSameLastTime == false)
 		{
+			wasSameLastTime = false;
 			return true;
 		}
+		wasSameLastTime = false;
 		return false;
 	}
 

@@ -29,10 +29,10 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <!--For the maps-->
         <meta-data
-            android:name="com.google.android.maps.v2.API_KEY"
-            android:value="AIzaSyD7-fA8i8ZRE1ckm7MlDAbkgt22pLLwZTs" />
-
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyBaV19Qnyprkc8OjFykuPkvl_vhRCngRac"/>
         <activity android:name=".MainActivity"
 >
 
