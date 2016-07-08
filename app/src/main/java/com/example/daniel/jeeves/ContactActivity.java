@@ -18,6 +18,8 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.firebase.client.Firebase;
+
 public class ContactActivity extends AppCompatActivity {
 
     EditText txtContactResearcher;
@@ -30,20 +32,31 @@ public class ContactActivity extends AppCompatActivity {
         setContentView(R.layout.activity_contact);
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
-        SharedPreferences prefs = this.getSharedPreferences("userPrefs",Context.MODE_PRIVATE);
+        SharedPreferences prefs = this.getSharedPreferences("userprefs",Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
         researcherno = prefs.getString("researcherno","");
-        Button btnContactResearcher = (Button)findViewById(R.id.btnContactResearcher);
-        txtContactResearcher = (EditText)findViewById(R.id.txtContactResearcher);
+        final String userid = prefs.getString("userid", "null");
 
-        btnContactResearcher.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String message = txtContactResearcher.getText().toString();
-                SmsManager sms = SmsManager.getDefault();
-                sms.sendTextMessage(researcherno, null, message, null, null);
+        Button btnContactResearcher = (Button) findViewById(R.id.btnContactResearcher);
+        txtContactResearcher = (EditText) findViewById(R.id.txtContactResearcher);
 
-            }
-        });
-    }
+
+
+            btnContactResearcher.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    String message = txtContactResearcher.getText().toString();
+                    if(researcherno != null && !researcherno.equals("")) {
+                        SmsManager sms = SmsManager.getDefault();
+                        sms.sendTextMessage(researcherno, null, message, null, null);
+                    }
+                    Firebase firebaseFeedback = new Firebase("https://incandescent-torch-8695.firebaseio.com/patients/" + userid + "/feedback/" + System.currentTimeMillis());
+                    Log.d("MESSAGE","Message is " + txtContactResearcher.getText().toString());
+                    firebaseFeedback.setValue(txtContactResearcher.getText().toString());
+                }
+            });
+        }
+
+        //Now puts it up into the Firebase
+
 }

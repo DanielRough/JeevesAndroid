@@ -77,6 +77,7 @@ public class CustomAdapter extends BaseAdapter {
         final String surveyKey = result.get(position).getkey();
         final long timeSent = result.get(position).gettimeSent();
         final long expiryTime = result.get(position).getexpiryTime();
+        final long timeAlive = result.get(position).gettimeAlive();
         boolean begun = result.get(position).getbegun();
         if(begun)
             startedView.setText("Partially completed");
@@ -84,7 +85,11 @@ public class CustomAdapter extends BaseAdapter {
         int minutes = (int)(timeToGo /60000);
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         String dateString = formatter.format(new Date(timeSent));
-        valueView.setText("Sent at " + dateString + "\nExpiring in " + (minutes+1) + " minutes");
+        if(timeAlive > 0)
+            valueView.setText("Sent at " + dateString + "\nExpiring in " + (minutes+1) + " minutes");
+        else
+            valueView.setText("Sent at " + dateString);
+
         rowView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

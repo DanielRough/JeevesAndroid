@@ -12,9 +12,15 @@ public class FirebasePatient {
     public String firstName;
     public String lastName;
     public String phone;
+    public String email;
+
+    public Map<String,Object> feedback;
+
+    public Map<String,Object> getfeedback(){ return feedback; }
     public Map<String,FirebaseSurvey> incomplete;
     public Map<String,FirebaseSurvey> complete;
 
+    public String getemail(){ return email; }
     public String getaddress(){
         return address;
     }

@@ -91,6 +91,7 @@ public class SurveyAction extends FirebaseAction {
                 .setSmallIcon(R.drawable.ic_action_search)
                 .setContentText("Ready to take a survey?");
         long timeAlive = currentsurvey.gettimeAlive()*1000;
+        if(timeAlive>0)
         newPostRef.child("expiryTime").setValue(System.currentTimeMillis() + (timeAlive)); //Put the expiry time in
         newPostRef.child("timeSent").setValue(System.currentTimeMillis());
         mBuilder.setAutoCancel(true);
@@ -99,11 +100,12 @@ public class SurveyAction extends FirebaseAction {
         mBuilder.addAction(R.drawable.ic_block_black_24dp, "Ignore", action2PendingIntent);
         notificationManager.notify(NOTIFICATION_ID, mBuilder.build());
         AlarmManager am = (AlarmManager) app.getSystemService(Context.ALARM_SERVICE);
-        Intent intent = new Intent(app, AlarmManagerBroadcastReceiver.class);
-        PendingIntent pi = PendingIntent.getBroadcast(app, 0, intent, 0);
-        Log.d("STARTED","Set an alarm for " + timeAlive + "milliseconds time");
-        am.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis()+timeAlive, pi);
-
+        if(timeAlive>0) {
+            Intent intent = new Intent(app, AlarmManagerBroadcastReceiver.class);
+            PendingIntent pi = PendingIntent.getBroadcast(app, 0, intent, 0);
+            Log.d("STARTED", "Set an alarm for " + timeAlive + "milliseconds time");
+            am.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + timeAlive, pi);
+        }
 
         //   firebaseSurvey.push().setValue(surveyDetails);
     }

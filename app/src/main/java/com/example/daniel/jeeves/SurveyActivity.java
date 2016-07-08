@@ -291,29 +291,30 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
                     long expirytime = currentsurvey.gettimeAlive() * 1000;
                     long timeGone = System.currentTimeMillis() - timeSent;
                     long timeLeft = expirytime - timeGone;
-                    warningalert = new AlertDialog.Builder(getInstance());
-                    warningalert.setTitle("Sorry, your time to complete this survey has expired");
-                    warningalert.setPositiveButton("Return", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int whichButton) {
-                            Intent data = new Intent();
-                            data.putExtra("surveykey", surveyid);
-                            if (getParent() == null) {
-                                setResult(Activity.RESULT_OK, data);
-                            } else {
-                                getParent().setResult(Activity.RESULT_OK, data);
+                    if(expirytime > 0) {
+                        warningalert = new AlertDialog.Builder(getInstance());
+                        warningalert.setTitle("Sorry, your time to complete this survey has expired");
+                        warningalert.setPositiveButton("Return", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                Intent data = new Intent();
+                                data.putExtra("surveykey", surveyid);
+                                if (getParent() == null) {
+                                    setResult(Activity.RESULT_OK, data);
+                                } else {
+                                    getParent().setResult(Activity.RESULT_OK, data);
+                                }
+                                finish();
                             }
-                            finish();
-                        }
-                    });
-                    handler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (!getInstance().isDestroyed()) //If the activity isn't running we don't want the timeout to happen
-                                warningalert.show();
+                        });
+                        handler.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (!getInstance().isDestroyed()) //If the activity isn't running we don't want the timeout to happen
+                                    warningalert.show();
 
-                        }
-                    }, timeLeft);
-
+                            }
+                        }, timeLeft);
+                    }
                     Log.d("Questions", "questions are " + questions.toString());
                     launchQuestion(questions.get(0));
                 }
