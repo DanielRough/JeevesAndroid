@@ -94,11 +94,14 @@ public class TriggerListener implements TriggerReceiver {
     public void onNotificationTriggered(int triggerId) {
         Log.d(LOG_TAG, "onNotificationTriggered");
         Context context = ApplicationContext.getContext();
-
         Log.d("TRIGGER NO  " + triggerId, "TRIGGERD THE TRIGGER " + triggerId);
         Intent actionIntent = new Intent(serviceContext,ActionExecutorService.class);
         actionIntent.putExtra("com/example/daniel/jeeves/actions",actionsToPerform);
-        serviceContext.startService(actionIntent);
+        if(triggerType == TriggerUtils.TYPE_SENSOR_TRIGGER_BUTTON)
+            actionIntent.putExtra("manual",true);
+        else
+            actionIntent.putExtra("manual",false);
+            serviceContext.startService(actionIntent);
     }
 
 }

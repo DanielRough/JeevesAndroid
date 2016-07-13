@@ -113,6 +113,7 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
     LinearLayout grpMultMany;
     RatingBar ratingBar;
     TimePicker timePicker;
+    TextView txtQNo;
     String latlong, locationGroup;
     public static final int OPEN_ENDED = 1;
     public static final int MULT_SINGLE = 2;
@@ -181,7 +182,7 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
         grpMultSingle = ((RadioGroup) findViewById(R.id.grpMultSingle));
         ratingBar = ((RatingBar) findViewById(R.id.ratingBar));
         timePicker = ((TimePicker) findViewById(R.id.timePicker));
-
+        txtQNo = ((TextView) findViewById(R.id.txtQno));
         mGoogleApiClient = new GoogleApiClient
                 .Builder(this)
                 .addApi(Places.GEO_DATA_API)
@@ -592,6 +593,7 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
             String questionText = question.getquestionText();
             int questionType = (int) question.getquestionType();
             myparams = question.getparams();
+            txtQNo.setText("Question " + (currentQuestion+1) + "/"+questiondata.size());
             viewFlipper.setDisplayedChild(questionType - 1);
             currentData = questiondata.get(currentQuestion);
 
@@ -635,8 +637,7 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
             //  viewFlipper.showPrevious();
             Log.d("BACK", "Going back");
             currentQuestion--;
-            btnNext.setText("Next");
-            if (currentQuestion == 0)
+            if (currentQuestion < 1)
                 btnBack.setEnabled(false);
             launchQuestion(questions.get(currentQuestion));
         }
@@ -655,8 +656,6 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
             }
 
             btnBack.setEnabled(true);
-            if (currentQuestion == questions.size() - 1)
-                btnNext.setText("Finish");
             launchQuestion(questions.get(currentQuestion));
         }
 

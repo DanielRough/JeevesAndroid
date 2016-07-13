@@ -28,6 +28,7 @@ public class ActionExecutorService extends IntentService{
         super("HelloIntentService");
 
     }
+    public boolean manual = false; //Were these actions triggered by the user?
     /**
      * Creates an IntentService.  Invoked by your subclass's constructor.
      *
@@ -64,6 +65,7 @@ public class ActionExecutorService extends IntentService{
         Log.d("EXECUTION","gonna execute some com.example.daniel.jeeves.actions now");
         //  final Handler h = new Handler(); //In case some of our com.example.daniel.jeeves.actions have delayed execution
         ArrayList<FirebaseAction> remainingActions = (ArrayList<FirebaseAction>)intent.getExtras().get("com/example/daniel/jeeves/actions");
+        manual = intent.getBooleanExtra("manual",false);
         FirebaseExpression expression = (FirebaseExpression)intent.getExtras().get("expression");
         controlType = (String)intent.getExtras().get("controltype");
         this.actions = remainingActions;
@@ -92,6 +94,7 @@ public class ActionExecutorService extends IntentService{
                     e.printStackTrace();
                 }
             }
+            newaction.setManual(manual);
             newaction.execute();
         }
 

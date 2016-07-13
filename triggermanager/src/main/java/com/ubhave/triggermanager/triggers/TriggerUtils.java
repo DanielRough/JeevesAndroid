@@ -14,7 +14,7 @@ public class TriggerUtils
 	public static final int TYPE_SENSOR_TRIGGER_DELAYED 		= 10004;
 	public static final int TYPE_CLOCK_TRIGGER_DAY_INTERVAL		= 10005;
 	public static final int TYPE_CLOCK_TRIGGER_SETTIMES			= 10006;
-	public static final int TYPE_SENSOR_TRIGGER_SURVEY			= 10007;
+	public static final int TYPE_SENSOR_TRIGGER_BUTTON			= 10007;
 	public static final int TYPE_JEEVES_TRIGGER_ON_INTERVAL		= 10008;
 
 	public static final int SENSOR_TRIGGER_ACCELEROMETER 	= SensorUtils.SENSOR_TYPE_ACCELEROMETER;
@@ -24,7 +24,7 @@ public class TriggerUtils
 	public static final int SENSOR_TRIGGER_SCREEN 			= SensorUtils.SENSOR_TYPE_SCREEN;
 	public static final int SENSOR_TRIGGER_LOCATION			= SensorUtils.SENSOR_TYPE_LOCATION;
 	public static final int SENSOR_TRIGGER_WIFI				= SensorUtils.SENSOR_TYPE_WIFI;
-	public static final int SENSOR_TRIGGER_SURVEY			= SensorUtils.SENSOR_TYPE_SURVEY;
+	public static final int SENSOR_TRIGGER_BUTTON			= SensorUtils.SENSOR_TYPE_SURVEY;
 
 
 	public static final String NAME_ACCELEROMETER 				= "Accelerometer";
@@ -34,14 +34,14 @@ public class TriggerUtils
 	public static final String NAME_SCREEN		 				= "Screen";
 	public static final String NAME_LOCATION					= "Location";
 	public static final String NAME_WIFI						= "WiFi";
-	public static final String NAME_SURVEY						= "survey";
+	public static final String NAME_BUTTON						= "Button";
 
 	public static final String NAME_CLOCK_TRIGGER_ONCE 			= "type_clock_once";
 	public static final String NAME_CLOCK_TRIGGER_ON_INTERVAL 	= "type_clock_interval";
 	public static final String NAME_CLOCK_TRIGGER_DAILY			= "type_clock_daily";
 	public static final String NAME_CLOCK_TRIGGER_DAILY_RANDOM 	= "RANDOM TRIGGER";
 	public static final String NAME_SENSOR_TRIGGER_IMMEDIATE 	= "SENSOR TRIGGER";
-	public static final String NAME_SENSOR_TRIGGER_SURVEY		= "SURVEY TRIGGER";
+	public static final String NAME_SENSOR_TRIGGER_BUTTON		= "BUTTON TRIGGER";
 	public static final String NAME_CLOCK_TRIGGER_SETTIMES		= "SET TIMES TRIGGER";
 	public static final String NAME_SENSOR_TRIGGER_DELAYED 		= "type_sensor_delayed";
 	public static final String NAME_JEEVES_TRIGGER_ON_INTERVAL 	= "INTERVAL TRIGGER";
@@ -55,7 +55,7 @@ public class TriggerUtils
 			NAME_SCREEN,
 			NAME_LOCATION,
 			NAME_WIFI,
-			NAME_SURVEY
+			NAME_BUTTON
 	};
 
 	private static final int[] SENSOR_IDS = new int[]{
@@ -66,7 +66,7 @@ public class TriggerUtils
 			SENSOR_TRIGGER_SCREEN,
 			SENSOR_TRIGGER_LOCATION,
 			SENSOR_TRIGGER_WIFI,
-			SENSOR_TRIGGER_SURVEY
+			SENSOR_TRIGGER_BUTTON
 	};
 	private static final String[] ALL_NAMES = new String[]{
 		NAME_CLOCK_TRIGGER_ONCE,
@@ -76,7 +76,7 @@ public class TriggerUtils
 		NAME_SENSOR_TRIGGER_DELAYED,
 		NAME_CLOCK_TRIGGER_DAILY,
 			NAME_CLOCK_TRIGGER_SETTIMES,
-			NAME_SENSOR_TRIGGER_SURVEY,
+			NAME_SENSOR_TRIGGER_BUTTON,
 			NAME_JEEVES_TRIGGER_ON_INTERVAL
 	};
 	
@@ -88,7 +88,7 @@ public class TriggerUtils
 		TYPE_SENSOR_TRIGGER_DELAYED,
 		TYPE_CLOCK_TRIGGER_DAY_INTERVAL,
 			TYPE_CLOCK_TRIGGER_SETTIMES,
-			TYPE_SENSOR_TRIGGER_SURVEY,
+			TYPE_SENSOR_TRIGGER_BUTTON,
 			TYPE_JEEVES_TRIGGER_ON_INTERVAL
 
 	};
@@ -113,7 +113,7 @@ public class TriggerUtils
 		case TYPE_SENSOR_TRIGGER_DELAYED: return NAME_SENSOR_TRIGGER_DELAYED;
 		case TYPE_CLOCK_TRIGGER_DAY_INTERVAL: return NAME_CLOCK_TRIGGER_DAILY;
 			case TYPE_CLOCK_TRIGGER_SETTIMES: return NAME_CLOCK_TRIGGER_SETTIMES;
-			case TYPE_SENSOR_TRIGGER_SURVEY: return NAME_SENSOR_TRIGGER_SURVEY;
+			case TYPE_SENSOR_TRIGGER_BUTTON: return NAME_SENSOR_TRIGGER_BUTTON;
 			case TYPE_JEEVES_TRIGGER_ON_INTERVAL: return NAME_JEEVES_TRIGGER_ON_INTERVAL;
 		default: throw new TriggerException(TriggerException.UNKNOWN_TRIGGER, "Unknown trigger: "+type);
 		}

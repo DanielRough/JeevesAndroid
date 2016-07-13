@@ -38,22 +38,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="Settings"
-            android:id="@+id/textView3"
-            android:layout_weight="0.05" />
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Update my contact settings"
-            android:id="@+id/btnSettings"
-            android:layout_weight="0.04" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="Surveys"
+            android:text="Missed Surveys"
             android:id="@+id/textView4"
             android:layout_weight="0.04" />
 
@@ -78,6 +63,22 @@
             android:text="Contact researcher"
             android:id="@+id/btnContact"
             android:layout_weight="0.04" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="Monitor"
+            android:id="@+id/textView3"
+            android:layout_weight="0.04" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Log new information"
+            android:id="@+id/btnMonitor"
+            android:layout_weight="0.04"
+            android:clickable="true" />
     </LinearLayout>
 
 </RelativeLayout>

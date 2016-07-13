@@ -49,7 +49,7 @@ public class TriggerManagerConstants
 	public final static String ACTION_NAME_RANDOM_DAY_TRIGGER = ACTION_NAME_ROOT+".clockbased.RANDOM_TRIGGER";
 	public final static String ACTION_NAME_DAY_INTERVAL_TRIGGER = ACTION_NAME_ROOT+".clockbased.DAY_INTERVAL_TRIGGER";
 
-	public final static String ACTION_NAME_SURVEY_TRIGGER = ACTION_NAME_ROOT + ".sensorbased.SURVEY_TRIGGER";
+	public final static String ACTION_NAME_BUTTON_TRIGGER = ACTION_NAME_ROOT + ".sensorbased.SURVEY_TRIGGER";
 	public final static String ACTION_NAME_SENSOR_TRIGGER_IMMEDIATE = ACTION_NAME_ROOT+".sensorbased.SENSOR_IMMEDIATE";
 	public final static String ACTION_NAME_SENSOR_TRIGGER_DELAYED = ACTION_NAME_ROOT+".sensorbased.SENSOR_DELAYED";
 

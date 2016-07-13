@@ -77,6 +77,22 @@ public class SurveyAction extends FirebaseAction {
         PendingIntent action1PendingIntent = PendingIntent.getService(app, 0,
                 action1Intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
+
+        //This requires some explanation...
+        //If the user has triggered the survey manually (i.e., with a button press), then there's no need for the prompting dialog.
+        //The ycan just skip straight to the survey
+        if(getmanual()){
+            Intent resultIntent = new Intent(app, SurveyActivity.class);
+            resultIntent.putExtra("surveyid",newPostRefId);
+            resultIntent.putExtra("name",surveyname);
+            resultIntent.putExtra("timeSent",timeSent);
+            resultIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            app.startActivity(resultIntent);
+            return;
+        }
+
+
+
         Intent action2Intent = new Intent(app, NotificationActionService.class)
                 .setAction(ACTION_2);
 

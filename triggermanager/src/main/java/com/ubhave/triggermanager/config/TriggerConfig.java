@@ -55,7 +55,10 @@ public class TriggerConfig
 	public static final String DO_NOT_DISTURB_BEFORE_MINUTES = "limitBeforeHour";
 	public static final String DO_NOT_DISTURB_AFTER_MINUTES = "limitAfterHour";
 	public static final String MIN_TRIGGER_INTERVAL_MINUTES = "notificationMinInterval";
-	
+
+
+	//BUTTON NAME
+	public static final String BUTTON_NAME = "selectedButton";
 	private final HashMap<String, Object> parameters;
 	
 	public TriggerConfig()

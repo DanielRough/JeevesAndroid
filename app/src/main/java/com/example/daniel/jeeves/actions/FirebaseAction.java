@@ -51,4 +51,11 @@ public abstract class FirebaseAction implements Serializable,IAction {
     public void execute(){
 
     }
+    public boolean manual;
+    public void setManual(boolean manual){
+        this.manual = manual;
+    }
+    public boolean getmanual(){
+        return manual;
+    }
 }

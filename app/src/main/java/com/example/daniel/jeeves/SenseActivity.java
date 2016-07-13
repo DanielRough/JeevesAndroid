@@ -108,9 +108,8 @@ public class SenseActivity extends Activity {
             }
         });
         Button btnContact = (Button) findViewById(R.id.btnContact);
-        Button btnSettings = (Button) findViewById(R.id.btnSettings);
         Button btnSurveys = (Button) findViewById(R.id.btnSurvey);
-
+        Button btnMonitor = (Button) findViewById(R.id.btnMonitor);
         btnContact.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -118,17 +117,20 @@ public class SenseActivity extends Activity {
                 startActivity(intent);
             }
         });
-        btnSettings.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(instance,UpdateSettingsActivity.class);
-                startActivity(intent);
-            }
-        });
+
         btnSurveys.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(instance,MissedSurveyActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        btnMonitor.setOnClickListener(new View.OnClickListener(){
+
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(instance,MonitorActivity.class);
                 startActivity(intent);
             }
         });
