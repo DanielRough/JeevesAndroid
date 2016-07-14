@@ -1,7 +1,9 @@
 package com.example.daniel.jeeves;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -18,9 +20,15 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
+import com.firebase.client.FirebaseError;
+import com.firebase.client.ValueEventListener;
+
+import java.util.Map;
 
 public class ContactActivity extends AppCompatActivity {
+    AlertDialog.Builder finishalert;
 
     EditText txtContactResearcher;
     String researcherno;
@@ -36,10 +44,16 @@ public class ContactActivity extends AppCompatActivity {
         SharedPreferences.Editor editor = prefs.edit();
         researcherno = prefs.getString("researcherno","");
         final String userid = prefs.getString("userid", "null");
-
+        finishalert = new AlertDialog.Builder(this);
+        finishalert.setTitle("Your message has been sent");
         Button btnContactResearcher = (Button) findViewById(R.id.btnContactResearcher);
         txtContactResearcher = (EditText) findViewById(R.id.txtContactResearcher);
+        finishalert.setPositiveButton("Return", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
 
+                finish();
+            }
+        });
 
 
             btnContactResearcher.setOnClickListener(new View.OnClickListener() {
@@ -53,6 +67,9 @@ public class ContactActivity extends AppCompatActivity {
                     Firebase firebaseFeedback = new Firebase("https://incandescent-torch-8695.firebaseio.com/patients/" + userid + "/feedback/" + System.currentTimeMillis());
                     Log.d("MESSAGE","Message is " + txtContactResearcher.getText().toString());
                     firebaseFeedback.setValue(txtContactResearcher.getText().toString());
+                    finishalert.setCancelable(false); //Once they're done they're done
+                    finishalert.show();
+                    return;
                 }
             });
         }
