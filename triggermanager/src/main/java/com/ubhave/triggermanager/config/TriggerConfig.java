@@ -60,7 +60,12 @@ public class TriggerConfig
 	//BUTTON NAME
 	public static final String BUTTON_NAME = "selectedButton";
 	private final HashMap<String, Object> parameters;
-	
+
+	//SURVEY NAME
+	public static final String SURVEY_NAME = "selectedSurvey";
+	public static final String SURVEY_RESULT = "result";
+	public static final String SURVEY_MISSED = "missed";
+
 	public TriggerConfig()
 	{
 		parameters = new HashMap<String, Object>();

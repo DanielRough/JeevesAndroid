@@ -5,6 +5,7 @@ import com.shaded.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Daniel on 10/06/15.
@@ -32,6 +33,9 @@ public class FirebaseExpression implements Serializable{
     public String getvartype() {
         return vartype;
     }
+    public Map<String,Object> getparams() {
+        return params;
+    }
 
     public long getxPos() {
         return xPos;
@@ -51,7 +55,7 @@ public class FirebaseExpression implements Serializable{
     protected long xPos;
     protected long yPos;
     protected String value;
-
+    protected Map<String,Object> params;
     protected long index;
     protected boolean isValue;
 

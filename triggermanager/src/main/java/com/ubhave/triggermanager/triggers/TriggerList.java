@@ -38,6 +38,7 @@ import com.ubhave.triggermanager.triggers.clock.random.SetTimesTrigger;
 import com.ubhave.triggermanager.triggers.sensor.DelayedSensorTrigger;
 import com.ubhave.triggermanager.triggers.sensor.ImmediateSensorTrigger;
 import com.ubhave.triggermanager.triggers.sensor.ButtonTrigger;
+import com.ubhave.triggermanager.triggers.sensor.SurveyTrigger;
 
 public class TriggerList extends AbstractSubscriptionList<Trigger>
 {
@@ -88,6 +89,10 @@ public class TriggerList extends AbstractSubscriptionList<Trigger>
 			else if (type == TriggerUtils.TYPE_SENSOR_TRIGGER_BUTTON)
 			{
 				return new ButtonTrigger(context, id, listener, params);
+			}
+			else if (type == TriggerUtils.TYPE_SENSOR_TRIGGER_SURVEY)
+			{
+				return new SurveyTrigger(context, id, listener, params);
 			}
 			else
 			{

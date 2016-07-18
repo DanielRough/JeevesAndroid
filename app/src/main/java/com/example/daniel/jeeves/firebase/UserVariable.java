@@ -8,5 +8,9 @@ import com.example.daniel.jeeves.firebase.FirebaseExpression;
 public class UserVariable extends FirebaseExpression {
 
 
+    public boolean isCustom;
 
+    public boolean getisCustom(){
+        return isCustom;
+    }
 }

@@ -38,6 +38,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
@@ -80,12 +81,14 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.ubhave.triggermanager.config.TriggerManagerConstants;
 
 import org.json.JSONException;
 
 import java.lang.reflect.Method;
 import java.sql.Time;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -93,6 +96,8 @@ import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+
+import DateTimePicker.DateTimePicker;
 
 public class SurveyActivity extends AppCompatActivity  implements GoogleApiClient.OnConnectionFailedListener, OnMapReadyCallback {
     private int currentQuestion = 0;
@@ -112,7 +117,7 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
     RadioGroup grpMultSingle;
     LinearLayout grpMultMany;
     RatingBar ratingBar;
-    TimePicker timePicker;
+
     TextView txtQNo;
     String latlong, locationGroup;
     public static final int OPEN_ENDED = 1;
@@ -127,6 +132,7 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
     GoogleMap map;
     private GoogleApiClient mGoogleApiClient;
     int PLACE_PICKER_REQUEST = 1;
+    private DateTimePicker picker;
 
     Firebase firebaseSurvey;
     Firebase completedSurveys;
@@ -181,7 +187,27 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
         grpMultMany = ((LinearLayout) findViewById(R.id.grpMultMany));
         grpMultSingle = ((RadioGroup) findViewById(R.id.grpMultSingle));
         ratingBar = ((RatingBar) findViewById(R.id.ratingBar));
-        timePicker = ((TimePicker) findViewById(R.id.timePicker));
+        picker = ((DateTimePicker) findViewById(R.id.DateTimePicker));
+        DateTimePicker.DateWatcher watcher = new DateTimePicker.DateWatcher() {
+
+            @Override
+            public void onDateChanged(Calendar c) {
+                currentData.put("answer",picker.getYear()+":"+picker.getMonth()+":"+picker.getDay()+":"+picker.getHour()+":"+picker.getMinute());
+                Log.d("CHANGED",currentData.get("answer"));
+
+            }
+        };
+        DateTimePicker.TimeWatcher timewatcher = new DateTimePicker.TimeWatcher() {
+            @Override
+            public void onTimeChanged(int h, int m, int am_pm) {
+                currentData.put("answer",picker.getYear()+":"+picker.getMonth()+":"+picker.getDay()+":"+picker.getHour()+":"+picker.getMinute());
+                Log.d("CHANGED",currentData.get("answer"));
+
+
+            }
+        };
+        picker.setDateChangedListener(watcher);
+        picker.setTimeChangedListener(timewatcher);
         txtQNo = ((TextView) findViewById(R.id.txtQno));
         mGoogleApiClient = new GoogleApiClient
                 .Builder(this)
@@ -225,6 +251,10 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
                 currentsurvey.settimeFinished(System.currentTimeMillis());
 //                    firebaseSurvey.child("answers").setValue(questiondata);
 //                    firebaseSurvey.child("timeFinished").setValue(System.currentTimeMillis());
+                Intent intended = new Intent();
+                intended.setAction(TriggerManagerConstants.ACTION_NAME_SURVEY_TRIGGER);
+                intended.putExtra("surveyName",currentsurvey.getname());
+                sendBroadcast(intended);
                 firebaseSurvey.addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot snapshot) {
@@ -236,6 +266,7 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
                         firebaseSurvey.removeValue();
                         handler.removeCallbacksAndMessages(null);
                     }
+                    //AND NOW HERE WE BROADCAST THAT THIS SURVEY HAS BEEN COMPLETED IN CASE ANY TRIGGERS ARE LISTENING
 
                     @Override
                     public void onCancelled(FirebaseError error) {
@@ -462,20 +493,21 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
         String answer = currentData.get("answer");
         if (answer != null && !answer.equals("")) {
             String time = answer.toString();
-            String[] hoursmins = time.split(":");
-            timePicker.setHour(Integer.parseInt(hoursmins[0]));
-            timePicker.setMinute(Integer.parseInt(hoursmins[1]));
+            String[] dayshoursmins = time.split(":");
+                picker.setYear(dayshoursmins[0]);
+                picker.setMonth(dayshoursmins[1]);
+                picker.setDay(dayshoursmins[2]);
+                picker.setHour(dayshoursmins[3]);
+                picker.setMinute(dayshoursmins[4]);
+//            timePicker.setHour(Integer.parseInt(hoursmins[0]));
+//            timePicker.setMinute(Integer.parseInt(hoursmins[1]));
         } else {
             currentData.put("answer", "");
-            timePicker.setHour(0);
-            timePicker.setMinute(0);
+//            timePicker.setHour(0);
+//            timePicker.setMinute(0);
         }
-        timePicker.setOnTimeChangedListener(new TimePicker.OnTimeChangedListener() {
-            @Override
-            public void onTimeChanged(TimePicker view, int hourOfDay, int minute) {
-                currentData.put("answer", Integer.toString(hourOfDay) + ":" + Integer.toString(minute));
-            }
-        });
+
+
     }
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == PLACE_PICKER_REQUEST) {

@@ -45,7 +45,7 @@ public class ContactActivity extends AppCompatActivity {
         researcherno = prefs.getString("researcherno","");
         final String userid = prefs.getString("userid", "null");
         finishalert = new AlertDialog.Builder(this);
-        finishalert.setTitle("Your message has been sent");
+        finishalert.setTitle("Your message has been sent!");
         Button btnContactResearcher = (Button) findViewById(R.id.btnContactResearcher);
         txtContactResearcher = (EditText) findViewById(R.id.txtContactResearcher);
         finishalert.setPositiveButton("Return", new DialogInterface.OnClickListener() {

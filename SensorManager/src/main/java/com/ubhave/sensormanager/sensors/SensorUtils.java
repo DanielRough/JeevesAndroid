@@ -92,7 +92,7 @@ public class SensorUtils
 	public final static int SENSOR_TYPE_INTERACTION = 5026;
 	//DJR
 	public final static int SENSOR_TYPE_SURVEY = 5027;
-
+	public final static int SENSOR_TYPE_BUTTON = 5028;
 
 	public final static String SENSOR_NAME_ACCELEROMETER = "Accelerometer";
 	public final static String SENSOR_NAME_BATTERY = "Battery";
