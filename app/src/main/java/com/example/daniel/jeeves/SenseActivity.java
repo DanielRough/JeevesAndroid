@@ -244,7 +244,9 @@ public class SenseActivity extends Activity {
     private void removeTrigger(long triggerId) {
         Log.d("REMOVING", "REMOVIGN A TRIGGER " + triggerId);
         TriggerListener toRemove = triggerlisteners.get(triggerId);
-        toRemove.unsubscribeFromTrigger("this");
-        triggerlisteners.remove(triggerId);
+        if(toRemove != null) {
+            toRemove.unsubscribeFromTrigger("this");
+            triggerlisteners.remove(triggerId);
+        }
     }
 }

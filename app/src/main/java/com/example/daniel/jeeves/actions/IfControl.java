@@ -31,6 +31,8 @@ public class IfControl extends FirebaseControl {
 
         controlactions = (ArrayList<FirebaseAction>) getactions();
         Intent actionIntent = new Intent(app,ActionExecutorService.class);
+        if(this.getmanual())
+            actionIntent.putExtra("manual",true);
         actionIntent.putExtra("com/example/daniel/jeeves/actions",controlactions);
         actionIntent.putExtra("expression",expression);
         actionIntent.putExtra("controltype","if");

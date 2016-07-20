@@ -53,7 +53,8 @@ public class SmsSensor extends AbstractPushSensor
 	
 	private ContentObserver observer;
 	private String prevMessageId;
-
+	private long prevMessageTime = 0; //Need this because sometimes it registers the sent message twice and I have no idea how to fix it
+	private String prevMessageType;  //Need this because sometimes it registers the sent message twice and I have no idea how to fix it
 	public static SmsSensor getSensor(final Context context) throws ESException
 	{
 		if (smsSensor == null)
@@ -124,14 +125,25 @@ public class SmsSensor extends AbstractPushSensor
 
 	//DJR: From what I can see here, it is ignored when a message is SENT, thus the messages received don't change. Removing the 'ignore' bit means it's logged whether sent or received
 
+									//I'VE MADE SOME CHANGES HERE, WHICH ARE A BIT HACKY ADMITTEDLY, THAT SHOULD IDEALLY STOP TWO TRIGGERS BEING FIRED WHEN THE USER SENDS A MESSAGE
 									if ((prevMessageId != null) && (prevMessageId.length() > 0)
 											&& (prevMessageId.equals(messageId)))
 									{
 									//	Log.d("WOO HA", "Does this ever happen I wonder?");
 									}
+
+									else if(prevMessageTime != 0 && (System.currentTimeMillis() - prevMessageTime) < 5000 &&
+											messageType.equals(Integer.toString(Telephony.TextBasedSmsColumns.MESSAGE_TYPE_SENT))
+										&& prevMessageType != null && prevMessageType.equals(messageType)){
+												prevMessageTime = System.currentTimeMillis();
+												prevMessageType = messageType;
+												prevMessageId = messageId;
+									}
 									else
 									{
 
+										prevMessageTime = System.currentTimeMillis();
+										prevMessageType = messageType;
 										prevMessageId = messageId;
 										logDataSensed(System.currentTimeMillis(), content, sentTo, messageType,
 												SmsData.SMS_CONTENT_CHANGED);

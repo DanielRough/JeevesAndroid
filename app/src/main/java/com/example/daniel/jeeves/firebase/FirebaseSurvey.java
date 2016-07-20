@@ -47,10 +47,14 @@ public class FirebaseSurvey {
 
     public long gettimeAlive(){ return timeAlive; }
     public long gettimeFinished(){ return timeFinished; }
+
+    public long getscore(){ return score; }
+    public void setscore(long score){this.score = score;}
     long timeAlive;
     long expiryTime;
     long timeSent;
     long timeFinished;
+    long score;
         long id;
         String name;
         List<FirebaseQuestion> questions;

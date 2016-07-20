@@ -89,6 +89,7 @@ import java.lang.reflect.Method;
 import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -168,6 +169,8 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
         });
     }
 
+    private int missedSurveys;
+    SharedPreferences prefs;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -177,9 +180,11 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
         surveyid = getIntent().getStringExtra("surveyid");
 
         Context app = ApplicationContext.getContext();
-        SharedPreferences prefs = app.getSharedPreferences("userprefs", Context.MODE_PRIVATE);
+        prefs = app.getSharedPreferences("userprefs", Context.MODE_PRIVATE);
         String userid = prefs.getString("userid", "null");
-        firebaseSurvey = new Firebase("https://incandescent-torch-8695.firebaseio.com/patients/" + userid + "/incomplete/" + surveyid);
+        String surveyname = getIntent().getStringExtra("name");
+         missedSurveys = prefs.getInt(surveyname,0);
+        firebaseSurvey = new Firebase("https://incandescent-torch-8695.firebaseio.com/patients/" + userid + "/incomplete/" + surveyname + "/" +surveyid);
         completedSurveys = new Firebase("https://incandescent-torch-8695.firebaseio.com/patients/" + userid + "/complete");
         txtOpenEnded = ((EditText) findViewById(R.id.txtOpenEnded));
         txtNumeric = ((EditText) findViewById(R.id.txtNumeric));
@@ -192,7 +197,16 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
 
             @Override
             public void onDateChanged(Calendar c) {
-                currentData.put("answer",picker.getYear()+":"+picker.getMonth()+":"+picker.getDay()+":"+picker.getHour()+":"+picker.getMinute());
+                currentData.put("text",picker.getYear()+":"+picker.getMonth()+":"+picker.getDay()+":"+picker.getHour()+":"+picker.getMinute());
+                Calendar cal = Calendar.getInstance();
+                cal.set(Calendar.YEAR, picker.getYear());
+                cal.set(Calendar.MONTH, picker.getMonth(picker.getMonth()));
+                cal.set(Calendar.DAY_OF_MONTH, picker.getDay());
+                cal.set(Calendar.HOUR_OF_DAY, picker.getHour());
+                cal.set(Calendar.MINUTE, picker.getMinute());
+                Date dateRepresentation = cal.getTime();
+
+                currentData.put("answer",Long.toString(dateRepresentation.getTime()));
                 Log.d("CHANGED",currentData.get("answer"));
 
             }
@@ -200,7 +214,16 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
         DateTimePicker.TimeWatcher timewatcher = new DateTimePicker.TimeWatcher() {
             @Override
             public void onTimeChanged(int h, int m, int am_pm) {
-                currentData.put("answer",picker.getYear()+":"+picker.getMonth()+":"+picker.getDay()+":"+picker.getHour()+":"+picker.getMinute());
+                Calendar cal = Calendar.getInstance();
+                cal.set(Calendar.YEAR, picker.getYear());
+                cal.set(Calendar.MONTH, picker.getMonth(picker.getMonth()));
+                cal.set(Calendar.DAY_OF_MONTH, picker.getDay());
+                cal.set(Calendar.HOUR_OF_DAY, picker.getHour());
+                cal.set(Calendar.MINUTE, picker.getMinute());
+                Date dateRepresentation = cal.getTime();
+
+                currentData.put("answer",Long.toString(dateRepresentation.getTime()));
+                currentData.put("text",picker.getYear()+":"+picker.getMonth()+":"+picker.getDay()+":"+picker.getHour()+":"+picker.getMinute());
                 Log.d("CHANGED",currentData.get("answer"));
 
 
@@ -249,8 +272,37 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
             public void onClick(DialogInterface dialog, int whichButton) {
                 currentsurvey.setanswers(questiondata);
                 currentsurvey.settimeFinished(System.currentTimeMillis());
+                long finalscore = 0;
+                for (int i = 0; i < questiondata.size(); i++){
+                    Map<String, String> stringStringMap = questiondata.get(i);
+                    String answer = stringStringMap.get("answer");
+                    if(!currentsurvey.getquestions().get(i).getparams().get("assignedVar").equals("")){ //If we need to assign this answer to a variable
+                        String varname = currentsurvey.getquestions().get(i).getparams().get("assignedVar").toString();
+                        SharedPreferences.Editor editor = prefs.edit();
+                        editor.putString(varname,answer); //Put the variable into the var
+                        Log.d("VARIABLE ASSIGN", "Assigned the variable " + varname + " to value " + answer);
+                        editor.commit();
+                    }
+                    if(stringStringMap.containsKey("score")){
+                        String value = stringStringMap.get("score");
+                        long score = Long.parseLong(value);
+                        finalscore += score; // Accumulate scores!
+                    }
+                }
+                currentsurvey.setscore(finalscore);
+                SharedPreferences.Editor editor = prefs.edit();
+                long oldscore = prefs.getLong("Last Survey Score",0);
+                long difference = finalscore - oldscore;
+                editor.putLong("Last Survey Score",finalscore);
+                editor.putLong("Survey Score Difference", difference);
+                long completedSurveyCount = prefs.getLong("Completed Surveys",0);
+                completedSurveyCount++;
+                editor.putLong("Completed Surveys", completedSurveyCount);
+                editor.commit();
 //                    firebaseSurvey.child("answers").setValue(questiondata);
 //                    firebaseSurvey.child("timeFinished").setValue(System.currentTimeMillis());
+
+                //SEND A BROADCAST TO LISTENING SURVEY TRIGGERS
                 Intent intended = new Intent();
                 intended.setAction(TriggerManagerConstants.ACTION_NAME_SURVEY_TRIGGER);
                 intended.putExtra("surveyName",currentsurvey.getname());
@@ -266,7 +318,6 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
                         firebaseSurvey.removeValue();
                         handler.removeCallbacksAndMessages(null);
                     }
-                    //AND NOW HERE WE BROADCAST THAT THIS SURVEY HAS BEEN COMPLETED IN CASE ANY TRIGGERS ARE LISTENING
 
                     @Override
                     public void onCancelled(FirebaseError error) {
@@ -284,7 +335,7 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
             }
         });
 
-        String surveyname = getIntent().getStringExtra("name");
+       // String surveyname = getIntent().getStringExtra("name");
         //TextView texty = (TextView) findViewById(R.id.txtSurveyName);
         // texty.setText("Survey: " + surveyname);
 //            List<FirebaseSurvey> surveys = ApplicationContext.getProject().getsurveys();
@@ -335,6 +386,28 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
                                 } else {
                                     getParent().setResult(Activity.RESULT_OK, data);
                                 }
+                                //Here is where the user's left the survey too long and it's expiree
+//SEND A BROADCAST TO LISTENING SURVEY TRIGGERS
+                                //HAS A TYPE TO DISTINGUISH IT FROM OTHER MISSED SURVEYS
+                                Intent intended = new Intent();
+                               // intended.setType(surveyid + "missed");
+                                intended.setAction(TriggerManagerConstants.ACTION_NAME_SURVEY_TRIGGER);
+                                intended.putExtra("surveyName",currentsurvey.getname());
+                                intended.putExtra("result",false);
+                                missedSurveys++; //The user has officially missed this survey
+
+                                //Store the incremeneted missed value in shared preferences
+                                SharedPreferences prefs = getSharedPreferences("userprefs", Context.MODE_PRIVATE);
+                                SharedPreferences.Editor editor = prefs.edit();
+                                long missedSurveyCount = prefs.getLong("Missed Surveys",0);
+                                missedSurveyCount++;
+                                editor.putLong("Missed Surveys", missedSurveyCount);
+                                editor.putInt(currentsurvey.getname(),missedSurveys);
+                                editor.commit();
+
+                                //But wait, how many have they missed already?
+                                intended.putExtra("missed",missedSurveys);
+                                sendBroadcast(intended);
                                 finish();
                             }
                         });
@@ -475,7 +548,7 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
         ratingBar.setNumStars(to);
         String answer = currentData.get("answer");
         if (answer != null && !answer.equals(""))
-            ratingBar.setRating(Float.parseFloat(answer.toString()));
+            ratingBar.setRating(Integer.parseInt(answer.toString()));
         else {
             currentData.put("answer", "");
             ratingBar.setProgress(0);
@@ -483,14 +556,16 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
         ratingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
             @Override
             public void onRatingChanged(RatingBar ratingBar, float rating, boolean fromUser) {
-                currentData.put("answer", Float.toString(rating));
+                currentData.put("answer", Integer.toString((int)rating));
+                if((boolean)myparams.get("assignToScore") == true) //Only log the score if we're supposed to
+                    currentData.put("score", Integer.toString(((int)rating)));
             }
         });
     }
 
     @TargetApi(Build.VERSION_CODES.M)
     private void handleDateTime() {
-        String answer = currentData.get("answer");
+        String answer = currentData.get("textanswer");
         if (answer != null && !answer.equals("")) {
             String time = answer.toString();
             String[] dayshoursmins = time.split(":");
@@ -502,7 +577,7 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
 //            timePicker.setHour(Integer.parseInt(hoursmins[0]));
 //            timePicker.setMinute(Integer.parseInt(hoursmins[1]));
         } else {
-            currentData.put("answer", "");
+            currentData.put("textanswer", "");
 //            timePicker.setHour(0);
 //            timePicker.setMinute(0);
         }

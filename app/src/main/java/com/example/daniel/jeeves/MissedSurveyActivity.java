@@ -48,18 +48,24 @@ public class MissedSurveyActivity extends AppCompatActivity {
                 Log.d("Snappyshotooooo", snapshot.getValue().toString());
                 //FirebasePatient patient = (FirebasePatient)snapshot.getValue();
                 FirebasePatient patient = (FirebasePatient) snapshot.getValue(FirebasePatient.class); //THIS IS HOW YOU DO IT TO AVOID MAKING IT A HASHMAP
-                Map<String, FirebaseSurvey> missedSurveys = patient.getincomplete();
+                Map<String, Map<String,FirebaseSurvey>> missedSurveys = patient.getincomplete(); //Oh wow this is horrific. Absolutely horrific.
                 if (missedSurveys == null) return;
                 ArrayList<FirebaseSurvey> surveynames = new ArrayList<FirebaseSurvey>();
                 Iterator<String> iter = missedSurveys.keySet().iterator();
-                while (iter.hasNext()) {
-                    String key = iter.next();
-                    Log.d("INCOMPLETE SURVEY", key);
-                    FirebaseSurvey survey = missedSurveys.get(key);
-                    if (survey.getexpiryTime() > System.currentTimeMillis()) {
-                        survey.setkey(key);
-                        surveynames.add(survey);
-                    }
+                    while (iter.hasNext()) {
+                        String key = iter.next();
+                       // Log.d("INCOMPLETE SURVEY", key);
+                        Map<String,FirebaseSurvey> surveys = missedSurveys.get(key);
+                        Iterator<String> surveyiter = surveys.keySet().iterator();
+                        while (surveyiter.hasNext()) {
+                            String surveykey = surveyiter.next();
+                         //   Log.d("INCOMPLETE SURVEY", surveykey);
+                            FirebaseSurvey survey = surveys.get(surveykey);
+                            if (survey.getexpiryTime() > System.currentTimeMillis()) {
+                                survey.setkey(surveykey);
+                                surveynames.add(survey);
+                            }
+                        }
                 }
                 Log.d("SURVEY NAMES: ", surveynames.toString());
                 CustomAdapter adapter = new CustomAdapter(getInstance(), surveynames);
@@ -94,20 +100,26 @@ public class MissedSurveyActivity extends AppCompatActivity {
                 Log.d("Snappyshot99999999", snapshot.getValue().toString());
                 //FirebasePatient patient = (FirebasePatient)snapshot.getValue();
                 FirebasePatient patient = (FirebasePatient)snapshot.getValue(FirebasePatient.class); //THIS IS HOW YOU DO IT TO AVOID MAKING IT A HASHMAP
-                Map<String,FirebaseSurvey> missedSurveys = patient.getincomplete();
-                if(missedSurveys == null)return;
+                Map<String, Map<String,FirebaseSurvey>> missedSurveys = patient.getincomplete(); //Oh wow this is horrific. Absolutely horrific.
+                if (missedSurveys == null) return;
                 ArrayList<FirebaseSurvey> surveynames = new ArrayList<FirebaseSurvey>();
                 Iterator<String> iter = missedSurveys.keySet().iterator();
-                while(iter.hasNext()){
+                while (iter.hasNext()) {
                     String key = iter.next();
-                    Log.d("INCOMPLETE SURVEY", key);
-                    FirebaseSurvey survey = missedSurveys.get(key);
-                    if(survey.getexpiryTime() > System.currentTimeMillis()){
-                        survey.setkey(key);
-                      surveynames.add(survey);
+             //       Log.d("INCOMPLETE SURVEY", key);
+                    Map<String,FirebaseSurvey> surveys = missedSurveys.get(key);
+                    Iterator<String> surveyiter = surveys.keySet().iterator();
+                    while (surveyiter.hasNext()) {
+                        String surveykey = surveyiter.next();
+               //         Log.d("INCOMPLETE SURVEY", surveykey);
+                        FirebaseSurvey survey = surveys.get(surveykey);
+                        if (survey.getexpiryTime() > System.currentTimeMillis()) {
+                            survey.setkey(surveykey);
+                            surveynames.add(survey);
+                        }
                     }
                 }
-                Log.d("SURVEY NAMES: ", surveynames.toString());
+                //Log.d("SURVEY NAMES: ", surveynames.toString());
                 CustomAdapter adapter = new CustomAdapter(getInstance(), surveynames);
                 surveyList.setAdapter(adapter);
 

@@ -228,6 +228,8 @@ public class DateTimePicker extends RelativeLayout {
 		String[] months = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug",
 				"Sep", "Oct", "Nov", "Dec" };
 
+
+
 		View.OnClickListener month_plus_listener = new View.OnClickListener() {
 
 			@Override
@@ -434,6 +436,12 @@ public class DateTimePicker extends RelativeLayout {
 			min_display.setText(String.valueOf(cal.get(Calendar.MINUTE)));
 		}
 
+	public int getMonth(String month){
+		for(int i = 0; i < months.length; i++)
+			if(months[i].equals(month))
+				return i;
+		return -1;
+	}
 		TimeWatcher mTimeWatcher = null;
 
 		public interface TimeWatcher {

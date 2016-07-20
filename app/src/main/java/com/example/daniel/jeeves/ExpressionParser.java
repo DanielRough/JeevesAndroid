@@ -6,9 +6,19 @@ import android.util.Log;
 
 import com.example.daniel.jeeves.firebase.FirebaseExpression;
 import com.example.daniel.jeeves.firebase.UserVariable;
+import com.ubhave.sensormanager.ESException;
+import com.ubhave.sensormanager.ESSensorManager;
+import com.ubhave.sensormanager.classifier.SensorDataClassifier;
+import com.ubhave.sensormanager.config.SensorConfig;
+import com.ubhave.sensormanager.data.SensorData;
+import com.ubhave.sensormanager.sensors.SensorUtils;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Created by Daniel on 09/06/15.
@@ -49,22 +59,95 @@ public class ExpressionParser {
                 String varname = ((UserVariable)expr).getname();
                 Log.d("VARNAME","Varname is " + ((UserVariable)expr).getname());
                 Log.d("VARTYPE","Vartype is " + ((UserVariable) expr).getvartype());
+                String name = ((UserVariable)expr).getname();
                 //GET THE HARDCODED STRING OUT OF HERE, THIS IS BAD
-                SharedPreferences prefs = appContext.getSharedPreferences("userPrefs", Context.MODE_PRIVATE);
-                Map<String,?> prefsmap = prefs.getAll();
-                return prefsmap.get(varname);
+                SharedPreferences prefs = appContext.getSharedPreferences("userprefs", Context.MODE_PRIVATE);
+                //Map<String,?> prefsmap = prefs.getAll();
+                switch(expr.getvartype()){
+                    case "Text": return prefs.getString(name,"");
+                    case "Numeric": return prefs.getLong(name,0);
+                    case "Time": return prefs.getLong(name,0);
+                    case "Boolean" : return prefs.getBoolean(name,false);
+                }
             }
             else{
                 switch(expr.getvartype()){
                     case "Text": return expr.getvalue();
                     case "Numeric": return Long.parseLong(expr.getvalue());
-                    case "Time": return Integer.parseInt(expr.getvalue());
+                    case "Time": return Long.parseLong(expr.getvalue());
                     case "Boolean" : return Boolean.parseBoolean(expr.getvalue());
                 }
                 return ((UserVariable) expr).getvalue();
             }
         }
         List<FirebaseExpression> vars = expr.getvariables();
+
+        //IF VARS IS NULL THEN THIS IS A SURVEY, SENSOR OR TIME EXPRESSION!
+        if(vars == null){
+            Map<String,Object> params = expr.getparams();
+            if(params.containsKey("sensor")){ //a sensor expression
+                String sensor = params.get("sensor").toString();
+                String returns = params.get("returns").toString();
+                Log.d("HELLO","ADFADF");
+
+                //Now we want to poll this sensor here to see what it returns
+                try {
+                    int sensortype = SensorUtils.getSensorType(sensor);
+                    SampleOnceTask sampler = new SampleOnceTask(sensortype);
+                    Log.d("GOODBYE","ADFADF");
+                    SensorData data = sampler.execute().get();
+                    SensorDataClassifier classifier = SensorUtils.getSensorDataClassifier(sensortype);
+                    Log.d("HOPEFULLY GOT SOME","SENSOR DATA");
+                    if(classifier.isInteresting(data, SensorConfig.getDefaultConfig(sensortype),returns))
+                        return true; //Return true if it returns the result we want!
+                    return false;
+                } catch (ESException e) {
+                    Log.d("EXCEPTION",e.getMessage());
+                    e.printStackTrace();
+                } catch (InterruptedException e) {
+                    Log.d("EXCEPTION",e.getMessage());
+
+                    e.printStackTrace();
+                } catch (ExecutionException e) {
+                    Log.d("EXCEPTION",e.getMessage());
+
+                    e.printStackTrace();
+                }
+            }
+
+
+            else if(params.containsKey("timeDiff")){ //a timediff expression
+                String beforeAfter = params.get("beforeAfter").toString();
+                String timeDiff = params.get("timeDiff").toString();
+                HashMap<String,Object> var = (HashMap<String,Object>)params.get("timevar");
+                SharedPreferences prefs = ApplicationContext.getContext().getSharedPreferences("userprefs",Context.MODE_PRIVATE);
+                String timevar = prefs.getString(var.get("name").toString(),""); //Get the time the user has specified
+                Log.d("TIME VAR", "Time var is " + timevar);
+                long timeDiffMills = 0;
+                long marginOfError = 0;
+                switch(timeDiff){
+                    case "1 month": timeDiffMills = 30 * 24 * 3600 *1000; marginOfError = 24*3600*1000; break; //Margin of error of a day
+                    case "1 week": timeDiffMills = 7 * 24 * 3600 * 1000; marginOfError = 24*3600*1000; break; //Margin of error of a day
+                    case "1 day": timeDiffMills = 24 * 3600 * 1000; marginOfError = 24*3600*1000; break; //Margin of error of a day
+                    case "1 hour": timeDiffMills = 3600 * 1000; marginOfError = 3600*1000; break; //Margin of error of an hour
+                }
+                long currentTime = System.currentTimeMillis();
+                long diff = Long.parseLong(timevar) - currentTime;
+                if(beforeAfter.equals("before")){
+                    if(diff < 0)return false;
+                    if(diff < marginOfError)return true;
+                    return false;
+
+                }
+                else if(beforeAfter.equals("after")){
+                    if(diff > 0)return false;
+                    if(-(diff) < marginOfError) return true;
+                    return false;
+
+                }
+
+            }
+        }
         FirebaseExpression lhs = vars.get(0);
         FirebaseExpression rhs = null;
         if(vars.size() >1) //Sometimes expressions will only have one variable, i.e. NOT(var)

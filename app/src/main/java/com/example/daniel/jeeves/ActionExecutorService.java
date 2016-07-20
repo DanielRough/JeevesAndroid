@@ -8,9 +8,6 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import com.example.daniel.jeeves.actions.DoUntilControl;
-import com.example.daniel.jeeves.actions.ForControl;
-import com.example.daniel.jeeves.actions.IfControl;
 import com.example.daniel.jeeves.actions.WaitingAction;
 import com.example.daniel.jeeves.actions.FirebaseAction;
 import com.example.daniel.jeeves.firebase.FirebaseExpression;
@@ -66,6 +63,7 @@ public class ActionExecutorService extends IntentService{
         //  final Handler h = new Handler(); //In case some of our com.example.daniel.jeeves.actions have delayed execution
         ArrayList<FirebaseAction> remainingActions = (ArrayList<FirebaseAction>)intent.getExtras().get("com/example/daniel/jeeves/actions");
         manual = intent.getBooleanExtra("manual",false);
+        Log.d("MANUAL","Manual in intent is " + manual);
         FirebaseExpression expression = (FirebaseExpression)intent.getExtras().get("expression");
         controlType = (String)intent.getExtras().get("controltype");
         this.actions = remainingActions;
@@ -105,19 +103,19 @@ public class ActionExecutorService extends IntentService{
     public void checkCondition(){
         ExpressionParser parser = new ExpressionParser(ApplicationContext.getContext());
         switch(controlType) {
-            case "for":
-                    long numberOfTimes = (long)parser.evaluate(expr);
-                for(long i = 0; i < numberOfTimes; i++)
-                    executeActions();
-                break;
-            case "do":
-                if((boolean) parser.evaluate(expr) == true)
-                    return; //Our expression is true, STOP EXECUTING
-                else {
-                    executeActions(); //Let's go round again!
-                    checkCondition();
-                }
-                    break;
+//            case "for":
+//                    long numberOfTimes = (long)parser.evaluate(expr);
+//                for(long i = 0; i < numberOfTimes; i++)
+//                    executeActions();
+//                break;
+//            case "do":
+//                if((boolean) parser.evaluate(expr) == true)
+//                    return; //Our expression is true, STOP EXECUTING
+//                else {
+//                    executeActions(); //Let's go round again!
+//                    checkCondition();
+//                }
+//                    break;
             case "if":
                 if((boolean) parser.evaluate(expr) == false) //expressionw will be null if we don't have an expression in the first place
                     return; //Our expression is true, STOP EXECUTING

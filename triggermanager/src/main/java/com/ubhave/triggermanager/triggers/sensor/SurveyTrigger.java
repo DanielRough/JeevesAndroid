@@ -121,7 +121,10 @@ public class SurveyTrigger extends Trigger {
                         sendNotification();
                     }
                     if (result == false) {
+                        Log.d("MISSED","Missed the survey " + survey);
                         int missedTimes = intent.getIntExtra("missed", 0);
+                        Log.d("MISSED","And you've missed it " + missedTimes + " times");
+
                         if (missedTimes == this.missedTimes)
                             sendNotification();
                     }

@@ -97,10 +97,15 @@ public class TriggerListener implements TriggerReceiver {
         Log.d("TRIGGER NO  " + triggerId, "TRIGGERD THE TRIGGER " + triggerId);
         Intent actionIntent = new Intent(serviceContext,ActionExecutorService.class);
         actionIntent.putExtra("com/example/daniel/jeeves/actions",actionsToPerform);
-        if(triggerType == TriggerUtils.TYPE_SENSOR_TRIGGER_BUTTON)
-            actionIntent.putExtra("manual",true);
-        else
-            actionIntent.putExtra("manual",false);
+        if(triggerType == TriggerUtils.TYPE_SENSOR_TRIGGER_BUTTON) {
+            actionIntent.putExtra("manual", true);
+            Log.d("SET MANUAL", "Set manual to TRUE");
+        }
+        else {
+            actionIntent.putExtra("manual", false);
+            Log.d("SET MANUAL", "Set manual to FALSE");
+
+        }
             serviceContext.startService(actionIntent);
     }
 

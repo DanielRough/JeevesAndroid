@@ -17,7 +17,7 @@ public class FirebasePatient {
     public Map<String,Object> feedback;
 
     public Map<String,Object> getfeedback(){ return feedback; }
-    public Map<String,FirebaseSurvey> incomplete;
+    public Map<String,Map<String,FirebaseSurvey>> incomplete;
     public Map<String,FirebaseSurvey> complete;
 
     public String getemail(){ return email; }
@@ -35,7 +35,7 @@ public class FirebasePatient {
         return phone;
     }
 
-    public Map<String,FirebaseSurvey> getincomplete(){
+    public Map<String,Map<String,FirebaseSurvey>> getincomplete(){
         return incomplete;
     }
     public Map<String,FirebaseSurvey> getcomplete(){
