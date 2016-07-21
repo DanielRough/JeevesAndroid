@@ -26,6 +26,7 @@ import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.location.Location;
+import android.util.Log;
 
 import com.ubhave.sensormanager.config.SensorConfig;
 import com.ubhave.sensormanager.config.pull.LocationConfig;
@@ -40,6 +41,7 @@ public class LocationDataClassifier implements SensorDataClassifier
 	{
 		//First, we need to find the lat/long that this location name corresponds to
 		String[] locationInfo = value.split(";");
+		if(locationInfo.length == 0)return false; //There was nothing here!
 		double latitude = Double.parseDouble(locationInfo[0]);
 		double longitude = Double.parseDouble(locationInfo[1]);
 		Location targetLocation = new Location("");//provider name is unecessary
@@ -62,8 +64,8 @@ public class LocationDataClassifier implements SensorDataClassifier
 	//		prevLoc = prevData.getLastLocation();
 	//	}
 
-		// Interesting = different locations
-		return !areSameLocations(currLoc, targetLocation);
+		// Interesting = SAME locations FOR GOODNESS SAKE
+		return areSameLocations(currLoc, targetLocation);
 	}
 
 	private boolean areSameLocations(Location loc1, Location loc2)
@@ -72,6 +74,7 @@ public class LocationDataClassifier implements SensorDataClassifier
 		{
 			if ((loc1.distanceTo(loc2) < LocationConfig.LOCATION_CHANGE_DISTANCE_THRESHOLD) && wasSameLastTime == false)
 			{
+				Log.d("LOC","current loc " + loc1.getLatitude()+";"+loc1.getLongitude() + " and taret loc is " + loc2.getLatitude() + ";" + loc2.getLongitude());
 				wasSameLastTime = true;
 				return true;
 			}
@@ -79,7 +82,7 @@ public class LocationDataClassifier implements SensorDataClassifier
 		else if ((loc1 == null) && (loc2 == null) && wasSameLastTime == false)
 		{
 			wasSameLastTime = false;
-			return true;
+			return false;
 		}
 		wasSameLastTime = false;
 		return false;

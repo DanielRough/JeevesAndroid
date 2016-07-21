@@ -50,6 +50,7 @@ public class ExpressionParser {
         this.appContext = appContext;
     }
     public Object evaluate(FirebaseExpression expr) {
+        SharedPreferences prefs = appContext.getSharedPreferences("userprefs", Context.MODE_PRIVATE);
 
         String type = expr.gettype();
      //   SharedPreferences userPrefs = app.getSharedPreferences(app.getString(R.string.userprefs), Context.MODE_PRIVATE);
@@ -61,7 +62,6 @@ public class ExpressionParser {
                 Log.d("VARTYPE","Vartype is " + ((UserVariable) expr).getvartype());
                 String name = ((UserVariable)expr).getname();
                 //GET THE HARDCODED STRING OUT OF HERE, THIS IS BAD
-                SharedPreferences prefs = appContext.getSharedPreferences("userprefs", Context.MODE_PRIVATE);
                 //Map<String,?> prefsmap = prefs.getAll();
                 switch(expr.getvartype()){
                     case "Text": return prefs.getString(name,"");
@@ -95,6 +95,11 @@ public class ExpressionParser {
                     int sensortype = SensorUtils.getSensorType(sensor);
                     SampleOnceTask sampler = new SampleOnceTask(sensortype);
                     Log.d("GOODBYE","ADFADF");
+
+                    //We need to irritatingly make an exception for location sensor
+
+                    if(sensortype == SensorUtils.SENSOR_TYPE_LOCATION)
+                        returns = prefs.getString(returns,"");
                     SensorData data = sampler.execute().get();
                     SensorDataClassifier classifier = SensorUtils.getSensorDataClassifier(sensortype);
                     Log.d("HOPEFULLY GOT SOME","SENSOR DATA");
@@ -120,7 +125,6 @@ public class ExpressionParser {
                 String beforeAfter = params.get("beforeAfter").toString();
                 String timeDiff = params.get("timeDiff").toString();
                 HashMap<String,Object> var = (HashMap<String,Object>)params.get("timevar");
-                SharedPreferences prefs = ApplicationContext.getContext().getSharedPreferences("userprefs",Context.MODE_PRIVATE);
                 String timevar = prefs.getString(var.get("name").toString(),""); //Get the time the user has specified
                 Log.d("TIME VAR", "Time var is " + timevar);
                 long timeDiffMills = 0;

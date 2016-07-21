@@ -130,6 +130,11 @@ public class ImmediateSensorTrigger extends Trigger implements SensorDataListene
 		if (params.containsKey(TriggerConfig.INTERESTING_VALUE))
 		{
 			value = params.getParameter(TriggerConfig.INTERESTING_VALUE).toString();
+
+			if(sensorData.getSensorType() == SensorUtils.SENSOR_TYPE_LOCATION){
+				SharedPreferences prefs = context.getSharedPreferences("userprefs",Context.MODE_PRIVATE);
+				value = prefs.getString(value,""); //If it's a location, we need to find the coordinates it corresponds to in userprefs
+			}
 		}
 		if (classifier.isInteresting(sensorData,sensorData.getSensorConfig(),value))
 		{
