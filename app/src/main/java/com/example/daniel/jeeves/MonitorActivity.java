@@ -46,7 +46,7 @@ public class MonitorActivity extends AppCompatActivity {
         SharedPreferences prefs = this.getSharedPreferences("userprefs", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
 
-        myFirebaseRef = new Firebase("https://incandescent-torch-8695.firebaseio.com/JeevesData/projects/SimpleTest");
+        myFirebaseRef = new Firebase("https://incandescent-torch-8695.firebaseio.com/JeevesData/projects/DentanxStudy");
         Log.d("HEREWEGO", "Updating le config");
         myFirebaseRef.addValueEventListener(new ValueEventListener() {
             @Override

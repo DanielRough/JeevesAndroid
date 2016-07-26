@@ -38,7 +38,7 @@ public class MissedSurveyActivity extends AppCompatActivity {
     protected void onResume(){
         super.onResume();
 
-        final Firebase firebaseSurvey = new Firebase("https://incandescent-torch-8695.firebaseio.com/patients/" + userid);
+        final Firebase firebaseSurvey = new Firebase("https://incandescent-torch-8695.firebaseio.com/JeevesData/patients/" + userid);
         firebaseSurvey.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
@@ -91,7 +91,7 @@ public class MissedSurveyActivity extends AppCompatActivity {
 //
 
 
-        final Firebase firebaseSurvey = new Firebase("https://incandescent-torch-8695.firebaseio.com/patients/" + userid);
+        final Firebase firebaseSurvey = new Firebase("https://incandescent-torch-8695.firebaseio.com/JeevesData/patients/" + userid);
         firebaseSurvey.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {

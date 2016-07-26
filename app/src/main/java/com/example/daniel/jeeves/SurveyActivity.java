@@ -184,8 +184,8 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
         String userid = prefs.getString("userid", "null");
         String surveyname = getIntent().getStringExtra("name");
          missedSurveys = prefs.getInt(surveyname,0);
-        firebaseSurvey = new Firebase("https://incandescent-torch-8695.firebaseio.com/patients/" + userid + "/incomplete/" + surveyname + "/" +surveyid);
-        completedSurveys = new Firebase("https://incandescent-torch-8695.firebaseio.com/patients/" + userid + "/complete");
+        firebaseSurvey = new Firebase("https://incandescent-torch-8695.firebaseio.com/JeevesData/patients/" + userid + "/incomplete/" + surveyname + "/" +surveyid);
+        completedSurveys = new Firebase("https://incandescent-torch-8695.firebaseio.com/JeevesData/patients/" + userid + "/complete");
         txtOpenEnded = ((EditText) findViewById(R.id.txtOpenEnded));
         txtNumeric = ((EditText) findViewById(R.id.txtNumeric));
         switchBool = ((Switch) findViewById(R.id.switchBool));
@@ -350,6 +350,10 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
         firebaseSurvey.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
+//                if(snapshot.getValue() == null){
+//                    firebaseSurvey.push();
+//                    return; //This can happen if the user manually logs the survey
+//                }
                 Log.d("SNAPPYSHOT", snapshot.getValue().toString());
                 currentsurvey = snapshot.getValue(FirebaseSurvey.class);
                 firebaseSurvey.removeEventListener(this);

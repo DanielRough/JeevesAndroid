@@ -86,7 +86,7 @@ public class SenseActivity extends Activity {
         txtWelcome = (TextView)findViewById(R.id.txtWelcome);
         userid = getIntent().getStringExtra("userid");
         Log.d("USERID", "User id is " + userid);
-        firebaseUserInfo = new Firebase("https://incandescent-torch-8695.firebaseio.com/patients/"+userid);
+        firebaseUserInfo = new Firebase("https://incandescent-torch-8695.firebaseio.com/JeevesData/patients/"+userid);
         SharedPreferences prefs = getApplicationContext().getSharedPreferences("userprefs",Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
         editor.putString("userid",userid);
@@ -134,7 +134,7 @@ public class SenseActivity extends Activity {
                 startActivity(intent);
             }
         });
-        myFirebaseRef = new Firebase("https://incandescent-torch-8695.firebaseio.com/JeevesData/projects/SimpleTest");
+        myFirebaseRef = new Firebase("https://incandescent-torch-8695.firebaseio.com/JeevesData/projects/DentanxStudy");
         Log.d("HEREWEGO", "Updating le config");
         myFirebaseRef.addValueEventListener(new ValueEventListener() {
             @Override

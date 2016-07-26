@@ -50,7 +50,7 @@ public class SurveyAction extends FirebaseAction {
         SharedPreferences prefs = app.getSharedPreferences("userprefs", Context.MODE_PRIVATE);
         String userid = prefs.getString("userid", "null");
         String surveyname = getparams().get("survey").toString();
-        Firebase incompleteSurveys = new Firebase("https://incandescent-torch-8695.firebaseio.com/patients/" + userid + "/incomplete/" + surveyname);
+        Firebase incompleteSurveys = new Firebase("https://incandescent-torch-8695.firebaseio.com/JeevesData/patients/" + userid + "/incomplete/" + surveyname);
         HashMap<String, Object> surveyDetails = new HashMap<String, Object>();
 
 
