@@ -6,19 +6,18 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.example.daniel.jeeves.firebase.FirebasePatient;
+import com.example.daniel.jeeves.actions.FirebaseAction;
 import com.example.daniel.jeeves.firebase.FirebaseProject;
 import com.example.daniel.jeeves.firebase.FirebaseSurvey;
 import com.example.daniel.jeeves.firebase.FirebaseTrigger;
 import com.example.daniel.jeeves.firebase.UserVariable;
-import com.firebase.client.DataSnapshot;
-import com.firebase.client.Firebase;
-import com.firebase.client.FirebaseError;
-import com.firebase.client.ValueEventListener;
+import com.google.firebase.auth.FirebaseAuth;
 import com.ubhave.sensormanager.sensors.SensorUtils;
 import com.ubhave.triggermanager.TriggerException;
 import com.ubhave.triggermanager.config.GlobalState;
@@ -33,16 +32,15 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import com.example.daniel.jeeves.actions.FirebaseAction;
-
 
 /**
  * This activity is begun when the 'Sense Data' button is pressed on the Launch screen.
  */
 public class SenseActivity extends Activity {
     private static SenseActivity instance;
-    Firebase myFirebaseRef;
-    Firebase firebaseUserInfo;
+   // Firebase myFirebaseRef;
+   // Firebase firebaseUserInfo;
+    FirebaseAuth mFirebaseAuth;
     FirebaseProject currentConfig = new FirebaseProject();
     TextView txtWelcome;
     public static boolean hasSensorBegun, hasTriggerBegun;
@@ -78,6 +76,7 @@ public class SenseActivity extends Activity {
         instance = this;
 
 
+        mFirebaseAuth = FirebaseAuth.getInstance();
 
         super.onCreate(savedInstanceState);
         //    SharedPreferences sharedPref = getApplicationContext().getSharedPreferences(getString(R.string.configurations), Context.MODE_PRIVATE);
@@ -85,28 +84,29 @@ public class SenseActivity extends Activity {
 
         txtWelcome = (TextView)findViewById(R.id.txtWelcome);
         userid = getIntent().getStringExtra("userid");
-        Log.d("USERID", "User id is " + userid);
-        firebaseUserInfo = new Firebase("https://incandescent-torch-8695.firebaseio.com/JeevesData/patients/"+userid);
+        Log.i("USERID", "User id is " + userid);
+   //     firebaseUserInfo = new Firebase("https://incandescent-torch-8695.firebaseio.com/JeevesData/patients/"+userid);
         SharedPreferences prefs = getApplicationContext().getSharedPreferences("userprefs",Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
         editor.putString("userid",userid);
+        txtWelcome.setText("Welcome, " + userid);
         editor.commit(); //Save the current user for future reference
         //Get the user's additional info
-        firebaseUserInfo.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot snapshot) {
-                Log.d("Snappyshot123", snapshot.getValue().toString());
-
-                firebaseUserInfo.removeEventListener(this);
-                FirebasePatient user = snapshot.getValue(FirebasePatient.class);
-                txtWelcome.setText("Welcome, " + user.getfirstName());
-            }
-
-            @Override
-            public void onCancelled(FirebaseError firebaseError) {
-                System.out.println("The read failed: " + firebaseError.getMessage());
-            }
-        });
+//        firebaseUserInfo.addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(DataSnapshot snapshot) {
+//                Log.d("Snappyshot123", snapshot.getValue().toString());
+//
+//                firebaseUserInfo.removeEventListener(this);
+//                FirebasePatient user = snapshot.getValue(FirebasePatient.class);
+//                txtWelcome.setText("Welcome, " + user.getfirstName());
+//            }
+//
+//            @Override
+//            public void onCancelled(FirebaseError firebaseError) {
+//                System.out.println("The read failed: " + firebaseError.getMessage());
+//            }
+//        });
         Button btnContact = (Button) findViewById(R.id.btnContact);
         Button btnSurveys = (Button) findViewById(R.id.btnSurvey);
         Button btnMonitor = (Button) findViewById(R.id.btnMonitor);
@@ -134,26 +134,26 @@ public class SenseActivity extends Activity {
                 startActivity(intent);
             }
         });
-        myFirebaseRef = new Firebase("https://incandescent-torch-8695.firebaseio.com/JeevesData/projects/DentanxStudy");
-        Log.d("HEREWEGO", "Updating le config");
-        myFirebaseRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot snapshot) {
-                Log.d("Snappyshot", snapshot.getValue().toString());
-                FirebaseProject post = snapshot.getValue(FirebaseProject.class);
-                try {
-                    Log.d("UPDATING", "Updating le config");
-                    updateConfig(post);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            @Override
-            public void onCancelled(FirebaseError firebaseError) {
-                System.out.println("The read failed: " + firebaseError.getMessage());
-            }
-        });
+//        myFirebaseRef = new Firebase("https://incandescent-torch-8695.firebaseio.com/JeevesData/projects/DentanxStudy");
+//        Log.d("HEREWEGO", "Updating le config");
+//        myFirebaseRef.addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(DataSnapshot snapshot) {
+//                Log.d("Snappyshot", snapshot.getValue().toString());
+//                FirebaseProject post = snapshot.getValue(FirebaseProject.class);
+//                try {
+//                    Log.d("UPDATING", "Updating le config");
+//                    updateConfig(post);
+//                } catch (JSONException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(FirebaseError firebaseError) {
+//                System.out.println("The read failed: " + firebaseError.getMessage());
+//            }
+//        });
 
     }
 
@@ -249,4 +249,11 @@ public class SenseActivity extends Activity {
             triggerlisteners.remove(triggerId);
         }
     }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main_menu, menu);
+        return true;
+    }
+
 }

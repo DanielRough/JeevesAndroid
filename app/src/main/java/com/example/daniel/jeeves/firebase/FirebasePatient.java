@@ -13,6 +13,8 @@ public class FirebasePatient {
     public String lastName;
     public String phone;
     public String email;
+    public String uid;
+
 
     public Map<String,Object> feedback;
 
@@ -34,6 +36,7 @@ public class FirebasePatient {
     public String getphone(){
         return phone;
     }
+    public String getuid() { return uid; }
 
     public Map<String,Map<String,FirebaseSurvey>> getincomplete(){
         return incomplete;

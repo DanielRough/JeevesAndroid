@@ -4,4 +4,22 @@
     <string name="title_activity_contact_researcher">ContactResearcherActivity</string>
     <string name="title_activity_missed_surveys">MissedSurveysActivity</string>
     <string name="title_activity_update_settings">UpdateSettingsActivity</string>
+    <string name="sign_in">Sign In</string>
+    <string name="sign_out">Sign Out</string>
+    <string name="invite_menu_label">Invite</string>
+    <string name="fresh_config">Fresh Config</string>
+    <string name="cause_crash">Cause Crash</string>
+
+    <string name="emailpassword_title_text">Login/Register</string>
+    <string name="hint_email">Email</string>
+    <string name="hint_password">Password</string>
+    <string name="create_account">Create Account</string>
+    <string name="auth_failed">Authentication failed</string>
+    <string name="signed_out">Signed Out</string>
+    <string name="loading">Loading…</string>
+    <string name="emailpassword_status_fmt">Email User: %s</string>
+    <string name="firebase_status_fmt">Firebase User: %s</string>
+    <string name="desc_firebase_lockup">Firebase logo and name</string>
+    <string name="title_activity_sign_up">SignUpActivity</string>
+
 </resources>
