@@ -1,15 +1,13 @@
 package com.example.daniel.jeeves.actions;
 
-import com.shaded.fasterxml.jackson.annotation.JsonTypeInfo;
-
 import java.io.Serializable;
 import java.util.Map;
 
 /**
  * Created by Daniel on 26/05/15.
  */
-@JsonTypeInfo(use=JsonTypeInfo.Id.MINIMAL_CLASS, include= JsonTypeInfo.As.PROPERTY, property="@class")
-public abstract class FirebaseAction implements Serializable,IAction {
+
+public class FirebaseAction implements Serializable,IAction {
     public String getdescription() {
         return description;
     }

@@ -22,8 +22,6 @@ IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 package com.ubhave.triggermanager.triggers;
 
-import java.util.Calendar;
-
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -37,6 +35,8 @@ import com.ubhave.triggermanager.TriggerReceiver;
 import com.ubhave.triggermanager.config.GlobalState;
 import com.ubhave.triggermanager.config.TriggerConfig;
 import com.ubhave.triggermanager.config.TriggerManagerConstants;
+
+import java.util.Calendar;
 
 public abstract class Trigger extends BroadcastReceiver
 {
@@ -81,7 +81,7 @@ public abstract class Trigger extends BroadcastReceiver
 		{
 			if (TriggerManagerConstants.LOG_MESSAGES)
 			{
-				Log.d(getTriggerTag(), "Sending system-level onNotificationTriggered()");
+				Log.i(getTriggerTag(), "Sending system-level onNotificationTriggered()");
 			}
 			listener.onNotificationTriggered(triggerId);
 		}
@@ -100,17 +100,18 @@ public abstract class Trigger extends BroadcastReceiver
 					}
 					else if (TriggerManagerConstants.LOG_MESSAGES)
 					{
-						Log.d(getTriggerTag(), "Notification scheduled outside of allowed times");
+						Log.i(getTriggerTag(), "Notification scheduled outside of allowed times");
 					}
 				}
 				else if (TriggerManagerConstants.LOG_MESSAGES)
 				{
-					Log.d(getTriggerTag(), "Notifications not allowed: daily cap has been reached.");
+					Log.i(getTriggerTag(), "You've sent " + notificationsSent + " and the default max is " + notificationCap);
+					Log.i(getTriggerTag(), "Notifications not allowed: daily cap has been reached.");
 				}
 			}
 			else if (TriggerManagerConstants.LOG_MESSAGES)
 			{
-				Log.d(getTriggerTag(), "Notifications not allowed: not calling onNotificationTriggered()");
+				Log.i(getTriggerTag(), "Notifications not allowed: not calling onNotificationTriggered()");
 			}
 		}
 	}

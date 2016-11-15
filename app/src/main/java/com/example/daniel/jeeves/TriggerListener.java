@@ -63,6 +63,9 @@ public class TriggerListener implements TriggerReceiver {
             SubscriptionIds.setId(Long.toString(triggerId), triggerSubscriptionId);
             isSubscribed = true;
 
+            (for FirebaseAction action : actions){
+                action.getparams();
+            }
             Log.i("TriggerReceiver", "Trigger subscribed: " + triggerSubscriptionId);
             Log.i("ACTIONS", "Found " + actions.size() + " to perform");
             if(actions.size()>0)
@@ -72,6 +75,7 @@ public class TriggerListener implements TriggerReceiver {
         }
     }
 
+//    public FirebaseAction createAction
     public boolean isSubscribed() {
         return isSubscribed;
     }

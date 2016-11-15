@@ -33,7 +33,7 @@ public class TriggerManagerConstants
 	public static final int DEFAULT_DO_NOT_DISTURB_BEFORE_MINUTES = 8 * 60;
 	public static final int DEFAULT_DO_NOT_DISTURB_AFTER_MINUTES = 22 * 60;
 	public static final int DEFAULT_MIN_TRIGGER_INTERVAL_MINUTES = 120;
-	public static final int DEFAULT_DAILY_NOTIFICATION_CAP = 2;
+	public static final int DEFAULT_DAILY_NOTIFICATION_CAP = 50;
 	public static final int DEFAULT_NUMBER_OF_NOTIFICATIONS = 2;
 
 	public static final int DEFAULT_MAXIMUM_DAILY_SURVEYS = 2;

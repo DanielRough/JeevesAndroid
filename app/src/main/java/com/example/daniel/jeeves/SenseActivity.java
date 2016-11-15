@@ -182,7 +182,7 @@ public class SenseActivity extends Activity {
         //This should hopefully handle new, updated and deleted triggers
         try {
             GlobalState triggerState = GlobalState.getGlobalState(this);
-            triggerState.setNotificationCap((int) app.getmaxNotifications());
+            triggerState.setNotificationCap(55);
             Log.i("Notifications", "Notification number increased to " + app.getmaxNotifications());
         } catch (TriggerException e) {
             e.printStackTrace();
