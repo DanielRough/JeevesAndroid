@@ -7,6 +7,7 @@ import com.ubhave.triggermanager.config.TriggerManagerConstants;
 public class TriggerUtils
 {
 
+	public static final int TYPE_CLOCK_TRIGGER_BEGIN			= 10010;
 	public static final int TYPE_CLOCK_TRIGGER_ONCE 			= 10000;
 	public static final int TYPE_CLOCK_TRIGGER_ON_INTERVAL 		= 10001;
 	public static final int TYPE_CLOCK_TRIGGER_DAILY_RANDOM 	= 10002;
@@ -40,6 +41,7 @@ public class TriggerUtils
 	public static final String NAME_SURVEY						= "Survey";
 
 
+	public static final String NAME_JEEVES_TRIGGER_BEGIN		= "BEGIN TRIGGER";
 	public static final String NAME_CLOCK_TRIGGER_ONCE 			= "type_clock_once";
 	public static final String NAME_CLOCK_TRIGGER_ON_INTERVAL 	= "type_clock_interval";
 	public static final String NAME_CLOCK_TRIGGER_DAILY			= "type_clock_daily";
@@ -77,6 +79,7 @@ public class TriggerUtils
 			SENSOR_TRIGGER_SURVEY
 	};
 	private static final String[] ALL_NAMES = new String[]{
+			NAME_JEEVES_TRIGGER_BEGIN,
 		NAME_CLOCK_TRIGGER_ONCE,
 		NAME_CLOCK_TRIGGER_ON_INTERVAL,
 		NAME_CLOCK_TRIGGER_DAILY_RANDOM,
@@ -90,6 +93,7 @@ public class TriggerUtils
 	};
 	
 	private static final int[] ALL_IDS = new int[]{
+			TYPE_CLOCK_TRIGGER_BEGIN,
 		TYPE_CLOCK_TRIGGER_ONCE,
 		TYPE_CLOCK_TRIGGER_ON_INTERVAL,
 		TYPE_CLOCK_TRIGGER_DAILY_RANDOM,
@@ -116,6 +120,7 @@ public class TriggerUtils
 	{
 		switch (type)
 		{
+			case TYPE_CLOCK_TRIGGER_BEGIN: return NAME_JEEVES_TRIGGER_BEGIN;
 		case TYPE_CLOCK_TRIGGER_ONCE: return NAME_CLOCK_TRIGGER_ONCE;
 		case TYPE_CLOCK_TRIGGER_ON_INTERVAL: return NAME_CLOCK_TRIGGER_ON_INTERVAL;
 		case TYPE_CLOCK_TRIGGER_DAILY_RANDOM: return NAME_CLOCK_TRIGGER_DAILY_RANDOM;

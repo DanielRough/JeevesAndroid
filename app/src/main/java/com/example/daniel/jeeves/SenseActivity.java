@@ -18,6 +18,11 @@ import com.example.daniel.jeeves.firebase.FirebaseSurvey;
 import com.example.daniel.jeeves.firebase.FirebaseTrigger;
 import com.example.daniel.jeeves.firebase.UserVariable;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.ubhave.sensormanager.sensors.SensorUtils;
 import com.ubhave.triggermanager.TriggerException;
 import com.ubhave.triggermanager.config.GlobalState;
@@ -38,8 +43,6 @@ import java.util.Map;
  */
 public class SenseActivity extends Activity {
     private static SenseActivity instance;
-   // Firebase myFirebaseRef;
-   // Firebase firebaseUserInfo;
     FirebaseAuth mFirebaseAuth;
     FirebaseProject currentConfig = new FirebaseProject();
     TextView txtWelcome;
@@ -83,30 +86,9 @@ public class SenseActivity extends Activity {
         setContentView(R.layout.activity_sense);
 
         txtWelcome = (TextView)findViewById(R.id.txtWelcome);
-        userid = getIntent().getStringExtra("userid");
-        Log.i("USERID", "User id is " + userid);
-   //     firebaseUserInfo = new Firebase("https://incandescent-torch-8695.firebaseio.com/JeevesData/patients/"+userid);
-        SharedPreferences prefs = getApplicationContext().getSharedPreferences("userprefs",Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.putString("userid",userid);
-        txtWelcome.setText("Welcome, " + userid);
-        editor.commit(); //Save the current user for future reference
-        //Get the user's additional info
-//        firebaseUserInfo.addValueEventListener(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(DataSnapshot snapshot) {
-//                Log.d("Snappyshot123", snapshot.getValue().toString());
-//
-//                firebaseUserInfo.removeEventListener(this);
-//                FirebasePatient user = snapshot.getValue(FirebasePatient.class);
-//                txtWelcome.setText("Welcome, " + user.getfirstName());
-//            }
-//
-//            @Override
-//            public void onCancelled(FirebaseError firebaseError) {
-//                System.out.println("The read failed: " + firebaseError.getMessage());
-//            }
-//        });
+
+        txtWelcome.setText("Welcome!");
+
         Button btnContact = (Button) findViewById(R.id.btnContact);
         Button btnSurveys = (Button) findViewById(R.id.btnSurvey);
         Button btnMonitor = (Button) findViewById(R.id.btnMonitor);
@@ -134,26 +116,30 @@ public class SenseActivity extends Activity {
                 startActivity(intent);
             }
         });
-//        myFirebaseRef = new Firebase("https://incandescent-torch-8695.firebaseio.com/JeevesData/projects/DentanxStudy");
-//        Log.d("HEREWEGO", "Updating le config");
-//        myFirebaseRef.addValueEventListener(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(DataSnapshot snapshot) {
-//                Log.d("Snappyshot", snapshot.getValue().toString());
-//                FirebaseProject post = snapshot.getValue(FirebaseProject.class);
-//                try {
-//                    Log.d("UPDATING", "Updating le config");
-//                    updateConfig(post);
-//                } catch (JSONException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//
-//            @Override
-//            public void onCancelled(FirebaseError firebaseError) {
-//                System.out.println("The read failed: " + firebaseError.getMessage());
-//            }
-//        });
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference myRef = database.getReference("JeevesData/projects/aasdfgh");
+
+
+        Log.i("HEREWEGO", "Updating le config");
+        myRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+               Log.i("Snappyshot", snapshot.getValue().toString());
+                FirebaseProject post = snapshot.getValue(FirebaseProject.class);
+                try {
+                    Log.i("UPDATING", "Updating le config");
+                    updateConfig(post);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                System.out.println("The read failed: " + databaseError.getMessage());
+
+            }
+        });
 
     }
 
@@ -169,12 +155,12 @@ public class SenseActivity extends Activity {
         editor.putString("researcherno",researcherno);
         for(UserVariable var : variables){
             String type = var.getvartype();
-            switch(type){
-                case "Time" : editor.putString(var.getname(),var.getvalue()); break;
-                case "Boolean" : editor.putBoolean(var.getname(), Boolean.parseBoolean(var.getvalue())); break;
-                case "Text" : editor.putString(var.getname(),var.getvalue()); break;
-                case "Numeric" : editor.putLong(var.getname(), Long.parseLong(var.getvalue()));break;
-            }
+//            switch(type){
+//                case "Time" : editor.putString(var.getname(),var.getvalue()); break;
+//                case "Boolean" : editor.putBoolean(var.getname(), Boolean.parseBoolean(var.getvalue())); break;
+//                case "Text" : editor.putString(var.getname(),var.getvalue()); break;
+//                case "Numeric" : editor.putLong(var.getname(), Long.parseLong(var.getvalue()));break;
+//            }
         }
         editor.commit();
         ArrayList<Long> newIds = new ArrayList<Long>();
@@ -197,14 +183,14 @@ public class SenseActivity extends Activity {
         try {
             GlobalState triggerState = GlobalState.getGlobalState(this);
             triggerState.setNotificationCap((int) app.getmaxNotifications());
-            Log.d("Notifications", "Notification number increased to " + app.getmaxNotifications());
+            Log.i("Notifications", "Notification number increased to " + app.getmaxNotifications());
         } catch (TriggerException e) {
             e.printStackTrace();
         }
     }
 
     private void launchTrigger(FirebaseTrigger trigger) {
-        Log.d("ADDING", "ADDING A TRIGGER");
+        Log.i("ADDING", "ADDING A TRIGGER");
 
         String triggerType = trigger.getname();
         long triggerId = trigger.getid();
@@ -221,18 +207,20 @@ public class SenseActivity extends Activity {
         }
         triggerlisteners.put(triggerId, newListener);
         TriggerConfig config = new TriggerConfig();
-        Iterator<String> keys = params.keySet().iterator();
-        while (keys.hasNext()) {
-            String param = keys.next();
-            Log.d("WEHASAPARAM", param);
-            Object value = null;
-            value = params.get(param);
-            if(param.equals("result")){ //This is a sensor trigger
-                if(value instanceof Map){ //Then the result value is a map, meaning it's a user variable
+        if(trigger.getparams() != null) {
+            Iterator<String> keys = params.keySet().iterator();
+            while (keys.hasNext()) {
+                String param = keys.next();
+                Log.i("WEHASAPARAM", param);
+                Object value = null;
+                value = params.get(param);
+                if (param.equals("result")) { //This is a sensor trigger
+                    if (value instanceof Map) { //Then the result value is a map, meaning it's a user variable
 
+                    }
                 }
+                config.addParameter(param, value);
             }
-            config.addParameter(param, value);
         }
         ArrayList<FirebaseAction> toExecute = new ArrayList<FirebaseAction>();
         for (int i = 0; i < actions.size(); i++) {
@@ -242,7 +230,7 @@ public class SenseActivity extends Activity {
     }
 
     private void removeTrigger(long triggerId) {
-        Log.d("REMOVING", "REMOVIGN A TRIGGER " + triggerId);
+        Log.i("REMOVING", "REMOVIGN A TRIGGER " + triggerId);
         TriggerListener toRemove = triggerlisteners.get(triggerId);
         if(toRemove != null) {
             toRemove.unsubscribeFromTrigger("this");

@@ -24,6 +24,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -40,7 +41,7 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
     FirebaseUser mFirebaseUser;
     private FirebaseAuth mFirebaseAuth;
     private static final int REQUEST_SIGNUP = 0;
-
+    private static final int REQUEST_PASSWORD = 1;
     private EditText mEmailField;
     private EditText mPasswordField;
     public ProgressDialog mProgressDialog;
@@ -75,6 +76,7 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
         // Buttons
         findViewById(R.id.email_sign_in_button).setOnClickListener(this);
         findViewById(R.id.link_signup).setOnClickListener(this);
+        findViewById(R.id.link_forgot).setOnClickListener(this);
         mFirebaseAuth = FirebaseAuth.getInstance();
 
 
@@ -98,10 +100,12 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
                         // the auth state listener will be notified and logic to handle the
                         // signed in user can be handled in the listener.
                         if (!task.isSuccessful()) {
-                            Log.w(TAG, "signInWithEmail:failed", task.getException());
+                            Toast.makeText(SignInActivity.this, R.string.auth_failed,
+                                    Toast.LENGTH_SHORT).show();
                         }
                         else {
                             mFirebaseUser = mFirebaseAuth.getCurrentUser();
+                            Log.i("USEReeee", "User id is " + mFirebaseUser.getDisplayName());
                             goToSecondActivity(mFirebaseUser.getDisplayName());
                         }
                             // ...
@@ -135,6 +139,10 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
+            case R.id.link_forgot:
+                Intent forgotintent = new Intent(getApplicationContext(), ResetPasswordActivity.class);
+                startActivityForResult(forgotintent, REQUEST_PASSWORD);
+                break;
             case R.id.link_signup:
                 Intent intent = new Intent(getApplicationContext(), SignUpActivity.class);
                 startActivityForResult(intent, REQUEST_SIGNUP);

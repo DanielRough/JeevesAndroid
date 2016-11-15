@@ -32,12 +32,13 @@ import com.ubhave.triggermanager.config.TriggerConfig;
 import com.ubhave.triggermanager.triggers.clock.IntervalTrigger;
 import com.ubhave.triggermanager.triggers.clock.OneTimeTrigger;
 import com.ubhave.triggermanager.triggers.clock.TimeOfDayTrigger;
+import com.ubhave.triggermanager.triggers.clock.random.BeginTrigger;
 import com.ubhave.triggermanager.triggers.clock.random.JeevesIntervalTrigger;
 import com.ubhave.triggermanager.triggers.clock.random.RandomFrequencyTrigger;
 import com.ubhave.triggermanager.triggers.clock.random.SetTimesTrigger;
+import com.ubhave.triggermanager.triggers.sensor.ButtonTrigger;
 import com.ubhave.triggermanager.triggers.sensor.DelayedSensorTrigger;
 import com.ubhave.triggermanager.triggers.sensor.ImmediateSensorTrigger;
-import com.ubhave.triggermanager.triggers.sensor.ButtonTrigger;
 import com.ubhave.triggermanager.triggers.sensor.SurveyTrigger;
 
 public class TriggerList extends AbstractSubscriptionList<Trigger>
@@ -55,6 +56,10 @@ public class TriggerList extends AbstractSubscriptionList<Trigger>
 		else if (type == TriggerUtils.TYPE_JEEVES_TRIGGER_ON_INTERVAL)
 		{
 			return new JeevesIntervalTrigger(context,id,listener,params);
+		}
+		else if (type == TriggerUtils.TYPE_CLOCK_TRIGGER_BEGIN)
+		{
+			return new BeginTrigger(context,id,listener,params);
 		}
 		else if (type == TriggerUtils.TYPE_CLOCK_TRIGGER_DAILY_RANDOM)
 		{

@@ -3,59 +3,37 @@ package com.example.daniel.jeeves;
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 
-import com.firebase.client.Firebase;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.ubhave.datahandler.loggertypes.AbstractDataLogger;
 
-//import com.google.firebase.auth.FirebaseUser;
 
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener{
-    EditText txtusername;
-    EditText txtpassword;
-    TextView txtUpdate;
-    String username,password;
-    Button login;
-    Firebase myFirebaseRef;
     Context context;
-    private AbstractDataLogger logger;
     private static final int MY_PERMISSIONS = 12345;
-    // Firebase instance variables
     private FirebaseAuth mFirebaseAuth;
     private FirebaseUser mFirebaseUser;
-    private FirebaseAuth.AuthStateListener mAuthListener;
-
-    private ProgressBar spinner;
     private String mUsername;
     private GoogleApiClient mGoogleApiClient;
     public static final String ANONYMOUS = "anonymous";
 
-    private Button mSendButton;
     private RecyclerView mMessageRecyclerView;
     private LinearLayoutManager mLinearLayoutManager;
     private ProgressBar mProgressBar;
-    private EditText mMessageEditText;
-    private SharedPreferences mSharedPreferences;
-    public static final int DEFAULT_MSG_LENGTH_LIMIT = 10;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,7 +58,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
 
         context = this.getApplicationContext();
         setContentView(R.layout.activity_main);
-        mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
         mUsername = ANONYMOUS;
 
@@ -105,24 +82,20 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
             startActivity(new Intent(this, SignInActivity.class));
             finish();
             return;
-        } else {
+        } else {        Log.i("USERoooo", "User id is " + mFirebaseUser.getDisplayName());
+
             mUsername = mFirebaseUser.getDisplayName();
             goToSecondActivity(mUsername);
-
-//            if (mFirebaseUser.getPhotoUrl() != null) {
-//                mPhotoUrl = mFirebaseUser.getPhotoUrl().toString();
-//            }
         }
-        // Initialize ProgressBar and RecyclerView.
     }
+
     private void goToSecondActivity(String id){
         Intent intent = new Intent(this,SenseActivity.class);
         intent.putExtra("userid",id);
         startActivity(intent);
         finish();
-
-     //   finish(); //Stops them going back to the login screen EVER
     }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();

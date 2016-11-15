@@ -15,6 +15,8 @@
     <string name="hint_password">Password</string>
     <string name="create_account">Create Account</string>
     <string name="auth_failed">Authentication failed</string>
+    <string name="password_reset">A new password has been sent to your email account</string>
+    <string name="failed_reset">That is not a registered email address</string>
     <string name="signed_out">Signed Out</string>
     <string name="loading">Loading…</string>
     <string name="emailpassword_status_fmt">Email User: %s</string>

@@ -20,15 +20,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
+import com.example.daniel.jeeves.actions.FirebaseAction;
 import com.ubhave.triggermanager.ESTriggerManager;
 import com.ubhave.triggermanager.TriggerException;
 import com.ubhave.triggermanager.TriggerReceiver;
 import com.ubhave.triggermanager.config.TriggerConfig;
+import com.ubhave.triggermanager.triggers.TriggerUtils;
 
 import java.util.ArrayList;
-
-import com.example.daniel.jeeves.actions.FirebaseAction;
-import com.ubhave.triggermanager.triggers.TriggerUtils;
 
 public class TriggerListener implements TriggerReceiver {
     private final static String LOG_TAG = "Trigger Receiver";
@@ -64,10 +63,10 @@ public class TriggerListener implements TriggerReceiver {
             SubscriptionIds.setId(Long.toString(triggerId), triggerSubscriptionId);
             isSubscribed = true;
 
-            Log.d("TriggerReceiver", "Trigger subscribed: " + triggerSubscriptionId);
-            Log.d("ACTIONS", "Found " + actions.size() + " to perform");
+            Log.i("TriggerReceiver", "Trigger subscribed: " + triggerSubscriptionId);
+            Log.i("ACTIONS", "Found " + actions.size() + " to perform");
             if(actions.size()>0)
-            Log.d("ACTIONS", "Action description: " + actions.get(0).getname());
+            Log.i("ACTIONS", "Action description: " + actions.get(0).getname());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -83,7 +82,7 @@ public class TriggerListener implements TriggerReceiver {
             SubscriptionIds.removeSubscription(triggerId);
             isSubscribed = false;
 
-            Log.d("TriggerReceiver", "Trigger removed: " + triggerSubscriptionId+", "+caller);
+            Log.i("TriggerReceiver", "Trigger removed: " + triggerSubscriptionId+", "+caller);
 
         } catch (TriggerException e) {
             e.printStackTrace();
@@ -92,18 +91,18 @@ public class TriggerListener implements TriggerReceiver {
 
     @Override
     public void onNotificationTriggered(int triggerId) {
-        Log.d(LOG_TAG, "onNotificationTriggered");
+        Log.i(LOG_TAG, "onNotificationTriggered");
         Context context = ApplicationContext.getContext();
-        Log.d("TRIGGER NO  " + triggerId, "TRIGGERD THE TRIGGER " + triggerId);
+        Log.i("TRIGGER NO  " + triggerId, "TRIGGERD THE TRIGGER " + triggerId);
         Intent actionIntent = new Intent(serviceContext,ActionExecutorService.class);
         actionIntent.putExtra("com/example/daniel/jeeves/actions",actionsToPerform);
         if(triggerType == TriggerUtils.TYPE_SENSOR_TRIGGER_BUTTON) {
             actionIntent.putExtra("manual", true);
-            Log.d("SET MANUAL", "Set manual to TRUE");
+            Log.i("SET MANUAL", "Set manual to TRUE");
         }
         else {
             actionIntent.putExtra("manual", false);
-            Log.d("SET MANUAL", "Set manual to FALSE");
+            Log.i("SET MANUAL", "Set manual to FALSE");
 
         }
             serviceContext.startService(actionIntent);

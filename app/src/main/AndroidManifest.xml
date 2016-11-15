@@ -35,7 +35,13 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyBaV19Qnyprkc8OjFykuPkvl_vhRCngRac" />
 
-        <activity android:name=".MainActivity" />
+        <activity android:name=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".SignInActivity"
             android:parentActivityName=".MainActivity"
@@ -63,26 +69,22 @@
             android:parentActivityName=".SenseActivity" />
         <activity android:name=".SurveyActivity" />
         <activity
-            android:name=".LauncherActivity"
-            android:noHistory="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-        <activity
             android:name=".MonitorActivity"
             android:parentActivityName=".SenseActivity" />
         <activity
             android:name=".SignUpActivity"
             android:label="@string/title_activity_sign_up"
             android:parentActivityName=".SignInActivity"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="stateAlwaysHidden"
+
+            >
+
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.daniel.jeeves.SignInActivity" />
         </activity>
+        <activity android:name=".ResetPasswordActivity"></activity>
     </application>
 
 </manifest>
