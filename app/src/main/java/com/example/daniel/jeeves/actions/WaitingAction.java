@@ -5,11 +5,16 @@ import android.util.Log;
 
 import com.example.daniel.jeeves.ApplicationContext;
 
+import java.util.Map;
+
 /**
  * Created by Daniel on 27/05/15.
  */
 public class WaitingAction extends FirebaseAction {
 
+    public WaitingAction(Map<String,Object> params){
+
+    }
     @Override
     public void execute() {
         Log.d("ACTIONWAIT", "SOMEHOW GONNA WAIT BEFORE EXECUTING");

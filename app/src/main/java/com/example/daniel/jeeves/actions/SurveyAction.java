@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -41,6 +42,10 @@ public class SurveyAction extends FirebaseAction {
     public static final String ACTION_2 = "action_2";
     int missedSurveys;
     public int thisActionsId = 0;
+
+    public SurveyAction(Map<String,Object> params){
+
+    }
     @Override
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     public void execute() {

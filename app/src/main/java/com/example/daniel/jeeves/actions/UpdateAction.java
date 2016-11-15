@@ -20,6 +20,10 @@ public class UpdateAction extends FirebaseAction {
     public FirebaseExpression getvalue(){
         return value;
     }
+
+    public UpdateAction(Map<String,Object> params){
+
+    }
     @Override
     public void execute() {
         Log.d("ACTIONUPDATEUSER", "UPDATED USER VAR");

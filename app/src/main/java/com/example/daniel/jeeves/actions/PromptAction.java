@@ -16,7 +16,7 @@ import java.util.Map;
 public class PromptAction extends FirebaseAction {
 
     public PromptAction(Map<String,Object> params){
-        
+
     }
     static int count = 0;
     @Override
