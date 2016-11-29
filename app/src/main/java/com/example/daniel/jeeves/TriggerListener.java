@@ -20,6 +20,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
+import com.example.daniel.jeeves.actions.ActionUtils;
 import com.example.daniel.jeeves.actions.FirebaseAction;
 import com.ubhave.triggermanager.ESTriggerManager;
 import com.ubhave.triggermanager.TriggerException;
@@ -57,15 +58,16 @@ public class TriggerListener implements TriggerReceiver {
         try {
             Context context = ApplicationContext.getContext();
             this.triggerId = triggerId;
-            this.actionsToPerform = actions;
+            actionsToPerform = new ArrayList<FirebaseAction>();
+            for(FirebaseAction action : actions){
+                actionsToPerform.add(ActionUtils.create(action)); //Oh good lord really!?
+                Log.i("Action is...", action.toString());
+            }
+
             Log.d("WORKIGN","HOWMANYTIMES");
             triggerSubscriptionId = triggerManager.addTrigger(triggerType, this, params);
             SubscriptionIds.setId(Long.toString(triggerId), triggerSubscriptionId);
             isSubscribed = true;
-
-            (for FirebaseAction action : actions){
-                action.getparams();
-            }
             Log.i("TriggerReceiver", "Trigger subscribed: " + triggerSubscriptionId);
             Log.i("ACTIONS", "Found " + actions.size() + " to perform");
             if(actions.size()>0)

@@ -2,31 +2,28 @@ package com.example.daniel.jeeves.actions;
 
 import android.annotation.TargetApi;
 import android.app.AlarmManager;
-import android.app.AlertDialog;
 import android.app.IntentService;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.app.TaskStackBuilder;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
-import android.os.Handler;
 import android.support.v4.app.NotificationCompat;
-import android.support.v4.util.DebugUtils;
 import android.util.Log;
 
 import com.example.daniel.jeeves.ApplicationContext;
 import com.example.daniel.jeeves.R;
 import com.example.daniel.jeeves.SurveyActivity;
 import com.example.daniel.jeeves.firebase.FirebaseSurvey;
-import com.firebase.client.Firebase;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.ubhave.triggermanager.config.TriggerManagerConstants;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -42,8 +39,12 @@ public class SurveyAction extends FirebaseAction {
     public static final String ACTION_2 = "action_2";
     int missedSurveys;
     public int thisActionsId = 0;
+  //  DatabaseReference myRef;
 
     public SurveyAction(Map<String,Object> params){
+        setparams(params);
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+    //    myRef = database.getReference("JeevesData");
 
     }
     @Override
@@ -53,13 +54,14 @@ public class SurveyAction extends FirebaseAction {
         Log.d("ACTIONSURVEY", "SENT A SURVEY WITH ACTION ID " + thisActionsId);
         Context app = ApplicationContext.getContext();
         SharedPreferences prefs = app.getSharedPreferences("userprefs", Context.MODE_PRIVATE);
-        String userid = prefs.getString("userid", "null");
         String surveyname = getparams().get("survey").toString();
-        Firebase incompleteSurveys = new Firebase("https://incandescent-torch-8695.firebaseio.com/JeevesData/patients/" + userid + "/incomplete/" + surveyname);
+//        Firebase incompleteSurveys = new Firebase("https://incandescent-torch-8695.firebaseio.com/JeevesData/patients/" + userid + "/incomplete/" + surveyname);
         HashMap<String, Object> surveyDetails = new HashMap<String, Object>();
 
 
-
+        FirebaseAuth mFirebaseAuth = FirebaseAuth.getInstance();
+        FirebaseUser currentUser = mFirebaseAuth.getCurrentUser();
+        String userid = currentUser.getUid();
         FirebaseSurvey currentsurvey = null;
         List<FirebaseSurvey> surveys = ApplicationContext.getProject().getsurveys();
         for (FirebaseSurvey survey : surveys) {
@@ -69,7 +71,9 @@ public class SurveyAction extends FirebaseAction {
                 break;
             }
         }
-        Firebase newPostRef = incompleteSurveys.push();
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference myRef = database.getReference("JeevesData").child("patients").child(userid).child("incomplete").child(surveyname);
+        DatabaseReference newPostRef = myRef.push();
         newPostRef.setValue(currentsurvey); //Maybe this needs tobe made explicit?
         String newPostRefId = newPostRef.getKey();
         Log.d("REFID", "New postrefid is " + newPostRefId);

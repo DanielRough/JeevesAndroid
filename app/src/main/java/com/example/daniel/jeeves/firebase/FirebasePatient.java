@@ -1,6 +1,5 @@
 package com.example.daniel.jeeves.firebase;
 
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -8,14 +7,18 @@ import java.util.Map;
  */
 public class FirebasePatient {
 
-    public String address;
-    public String firstName;
-    public String lastName;
-    public String phone;
+    public String name;
     public String email;
-    public String uid;
+    public String currentStudy;
 
+    public FirebasePatient(){
 
+    }
+
+    public FirebasePatient(String name, String email){
+        this.name = name;
+        this.email = email;
+    }
     public Map<String,Object> feedback;
 
     public Map<String,Object> getfeedback(){ return feedback; }
@@ -23,20 +26,10 @@ public class FirebasePatient {
     public Map<String,FirebaseSurvey> complete;
 
     public String getemail(){ return email; }
-    public String getaddress(){
-        return address;
+    public String getname(){
+        return name;
     }
-
-    public String getfirstName(){
-        return firstName;
-    }
-    public String getlastName(){
-        return lastName;
-    }
-    public String getphone(){
-        return phone;
-    }
-    public String getuid() { return uid; }
+    public String getcurrentStudy(){ return currentStudy; }
 
     public Map<String,Map<String,FirebaseSurvey>> getincomplete(){
         return incomplete;

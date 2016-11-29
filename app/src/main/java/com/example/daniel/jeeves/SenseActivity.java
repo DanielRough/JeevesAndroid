@@ -13,11 +13,13 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.example.daniel.jeeves.actions.FirebaseAction;
+import com.example.daniel.jeeves.firebase.FirebasePatient;
 import com.example.daniel.jeeves.firebase.FirebaseProject;
 import com.example.daniel.jeeves.firebase.FirebaseSurvey;
 import com.example.daniel.jeeves.firebase.FirebaseTrigger;
 import com.example.daniel.jeeves.firebase.UserVariable;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -77,17 +79,35 @@ public class SenseActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         instance = this;
-
+        Log.i("RECREAAAAATION","WHY HAVE I BEEN RECREATED");
 
         mFirebaseAuth = FirebaseAuth.getInstance();
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference myRef = database.getReference("JeevesData");
 
         super.onCreate(savedInstanceState);
         //    SharedPreferences sharedPref = getApplicationContext().getSharedPreferences(getString(R.string.configurations), Context.MODE_PRIVATE);
         setContentView(R.layout.activity_sense);
 
+        String studyname = getIntent().getStringExtra("studyname");
         txtWelcome = (TextView)findViewById(R.id.txtWelcome);
 
-        txtWelcome.setText("Welcome!");
+        FirebaseUser user = mFirebaseAuth.getCurrentUser();
+        String id = user.getUid();
+        DatabaseReference patientRef = myRef.child("patients").child(id);
+        ValueEventListener postListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                // Get Post object and use the values to update the UI
+                FirebasePatient post = dataSnapshot.getValue(FirebasePatient.class);
+                txtWelcome.setText("Welcome, " + post.getname() + "!");
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+            }
+        };
+        patientRef.addValueEventListener(postListener);
 
         Button btnContact = (Button) findViewById(R.id.btnContact);
         Button btnSurveys = (Button) findViewById(R.id.btnSurvey);
@@ -116,12 +136,12 @@ public class SenseActivity extends Activity {
                 startActivity(intent);
             }
         });
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference myRef = database.getReference("JeevesData/projects/aasdfgh");
+        Log.i("Sutdyname","Study name is " + studyname);
+        DatabaseReference projectRef = myRef.child("projects").child(studyname);
 
 
         Log.i("HEREWEGO", "Updating le config");
-        myRef.addValueEventListener(new ValueEventListener() {
+        projectRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
                Log.i("Snappyshot", snapshot.getValue().toString());
@@ -182,8 +202,8 @@ public class SenseActivity extends Activity {
         //This should hopefully handle new, updated and deleted triggers
         try {
             GlobalState triggerState = GlobalState.getGlobalState(this);
-            triggerState.setNotificationCap(55);
-            Log.i("Notifications", "Notification number increased to " + app.getmaxNotifications());
+            triggerState.setNotificationCap(199);
+            Log.i("Notificationoooooos", "Notification number increased to " + app.getmaxNotifications());
         } catch (TriggerException e) {
             e.printStackTrace();
         }
@@ -244,4 +264,8 @@ public class SenseActivity extends Activity {
         return true;
     }
 
+    @Override
+    public void onDestroy(){
+        Log.i("DESTROYED","Why did I get destroyed I wonder?");
+    }
 }

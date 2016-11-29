@@ -15,6 +15,7 @@
  */
 package com.example.daniel.jeeves;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
@@ -26,12 +27,18 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.example.daniel.jeeves.firebase.FirebasePatient;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 public class SignInActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -83,6 +90,9 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
 
     }
 
+    public Activity getInstance(){
+        return this;
+    }
     private void signIn(String email, String password){
         if (!validateForm()) {
             return;
@@ -105,8 +115,26 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
                         }
                         else {
                             mFirebaseUser = mFirebaseAuth.getCurrentUser();
-                            Log.i("USEReeee", "User id is " + mFirebaseUser.getDisplayName());
-                            goToSecondActivity(mFirebaseUser.getDisplayName());
+                            FirebaseDatabase database = FirebaseDatabase.getInstance();
+                            final DatabaseReference myRef = database.getReference("JeevesData").child("patients").child(mFirebaseUser.getUid());
+                            myRef.addValueEventListener(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(DataSnapshot dataSnapshot) {
+                                    FirebasePatient user = dataSnapshot.getValue(FirebasePatient.class);
+                                    if(user.getcurrentStudy() != null){
+                                        Intent intent = new Intent(getInstance(),SenseActivity.class);
+                                        intent.putExtra("studyname",user.getcurrentStudy());
+                                        startActivity(intent);
+                                    }
+                                    else
+                                        goToSecondActivity();
+                                }
+
+                                @Override
+                                public void onCancelled(DatabaseError databaseError) {
+
+                                }
+                            });
                         }
                             // ...
                     }
@@ -170,7 +198,7 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful()) {
-                            goToSecondActivity(name);
+                            goToSecondActivity();
                             finish();
                         }
                     }
@@ -181,9 +209,8 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
         }
     }
 
-    private void goToSecondActivity(String id){
-        Intent intent = new Intent(this,SenseActivity.class);
-        intent.putExtra("userid",id);
+    private void goToSecondActivity(){
+        Intent intent = new Intent(this,StudySignupActivity.class);
         startActivity(intent);
         finish();
 

@@ -5,11 +5,12 @@ import android.content.Intent;
 import android.util.Log;
 
 import com.example.daniel.jeeves.ActionExecutorService;
+import com.example.daniel.jeeves.ApplicationContext;
 import com.example.daniel.jeeves.ExpressionParser;
 import com.example.daniel.jeeves.firebase.FirebaseExpression;
-import com.example.daniel.jeeves.ApplicationContext;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 /**
  * Created by Daniel on 08/06/15.
@@ -19,6 +20,9 @@ public class IfControl extends FirebaseControl {
   //  ActionExecutorService mService;
     boolean mBound = false;
 
+    public IfControl(Map<String,Object> params){
+        setparams(params);
+    }
     @Override
     public void execute() {
         Log.d("CONTROLIF", "IF CONTROL");

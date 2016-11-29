@@ -3,14 +3,12 @@ package com.example.daniel.jeeves;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.daniel.jeeves.firebase.FirebaseSurvey;
 
@@ -93,14 +91,14 @@ public class CustomAdapter extends BaseAdapter {
         rowView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent resultIntent = new Intent(ApplicationContext.getContext(), SurveyActivity.class);
+                Intent resultIntent = new Intent(context, SurveyActivity.class);
                 resultIntent.putExtra("surveyid",surveyKey);
                 resultIntent.putExtra("name",surveyName);
                 resultIntent.putExtra("timeSent",timeSent);
                 result.get(position).setbegun(); //Confirm that this survey has been started
 
                 SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-                resultIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            //   resultIntent.addFlags(Intent.FLAG_ACTIVITY_T);
                 context.startActivityForResult(resultIntent,position); //So we know which one to delete
             }
         });

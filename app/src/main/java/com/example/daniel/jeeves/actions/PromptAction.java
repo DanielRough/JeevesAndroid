@@ -16,14 +16,14 @@ import java.util.Map;
 public class PromptAction extends FirebaseAction {
 
     public PromptAction(Map<String,Object> params){
-
+        setparams(params);
     }
     static int count = 0;
     @Override
     public void execute(){
         Log.i("ACTIONPROMPT", "PROMPTED AN ACTON");
         Context app = ApplicationContext.getContext();
-        String text = getparams().get("prompttext").toString();
+        String text = getparams().get("msgtext").toString();
         Log.i("TEXT", "Text is " + text);
         NotificationManager notificationManager =
                 (NotificationManager) app.getSystemService(app.NOTIFICATION_SERVICE);

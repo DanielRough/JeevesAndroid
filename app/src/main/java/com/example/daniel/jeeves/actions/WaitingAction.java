@@ -13,6 +13,7 @@ import java.util.Map;
 public class WaitingAction extends FirebaseAction {
 
     public WaitingAction(Map<String,Object> params){
+        setparams(params);
 
     }
     @Override

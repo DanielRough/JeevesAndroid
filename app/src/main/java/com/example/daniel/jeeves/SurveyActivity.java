@@ -2,12 +2,8 @@ package com.example.daniel.jeeves;
 
 import android.Manifest;
 import android.annotation.TargetApi;
-import android.app.ActionBar;
 import android.app.Activity;
-import android.app.AlarmManager;
 import android.app.AlertDialog;
-import android.app.Fragment;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -16,77 +12,56 @@ import android.content.pm.PackageManager;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
-import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Handler;
-import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
-import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RatingBar;
-import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
-import android.widget.TimePicker;
 import android.widget.Toast;
-import android.widget.ToggleButton;
 import android.widget.ViewFlipper;
-import android.widget.ViewSwitcher;
 
 import com.example.daniel.jeeves.firebase.FirebaseQuestion;
 import com.example.daniel.jeeves.firebase.FirebaseSurvey;
-import com.firebase.client.DataSnapshot;
-import com.firebase.client.Firebase;
-import com.firebase.client.FirebaseError;
-import com.firebase.client.ValueEventListener;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.PendingResult;
-import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.places.Place;
-import com.google.android.gms.location.places.PlaceLikelihood;
-import com.google.android.gms.location.places.PlaceLikelihoodBuffer;
 import com.google.android.gms.location.places.Places;
-import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
 import com.google.android.gms.location.places.ui.PlacePicker;
-import com.google.android.gms.location.places.ui.PlaceSelectionListener;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.ubhave.triggermanager.config.TriggerManagerConstants;
 
-import org.json.JSONException;
-
-import java.lang.reflect.Method;
-import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -94,9 +69,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 import DateTimePicker.DateTimePicker;
 
@@ -134,9 +106,14 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
     private GoogleApiClient mGoogleApiClient;
     int PLACE_PICKER_REQUEST = 1;
     private DateTimePicker picker;
+    DatabaseReference surveyRef;
+    DatabaseReference completedSurveysRef;
+    FirebaseAuth mFirebaseAuth;
 
-    Firebase firebaseSurvey;
-    Firebase completedSurveys;
+    //  Firebase firebaseSurvey;
+   // Firebase completedSurveys;
+//    DatabaseReference firebaseSurvey;
+//    DatabaseReference completedSurveys;
     final Handler handler = new Handler();
     boolean finished = false;
     long timeSent = 0;
@@ -148,23 +125,24 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
         inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 
-    @Override
+
     protected void onStop() {
         super.onStop();
         Log.d("STOPPED", "Gotta stop here");
         currentsurvey.setanswers(questiondata); //Save the partially completed stuff
-        firebaseSurvey.addValueEventListener(new ValueEventListener() {
+        surveyRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
-                firebaseSurvey.removeEventListener(this);
+                surveyRef.removeEventListener(this);
                 Map<String, Object> value = (Map<String, Object>) snapshot.getValue();
                 //completedSurveys.setValue(value);
                 if (finished == false)
-                    firebaseSurvey.setValue(currentsurvey);
+                    surveyRef.setValue(currentsurvey);
             }
 
             @Override
-            public void onCancelled(FirebaseError error) {
+            public void onCancelled(DatabaseError databaseError) {
+
             }
         });
     }
@@ -180,12 +158,21 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
         surveyid = getIntent().getStringExtra("surveyid");
 
         Context app = ApplicationContext.getContext();
+        mFirebaseAuth = FirebaseAuth.getInstance();
+
+        FirebaseUser user = mFirebaseAuth.getCurrentUser();
+        String userid = user.getUid();
         prefs = app.getSharedPreferences("userprefs", Context.MODE_PRIVATE);
-        String userid = prefs.getString("userid", "null");
+   //     String userid = prefs.getString("userid", "null");
         String surveyname = getIntent().getStringExtra("name");
          missedSurveys = prefs.getInt(surveyname,0);
-        firebaseSurvey = new Firebase("https://incandescent-torch-8695.firebaseio.com/JeevesData/patients/" + userid + "/incomplete/" + surveyname + "/" +surveyid);
-        completedSurveys = new Firebase("https://incandescent-torch-8695.firebaseio.com/JeevesData/patients/" + userid + "/complete");
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        surveyRef = database.getReference("JeevesData").child("patients").child(userid).child("incomplete").child(surveyname).child(surveyid);
+        completedSurveysRef = database.getReference("JeevesData").child("patients").child(userid).child("complete");
+
+
+//        firebaseSurvey = new Firebase("https://incandescent-torch-8695.firebaseio.com/JeevesData/patients/" + userid + "/incomplete/" + surveyname + "/" +surveyid);
+ //       completedSurveys = new Firebase("https://incandescent-torch-8695.firebaseio.com/JeevesData/patients/" + userid + "/complete");
         txtOpenEnded = ((EditText) findViewById(R.id.txtOpenEnded));
         txtNumeric = ((EditText) findViewById(R.id.txtNumeric));
         switchBool = ((Switch) findViewById(R.id.switchBool));
@@ -276,7 +263,7 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
                 for (int i = 0; i < questiondata.size(); i++){
                     Map<String, String> stringStringMap = questiondata.get(i);
                     String answer = stringStringMap.get("answer");
-                    if(!currentsurvey.getquestions().get(i).getparams().get("assignedVar").equals("")){ //If we need to assign this answer to a variable
+                    if(currentsurvey.getquestions().get(i).getparams() != null && !currentsurvey.getquestions().get(i).getparams().get("assignedVar").equals("")){ //If we need to assign this answer to a variable
                         String varname = currentsurvey.getquestions().get(i).getparams().get("assignedVar").toString();
                         SharedPreferences.Editor editor = prefs.edit();
                         editor.putString(varname,answer); //Put the variable into the var
@@ -307,20 +294,21 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
                 intended.setAction(TriggerManagerConstants.ACTION_NAME_SURVEY_TRIGGER);
                 intended.putExtra("surveyName",currentsurvey.getname());
                 sendBroadcast(intended);
-                firebaseSurvey.addValueEventListener(new ValueEventListener() {
+                surveyRef.addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot snapshot) {
                         Map<String, Object> value = (Map<String, Object>) snapshot.getValue();
-                        Firebase newPostRef = completedSurveys.push();
+                        DatabaseReference newPostRef = completedSurveysRef.push();
                         newPostRef.setValue(currentsurvey); //Maybe this needs tobe made explicit?
                         //completedSurveys.setValue(value);
-                        firebaseSurvey.removeEventListener(this);
-                        firebaseSurvey.removeValue();
+                        surveyRef.removeEventListener(this);
+                        surveyRef.removeValue();
                         handler.removeCallbacksAndMessages(null);
                     }
 
                     @Override
-                    public void onCancelled(FirebaseError error) {
+                    public void onCancelled(DatabaseError databaseError) {
+
                     }
                 });
                 Intent data = new Intent();
@@ -347,7 +335,7 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
 //                }
 //            }
 
-        firebaseSurvey.addValueEventListener(new ValueEventListener() {
+        surveyRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
 //                if(snapshot.getValue() == null){
@@ -356,7 +344,7 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
 //                }
                 Log.d("SNAPPYSHOT", snapshot.getValue().toString());
                 currentsurvey = snapshot.getValue(FirebaseSurvey.class);
-                firebaseSurvey.removeEventListener(this);
+                surveyRef.removeEventListener(this);
                 if (currentsurvey != null) {
                     questions = currentsurvey.getquestions();
 
@@ -430,9 +418,10 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
             }
 
             @Override
-            public void onCancelled(FirebaseError error) {
-                Log.d("ERROR", error.toString());
+            public void onCancelled(DatabaseError databaseError) {
+
             }
+
         });
 
 

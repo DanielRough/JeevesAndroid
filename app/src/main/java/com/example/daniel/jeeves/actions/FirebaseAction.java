@@ -26,6 +26,9 @@ public class FirebaseAction implements Serializable,IAction {
         return params;
     }
 
+    public void setparams(Map<String,Object> params){
+        this.params = params;
+    }
     public String gettype() {
         return type;
     }

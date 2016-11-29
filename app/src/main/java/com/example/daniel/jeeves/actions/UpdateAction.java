@@ -7,7 +7,6 @@ import android.util.Log;
 import com.example.daniel.jeeves.ApplicationContext;
 import com.example.daniel.jeeves.ExpressionParser;
 import com.example.daniel.jeeves.firebase.FirebaseExpression;
-import com.example.daniel.jeeves.firebase.UserVariable;
 
 import java.util.Map;
 
@@ -22,6 +21,7 @@ public class UpdateAction extends FirebaseAction {
     }
 
     public UpdateAction(Map<String,Object> params){
+        setparams(params);
 
     }
     @Override

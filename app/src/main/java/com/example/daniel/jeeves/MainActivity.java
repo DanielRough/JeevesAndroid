@@ -1,6 +1,7 @@
 package com.example.daniel.jeeves;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -9,17 +10,22 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.ProgressBar;
 
+import com.example.daniel.jeeves.firebase.FirebasePatient;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener{
@@ -35,6 +41,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     private LinearLayoutManager mLinearLayoutManager;
     private ProgressBar mProgressBar;
 
+    public Activity getInstance(){
+        return this;
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -82,16 +91,33 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
             startActivity(new Intent(this, SignInActivity.class));
             finish();
             return;
-        } else {        Log.i("USERoooo", "User id is " + mFirebaseUser.getDisplayName());
+        } else {
+            FirebaseDatabase database = FirebaseDatabase.getInstance();
+            final DatabaseReference myRef = database.getReference("JeevesData").child("patients").child(mFirebaseUser.getUid());
+            myRef.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    FirebasePatient user = dataSnapshot.getValue(FirebasePatient.class);
+                    if(user.getcurrentStudy() != null){
+                        Intent intent = new Intent(getInstance(),SenseActivity.class);
+                        intent.putExtra("studyname",user.getcurrentStudy());
+                        startActivity(intent);
+                    }
+                    else
+                      goToSecondActivity();
+                }
 
-            mUsername = mFirebaseUser.getDisplayName();
-            goToSecondActivity(mUsername);
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+
         }
     }
 
-    private void goToSecondActivity(String id){
-        Intent intent = new Intent(this,SenseActivity.class);
-        intent.putExtra("userid",id);
+    private void goToSecondActivity(){
+        Intent intent = new Intent(this,StudySignupActivity.class);
         startActivity(intent);
         finish();
     }

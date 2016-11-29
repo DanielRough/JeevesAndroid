@@ -15,6 +15,7 @@ import java.util.Map;
 public class SpeakerAction extends FirebaseAction {
 
     public SpeakerAction(Map<String,Object> params){
+        setparams(params);
 
     }
     @Override

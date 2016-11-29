@@ -16,6 +16,7 @@ import java.util.Map;
 public class SendTextAction extends FirebaseAction {
 
     public SendTextAction(Map<String,Object> params){
+        setparams(params);
 
     }
     @Override
@@ -29,7 +30,7 @@ public class SendTextAction extends FirebaseAction {
         String toSend = "";
         switch(recipient){
             case "Researcher": toSend = pref.getString("researcherno",""); break;
-            case "Last sender": toSend = pref.getString("lastSender","");break;
+          //  case "Last sender": toSend = pref.getString("lastSender","");break;
             case "Emergency contact": toSend = pref.getString("contact",""); break;
         }
         Log.d("SENDING","Sending a message to " + toSend);
