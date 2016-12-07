@@ -48,8 +48,6 @@ public class QuestionView extends View {
         mExampleColor = a.getColor(
                 R.styleable.QuestionView_exampleColor,
                 mExampleColor);
-        // Use getDimensionPixelSize or getDimensionPixelOffset when dealing with
-        // values that should fall on pixel boundaries.
         mExampleDimension = a.getDimension(
                 R.styleable.QuestionView_exampleDimension,
                 mExampleDimension);
@@ -57,7 +55,7 @@ public class QuestionView extends View {
         if (a.hasValue(R.styleable.QuestionView_exampleDrawable)) {
             mExampleDrawable = a.getDrawable(
                     R.styleable.QuestionView_exampleDrawable);
-            mExampleDrawable.setCallback(this);
+        //    mExampleDrawable.setCallback(this);
         }
 
         a.recycle();

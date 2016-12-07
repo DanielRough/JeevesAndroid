@@ -31,65 +31,38 @@ import com.ubhave.triggermanager.triggers.TriggerUtils;
 import java.util.ArrayList;
 
 public class TriggerListener implements TriggerReceiver {
-    private final static String LOG_TAG = "Trigger Receiver";
-    private final String triggerName;
-    public final static int NOTIFICATION_ID = 1234;
-    //ActionExecutorService mService;
-    boolean mBound = false;
-    //private final String triggerName;
 
     private final ESTriggerManager triggerManager;
-
-    private long triggerId;
-   // private String triggerName;
+    private String triggerId;
     private int triggerType, triggerSubscriptionId;
-    private boolean isSubscribed;
     private Context serviceContext;
     private ArrayList<FirebaseAction> actionsToPerform;
     public TriggerListener(int triggerType, Context c) throws TriggerException {
         this.triggerType = triggerType;
-        this.triggerName = TriggerUtils.getTriggerName(triggerType);
+      //  this.triggerName = TriggerUtils.getTriggerName(triggerType);
         this.serviceContext = c;
         this.triggerManager = ESTriggerManager.getTriggerManager(ApplicationContext.getContext());
     }
 
 
-    public void subscribeToTrigger(final TriggerConfig params, ArrayList<FirebaseAction> actions, long triggerId) {
+    public void subscribeToTrigger(final TriggerConfig params, ArrayList<FirebaseAction> actions, String triggerId) {
         try {
-            Context context = ApplicationContext.getContext();
             this.triggerId = triggerId;
-            actionsToPerform = new ArrayList<FirebaseAction>();
+            actionsToPerform = new ArrayList<>();
             for(FirebaseAction action : actions){
                 actionsToPerform.add(ActionUtils.create(action)); //Oh good lord really!?
-                Log.i("Action is...", action.toString());
             }
-
-            Log.d("WORKIGN","HOWMANYTIMES");
             triggerSubscriptionId = triggerManager.addTrigger(triggerType, this, params);
-            SubscriptionIds.setId(Long.toString(triggerId), triggerSubscriptionId);
-            isSubscribed = true;
-            Log.i("TriggerReceiver", "Trigger subscribed: " + triggerSubscriptionId);
-            Log.i("ACTIONS", "Found " + actions.size() + " to perform");
-            if(actions.size()>0)
-            Log.i("ACTIONS", "Action description: " + actions.get(0).getname());
+            //SubscriptionIds.setId(Long.toString(triggerId), triggerSubscriptionId);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-//    public FirebaseAction createAction
-    public boolean isSubscribed() {
-        return isSubscribed;
-    }
-
     public void unsubscribeFromTrigger(String caller) {
         try {
             triggerManager.removeTrigger(triggerSubscriptionId);
-            SubscriptionIds.removeSubscription(triggerId);
-            isSubscribed = false;
-
-            Log.i("TriggerReceiver", "Trigger removed: " + triggerSubscriptionId+", "+caller);
-
+            //SubscriptionIds.removeSubscription(triggerId);
         } catch (TriggerException e) {
             e.printStackTrace();
         }
@@ -97,19 +70,13 @@ public class TriggerListener implements TriggerReceiver {
 
     @Override
     public void onNotificationTriggered(int triggerId) {
-        Log.i(LOG_TAG, "onNotificationTriggered");
-        Context context = ApplicationContext.getContext();
-        Log.i("TRIGGER NO  " + triggerId, "TRIGGERD THE TRIGGER " + triggerId);
         Intent actionIntent = new Intent(serviceContext,ActionExecutorService.class);
         actionIntent.putExtra("com/example/daniel/jeeves/actions",actionsToPerform);
         if(triggerType == TriggerUtils.TYPE_SENSOR_TRIGGER_BUTTON) {
             actionIntent.putExtra("manual", true);
-            Log.i("SET MANUAL", "Set manual to TRUE");
         }
         else {
             actionIntent.putExtra("manual", false);
-            Log.i("SET MANUAL", "Set manual to FALSE");
-
         }
             serviceContext.startService(actionIntent);
     }

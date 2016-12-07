@@ -17,11 +17,13 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
@@ -142,7 +144,7 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-
+                Log.d("Error","we have an error here");
             }
         });
     }
@@ -152,6 +154,12 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
+
+        setContentView(R.layout.activity_missed_survey);
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
         setContentView(R.layout.activity_survey);
 
 
@@ -163,16 +171,12 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
         FirebaseUser user = mFirebaseAuth.getCurrentUser();
         String userid = user.getUid();
         prefs = app.getSharedPreferences("userprefs", Context.MODE_PRIVATE);
-   //     String userid = prefs.getString("userid", "null");
         String surveyname = getIntent().getStringExtra("name");
          missedSurveys = prefs.getInt(surveyname,0);
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         surveyRef = database.getReference("JeevesData").child("patients").child(userid).child("incomplete").child(surveyname).child(surveyid);
         completedSurveysRef = database.getReference("JeevesData").child("patients").child(userid).child("complete");
 
-
-//        firebaseSurvey = new Firebase("https://incandescent-torch-8695.firebaseio.com/JeevesData/patients/" + userid + "/incomplete/" + surveyname + "/" +surveyid);
- //       completedSurveys = new Firebase("https://incandescent-torch-8695.firebaseio.com/JeevesData/patients/" + userid + "/complete");
         txtOpenEnded = ((EditText) findViewById(R.id.txtOpenEnded));
         txtNumeric = ((EditText) findViewById(R.id.txtNumeric));
         switchBool = ((Switch) findViewById(R.id.switchBool));
@@ -286,8 +290,6 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
                 completedSurveyCount++;
                 editor.putLong("Completed Surveys", completedSurveyCount);
                 editor.commit();
-//                    firebaseSurvey.child("answers").setValue(questiondata);
-//                    firebaseSurvey.child("timeFinished").setValue(System.currentTimeMillis());
 
                 //SEND A BROADCAST TO LISTENING SURVEY TRIGGERS
                 Intent intended = new Intent();
@@ -300,7 +302,6 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
                         Map<String, Object> value = (Map<String, Object>) snapshot.getValue();
                         DatabaseReference newPostRef = completedSurveysRef.push();
                         newPostRef.setValue(currentsurvey); //Maybe this needs tobe made explicit?
-                        //completedSurveys.setValue(value);
                         surveyRef.removeEventListener(this);
                         surveyRef.removeValue();
                         handler.removeCallbacksAndMessages(null);
@@ -308,59 +309,49 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
 
                     @Override
                     public void onCancelled(DatabaseError databaseError) {
+                        Log.d("Error","we have an error THERE");
 
                     }
                 });
-                Intent data = new Intent();
-                data.putExtra("surveykey", surveyid);
-                if (getParent() == null) {
-                    setResult(Activity.RESULT_OK, data);
-                } else {
-                    getParent().setResult(Activity.RESULT_OK, data);
-                }
                 finished = true;
                 finish();
             }
         });
 
-       // String surveyname = getIntent().getStringExtra("name");
-        //TextView texty = (TextView) findViewById(R.id.txtSurveyName);
-        // texty.setText("Survey: " + surveyname);
-//            List<FirebaseSurvey> surveys = ApplicationContext.getProject().getsurveys();
-//            for (FirebaseSurvey survey : surveys) {
-//                Log.d("Here", "SURVEY NAME IS " + survey.getname());
-//                if (survey.getname().equals(surveyname)) {
-//                    currentsurvey = survey;
-//                    break;
-//                }
-//            }
-
         surveyRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
-//                if(snapshot.getValue() == null){
-//                    firebaseSurvey.push();
-//                    return; //This can happen if the user manually logs the survey
-//                }
-                Log.d("SNAPPYSHOT", snapshot.getValue().toString());
+                Log.d("ERROR","ACtually no errorTTT!");
+
                 currentsurvey = snapshot.getValue(FirebaseSurvey.class);
-                surveyRef.removeEventListener(this);
+             //   surveyRef.removeEventListener(this);
                 if (currentsurvey != null) {
+                    surveyRef.removeEventListener(this);
                     questions = currentsurvey.getquestions();
 
                     if (currentsurvey.getbegun()) {
-                        timeSent = currentsurvey.gettimeSent();
-                        questiondata = currentsurvey.getanswers(); //Pre-populated answers
-                        if (questiondata.size() < questions.size())
+                        if(getIntent().getBooleanExtra("manual",false)) {
+                            timeSent = getIntent().getLongExtra("timeSent", 0);
+                            Log.d("ERROR","ACtually no error!");
+                        }
+                            else {
+                            timeSent = currentsurvey.gettimeSent();
+                            Log.d("ERROR","Nope didn't work");
+                        }
+                            questiondata = currentsurvey.getanswers(); //Pre-populated answers
+                   //     if (questiondata.size() < questions.size())
                             for (int i = 0; i < (questions.size() - questiondata.size()); i++)
                                 questiondata.add(new HashMap<String, String>());
                     } else {
+                        Log.d("ERROR","ACtually no error777!");
+
                         timeSent = getIntent().getLongExtra("timeSent", 0);
                         questiondata = new ArrayList<>();
                         for (int i = 0; i < questions.size(); i++)
                             questiondata.add(new HashMap<String, String>());
                     }
-                    currentsurvey.setbegun(); //Confirm that this survey has been started
+
+                        currentsurvey.setbegun(); //Confirm that this survey has been started
 
 
                     long expirytime = currentsurvey.gettimeAlive() * 1000;
@@ -371,24 +362,12 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
                         warningalert.setTitle("Sorry, your time to complete this survey has expired");
                         warningalert.setPositiveButton("Return", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int whichButton) {
-                                Intent data = new Intent();
-                                data.putExtra("surveykey", surveyid);
-                                if (getParent() == null) {
-                                    setResult(Activity.RESULT_OK, data);
-                                } else {
-                                    getParent().setResult(Activity.RESULT_OK, data);
-                                }
-                                //Here is where the user's left the survey too long and it's expiree
-//SEND A BROADCAST TO LISTENING SURVEY TRIGGERS
-                                //HAS A TYPE TO DISTINGUISH IT FROM OTHER MISSED SURVEYS
                                 Intent intended = new Intent();
-                               // intended.setType(surveyid + "missed");
                                 intended.setAction(TriggerManagerConstants.ACTION_NAME_SURVEY_TRIGGER);
                                 intended.putExtra("surveyName",currentsurvey.getname());
                                 intended.putExtra("result",false);
                                 missedSurveys++; //The user has officially missed this survey
 
-                                //Store the incremeneted missed value in shared preferences
                                 SharedPreferences prefs = getSharedPreferences("userprefs", Context.MODE_PRIVATE);
                                 SharedPreferences.Editor editor = prefs.edit();
                                 long missedSurveyCount = prefs.getLong("Missed Surveys",0);
@@ -419,6 +398,7 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
+                Log.d("Error","we have an error EVERYWHERE");
 
             }
 
@@ -764,6 +744,7 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+        Log.d("Error","we have an error OSJDFLKADSJFLKAS");
 
     }
     @Override

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -35,9 +36,11 @@ import org.json.JSONException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 
 /**
@@ -48,16 +51,13 @@ public class SenseActivity extends Activity {
     FirebaseAuth mFirebaseAuth;
     FirebaseProject currentConfig = new FirebaseProject();
     TextView txtWelcome;
-    public static boolean hasSensorBegun, hasTriggerBegun;
 
-    public String userid;
-    public ArrayList<Long> triggerids = new ArrayList<Long>();
-    public static HashMap<Long, TriggerListener> triggerlisteners = new HashMap<Long, TriggerListener>();
+    public ArrayList<String> triggerids = new ArrayList<String>();
+    public static HashMap<String, TriggerListener> triggerlisteners = new HashMap<String, TriggerListener>();
     public static HashMap<Integer, SensorListener> sensorlisteners = new HashMap<Integer, SensorListener>();
 
     static {
         sensorlisteners.put(SensorUtils.SENSOR_TYPE_BLUETOOTH, new SensorListener(SensorUtils.SENSOR_TYPE_BLUETOOTH));
-        //  sensorlisteners.put(SensorUtils.SENSOR_TYPE_LOCATION, new SensorListener(SensorUtils.SENSOR_TYPE_LOCATION));
         sensorlisteners.put(SensorUtils.SENSOR_TYPE_MICROPHONE, new SensorListener(SensorUtils.SENSOR_TYPE_MICROPHONE));
         sensorlisteners.put(SensorUtils.SENSOR_TYPE_WIFI, new SensorListener(SensorUtils.SENSOR_TYPE_WIFI));
         sensorlisteners.put(SensorUtils.SENSOR_TYPE_BATTERY, new SensorListener(SensorUtils.SENSOR_TYPE_BATTERY));
@@ -71,36 +71,45 @@ public class SenseActivity extends Activity {
         sensorlisteners.put(SensorUtils.SENSOR_TYPE_STEP_COUNTER, new SensorListener(SensorUtils.SENSOR_TYPE_STEP_COUNTER));
     }
 
-    //public static SenseActivity getMainActivity(){
-//        return instance;
-//    }
-    private final long serviceInterval = 6000;
 
+    @Override
+    protected void onPause(){
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+     //   preferences.edit().
+        SharedPreferences.Editor editor = preferences.edit();
+        Set set = new HashSet(triggerids);
+        editor.putStringSet("triggerIds",set);
+        editor.commit();
+        super.onPause();
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         instance = this;
-        Log.i("RECREAAAAATION","WHY HAVE I BEEN RECREATED");
 
         mFirebaseAuth = FirebaseAuth.getInstance();
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference myRef = database.getReference("JeevesData");
 
         super.onCreate(savedInstanceState);
-        //    SharedPreferences sharedPref = getApplicationContext().getSharedPreferences(getString(R.string.configurations), Context.MODE_PRIVATE);
         setContentView(R.layout.activity_sense);
 
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        if(prefs.contains("triggerIds")) {
+            Set<String> trigs = prefs.getStringSet("triggerIds", null);
+            triggerids = new ArrayList<>(trigs);
+        }
         String studyname = getIntent().getStringExtra("studyname");
         txtWelcome = (TextView)findViewById(R.id.txtWelcome);
 
         FirebaseUser user = mFirebaseAuth.getCurrentUser();
         String id = user.getUid();
-        DatabaseReference patientRef = myRef.child("patients").child(id);
+        final DatabaseReference patientRef = myRef.child("patients").child(id);
         ValueEventListener postListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                // Get Post object and use the values to update the UI
                 FirebasePatient post = dataSnapshot.getValue(FirebasePatient.class);
                 txtWelcome.setText("Welcome, " + post.getname() + "!");
+                patientRef.removeEventListener(this);
             }
 
             @Override
@@ -136,18 +145,14 @@ public class SenseActivity extends Activity {
                 startActivity(intent);
             }
         });
-        Log.i("Sutdyname","Study name is " + studyname);
         DatabaseReference projectRef = myRef.child("projects").child(studyname);
 
-
-        Log.i("HEREWEGO", "Updating le config");
         projectRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
-               Log.i("Snappyshot", snapshot.getValue().toString());
                 FirebaseProject post = snapshot.getValue(FirebaseProject.class);
+                ApplicationContext.setCurrentproject(post);
                 try {
-                    Log.i("UPDATING", "Updating le config");
                     updateConfig(post);
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -156,8 +161,6 @@ public class SenseActivity extends Activity {
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                System.out.println("The read failed: " + databaseError.getMessage());
-
             }
         });
 
@@ -165,14 +168,8 @@ public class SenseActivity extends Activity {
 
     public void updateConfig(FirebaseProject app) throws JSONException {
         ApplicationContext.setCurrentproject(app);
-        List<FirebaseSurvey> surveys = app.getsurveys();
-        List<FirebaseTrigger> currentTriggers = currentConfig.gettriggers();
         List<FirebaseTrigger> triggers = app.gettriggers();
         List<UserVariable> variables = app.getvariables();
-        String researcherno = app.getresearcherno();
-        SharedPreferences prefs = this.getSharedPreferences("userPrefs", Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.putString("researcherno",researcherno);
         for(UserVariable var : variables){
             String type = var.getvartype();
 //            switch(type){
@@ -182,38 +179,31 @@ public class SenseActivity extends Activity {
 //                case "Numeric" : editor.putLong(var.getname(), Long.parseLong(var.getvalue()));break;
 //            }
         }
-        editor.commit();
-        ArrayList<Long> newIds = new ArrayList<Long>();
+        ArrayList<String> newIds = new ArrayList<>();
         for (int i = 0; i < triggers.size(); i++) {
             FirebaseTrigger triggerconfig = triggers.get(i);
-            String triggertype = triggerconfig.gettype();
-            long triggerId = triggerconfig.getid();
+            String triggerId = triggerconfig.gettriggerId();
             newIds.add(triggerId);
-            if (triggerids.contains(triggerId)) { //Don't relaunch an already-existing trigger
-                triggerids.remove(triggerId);
-                continue;
+            if (!triggerids.contains(triggerId)) { //Don't relaunch an already-existing trigger
+                launchTrigger(triggerconfig);
             }
-            launchTrigger(triggerconfig);
         }
-        for (long toRemove : triggerids) {
+        for (String toRemove : triggerids) {
+            if(!newIds.contains(toRemove))
             removeTrigger(toRemove);
         }
         triggerids = newIds;
-        //This should hopefully handle new, updated and deleted triggers
         try {
             GlobalState triggerState = GlobalState.getGlobalState(this);
             triggerState.setNotificationCap(199);
-            Log.i("Notificationoooooos", "Notification number increased to " + app.getmaxNotifications());
         } catch (TriggerException e) {
             e.printStackTrace();
         }
     }
 
     private void launchTrigger(FirebaseTrigger trigger) {
-        Log.i("ADDING", "ADDING A TRIGGER");
-
         String triggerType = trigger.getname();
-        long triggerId = trigger.getid();
+        String triggerId = trigger.gettriggerId();
         Map<String, Object> params = trigger.getparams();
         List<FirebaseAction> actions = new ArrayList<>();
         if (trigger.getactions() != null)
@@ -231,9 +221,7 @@ public class SenseActivity extends Activity {
             Iterator<String> keys = params.keySet().iterator();
             while (keys.hasNext()) {
                 String param = keys.next();
-                Log.i("WEHASAPARAM", param);
-                Object value = null;
-                value = params.get(param);
+                Object value = params.get(param);
                 if (param.equals("result")) { //This is a sensor trigger
                     if (value instanceof Map) { //Then the result value is a map, meaning it's a user variable
 
@@ -242,15 +230,14 @@ public class SenseActivity extends Activity {
                 config.addParameter(param, value);
             }
         }
-        ArrayList<FirebaseAction> toExecute = new ArrayList<FirebaseAction>();
+        ArrayList<FirebaseAction> toExecute = new ArrayList<>();
         for (int i = 0; i < actions.size(); i++) {
-            toExecute.add((FirebaseAction) actions.get(i));
+            toExecute.add( actions.get(i));
         }
         newListener.subscribeToTrigger(config, toExecute, triggerId);
     }
 
-    private void removeTrigger(long triggerId) {
-        Log.i("REMOVING", "REMOVIGN A TRIGGER " + triggerId);
+    private void removeTrigger(String triggerId) {
         TriggerListener toRemove = triggerlisteners.get(triggerId);
         if(toRemove != null) {
             toRemove.unsubscribeFromTrigger("this");
@@ -264,8 +251,5 @@ public class SenseActivity extends Activity {
         return true;
     }
 
-    @Override
-    public void onDestroy(){
-        Log.i("DESTROYED","Why did I get destroyed I wonder?");
-    }
+
 }

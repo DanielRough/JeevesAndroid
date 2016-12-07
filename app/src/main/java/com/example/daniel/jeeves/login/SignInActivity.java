@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.daniel.jeeves;
+package com.example.daniel.jeeves.login;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -27,6 +27,8 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.example.daniel.jeeves.R;
+import com.example.daniel.jeeves.SenseActivity;
 import com.example.daniel.jeeves.firebase.FirebasePatient;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -43,7 +45,6 @@ import com.google.firebase.database.ValueEventListener;
 public class SignInActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final String TAG = "SignInActivity";
-    private static final int RC_SIGN_IN = 9001;
 
     FirebaseUser mFirebaseUser;
     private FirebaseAuth mFirebaseAuth;
@@ -52,9 +53,6 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
     private EditText mEmailField;
     private EditText mPasswordField;
     public ProgressDialog mProgressDialog;
-
-    // Firebase instance variables
-
 
     public void showProgressDialog() {
         if (mProgressDialog == null) {
@@ -121,13 +119,18 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
                                 @Override
                                 public void onDataChange(DataSnapshot dataSnapshot) {
                                     FirebasePatient user = dataSnapshot.getValue(FirebasePatient.class);
+                                    myRef.removeEventListener(this);
                                     if(user.getcurrentStudy() != null){
                                         Intent intent = new Intent(getInstance(),SenseActivity.class);
                                         intent.putExtra("studyname",user.getcurrentStudy());
                                         startActivity(intent);
+                                        finish();
                                     }
-                                    else
+                                    else {
                                         goToSecondActivity();
+                                        finish();
+
+                                    }
                                 }
 
                                 @Override

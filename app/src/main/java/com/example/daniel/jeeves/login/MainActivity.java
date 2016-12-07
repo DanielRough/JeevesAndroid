@@ -1,4 +1,4 @@
-package com.example.daniel.jeeves;
+package com.example.daniel.jeeves.login;
 
 import android.Manifest;
 import android.app.Activity;
@@ -10,11 +10,15 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ProgressBar;
 
+import com.example.daniel.jeeves.R;
+import com.example.daniel.jeeves.SenseActivity;
 import com.example.daniel.jeeves.firebase.FirebasePatient;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.common.ConnectionResult;
@@ -28,16 +32,16 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 
-public class MainActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener{
+public class MainActivity extends Activity implements GoogleApiClient.OnConnectionFailedListener{
     Context context;
     private static final int MY_PERMISSIONS = 12345;
     private FirebaseAuth mFirebaseAuth;
     private FirebaseUser mFirebaseUser;
     private String mUsername;
-    private GoogleApiClient mGoogleApiClient;
+  //  private GoogleApiClient mGoogleApiClient;
     public static final String ANONYMOUS = "anonymous";
 
-    private RecyclerView mMessageRecyclerView;
+//    private RecyclerView mMessageRecyclerView;
     private LinearLayoutManager mLinearLayoutManager;
     private ProgressBar mProgressBar;
 
@@ -47,8 +51,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        //Request all the permissions
+        Log.d("MAIN","Main activity created");
         ActivityCompat.requestPermissions(this,
                 new String[]{
                         Manifest.permission.READ_CONTACTS,
@@ -69,19 +72,21 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         setContentView(R.layout.activity_main);
 
         mUsername = ANONYMOUS;
-
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .enableAutoManage(this /* FragmentActivity */, this /* OnConnectionFailedListener */)
-                .addApi(Auth.GOOGLE_SIGN_IN_API)
-                .build();
+//
+//        mGoogleApiClient = new GoogleApiClient.Builder(this)
+//                .enableAutoManage(this /* FragmentActivity */, this /* OnConnectionFailedListener */)
+//                .addApi(Auth.GOOGLE_SIGN_IN_API)
+//                .build();
 
         mProgressBar = (ProgressBar)findViewById(R.id.progressBar);
-        mMessageRecyclerView = (RecyclerView) findViewById(R.id.messageRecyclerView);
+        mProgressBar.setVisibility(View.VISIBLE);
+
+       // mMessageRecyclerView = (RecyclerView) findViewById(R.id.messageRecyclerView);
         mLinearLayoutManager = new LinearLayoutManager(this);
         mLinearLayoutManager.setStackFromEnd(true);
-        mMessageRecyclerView.setLayoutManager(mLinearLayoutManager);
+      //  mMessageRecyclerView.setLayoutManager(mLinearLayoutManager);
 
-        mProgressBar.setVisibility(ProgressBar.INVISIBLE);
+    //    mProgressBar.setVisibility(ProgressBar.INVISIBLE);
 
      //    Initialize Firebase Auth
         mFirebaseAuth = FirebaseAuth.getInstance();
@@ -97,20 +102,21 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
             myRef.addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
+                    myRef.removeEventListener(this);
+                    Log.d("MAINSTUFF","Oh no");
                     FirebasePatient user = dataSnapshot.getValue(FirebasePatient.class);
                     if(user.getcurrentStudy() != null){
                         Intent intent = new Intent(getInstance(),SenseActivity.class);
                         intent.putExtra("studyname",user.getcurrentStudy());
                         startActivity(intent);
+                        finish();
                     }
                     else
                       goToSecondActivity();
                 }
 
                 @Override
-                public void onCancelled(DatabaseError databaseError) {
-
-                }
+                public void onCancelled(DatabaseError databaseError) {}
             });
 
         }
@@ -121,26 +127,26 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         startActivity(intent);
         finish();
     }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.main_menu, menu);
-        return true;
-    }
+//
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//        MenuInflater inflater = getMenuInflater();
+//        inflater.inflate(R.menu.main_menu, menu);
+//        return true;
+//    }
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.sign_out_menu:
-                mFirebaseAuth.signOut();
-                Auth.GoogleSignInApi.signOut(mGoogleApiClient);
-                mUsername = ANONYMOUS;
-                startActivity(new Intent(this, SignInActivity.class));
-                return true;
-            default:
+//        switch (item.getItemId()) {
+//            case R.id.sign_out_menu:
+//                mFirebaseAuth.signOut();
+//                Auth.GoogleSignInApi.signOut(mGoogleApiClient);
+//                mUsername = ANONYMOUS;
+//                startActivity(new Intent(this, SignInActivity.class));
+//                return true;
+//            default:
                 return super.onOptionsItemSelected(item);
         }
-    }
+    //}
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {

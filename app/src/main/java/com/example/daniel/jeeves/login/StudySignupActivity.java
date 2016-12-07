@@ -1,4 +1,4 @@
-package com.example.daniel.jeeves;
+package com.example.daniel.jeeves.login;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -13,6 +13,8 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 
+import com.example.daniel.jeeves.R;
+import com.example.daniel.jeeves.SenseActivity;
 import com.example.daniel.jeeves.firebase.FirebaseProject;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;

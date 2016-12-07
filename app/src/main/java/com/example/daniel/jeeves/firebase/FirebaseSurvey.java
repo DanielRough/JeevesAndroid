@@ -71,6 +71,7 @@ public class FirebaseSurvey {
     public String getkey(){
         return key;
     }
+    public void settimeSent(long timeSent){ this.timeSent = timeSent;}
     public void setanswers( List<Map<String, String>> answers){
         this.answers = answers;
     }

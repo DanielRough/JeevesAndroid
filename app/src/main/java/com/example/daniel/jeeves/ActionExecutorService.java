@@ -52,7 +52,6 @@ public class ActionExecutorService extends IntentService{
      */
     @Override
     public void onDestroy() {
-        Log.i("DESTROOYY","I have been destroyed");
         super.onDestroy();
     }
 

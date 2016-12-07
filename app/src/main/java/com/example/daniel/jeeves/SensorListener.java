@@ -22,9 +22,7 @@ public class SensorListener implements SensorDataListener {
     private final int sensorType;
     private ESSensorManagerInterface sensorManager;
     private final JSONFormatter formatter;
-    //private DataLogger dataLogger;
 
-    private int sensorSubscriptionId;
     private boolean isSubscribed;
 
     public SensorListener(int sensorType)
@@ -37,7 +35,6 @@ public class SensorListener implements SensorDataListener {
 
         try
         {
-        //    dataLogger = new DataLogger(context,"SENSORDATA");
             sensorManager = ESSensorManager.getSensorManager(context);
             sensorManager.setGlobalConfig(GlobalConfig.LOW_BATTERY_THRESHOLD, 25);
 
@@ -54,7 +51,6 @@ public class SensorListener implements SensorDataListener {
     @Override
     public void onDataSensed(SensorData data) {
         if(sensorType == SensorUtils.SENSOR_TYPE_SMS){
-            Log.d("RECIVED A MESSAGE","YOU HAVE A TEXT MESSAGE HIGH FIVE");
         }
     }
 

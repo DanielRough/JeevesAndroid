@@ -19,14 +19,12 @@ import java.util.Date;
 /**
  * Created by Daniel on 24/06/16.
  */
-public class CustomAdapter extends BaseAdapter {
+public class MissedSurveyItem extends BaseAdapter {
     ArrayList<FirebaseSurvey> result;
-    static final int PICK_CONTACT_REQUEST = 1;  // The request code
 
     Activity context;
-    int [] imageId;
     private static LayoutInflater inflater=null;
-    public CustomAdapter(Activity mainActivity, ArrayList<FirebaseSurvey> prgmNameList) {
+    public MissedSurveyItem(Activity mainActivity, ArrayList<FirebaseSurvey> prgmNameList) {
         // TODO Auto-generated constructor stub
         result=prgmNameList;
         context=mainActivity;
@@ -35,27 +33,19 @@ public class CustomAdapter extends BaseAdapter {
     }
     @Override
     public int getCount() {
-        // TODO Auto-generated method stub
         return result.size();
     }
 
     @Override
     public Object getItem(int position) {
-        // TODO Auto-generated method stub
         return position;
     }
 
     @Override
     public long getItemId(int position) {
-        // TODO Auto-generated method stub
         return position;
     }
 
-    public class Holder
-    {
-        TextView tv;
-        ImageView img;
-    }
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
         LayoutInflater inflater = (LayoutInflater) context
@@ -96,13 +86,9 @@ public class CustomAdapter extends BaseAdapter {
                 resultIntent.putExtra("name",surveyName);
                 resultIntent.putExtra("timeSent",timeSent);
                 result.get(position).setbegun(); //Confirm that this survey has been started
-
-                SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-            //   resultIntent.addFlags(Intent.FLAG_ACTIVITY_T);
-                context.startActivityForResult(resultIntent,position); //So we know which one to delete
+                context.startActivity(resultIntent); //So we know which one to delete
             }
         });
-        // 5. retrn rowView
         return rowView;
     }
 

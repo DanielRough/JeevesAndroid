@@ -33,9 +33,9 @@
         <!-- For the maps -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyBaV19Qnyprkc8OjFykuPkvl_vhRCngRac" />
+            android:value="AIzaSyB1I4mF6dGlLQRN_53F-uTmYbAu7PvFIrI" />
 
-        <activity android:name=".MainActivity">
+        <activity android:name=".login.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -43,8 +43,8 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".SignInActivity"
-            android:parentActivityName=".MainActivity"
+            android:name=".login.SignInActivity"
+            android:parentActivityName=".login.MainActivity"
             android:windowSoftInputMode="stateAlwaysHidden" />
         <activity
             android:name=".SenseActivity"
@@ -67,22 +67,25 @@
         <activity
             android:name=".MissedSurveyActivity"
             android:parentActivityName=".SenseActivity" />
-        <activity android:name=".SurveyActivity" />
+        <activity android:name=".SurveyActivity"
+            android:parentActivityName=".MissedSurveyActivity"
+
+        />
         <activity
             android:name=".MonitorActivity"
             android:parentActivityName=".SenseActivity" />
         <activity
-            android:name=".SignUpActivity"
+            android:name=".login.SignUpActivity"
             android:label="@string/title_activity_sign_up"
-            android:parentActivityName=".SignInActivity"
+            android:parentActivityName=".login.SignInActivity"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateAlwaysHidden">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.daniel.jeeves.SignInActivity" />
+                android:value="com.example.daniel.jeeves.login.SignInActivity" />
         </activity>
-        <activity android:name=".ResetPasswordActivity" />
-        <activity android:name=".StudySignupActivity"
+        <activity android:name=".login.ResetPasswordActivity" />
+        <activity android:name=".login.StudySignupActivity"
             android:windowSoftInputMode="adjustNothing"
             >
 

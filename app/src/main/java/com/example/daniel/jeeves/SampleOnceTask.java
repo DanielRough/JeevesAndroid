@@ -25,7 +25,6 @@ public class SampleOnceTask extends AsyncTask<Void, Void, SensorData>
     {
         try
         {
-            Log.d("Sensor Task", "Sampling from Sensor");
             return sensorManager.getDataFromSensor(sensorType);
         }
         catch (ESException e)

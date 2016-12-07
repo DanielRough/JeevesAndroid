@@ -3,6 +3,7 @@ package com.example.daniel.jeeves.actions;
 import android.annotation.TargetApi;
 import android.app.AlarmManager;
 import android.app.IntentService;
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -50,7 +51,7 @@ public class SurveyAction extends FirebaseAction {
     @Override
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     public void execute() {
-        thisActionsId = NOTIFICATION_ID++;
+        thisActionsId = Integer.parseInt("9" + NOTIFICATION_ID++);
         Log.d("ACTIONSURVEY", "SENT A SURVEY WITH ACTION ID " + thisActionsId);
         Context app = ApplicationContext.getContext();
         SharedPreferences prefs = app.getSharedPreferences("userprefs", Context.MODE_PRIVATE);
@@ -71,9 +72,12 @@ public class SurveyAction extends FirebaseAction {
                 break;
             }
         }
+        long timeSent = System.currentTimeMillis();
+
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference myRef = database.getReference("JeevesData").child("patients").child(userid).child("incomplete").child(surveyname);
         DatabaseReference newPostRef = myRef.push();
+        currentsurvey.settimeSent(timeSent);
         newPostRef.setValue(currentsurvey); //Maybe this needs tobe made explicit?
         String newPostRefId = newPostRef.getKey();
         Log.d("REFID", "New postrefid is " + newPostRefId);
@@ -85,7 +89,6 @@ public class SurveyAction extends FirebaseAction {
         action1Intent.putExtra("surveyid", newPostRefId);
         action1Intent.putExtra("notificationid",thisActionsId);
 
-        long timeSent = System.currentTimeMillis();
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         String dateString = formatter.format(new Date(timeSent));
         Log.d("CURRENT TIME ", dateString);
@@ -103,6 +106,7 @@ public class SurveyAction extends FirebaseAction {
             resultIntent.putExtra("surveyid",newPostRefId);
             resultIntent.putExtra("name",surveyname);
             resultIntent.putExtra("timeSent",timeSent);
+            resultIntent.putExtra("manual",true);
             resultIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             app.startActivity(resultIntent);
             return;
@@ -124,11 +128,15 @@ public class SurveyAction extends FirebaseAction {
 
         final NotificationManager notificationManager =
                 (NotificationManager) app.getSystemService(app.NOTIFICATION_SERVICE);
+
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(app)
                 .setContentTitle("Survey")
                 .setVibrate(new long[]{0, 1000})
                 .setSmallIcon(R.drawable.ic_action_search)
-                .setContentText("Ready to take a survey?");
+        .setPriority(Notification.PRIORITY_MAX)
+
+                .setStyle(new NotificationCompat.InboxStyle()
+                        .setSummaryText("Ready to take a survey?"));
         long timeAlive = currentsurvey.gettimeAlive()*1000;
         if(timeAlive>0)
         newPostRef.child("expiryTime").setValue(System.currentTimeMillis() + (timeAlive)); //Put the expiry time in
@@ -137,6 +145,7 @@ public class SurveyAction extends FirebaseAction {
         mBuilder.setOngoing(true);
         mBuilder.addAction(R.drawable.ic_create_black_24dp, "Start survey", action1PendingIntent);
         mBuilder.addAction(R.drawable.ic_block_black_24dp, "Ignore", action2PendingIntent);
+
         notificationManager.notify(thisActionsId, mBuilder.build());
         AlarmManager am = (AlarmManager) app.getSystemService(Context.ALARM_SERVICE);
         if(timeAlive>0) {

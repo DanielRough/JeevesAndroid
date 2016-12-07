@@ -21,6 +21,7 @@ public class PromptAction extends FirebaseAction {
     static int count = 0;
     @Override
     public void execute(){
+        int notificationId = Integer.parseInt("8" + count++);
         Log.i("ACTIONPROMPT", "PROMPTED AN ACTON");
         Context app = ApplicationContext.getContext();
         String text = getparams().get("msgtext").toString();
@@ -32,6 +33,6 @@ public class PromptAction extends FirebaseAction {
                 .setSmallIcon(R.drawable.ic_action_search)
                 .setContentTitle("Jeeves")
                 .setContentText(text);
-        notificationManager.notify(count++,mBuilder.build());
+        notificationManager.notify(notificationId,mBuilder.build());
     }
 }

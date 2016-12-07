@@ -19,8 +19,8 @@ public class FirebaseTrigger {
         return description;
     }
 
-    public long getid() {
-        return id;
+    public String gettriggerId() {
+        return triggerId;
     }
 
     public String getname() {
@@ -45,7 +45,7 @@ public class FirebaseTrigger {
 
     public long clocktype;
     public String description;
-    public long id;
+    public String triggerId;
     public String name;
     public Map<String,Object> params;
 

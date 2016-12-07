@@ -65,7 +65,6 @@ public class ContactActivity extends AppCompatActivity {
                         sms.sendTextMessage(researcherno, null, message, null, null);
                     }
                     Firebase firebaseFeedback = new Firebase("https://incandescent-torch-8695.firebaseio.com/patients/" + userid + "/feedback/" + System.currentTimeMillis());
-                    Log.d("MESSAGE","Message is " + txtContactResearcher.getText().toString());
                     firebaseFeedback.setValue(txtContactResearcher.getText().toString());
                     finishalert.setCancelable(false); //Once they're done they're done
                     finishalert.show();
@@ -73,7 +72,5 @@ public class ContactActivity extends AppCompatActivity {
                 }
             });
         }
-
-        //Now puts it up into the Firebase
 
 }
