@@ -133,8 +133,13 @@ public abstract class Trigger extends BroadcastReceiver
 		{
 			Log.d("STOPPED", "why the fuck did it stop!?");
 			alarmManager.cancel(pendingIntent);
-			context.unregisterReceiver(this);
-			isRunning = false;
+			try {
+				context.unregisterReceiver(this);
+			}
+			catch(Exception e){
+				Log.d("Unregistered", "Inexplicably got unregistered");
+			}
+				isRunning = false;
 		}
 	}
 

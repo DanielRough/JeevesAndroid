@@ -35,6 +35,13 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyB1I4mF6dGlLQRN_53F-uTmYbAu7PvFIrI" />
 
+        <receiver android:enabled="true" android:name=".StartUpReceiver"
+            android:permission="android.permission.RECEIVE_BOOT_COMPLETED">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </receiver>
         <activity android:name=".login.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

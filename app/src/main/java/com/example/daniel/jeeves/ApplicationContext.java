@@ -18,6 +18,7 @@ public class ApplicationContext extends Application
         instance = this;
     }
 
+    public static boolean hasStartedSensing = false;
     public static FirebaseProject getProject(){ return currentproject;}
 
     public static void setCurrentproject(FirebaseProject proj){

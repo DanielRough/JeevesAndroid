@@ -174,7 +174,7 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
         String surveyname = getIntent().getStringExtra("name");
          missedSurveys = prefs.getInt(surveyname,0);
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-        surveyRef = database.getReference("JeevesData").child("patients").child(userid).child("incomplete").child(surveyname).child(surveyid);
+        surveyRef = database.getReference("JeevesData").child("patients").child(userid).child("incomplete").child(surveyid);
         completedSurveysRef = database.getReference("JeevesData").child("patients").child(userid).child("complete");
 
         txtOpenEnded = ((EditText) findViewById(R.id.txtOpenEnded));
@@ -267,7 +267,7 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
                 for (int i = 0; i < questiondata.size(); i++){
                     Map<String, String> stringStringMap = questiondata.get(i);
                     String answer = stringStringMap.get("answer");
-                    if(currentsurvey.getquestions().get(i).getparams() != null && !currentsurvey.getquestions().get(i).getparams().get("assignedVar").equals("")){ //If we need to assign this answer to a variable
+                    if(currentsurvey.getquestions().get(i).getparams() != null && currentsurvey.getquestions().get(i).getparams().get("assignedVar") != null){ //If we need to assign this answer to a variable
                         String varname = currentsurvey.getquestions().get(i).getparams().get("assignedVar").toString();
                         SharedPreferences.Editor editor = prefs.edit();
                         editor.putString(varname,answer); //Put the variable into the var
@@ -339,8 +339,9 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
                             Log.d("ERROR","Nope didn't work");
                         }
                             questiondata = currentsurvey.getanswers(); //Pre-populated answers
+                            int size = questiondata.size();
                    //     if (questiondata.size() < questions.size())
-                            for (int i = 0; i < (questions.size() - questiondata.size()); i++)
+                            for (int i = 0; i < (questions.size() - size); i++)
                                 questiondata.add(new HashMap<String, String>());
                     } else {
                         Log.d("ERROR","ACtually no error777!");

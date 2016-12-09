@@ -74,6 +74,7 @@ public class SenseActivity extends Activity {
 
     @Override
     protected void onPause(){
+        Log.d("PAUSED","Onpause");
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
      //   preferences.edit().
         SharedPreferences.Editor editor = preferences.edit();
@@ -85,7 +86,7 @@ public class SenseActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         instance = this;
-
+        Log.d("RECREATED","Recreated the thing");
         mFirebaseAuth = FirebaseAuth.getInstance();
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference myRef = database.getReference("JeevesData");
@@ -147,23 +148,25 @@ public class SenseActivity extends Activity {
         });
         DatabaseReference projectRef = myRef.child("projects").child(studyname);
 
-        projectRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot snapshot) {
-                FirebaseProject post = snapshot.getValue(FirebaseProject.class);
-                ApplicationContext.setCurrentproject(post);
-                try {
-                    updateConfig(post);
-                } catch (JSONException e) {
-                    e.printStackTrace();
+        if(ApplicationContext.hasStartedSensing == false) { //Should hopefully stop this listener getting added many times
+            ApplicationContext.hasStartedSensing = true;
+            projectRef.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot snapshot) {
+                    FirebaseProject post = snapshot.getValue(FirebaseProject.class);
+                    ApplicationContext.setCurrentproject(post);
+                    try {
+                        updateConfig(post);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
                 }
-            }
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-            }
-        });
-
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                }
+            });
+        }
     }
 
     public void updateConfig(FirebaseProject app) throws JSONException {
@@ -179,6 +182,7 @@ public class SenseActivity extends Activity {
 //                case "Numeric" : editor.putLong(var.getname(), Long.parseLong(var.getvalue()));break;
 //            }
         }
+        Log.d("UPDATING","Updating the config");
         ArrayList<String> newIds = new ArrayList<>();
         for (int i = 0; i < triggers.size(); i++) {
             FirebaseTrigger triggerconfig = triggers.get(i);
@@ -202,6 +206,7 @@ public class SenseActivity extends Activity {
     }
 
     private void launchTrigger(FirebaseTrigger trigger) {
+        Log.d("TRIGLAUNCH","Launching trigger " + trigger.getname() + trigger.gettriggerId());
         String triggerType = trigger.getname();
         String triggerId = trigger.gettriggerId();
         Map<String, Object> params = trigger.getparams();
@@ -238,6 +243,7 @@ public class SenseActivity extends Activity {
     }
 
     private void removeTrigger(String triggerId) {
+        Log.d("TRIGREMOVE","Removing trigger " + triggerId);
         TriggerListener toRemove = triggerlisteners.get(triggerId);
         if(toRemove != null) {
             toRemove.unsubscribeFromTrigger("this");

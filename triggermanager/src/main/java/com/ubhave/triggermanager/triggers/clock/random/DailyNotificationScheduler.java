@@ -156,17 +156,18 @@ public class DailyNotificationScheduler implements TriggerReceiver
 	}
 	private void scheduleSetTimes(){
 		ArrayList<Integer> times = new ArrayList<Integer>();
-		Map<String,Object> settimes = (Map<String,Object>)params.getParameter(TriggerConfig.DAILY_TIMES);
-		Iterator<String> iter = settimes.keySet().iterator();
+		//Map<String,Object> settimes = (Map<String,Object>)params.getParameter(TriggerConfig.DAILY_TIMES);
+		Iterator<String> iter = params.getParams().keySet().iterator();
 		while(iter.hasNext()){
 			String key = iter.next();
-			Map<String,Object> time = (Map<String,Object>)settimes.get(key);
-				int minuteofday = Integer.parseInt(time.get("time").toString());
+			if(key.startsWith("time")) {//The keys are called time0, time1, time2 and so on
+				int minuteofday = Integer.parseInt(params.getParams().get(key).toString());
 //				String[] hoursmins = timeStr.split(":");
 //				int dailyhour = Integer.parseInt(hoursmins[0]);
 //				int dailyminute = Integer.parseInt(hoursmins[1]);
 //				int minuteofday = dailyhour*60 + dailyminute;
 				times.add(minuteofday); //Convert each JSONObject time into a minute-of-day value
+			}
 		}
 		Calendar calendar = Calendar.getInstance();
 		for (Integer minuteOfDay : times) {

@@ -14,10 +14,12 @@ import com.example.daniel.jeeves.firebase.FirebasePatient;
 import com.example.daniel.jeeves.firebase.FirebaseSurvey;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.text.SimpleDateFormat;
@@ -46,36 +48,28 @@ public class MissedSurveyActivity extends AppCompatActivity {
         String userid = user.getUid();
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         final DatabaseReference firebaseSurvey = database.getReference("JeevesData").child("patients").child(userid);
-
-        firebaseSurvey.addValueEventListener(new ValueEventListener() {
+        Query myTopPostsQuery = firebaseSurvey.child("incomplete").orderByChild("timeSent").limitToFirst(10);
+        myTopPostsQuery.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
-                FirebasePatient patient = snapshot.getValue(FirebasePatient.class); //THIS IS HOW YOU DO IT TO AVOID MAKING IT A HASHMAP
-                Map<String, Map<String, FirebaseSurvey>> missedSurveys = patient.getincomplete();
-                if (missedSurveys == null) return;
                 final ArrayList<FirebaseSurvey> surveynames = new ArrayList<FirebaseSurvey>();
-                Iterator<String> iter = missedSurveys.keySet().iterator();
-                while (iter.hasNext()) {
-                    String key = iter.next();
-                    Map<String, FirebaseSurvey> surveys = missedSurveys.get(key);
-                    Iterator<String> surveyiter = surveys.keySet().iterator();
-                    while (surveyiter.hasNext()) {
-                        String surveykey = surveyiter.next();
-                        FirebaseSurvey survey = surveys.get(surveykey);
-                        long timeToGo = survey.getexpiryTime() - System.currentTimeMillis();
-                        int minutes = (int) (timeToGo / 60000);
-                        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-                        final long timeAlive = survey.gettimeAlive();
-                        String dateString = formatter.format(new Date(survey.gettimeSent()));
-                        if (survey.getexpiryTime() > System.currentTimeMillis() || survey.getexpiryTime() == 0) {
-                            survey.setkey(surveykey);
-                            surveynames.add(survey);
-                            if (timeAlive > 0)
-                                array.add(survey.getname() + "\nSent at " + dateString + "\nExpiring in " + (minutes + 1) + " minutes");
-                            else
-                                array.add(survey.getname() + "\nSent at " + dateString);
-                        }
+                for (DataSnapshot postSnapshot: snapshot.getChildren()) {
+                    FirebaseSurvey survey = postSnapshot.getValue(FirebaseSurvey.class);
+                    String id = postSnapshot.getKey();
+                    survey.setkey(id);
+                    long timeToGo = survey.getexpiryTime() - System.currentTimeMillis();
+                    int minutes = (int) (timeToGo / 60000);
+                    SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+                    final long timeAlive = survey.gettimeAlive();
+                    String dateString = formatter.format(new Date(survey.gettimeSent()));
+                    if (survey.getexpiryTime() > System.currentTimeMillis() || survey.getexpiryTime() == 0) {
+                        surveynames.add(survey);
+                        if (timeAlive > 0)
+                            array.add(survey.getname() + "\nSent at " + dateString + "\nExpiring in " + (minutes + 1) + " minutes");
+                        else
+                            array.add(survey.getname() + "\nSent at " + dateString);
                     }
+
                 }
                 list = (ListView) findViewById(android.R.id.list);
                 list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -93,11 +87,8 @@ public class MissedSurveyActivity extends AppCompatActivity {
                 MissedSurveyItem adapter = new MissedSurveyItem(MissedSurveyActivity.this, surveynames);
                 list.setAdapter(adapter);
             }
-
             @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
+            public void onCancelled(DatabaseError databaseError) {}
 
         });
     }

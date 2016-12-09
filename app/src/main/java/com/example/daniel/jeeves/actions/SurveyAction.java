@@ -75,7 +75,7 @@ public class SurveyAction extends FirebaseAction {
         long timeSent = System.currentTimeMillis();
 
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference myRef = database.getReference("JeevesData").child("patients").child(userid).child("incomplete").child(surveyname);
+        DatabaseReference myRef = database.getReference("JeevesData").child("patients").child(userid).child("incomplete");
         DatabaseReference newPostRef = myRef.push();
         currentsurvey.settimeSent(timeSent);
         newPostRef.setValue(currentsurvey); //Maybe this needs tobe made explicit?
