@@ -2,7 +2,9 @@ package com.example.daniel.jeeves.login;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -11,6 +13,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.example.daniel.jeeves.ApplicationContext;
 import com.example.daniel.jeeves.R;
 import com.example.daniel.jeeves.firebase.FirebasePatient;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -26,6 +29,7 @@ public class SignUpActivity extends AppCompatActivity {
     private EditText nameText;
     private EditText emailText;
     private EditText passwordText;
+    private EditText phoneText;
     private Button signUpButton;
     private TextView loginLink;
     private FirebaseAuth mFirebaseAuth;
@@ -39,6 +43,7 @@ public class SignUpActivity extends AppCompatActivity {
         nameText = (EditText)findViewById(R.id.input_name);
         emailText = (EditText)findViewById(R.id.input_email);
         passwordText = (EditText)findViewById(R.id.input_password);
+        phoneText = (EditText)findViewById(R.id.input_phone);
         signUpButton = (Button)findViewById(R.id.btn_signup);
         loginLink = (TextView)findViewById(R.id.link_login);
 
@@ -126,6 +131,10 @@ public class SignUpActivity extends AppCompatActivity {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference myRef = database.getReference("JeevesData");
         FirebasePatient user = new FirebasePatient(name, email);
+        user.phoneNo = phoneText.getText().toString();
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getContext());
+        preferences.edit().putString("userphone",user.getphoneNo());
+        preferences.edit().commit();
         myRef.child("patients").child(userId).setValue(user);
         Intent resultIntent = new Intent();
         resultIntent.putExtra("name",name);
@@ -145,6 +154,7 @@ public class SignUpActivity extends AppCompatActivity {
         String name = nameText.getText().toString();
         String email = emailText.getText().toString();
         String password = passwordText.getText().toString();
+        String phone = phoneText.getText().toString();
 
         if (name.isEmpty() || name.length() < 3) {
             nameText.setError("at least 3 characters");
@@ -166,6 +176,13 @@ public class SignUpActivity extends AppCompatActivity {
         } else {
             passwordText.setError(null);
         }
+        if(android.util.Patterns.PHONE.matcher(phone).matches()){
+            phoneText.setError("enter a valid phone number");
+            valid = false;
+        } else {
+            phoneText.setError(null);
+        }
+
 
         return valid;
     }

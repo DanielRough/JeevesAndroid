@@ -36,7 +36,7 @@ public class TriggerListener implements TriggerReceiver {
     private String triggerId;
     private int triggerType, triggerSubscriptionId;
     private Context serviceContext;
-    private ArrayList<FirebaseAction> actionsToPerform;
+    private ArrayList<FirebaseAction> actions;
     public TriggerListener(int triggerType, Context c) throws TriggerException {
         this.triggerType = triggerType;
       //  this.triggerName = TriggerUtils.getTriggerName(triggerType);
@@ -46,12 +46,16 @@ public class TriggerListener implements TriggerReceiver {
 
 
     public void subscribeToTrigger(final TriggerConfig params, ArrayList<FirebaseAction> actions, String triggerId) {
+        this.actions = actions;
         try {
             this.triggerId = triggerId;
-            actionsToPerform = new ArrayList<>();
-            for(FirebaseAction action : actions){
-                actionsToPerform.add(ActionUtils.create(action)); //Oh good lord really!?
-            }
+//            actionsToPerform = new ArrayList<>();
+//            for(FirebaseAction action : actions){
+//
+//                actionsToPerform.add(ActionUtils.create(action)); //Oh good lord really!?
+//                Log.d("Action is ", action.getname());
+//                Log.d("Description is ", action.getdescription());
+//            }
             triggerSubscriptionId = triggerManager.addTrigger(triggerType, this, params);
             //SubscriptionIds.setId(Long.toString(triggerId), triggerSubscriptionId);
         } catch (Exception e) {
@@ -71,7 +75,7 @@ public class TriggerListener implements TriggerReceiver {
     @Override
     public void onNotificationTriggered(int triggerId) {
         Intent actionIntent = new Intent(serviceContext,ActionExecutorService.class);
-        actionIntent.putExtra("com/example/daniel/jeeves/actions",actionsToPerform);
+        actionIntent.putExtra("com/example/daniel/jeeves/actions",actions);
         if(triggerType == TriggerUtils.TYPE_SENSOR_TRIGGER_BUTTON) {
             actionIntent.putExtra("manual", true);
         }

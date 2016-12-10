@@ -1,26 +1,16 @@
 package com.example.daniel.jeeves;
 
-import android.app.Activity;
-import android.content.Context;
+import android.app.IntentService;
+import android.app.Service;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.os.Bundle;
-import android.preference.PreferenceManager;
+import android.os.IBinder;
+import android.support.annotation.Nullable;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.View;
-import android.widget.Button;
-import android.widget.TextView;
 
 import com.example.daniel.jeeves.actions.FirebaseAction;
-import com.example.daniel.jeeves.firebase.FirebasePatient;
 import com.example.daniel.jeeves.firebase.FirebaseProject;
-import com.example.daniel.jeeves.firebase.FirebaseSurvey;
 import com.example.daniel.jeeves.firebase.FirebaseTrigger;
 import com.example.daniel.jeeves.firebase.UserVariable;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -36,21 +26,11 @@ import org.json.JSONException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-
-/**
- * This activity is begun when the 'Sense Data' button is pressed on the Launch screen.
- */
-public class SenseActivity extends Activity {
-    private static SenseActivity instance;
-    FirebaseAuth mFirebaseAuth;
-    FirebaseProject currentConfig = new FirebaseProject();
-    TextView txtWelcome;
+public class SenseService extends Service{
 
     public ArrayList<String> triggerids = new ArrayList<String>();
     public static HashMap<String, TriggerListener> triggerlisteners = new HashMap<String, TriggerListener>();
@@ -71,103 +51,39 @@ public class SenseActivity extends Activity {
         sensorlisteners.put(SensorUtils.SENSOR_TYPE_STEP_COUNTER, new SensorListener(SensorUtils.SENSOR_TYPE_STEP_COUNTER));
     }
 
-
     @Override
-    protected void onPause(){
-        Log.d("PAUSED","Onpause");
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-     //   preferences.edit().
-        SharedPreferences.Editor editor = preferences.edit();
-        Set set = new HashSet(triggerids);
-        editor.putStringSet("triggerIds",set);
-        editor.commit();
-        super.onPause();
-    }
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        instance = this;
-        Log.d("RECREATED","Recreated the thing");
-        mFirebaseAuth = FirebaseAuth.getInstance();
+    public int onStartCommand(Intent intent, int flags, int startId) {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference myRef = database.getReference("JeevesData");
+        String studyname = intent.getStringExtra("studyname");
 
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_sense);
+        DatabaseReference projectRef = myRef.child("projects").child(studyname);
 
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        if(prefs.contains("triggerIds")) {
-            Set<String> trigs = prefs.getStringSet("triggerIds", null);
-            triggerids = new ArrayList<>(trigs);
-        }
-        String studyname = getIntent().getStringExtra("studyname");
-        txtWelcome = (TextView)findViewById(R.id.txtWelcome);
-
-        FirebaseUser user = mFirebaseAuth.getCurrentUser();
-        String id = user.getUid();
-        final DatabaseReference patientRef = myRef.child("patients").child(id);
-        ValueEventListener postListener = new ValueEventListener() {
+        projectRef.addValueEventListener(new ValueEventListener() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                FirebasePatient post = dataSnapshot.getValue(FirebasePatient.class);
-                txtWelcome.setText("Welcome, " + post.getname() + "!");
-                patientRef.removeEventListener(this);
+            public void onDataChange(DataSnapshot snapshot) {
+                FirebaseProject post = snapshot.getValue(FirebaseProject.class);
+                ApplicationContext.setCurrentproject(post);
+                try {
+                    updateConfig(post);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
             }
-        };
-        patientRef.addValueEventListener(postListener);
-
-        Button btnContact = (Button) findViewById(R.id.btnContact);
-        Button btnSurveys = (Button) findViewById(R.id.btnSurvey);
-        Button btnMonitor = (Button) findViewById(R.id.btnMonitor);
-        btnContact.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(instance,ContactActivity.class);
-                startActivity(intent);
-            }
         });
-
-        btnSurveys.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(instance,MissedSurveyActivity.class);
-                startActivity(intent);
-            }
-        });
-
-        btnMonitor.setOnClickListener(new View.OnClickListener(){
-
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(instance,MonitorActivity.class);
-                startActivity(intent);
-            }
-        });
-        DatabaseReference projectRef = myRef.child("projects").child(studyname);
-
-        if(ApplicationContext.hasStartedSensing == false) { //Should hopefully stop this listener getting added many times
-            ApplicationContext.hasStartedSensing = true;
-            projectRef.addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot snapshot) {
-                    FirebaseProject post = snapshot.getValue(FirebaseProject.class);
-                    ApplicationContext.setCurrentproject(post);
-                    try {
-                        updateConfig(post);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-                }
-            });
-        }
+        return START_STICKY;
     }
+
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
+    }
+
 
     public void updateConfig(FirebaseProject app) throws JSONException {
         ApplicationContext.setCurrentproject(app);
@@ -194,7 +110,7 @@ public class SenseActivity extends Activity {
         }
         for (String toRemove : triggerids) {
             if(!newIds.contains(toRemove))
-            removeTrigger(toRemove);
+                removeTrigger(toRemove);
         }
         triggerids = newIds;
         try {
@@ -238,10 +154,13 @@ public class SenseActivity extends Activity {
         ArrayList<FirebaseAction> toExecute = new ArrayList<>();
         for (int i = 0; i < actions.size(); i++) {
             toExecute.add( actions.get(i));
+            if(actions.get(i) == null)
+                Log.d("ACTION NULL", "ACTION IS NULL!");
+            else
+                Log.d("ACTIN IS ", actions.get(i).getname());
         }
         newListener.subscribeToTrigger(config, toExecute, triggerId);
     }
-
     private void removeTrigger(String triggerId) {
         Log.d("TRIGREMOVE","Removing trigger " + triggerId);
         TriggerListener toRemove = triggerlisteners.get(triggerId);
@@ -250,12 +169,5 @@ public class SenseActivity extends Activity {
             triggerlisteners.remove(triggerId);
         }
     }
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.main_menu, menu);
-        return true;
-    }
-
 
 }

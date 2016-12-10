@@ -14,17 +14,17 @@ public class ActionUtils {
     public static final String NAME_WAIT_ACTION = "WAIT ACTON";
 
     //IControl com.example.daniel.jeeves.actions
-    public static final String NAME_IF_CONTROL = "control_if";
+    public static final String NAME_IF_CONTROL = "IF CONDITION";
 
     public static FirebaseAction create(FirebaseAction baseAction){
         switch(baseAction.getname()){
-            case NAME_PROMPT_ACTION: return new PromptAction(baseAction.getparams());
-            case NAME_MESSAGE_ACTION: return new SendTextAction(baseAction.getparams());
-            case NAME_SEND_SURVEY_ACTION: return new SurveyAction(baseAction.getparams());
-            case NAME_SPEAKER_PHONE_ACTION: return new SpeakerAction(baseAction.getparams());
-            case NAME_UPDATE_USER_ACTION: return new UpdateAction(baseAction.getparams());
-            case NAME_WAIT_ACTION: return new WaitingAction(baseAction.getparams());
-            case NAME_IF_CONTROL: return new IfControl(baseAction.getparams());
+            case NAME_PROMPT_ACTION: return (PromptAction)baseAction;// new PromptAction(baseAction);
+            case NAME_MESSAGE_ACTION: return (SendTextAction)baseAction;
+            case NAME_SEND_SURVEY_ACTION: return (SurveyAction)baseAction;
+            case NAME_SPEAKER_PHONE_ACTION: return (SpeakerAction)(baseAction);
+            case NAME_UPDATE_USER_ACTION: return (UpdateAction)(baseAction);
+            case NAME_WAIT_ACTION: return (WaitingAction)(baseAction);
+            case NAME_IF_CONTROL: return (IfControl)(baseAction);
         }
         return null;
     }

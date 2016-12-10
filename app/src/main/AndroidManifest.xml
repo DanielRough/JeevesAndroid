@@ -35,13 +35,17 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyB1I4mF6dGlLQRN_53F-uTmYbAu7PvFIrI" />
 
-        <receiver android:enabled="true" android:name=".StartUpReceiver"
+        <receiver
+            android:name=".StartUpReceiver"
+            android:enabled="true"
             android:permission="android.permission.RECEIVE_BOOT_COMPLETED">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
+
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </receiver>
+
         <activity android:name=".login.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -54,7 +58,7 @@
             android:parentActivityName=".login.MainActivity"
             android:windowSoftInputMode="stateAlwaysHidden" />
         <activity
-            android:name=".SenseActivity"
+            android:name=".WelcomeActivity"
             android:launchMode="singleTop" />
         <!-- Stops it restarting -->
         <receiver android:name=".actions.SurveyAction$AlarmManagerBroadcastReceiver" />
@@ -67,20 +71,19 @@
 
         <activity
             android:name=".UpdateSettingsActivity"
-            android:parentActivityName=".SenseActivity" />
+            android:parentActivityName=".WelcomeActivity" />
         <activity
             android:name=".ContactActivity"
-            android:parentActivityName=".SenseActivity" />
+            android:parentActivityName=".WelcomeActivity" />
         <activity
             android:name=".MissedSurveyActivity"
-            android:parentActivityName=".SenseActivity" />
-        <activity android:name=".SurveyActivity"
-            android:parentActivityName=".MissedSurveyActivity"
-
-        />
+            android:parentActivityName=".WelcomeActivity" />
+        <activity
+            android:name=".SurveyActivity"
+            android:parentActivityName=".MissedSurveyActivity" />
         <activity
             android:name=".MonitorActivity"
-            android:parentActivityName=".SenseActivity" />
+            android:parentActivityName=".WelcomeActivity" />
         <activity
             android:name=".login.SignUpActivity"
             android:label="@string/title_activity_sign_up"
@@ -92,12 +95,14 @@
                 android:value="com.example.daniel.jeeves.login.SignInActivity" />
         </activity>
         <activity android:name=".login.ResetPasswordActivity" />
-        <activity android:name=".login.StudySignupActivity"
-            android:windowSoftInputMode="adjustNothing"
-            >
+        <activity
+            android:name=".login.StudySignupActivity"
+            android:windowSoftInputMode="adjustNothing"></activity>
 
-
-        </activity>
+        <service
+            android:name=".SenseService"
+            android:enabled="true"
+            android:exported="true"></service>
     </application>
 
 </manifest>

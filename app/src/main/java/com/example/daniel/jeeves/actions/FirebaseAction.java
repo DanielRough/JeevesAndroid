@@ -1,6 +1,9 @@
 package com.example.daniel.jeeves.actions;
 
+import com.example.daniel.jeeves.firebase.FirebaseExpression;
+
 import java.io.Serializable;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -58,5 +61,15 @@ public class FirebaseAction implements Serializable,IAction {
     }
     public boolean getmanual(){
         return manual;
+    }
+
+    public List<FirebaseAction> actions;
+    public FirebaseExpression condition;
+
+    public FirebaseExpression getcondition(){
+        return condition;
+    }
+    public List<FirebaseAction> getactions() {
+        return actions;
     }
 }

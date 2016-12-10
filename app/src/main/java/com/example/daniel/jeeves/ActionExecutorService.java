@@ -78,11 +78,13 @@ public class ActionExecutorService extends IntentService{
 
         Log.i("EXEUTION","AWAY TO EXEUTE SOME ACTIONS  ");
         Iterator<FirebaseAction> actionIterator = actions.iterator();
+
         while(actionIterator.hasNext()){
             Log.i("Actionnnaaay","Here's an action!");
             FirebaseAction newaction = actionIterator.next();
         //    FirebaseAction actualAction = ActionFactory.createAction(newaction);
             Log.i("ACTION IS","Action is " + newaction.toString());
+
             if(newaction instanceof WaitingAction) {
                 String stimeToWait = newaction.getparams().get("time").toString();
                 int timeToWait = Integer.parseInt(stimeToWait) *1000;
@@ -102,29 +104,12 @@ public class ActionExecutorService extends IntentService{
      */
     public void checkCondition(){
         ExpressionParser parser = new ExpressionParser(ApplicationContext.getContext());
-        switch(controlType) {
-//            case "for":
-//                    long numberOfTimes = (long)parser.evaluate(expr);
-//                for(long i = 0; i < numberOfTimes; i++)
-//                    executeActions();
-//                break;
-//            case "do":
-//                if((boolean) parser.evaluate(expr) == true)
-//                    return; //Our expression is true, STOP EXECUTING
-//                else {
-//                    executeActions(); //Let's go round again!
-//                    checkCondition();
-//                }
-//                    break;
-            case "if":
                 if((boolean) parser.evaluate(expr) == false) //expressionw will be null if we don't have an expression in the first place
-                    return; //Our expression is true, STOP EXECUTING
+                    return; //Our expression is false, don't execute
                 else
-                    executeActions(); //Let's go round again!
-                break;
+                    executeActions(); //Let's execute our actions!
         }
 
-    }
     ActionExecutorService getService(){
         return ActionExecutorService.this;
     }

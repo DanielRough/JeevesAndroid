@@ -15,7 +15,7 @@ import java.util.Map;
 /**
  * Created by Daniel on 08/06/15.
  */
-public class IfControl extends FirebaseControl {
+public class IfControl extends FirebaseAction {
     public ArrayList<FirebaseAction> controlactions = new ArrayList<FirebaseAction>();
   //  ActionExecutorService mService;
     boolean mBound = false;
@@ -28,12 +28,18 @@ public class IfControl extends FirebaseControl {
         Log.d("CONTROLIF", "IF CONTROL");
       //  FirebaseExpression expression = getcondition();
         Context app = ApplicationContext.getContext();
-        ArrayList<FirebaseAction> toExecute = new ArrayList<FirebaseAction>();
         ExpressionParser parser = new ExpressionParser(ApplicationContext.getContext());
         FirebaseExpression expression = null;
         expression = getcondition();
+        Log.d("Description", getdescription());
 
+        Log.d("Expression","Expression is " + expression);
         controlactions = (ArrayList<FirebaseAction>) getactions();
+//        //Converting the actions into their correct types
+//        ArrayList<FirebaseAction> actionsToPerform = new ArrayList<>();
+//        for(FirebaseAction action : controlactions){
+//            actionsToPerform.add(ActionUtils.create(action)); //Oh good lord really!?
+//        }
         Intent actionIntent = new Intent(app,ActionExecutorService.class);
         if(this.getmanual())
             actionIntent.putExtra("manual",true);
@@ -43,7 +49,7 @@ public class IfControl extends FirebaseControl {
 
         app.startService(actionIntent);
     }
-    @Override
+ //   @Override
     public ArrayList<FirebaseAction> getControlActions() {
         return controlactions;
    }

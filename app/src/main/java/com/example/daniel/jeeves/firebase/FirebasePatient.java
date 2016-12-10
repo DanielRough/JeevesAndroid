@@ -10,6 +10,7 @@ public class FirebasePatient {
     public String name;
     public String email;
     public String currentStudy;
+    public String phoneNo;
 
     public FirebasePatient(){
 
@@ -25,6 +26,7 @@ public class FirebasePatient {
     public Map<String,FirebaseSurvey> incomplete;
     public Map<String,FirebaseSurvey> complete;
 
+    public String getphoneNo(){ return phoneNo; }
     public String getemail(){ return email; }
     public String getname(){
         return name;

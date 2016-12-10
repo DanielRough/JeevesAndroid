@@ -18,7 +18,9 @@ package com.example.daniel.jeeves.login;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
@@ -27,8 +29,9 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.example.daniel.jeeves.ApplicationContext;
 import com.example.daniel.jeeves.R;
-import com.example.daniel.jeeves.SenseActivity;
+import com.example.daniel.jeeves.WelcomeActivity;
 import com.example.daniel.jeeves.firebase.FirebasePatient;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -120,9 +123,13 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
                                 public void onDataChange(DataSnapshot dataSnapshot) {
                                     FirebasePatient user = dataSnapshot.getValue(FirebasePatient.class);
                                     myRef.removeEventListener(this);
+                                    SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getContext());
+                                    preferences.edit().putString("userphone",user.getphoneNo());
+                                    preferences.edit().commit();
                                     if(user.getcurrentStudy() != null){
-                                        Intent intent = new Intent(getInstance(),SenseActivity.class);
+                                        Intent intent = new Intent(getInstance(),WelcomeActivity.class);
                                         intent.putExtra("studyname",user.getcurrentStudy());
+                                        intent.putExtra("username",user.getname());
                                         startActivity(intent);
                                         finish();
                                     }

@@ -14,7 +14,8 @@ import android.widget.EditText;
 import android.widget.ListView;
 
 import com.example.daniel.jeeves.R;
-import com.example.daniel.jeeves.SenseActivity;
+import com.example.daniel.jeeves.WelcomeActivity;
+import com.example.daniel.jeeves.firebase.FirebasePatient;
 import com.example.daniel.jeeves.firebase.FirebaseProject;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -31,6 +32,7 @@ public class StudySignupActivity extends AppCompatActivity {
 
     private FirebaseAuth mFirebaseAuth;
     private FirebaseUser mFirebaseUser;
+    String username = "";
     ArrayAdapter<String> adapter;
     ArrayList<String> listItems=new ArrayList<String>();
     String selectedStudy;
@@ -47,14 +49,26 @@ public class StudySignupActivity extends AppCompatActivity {
         setContentView(R.layout.activity_study_signup);
         EditText txtStudyId = (EditText) findViewById(R.id.textStudyId);
         final ListView lstStudies = (ListView)findViewById(R.id.lstStudies);
-
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        ValueEventListener nameListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                FirebasePatient post = dataSnapshot.getValue(FirebasePatient.class);
+                myRef.removeEventListener(this);
+                username = post.getname();
+            }
 
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+            }
+        };
+        myRef.addValueEventListener(nameListener);
         builder.setTitle("Start study");
         builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-                Intent intent = new Intent(getInstance(),SenseActivity.class);
+                Intent intent = new Intent(getInstance(),WelcomeActivity.class);
                 intent.putExtra("studyname",selectedStudy);
+                intent.putExtra("username",username);
                 dialog.dismiss();
                 myRef.child("currentStudy").setValue(selectedStudy);
                 startActivity(intent);

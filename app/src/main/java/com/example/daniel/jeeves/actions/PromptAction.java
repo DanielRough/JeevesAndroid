@@ -23,6 +23,8 @@ public class PromptAction extends FirebaseAction {
     public void execute(){
         int notificationId = Integer.parseInt("8" + count++);
         Log.i("ACTIONPROMPT", "PROMPTED AN ACTON");
+        Log.d("NAME", getname());
+        Log.d("DESCRIPTION",getdescription());
         Context app = ApplicationContext.getContext();
         String text = getparams().get("msgtext").toString();
         Log.i("TEXT", "Text is " + text);

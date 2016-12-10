@@ -12,11 +12,11 @@ import java.util.Map;
 /**
  * Created by Daniel on 03/06/2016.
  */
-@JsonTypeInfo(use=JsonTypeInfo.Id.MINIMAL_CLASS, include= JsonTypeInfo.As.PROPERTY, property="@class")
+//@JsonTypeInfo(use=JsonTypeInfo.Id.MINIMAL_CLASS, include= JsonTypeInfo.As.PROPERTY, property="@class")
 public abstract class FirebaseControl extends FirebaseAction implements Serializable,IControl{
 
-    private List<FirebaseAction> actions;
-    private FirebaseExpression condition;
+    public List<FirebaseAction> actions;
+    public FirebaseExpression condition;
 
     public FirebaseExpression getcondition(){
         return condition;

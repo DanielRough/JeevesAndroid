@@ -4,23 +4,21 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 
+import com.example.daniel.jeeves.ApplicationContext;
 import com.example.daniel.jeeves.R;
-import com.example.daniel.jeeves.SenseActivity;
+import com.example.daniel.jeeves.WelcomeActivity;
 import com.example.daniel.jeeves.firebase.FirebasePatient;
-import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.firebase.auth.FirebaseAuth;
@@ -105,9 +103,15 @@ public class MainActivity extends Activity implements GoogleApiClient.OnConnecti
                     myRef.removeEventListener(this);
                     Log.d("MAINSTUFF","Oh no");
                     FirebasePatient user = dataSnapshot.getValue(FirebasePatient.class);
+                    SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getContext());
+                    SharedPreferences.Editor editor = preferences.edit();
+                    editor.putString("userphone",user.getphoneNo());
+                    editor.commit();
+                    Log.d("PHONEIO","Put userphone in prefs " + user.getphoneNo());
                     if(user.getcurrentStudy() != null){
-                        Intent intent = new Intent(getInstance(),SenseActivity.class);
+                        Intent intent = new Intent(getInstance(),WelcomeActivity.class);
                         intent.putExtra("studyname",user.getcurrentStudy());
+                        intent.putExtra("username",user.getname());
                         startActivity(intent);
                         finish();
                     }
