@@ -18,13 +18,13 @@ public class ActionUtils {
 
     public static FirebaseAction create(FirebaseAction baseAction){
         switch(baseAction.getname()){
-            case NAME_PROMPT_ACTION: return (PromptAction)baseAction;// new PromptAction(baseAction);
-            case NAME_MESSAGE_ACTION: return (SendTextAction)baseAction;
-            case NAME_SEND_SURVEY_ACTION: return (SurveyAction)baseAction;
-            case NAME_SPEAKER_PHONE_ACTION: return (SpeakerAction)(baseAction);
-            case NAME_UPDATE_USER_ACTION: return (UpdateAction)(baseAction);
-            case NAME_WAIT_ACTION: return (WaitingAction)(baseAction);
-            case NAME_IF_CONTROL: return (IfControl)(baseAction);
+            case NAME_PROMPT_ACTION: return new PromptAction(baseAction.getparams());// new PromptAction(baseAction);
+            case NAME_MESSAGE_ACTION: return new SendTextAction(baseAction.getparams());
+            case NAME_SEND_SURVEY_ACTION: return new SurveyAction(baseAction.getparams());
+            case NAME_SPEAKER_PHONE_ACTION: return new SpeakerAction(baseAction.getparams());
+            case NAME_UPDATE_USER_ACTION: return new UpdateAction(baseAction.getparams());
+            case NAME_WAIT_ACTION: return new WaitingAction(baseAction.getparams());
+            case NAME_IF_CONTROL: return new IfControl(baseAction.getparams(),baseAction.getcondition(),baseAction.getactions());
         }
         return null;
     }

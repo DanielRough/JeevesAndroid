@@ -58,6 +58,9 @@ public class FirebaseExpression implements Serializable{
     protected Map<String,Object> params;
     protected long index;
     protected boolean isValue;
+    protected boolean isCustom;
+
+    public boolean getisCustom(){ return isCustom; }
 
     public long getindex(){
         return index;

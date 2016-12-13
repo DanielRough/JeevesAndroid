@@ -8,8 +8,10 @@ import com.example.daniel.jeeves.ActionExecutorService;
 import com.example.daniel.jeeves.ApplicationContext;
 import com.example.daniel.jeeves.ExpressionParser;
 import com.example.daniel.jeeves.firebase.FirebaseExpression;
+import com.example.daniel.jeeves.firebase.FirebaseProject;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -20,8 +22,10 @@ public class IfControl extends FirebaseAction {
   //  ActionExecutorService mService;
     boolean mBound = false;
 
-    public IfControl(Map<String,Object> params){
+    public IfControl(Map<String,Object> params, FirebaseExpression condition, List<FirebaseAction> actions){
         setparams(params);
+        this.actions = actions;
+        this.condition = condition;
     }
     @Override
     public void execute() {
@@ -31,19 +35,19 @@ public class IfControl extends FirebaseAction {
         ExpressionParser parser = new ExpressionParser(ApplicationContext.getContext());
         FirebaseExpression expression = null;
         expression = getcondition();
-        Log.d("Description", getdescription());
+//        Log.d("Description", getdescription());
 
-        Log.d("Expression","Expression is " + expression);
+    //    Log.d("Expression","Expression is " + expression);
         controlactions = (ArrayList<FirebaseAction>) getactions();
-//        //Converting the actions into their correct types
-//        ArrayList<FirebaseAction> actionsToPerform = new ArrayList<>();
-//        for(FirebaseAction action : controlactions){
-//            actionsToPerform.add(ActionUtils.create(action)); //Oh good lord really!?
-//        }
+        //Converting the actions into their correct types
+        ArrayList<FirebaseAction> actionsToPerform = new ArrayList<>();
+        for(FirebaseAction action : controlactions){
+            actionsToPerform.add(ActionUtils.create(action)); //Oh good lord really!?
+        }
         Intent actionIntent = new Intent(app,ActionExecutorService.class);
         if(this.getmanual())
             actionIntent.putExtra("manual",true);
-        actionIntent.putExtra("com/example/daniel/jeeves/actions",controlactions);
+        actionIntent.putExtra("com/example/daniel/jeeves/actions",actionsToPerform);
         actionIntent.putExtra("expression",expression);
         actionIntent.putExtra("controltype","if");
 

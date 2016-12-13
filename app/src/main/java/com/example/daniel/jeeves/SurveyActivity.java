@@ -15,6 +15,7 @@ import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.ActionBar;
@@ -88,10 +89,10 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
     ViewFlipper viewFlipper;
     EditText txtOpenEnded;
     EditText txtNumeric;
-    Switch switchBool;
+    RadioGroup grpBool;
     RadioGroup grpMultSingle;
+    RadioGroup grpScale;
     LinearLayout grpMultMany;
-    RatingBar ratingBar;
 
     TextView txtQNo;
     String latlong, locationGroup;
@@ -111,15 +112,11 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
     DatabaseReference surveyRef;
     DatabaseReference completedSurveysRef;
     FirebaseAuth mFirebaseAuth;
-
-    //  Firebase firebaseSurvey;
-   // Firebase completedSurveys;
-//    DatabaseReference firebaseSurvey;
-//    DatabaseReference completedSurveys;
+    SharedPreferences prefs;
     final Handler handler = new Handler();
     boolean finished = false;
     long timeSent = 0;
-
+    private int missedSurveys;
     FirebaseSurvey currentsurvey = null;
 
     public void hideKeyboard(View view) {
@@ -136,8 +133,6 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
             @Override
             public void onDataChange(DataSnapshot snapshot) {
                 surveyRef.removeEventListener(this);
-                Map<String, Object> value = (Map<String, Object>) snapshot.getValue();
-                //completedSurveys.setValue(value);
                 if (finished == false)
                     surveyRef.setValue(currentsurvey);
             }
@@ -149,8 +144,7 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
         });
     }
 
-    private int missedSurveys;
-    SharedPreferences prefs;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -162,15 +156,13 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
         actionBar.setDisplayHomeAsUpEnabled(true);
         setContentView(R.layout.activity_survey);
 
-
         surveyid = getIntent().getStringExtra("surveyid");
 
         Context app = ApplicationContext.getContext();
         mFirebaseAuth = FirebaseAuth.getInstance();
-
         FirebaseUser user = mFirebaseAuth.getCurrentUser();
         String userid = user.getUid();
-        prefs = app.getSharedPreferences("userprefs", Context.MODE_PRIVATE);
+        prefs = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getContext());
         String surveyname = getIntent().getStringExtra("name");
          missedSurveys = prefs.getInt(surveyname,0);
         FirebaseDatabase database = FirebaseDatabase.getInstance();
@@ -179,10 +171,10 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
 
         txtOpenEnded = ((EditText) findViewById(R.id.txtOpenEnded));
         txtNumeric = ((EditText) findViewById(R.id.txtNumeric));
-        switchBool = ((Switch) findViewById(R.id.switchBool));
+        grpBool = ((RadioGroup) findViewById(R.id.grpBool));
         grpMultMany = ((LinearLayout) findViewById(R.id.grpMultMany));
         grpMultSingle = ((RadioGroup) findViewById(R.id.grpMultSingle));
-        ratingBar = ((RatingBar) findViewById(R.id.ratingBar));
+        grpScale = ((RadioGroup)findViewById(R.id.grpScale));
         picker = ((DateTimePicker) findViewById(R.id.DateTimePicker));
         DateTimePicker.DateWatcher watcher = new DateTimePicker.DateWatcher() {
 
@@ -267,8 +259,8 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
                 for (int i = 0; i < questiondata.size(); i++){
                     Map<String, String> stringStringMap = questiondata.get(i);
                     String answer = stringStringMap.get("answer");
-                    if(currentsurvey.getquestions().get(i).getparams() != null && currentsurvey.getquestions().get(i).getparams().get("assignedVar") != null){ //If we need to assign this answer to a variable
-                        String varname = currentsurvey.getquestions().get(i).getparams().get("assignedVar").toString();
+                    if(currentsurvey.getquestions().get(i).getassignedVar() != null){ //If we need to assign this answer to a variable
+                        String varname = currentsurvey.getquestions().get(i).getassignedVar();
                         SharedPreferences.Editor editor = prefs.edit();
                         editor.putString(varname,answer); //Put the variable into the var
                         Log.d("VARIABLE ASSIGN", "Assigned the variable " + varname + " to value " + answer);
@@ -278,6 +270,7 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
                         String value = stringStringMap.get("score");
                         long score = Long.parseLong(value);
                         finalscore += score; // Accumulate scores!
+                        Log.d("SCORE", "Added a score!");
                     }
                 }
                 currentsurvey.setscore(finalscore);
@@ -299,7 +292,6 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
                 surveyRef.addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot snapshot) {
-                        Map<String, Object> value = (Map<String, Object>) snapshot.getValue();
                         DatabaseReference newPostRef = completedSurveysRef.push();
                         newPostRef.setValue(currentsurvey); //Maybe this needs tobe made explicit?
                         surveyRef.removeEventListener(this);
@@ -321,10 +313,7 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
         surveyRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
-                Log.d("ERROR","ACtually no errorTTT!");
-
                 currentsurvey = snapshot.getValue(FirebaseSurvey.class);
-             //   surveyRef.removeEventListener(this);
                 if (currentsurvey != null) {
                     surveyRef.removeEventListener(this);
                     questions = currentsurvey.getquestions();
@@ -369,7 +358,7 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
                                 intended.putExtra("result",false);
                                 missedSurveys++; //The user has officially missed this survey
 
-                                SharedPreferences prefs = getSharedPreferences("userprefs", Context.MODE_PRIVATE);
+                                prefs = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getContext());
                                 SharedPreferences.Editor editor = prefs.edit();
                                 long missedSurveyCount = prefs.getLong("Missed Surveys",0);
                                 missedSurveyCount++;
@@ -393,7 +382,7 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
                         }, timeLeft);
                     }
                     Log.d("Questions", "questions are " + questions.toString());
-                    launchQuestion(questions.get(0));
+                    launchQuestion(questions.get(0),"forward");
                 }
             }
 
@@ -422,15 +411,9 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
         }
         txtOpenEnded.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
             @Override
             public void afterTextChanged(Editable s) {
                 currentData.put("answer", txtOpenEnded.getText().toString());
@@ -456,6 +439,7 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
             String option = opts.next().toString();
             final RadioButton button = new RadioButton(this);
             button.setText(option);
+            button.setTextSize(20);
             grpMultSingle.addView(button);
             allButtons.add(button);
             button.setOnClickListener(new View.OnClickListener() {
@@ -486,6 +470,7 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
             String option = opts.next().toString();
             CheckBox box = new CheckBox(this);
             box.setText(option);
+            box.setTextSize(20);
             grpMultMany.addView(box);
             allBoxes.add(box);
             box.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -516,25 +501,30 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
     }
 
     private void handleScale() {
-
+        grpScale.removeAllViews();
         Map<String, Object> options = (Map<String, Object>) myparams.get("options");
-        int to = Integer.parseInt(options.get("to").toString());
-        ratingBar.setNumStars(to);
+        int entries = Integer.parseInt(options.get("entries").toString());
+        Map<String,String> labels = (Map<String,String>)options.get("labels");
         String answer = currentData.get("answer");
+        for(int i = 0; i < entries; i++){
+            final RadioButton button = new RadioButton(this);
+            button.setText((i+1) + "   " + labels.get(i));
+            button.setTextSize(20);
+            grpScale.addView(button);
+            button.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    currentData.put("answer", Integer.toString(button.getId()));
+                    if((boolean)myparams.get("assignToScore") == true)
+                        currentData.put("score", Integer.toString(button.getId()));
+                }
+            });
+        }
         if (answer != null && !answer.equals(""))
-            ratingBar.setRating(Integer.parseInt(answer.toString()));
+            grpScale.check(Integer.parseInt(answer));
         else {
             currentData.put("answer", "");
-            ratingBar.setProgress(0);
         }
-        ratingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
-            @Override
-            public void onRatingChanged(RatingBar ratingBar, float rating, boolean fromUser) {
-                currentData.put("answer", Integer.toString((int)rating));
-                if((boolean)myparams.get("assignToScore") == true) //Only log the score if we're supposed to
-                    currentData.put("score", Integer.toString(((int)rating)));
-            }
-        });
     }
 
     @TargetApi(Build.VERSION_CODES.M)
@@ -629,15 +619,9 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
             }
                 txtNumeric.addTextChangedListener(new TextWatcher() {
                 @Override
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-                }
-
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
                 @Override
-                public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-                }
-
+                public void onTextChanged(CharSequence s, int start, int before, int count) {}
                 @Override
                 public void afterTextChanged(Editable s) {
                     currentData.put("answer", txtNumeric.getText().toString());
@@ -654,34 +638,71 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
         }
 
         private void handleBoolean() {
-            if (currentData.get("answer") != null)
-                switchBool.setChecked(Boolean.parseBoolean(currentData.get("answer").toString()));
-            else {
+            grpBool.removeAllViews();
+            RadioButton trueButton = new RadioButton(this);
+            trueButton.setText("Yes");
+            trueButton.setTextSize(24);
+            RadioButton falseButton = new RadioButton(this);
+            falseButton.setText("No");
+            trueButton.setTextSize(24);
+            grpBool.addView(trueButton);
+            grpBool.addView(falseButton);
+            trueButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    currentData.put("answer","Yes");
+                }
+            });
+            falseButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    currentData.put("answer","No");
+                }
+            });
+
+            String answer = currentData.get("answer");
+            if (answer != null && !answer.equals(""))
+                if(answer.toString().equals("Yes"))
+                    trueButton.setChecked(true);
+                else
+                    falseButton.setChecked(true);
+            else
                 currentData.put("answer", "");
-                switchBool.setChecked(false);
-            }
-                switchBool.setOnCheckedChangeListener(
-                    new CompoundButton.OnCheckedChangeListener() {
-                        @Override
-                        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                            currentData.put("answer", Boolean.toString(isChecked));
-                        }
-                    }
-            );
         }
 
-        private void launchQuestion(FirebaseQuestion question) {
+        private void launchQuestion(FirebaseQuestion question, String direction) {
+
             String questionText = question.getquestionText();
             int questionType = (int) question.getquestionType();
             myparams = question.getparams();
+
+            //QUESTION SKIPPING
+            Map<String,Object> condition = null;
+            if(myparams != null)
+            if(myparams.containsKey("condition"))
+                condition = (Map<String,Object>)myparams.get("condition");
+            if(condition!= null){
+                int conditionQuestion = Integer.parseInt(condition.get("question").toString());
+                String answer = condition.get("answer").toString();
+                Map<String,String> prevData = questiondata.get(conditionQuestion);
+                if(prevData.get("answer") != null && prevData.get("answer").equals(answer)){
+                    //then everything is good and fine
+                }
+                else{ //This should hopefully skip to the next question
+                    if(direction.equals("forward"))
+                        nextQ();
+                    else if(direction.equals("back"))
+                        backQ();
+                    return;
+                }
+
+            }
             txtQNo.setText("Question " + (currentQuestion+1) + "/"+questiondata.size());
             viewFlipper.setDisplayedChild(questionType - 1);
             currentData = questiondata.get(currentQuestion);
 
             switch (questionType) {
-                case OPEN_ENDED:
-                    handleOpenEnded();
-                    break;
+                case OPEN_ENDED: handleOpenEnded(); break;
                 case MULT_SINGLE:
                     handleMultSingle();
                     break;
@@ -720,7 +741,7 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
             currentQuestion--;
             if (currentQuestion < 1)
                 btnBack.setEnabled(false);
-            launchQuestion(questions.get(currentQuestion));
+            launchQuestion(questions.get(currentQuestion),"back");
         }
 
 
@@ -737,7 +758,7 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
             }
 
             btnBack.setEnabled(true);
-            launchQuestion(questions.get(currentQuestion));
+            launchQuestion(questions.get(currentQuestion),"forward");
         }
 
 

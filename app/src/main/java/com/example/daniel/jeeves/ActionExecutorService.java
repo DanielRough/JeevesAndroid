@@ -104,6 +104,7 @@ public class ActionExecutorService extends IntentService{
      */
     public void checkCondition(){
         ExpressionParser parser = new ExpressionParser(ApplicationContext.getContext());
+                Log.d("ExPRNAME", expr.getname());
                 if((boolean) parser.evaluate(expr) == false) //expressionw will be null if we don't have an expression in the first place
                     return; //Our expression is false, don't execute
                 else

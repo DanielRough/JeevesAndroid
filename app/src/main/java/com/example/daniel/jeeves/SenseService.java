@@ -3,7 +3,9 @@ package com.example.daniel.jeeves;
 import android.app.IntentService;
 import android.app.Service;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
@@ -89,14 +91,16 @@ public class SenseService extends Service{
         ApplicationContext.setCurrentproject(app);
         List<FirebaseTrigger> triggers = app.gettriggers();
         List<UserVariable> variables = app.getvariables();
+        SharedPreferences varPrefs = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getContext());
+        SharedPreferences.Editor prefseditor = varPrefs.edit();
         for(UserVariable var : variables){
             String type = var.getvartype();
-//            switch(type){
-//                case "Time" : editor.putString(var.getname(),var.getvalue()); break;
-//                case "Boolean" : editor.putBoolean(var.getname(), Boolean.parseBoolean(var.getvalue())); break;
-//                case "Text" : editor.putString(var.getname(),var.getvalue()); break;
-//                case "Numeric" : editor.putLong(var.getname(), Long.parseLong(var.getvalue()));break;
-//            }
+            switch(type){
+                case "Time" : prefseditor.putLong(var.getname(),0); break;
+                case "Boolean" : prefseditor.putBoolean(var.getname(),false); break;
+                case "Text" : prefseditor.putString(var.getname(),""); break;
+                case "Numeric" : prefseditor.putLong(var.getname(),0);break;
+            }
         }
         Log.d("UPDATING","Updating the config");
         ArrayList<String> newIds = new ArrayList<>();
@@ -154,10 +158,6 @@ public class SenseService extends Service{
         ArrayList<FirebaseAction> toExecute = new ArrayList<>();
         for (int i = 0; i < actions.size(); i++) {
             toExecute.add( actions.get(i));
-            if(actions.get(i) == null)
-                Log.d("ACTION NULL", "ACTION IS NULL!");
-            else
-                Log.d("ACTIN IS ", actions.get(i).getname());
         }
         newListener.subscribeToTrigger(config, toExecute, triggerId);
     }

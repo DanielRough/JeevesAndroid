@@ -109,11 +109,10 @@
             android:layout_height="match_parent"
             android:id="@+id/viewScale">
 
-            <RatingBar
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/ratingBar"
-                android:stepSize="1" />
+            <RadioGroup
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/grpScale"></RadioGroup>
         </LinearLayout>
 
         <LinearLayout
@@ -171,10 +170,10 @@
                 android:id="@+id/textView8"
                 android:textColor="@android:color/black" />
 
-            <Switch
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/switchBool" />
+            <RadioGroup
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/grpBool"></RadioGroup>
 
             <TextView
                 android:layout_width="wrap_content"
