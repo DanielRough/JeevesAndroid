@@ -503,8 +503,8 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
     private void handleScale() {
         grpScale.removeAllViews();
         Map<String, Object> options = (Map<String, Object>) myparams.get("options");
-        int entries = Integer.parseInt(options.get("entries").toString());
-        Map<String,String> labels = (Map<String,String>)options.get("labels");
+        int entries = Integer.parseInt(options.get("number").toString());
+        ArrayList<String> labels = (ArrayList<String>)options.get("labels");
         String answer = currentData.get("answer");
         for(int i = 0; i < entries; i++){
             final RadioButton button = new RadioButton(this);
