@@ -24,6 +24,10 @@ import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.Map;
 
@@ -64,7 +68,11 @@ public class ContactActivity extends AppCompatActivity {
                         SmsManager sms = SmsManager.getDefault();
                         sms.sendTextMessage(researcherno, null, message, null, null);
                     }
-                    Firebase firebaseFeedback = new Firebase("https://incandescent-torch-8695.firebaseio.com/patients/" + userid + "/feedback/" + System.currentTimeMillis());
+                    FirebaseAuth mFirebaseAuth = FirebaseAuth.getInstance();
+                    FirebaseUser user = mFirebaseAuth.getCurrentUser();
+                    String userid = user.getUid();
+                    FirebaseDatabase database = FirebaseDatabase.getInstance();
+                    final DatabaseReference firebaseFeedback = database.getReference("JeevesData").child("patients").child(userid).child("feedback").child(Long.toString(System.currentTimeMillis()));
                     firebaseFeedback.setValue(txtContactResearcher.getText().toString());
                     finishalert.setCancelable(false); //Once they're done they're done
                     finishalert.show();

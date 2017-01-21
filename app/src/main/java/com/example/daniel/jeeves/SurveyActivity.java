@@ -95,6 +95,7 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
     LinearLayout grpMultMany;
 
     TextView txtQNo;
+    int currentQuestionCount = 1;
     String latlong, locationGroup;
     public static final int OPEN_ENDED = 1;
     public static final int MULT_SINGLE = 2;
@@ -502,15 +503,21 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
 
     private void handleScale() {
         grpScale.removeAllViews();
+        grpScale.clearCheck();
         Map<String, Object> options = (Map<String, Object>) myparams.get("options");
         int entries = Integer.parseInt(options.get("number").toString());
         ArrayList<String> labels = (ArrayList<String>)options.get("labels");
         String answer = currentData.get("answer");
         for(int i = 0; i < entries; i++){
             final RadioButton button = new RadioButton(this);
+            button.setId(i+1);
             button.setText((i+1) + "   " + labels.get(i));
             button.setTextSize(20);
             grpScale.addView(button);
+            if(answer != null && Integer.parseInt(answer) == (i+1)) {
+                button.setChecked(true);
+                Log.d("ANSWER", "Answer is " + answer);
+            }
             button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -520,11 +527,7 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
                 }
             });
         }
-        if (answer != null && !answer.equals(""))
-            grpScale.check(Integer.parseInt(answer));
-        else {
-            currentData.put("answer", "");
-        }
+
     }
 
     @TargetApi(Build.VERSION_CODES.M)
@@ -697,7 +700,7 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
                 }
 
             }
-            txtQNo.setText("Question " + (currentQuestion+1) + "/"+questiondata.size());
+            txtQNo.setText("Question " + (currentQuestionCount));
             viewFlipper.setDisplayedChild(questionType - 1);
             currentData = questiondata.get(currentQuestion);
 
@@ -741,7 +744,9 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
             currentQuestion--;
             if (currentQuestion < 1)
                 btnBack.setEnabled(false);
+            currentQuestionCount--;
             launchQuestion(questions.get(currentQuestion),"back");
+
         }
 
 
@@ -749,6 +754,7 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
             // viewFlipper.showNext();
             Log.d("FWD", "Going forward");
             currentQuestion++;
+            currentQuestionCount++;
             if (currentQuestion == questions.size()) {
                 Log.d("FINISH", "IAMFINISHED");
                 finishalert.setCancelable(false); //Once they're done they're done
