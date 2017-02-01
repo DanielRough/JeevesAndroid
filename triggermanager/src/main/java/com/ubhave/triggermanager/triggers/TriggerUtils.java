@@ -41,17 +41,17 @@ public class TriggerUtils
 	public static final String NAME_SURVEY						= "Survey";
 
 
-	public static final String NAME_JEEVES_TRIGGER_BEGIN		= "BEGIN TRIGGER";
+	public static final String NAME_JEEVES_TRIGGER_BEGIN		= "Begin Trigger";
 	public static final String NAME_CLOCK_TRIGGER_ONCE 			= "type_clock_once";
 	public static final String NAME_CLOCK_TRIGGER_ON_INTERVAL 	= "type_clock_interval";
 	public static final String NAME_CLOCK_TRIGGER_DAILY			= "type_clock_daily";
-	public static final String NAME_CLOCK_TRIGGER_DAILY_RANDOM 	= "RANDOM TRIGGER";
-	public static final String NAME_SENSOR_TRIGGER_IMMEDIATE 	= "SENSOR TRIGGER";
-	public static final String NAME_SENSOR_TRIGGER_BUTTON		= "BUTTON TRIGGER";
-	public static final String NAME_CLOCK_TRIGGER_SETTIMES		= "SET TIMES TRIGGER";
+	public static final String NAME_CLOCK_TRIGGER_DAILY_RANDOM 	= "Random Trigger";
+	public static final String NAME_SENSOR_TRIGGER_IMMEDIATE 	= "Sensor Trigger";
+	public static final String NAME_SENSOR_TRIGGER_BUTTON		= "Button Trigger";
+	public static final String NAME_CLOCK_TRIGGER_SETTIMES		= "Set Times Trigger";
 	public static final String NAME_SENSOR_TRIGGER_DELAYED 		= "type_sensor_delayed";
-	public static final String NAME_JEEVES_TRIGGER_ON_INTERVAL 	= "INTERVAL TRIGGER";
-	public static final String NAME_SENSOR_TRIGGER_SURVEY		= "SURVEY TRIGGER";
+	public static final String NAME_JEEVES_TRIGGER_ON_INTERVAL 	= "Interval Trigger";
+	public static final String NAME_SENSOR_TRIGGER_SURVEY		= "Survey Trigger";
 
 
 
