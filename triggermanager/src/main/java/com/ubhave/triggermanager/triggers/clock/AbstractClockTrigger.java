@@ -25,7 +25,6 @@ package com.ubhave.triggermanager.triggers.clock;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 
 import com.ubhave.triggermanager.TriggerException;
 import com.ubhave.triggermanager.TriggerReceiver;
@@ -35,18 +34,18 @@ import com.ubhave.triggermanager.triggers.Trigger;
 public abstract class AbstractClockTrigger extends Trigger
 {
 
-	public AbstractClockTrigger(Context context, int id, final TriggerReceiver listener, final TriggerConfig parameters) throws TriggerException
-	{
-		super(context, id, listener, parameters);
-	}
-	
-	@Override
-	protected PendingIntent getPendingIntent()
-	{
-		Intent intent = new Intent(getActionName());
-		intent.putExtra(TRIGGER_ID, triggerId);
-		return PendingIntent.getBroadcast(context, getRequestCode(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
-	}
-	
-	protected abstract int getRequestCode();
+    public AbstractClockTrigger(Context context, int id, final TriggerReceiver listener, final TriggerConfig parameters) throws TriggerException
+    {
+        super(context, id, listener, parameters);
+    }
+
+    @Override
+    protected PendingIntent getPendingIntent()
+    {
+        Intent intent = new Intent(getActionName());
+        intent.putExtra(TRIGGER_ID, triggerId);
+        return PendingIntent.getBroadcast(context, getRequestCode(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
+    }
+
+    protected abstract int getRequestCode();
 }

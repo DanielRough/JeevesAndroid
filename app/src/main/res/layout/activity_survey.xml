@@ -154,34 +154,19 @@
                 android:id="@+id/map"
                 tools:context=".MapsActivity"
                 android:name="com.google.android.gms.maps.SupportMapFragment"></fragment>
+
         </LinearLayout>
 
         <LinearLayout
-            android:orientation="horizontal"
+            android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:id="@+id/viewBoolean">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="Yes"
-                android:id="@+id/textView8"
-                android:textColor="@android:color/black" />
 
             <RadioGroup
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:id="@+id/grpBool"></RadioGroup>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="No"
-                android:id="@+id/textView9"
-                android:textColor="@android:color/black" />
 
         </LinearLayout>
 

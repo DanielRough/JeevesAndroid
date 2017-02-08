@@ -32,7 +32,11 @@ public class TriggerConfig
 	public static final String IGNORE_USER_PREFERENCES = "ignoreCap";
 	public static final String MAX_DAILY_NOTIFICATION_CAP = "limitDailyCap";
 	public static final String TRIGGER_ENABLED = "isEnabled";
-	
+
+	//Start and end dates of particular triggers
+	public final static String FROM_DATE = "dateFrom";
+	public final static String TO_DATE = "dateTo";
+
 	// Clock based Triggers
 	public final static String CLOCK_TRIGGER_DATE_MILLIS = "clockTriggerDate";
 	public final static String INTERVAL_TIME_MILLIS = "intervalTime";

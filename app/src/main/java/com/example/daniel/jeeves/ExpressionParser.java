@@ -2,15 +2,12 @@ package com.example.daniel.jeeves;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.preference.Preference;
 import android.preference.PreferenceManager;
-import android.text.format.DateUtils;
 import android.util.Log;
 
 import com.example.daniel.jeeves.firebase.FirebaseExpression;
 import com.example.daniel.jeeves.firebase.UserVariable;
 import com.ubhave.sensormanager.ESException;
-import com.ubhave.sensormanager.ESSensorManager;
 import com.ubhave.sensormanager.classifier.SensorDataClassifier;
 import com.ubhave.sensormanager.config.SensorConfig;
 import com.ubhave.sensormanager.data.SensorData;
@@ -20,7 +17,6 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -73,6 +69,7 @@ public class ExpressionParser {
                 }
             }
             else{
+                Log.i("VAAALUE","Value is " + (expr).getvalue());
                 return (expr).getvalue();
             }
         }
@@ -153,6 +150,19 @@ public class ExpressionParser {
                 }
 
             }
+            else{
+                String varname = ((UserVariable)expr).getname();
+                Log.i("VARNAME","Varname is " + (expr).getname());
+                Log.i("VARTYPE","Vartype is " + ( expr).getvartype());
+                String name = (expr).getname();
+                //GET THE HARDCODED STRING OUT OF HERE, THIS IS BAD
+                switch(expr.getvartype()){
+                    case "Location": return userPrefs.getString(name,"");
+                    case "Numeric": return userPrefs.getLong(name,0);
+                    case "Time": return userPrefs.getLong(name,0);
+                    case "Boolean" : return userPrefs.getBoolean(name,false);
+                }
+            }
         }
 
         List<FirebaseExpression> vars = expr.getvariables();
@@ -161,6 +171,7 @@ public class ExpressionParser {
         if(vars.size() >1) //Sometimes expressions will only have one variable, i.e. NOT(var)
             rhs = vars.get(1);
         String operation = expr.getname();
+        Log.d("OPERATION","Operation is " + operation);
         if(operation.equals(AND))
             return (boolean)evaluate(lhs) && (boolean)evaluate(rhs);
         else if(operation.equals(OR))

@@ -1,11 +1,5 @@
 package com.ubhave.triggermanager.triggers.clock.random;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Random;
-
 import android.content.Context;
 import android.util.Log;
 
@@ -16,9 +10,10 @@ import com.ubhave.triggermanager.config.TriggerConfig;
 import com.ubhave.triggermanager.config.TriggerManagerConstants;
 import com.ubhave.triggermanager.triggers.TriggerUtils;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Iterator;
+import java.util.Random;
 
 public class DailyNotificationScheduler implements TriggerReceiver
 {
@@ -45,28 +40,43 @@ public class DailyNotificationScheduler implements TriggerReceiver
 		this.isSubscribed = false;
 	}
 	
-	public void start() throws TriggerException
-	{
-		if (isSubscribed)
-		{
+	public void start() throws TriggerException {
+		if (isSubscribed) {
 			stop();
 		}
 
-		if(trigger instanceof SetTimesTrigger)
-			scheduleSetTimes(); //Schedules for the set times trigger
-		else if(trigger instanceof JeevesIntervalTrigger)
-			scheduleIntervalTimes();
-		else
-			scheduleNotifications(); //Schedules for the random trigger
 		TriggerConfig params = new TriggerConfig();
 		params.addParameter(TriggerConfig.INTERVAL_TRIGGER_START_DELAY, startDelay());
 		params.addParameter(TriggerConfig.INTERVAL_TIME_MILLIS, schedulerInterval());
 		params.addParameter(TriggerConfig.IGNORE_USER_PREFERENCES, true);
 		
 		dailySchedulerId = triggerManager.addTrigger(TriggerUtils.TYPE_CLOCK_TRIGGER_ON_INTERVAL, this, params);
+		Log.i("SCHEUDLER ID","Scheduler ID is " + dailySchedulerId);
 		isSubscribed = true;
 	}
-	
+
+	private void scheduleStuff(){
+		long fromDay = 0;
+		long toDay = 0;
+		Log.d("TERIGGER TYPE","Trigger type is " + trigger);
+		if (params.containsKey(TriggerConfig.FROM_DATE))
+			fromDay = new Long(params.getParameter(TriggerConfig.FROM_DATE).toString());
+		if (params.containsKey(TriggerConfig.TO_DATE))
+			toDay = new Long(params.getParameter(TriggerConfig.TO_DATE).toString());
+		long daysSinceEpoch = System.currentTimeMillis() / (24 * 3600 * 1000);
+		if (daysSinceEpoch < fromDay || daysSinceEpoch > toDay){
+			Log.i("TOO EARLY OR TOO LATE", "to day is " + toDay + " and from day is " + fromDay + " and this very day is " + daysSinceEpoch);
+			return;
+		}
+		else
+			Log.i("THIS IS FINE","This is fine because the TO is " + toDay + " and the FROM is " + fromDay + " and this very day is " + daysSinceEpoch);
+		if(trigger instanceof SetTimesTrigger)
+			scheduleSetTimes(); //Schedules for the set times trigger
+		else if(trigger instanceof JeevesIntervalTrigger)
+			scheduleIntervalTimes();
+		else
+			scheduleNotifications(); //Schedules for the random trigger
+	}
 	private long schedulerInterval()
 	{
 	//	if (params.containsKey(TriggerConfig.INTERVAL_TIME_MILLIS))
@@ -112,14 +122,16 @@ public class DailyNotificationScheduler implements TriggerReceiver
 	{
 		if (triggerId == dailySchedulerId)
 		{
-			scheduleNotifications();
+			scheduleStuff();
 		}
 	}
 
 	private void scheduleIntervalTimes(){
 		//I THINK TECHNICALLY THE START DELAY IS GOING TO BE THE 'FROM' TIME IN OUR INTERVAL TRIGGER. THIS IS WHEN IT FIRST STARTS
 		//if (params.containsKey(TriggerConfig.INTERVAL_TRIGGER_START_DELAY))
+
 		long startTime = 0;
+
 		if (params.containsKey(TriggerConfig.DO_NOT_DISTURB_BEFORE_MINUTES))
 			startTime = new Long(params.getParameter(TriggerConfig.DO_NOT_DISTURB_BEFORE_MINUTES).toString());
 		long endTime = 0;
@@ -129,6 +141,7 @@ public class DailyNotificationScheduler implements TriggerReceiver
 		if (params.containsKey(TriggerConfig.INTERVAL_TIME_MILLIS))
 			intervalTime =  new Long(params.getParameter(TriggerConfig.INTERVAL_TIME_MILLIS).toString());
 		ArrayList<Integer> times = new ArrayList<Integer>();
+
 		long realEndTime = endTime;
 		if(startTime > endTime)
 			endTime = endTime + 1440; //Add a new day onto things
@@ -141,6 +154,7 @@ public class DailyNotificationScheduler implements TriggerReceiver
 			Log.d("STRTTIME: ","Start time is " + startTime + " and endTime is " + endTime + " and interval: " + intervalTime);
 		}
 		Calendar calendar = Calendar.getInstance();
+
 		if(times.size()>0)
 		for (Integer minuteOfDay : times) {
 			calendar.set(Calendar.HOUR_OF_DAY, (minuteOfDay / 60));
@@ -189,11 +203,11 @@ public class DailyNotificationScheduler implements TriggerReceiver
 		int lateLimit = params.getValueInMinutes(TriggerConfig.DO_NOT_DISTURB_AFTER_MINUTES);
 		int minInterval = params.getValueInMinutes(TriggerConfig.MIN_TRIGGER_INTERVAL_MINUTES);
 		int timeFrame = lateLimit - earlyLimit;
-//		int numberOfNotifications = timeFrame / minInterval; //The max notifications we can schedule in this space
+		int numberOfNotifications = timeFrame / minInterval; //The max notifications we can schedule in this space
 	//	Log.d("Daily", "scheduleNotifications(), "+numberOfNotifications);
 		if (TriggerManagerConstants.LOG_MESSAGES)
 		{
-		//	Log.d("Daily Scheduler", "Attempting to schedule: "+numberOfNotifications);
+			Log.d("Daily Scheduler", "Attempting to schedule: "+numberOfNotifications);
 		}
 
 		//This isn't QUITE that simple. What we'll need to do is somehow manually schedule a time within each 'window'

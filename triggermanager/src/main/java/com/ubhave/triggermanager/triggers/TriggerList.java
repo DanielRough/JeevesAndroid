@@ -31,7 +31,6 @@ import com.ubhave.triggermanager.TriggerReceiver;
 import com.ubhave.triggermanager.config.TriggerConfig;
 import com.ubhave.triggermanager.triggers.clock.IntervalTrigger;
 import com.ubhave.triggermanager.triggers.clock.OneTimeTrigger;
-import com.ubhave.triggermanager.triggers.clock.TimeOfDayTrigger;
 import com.ubhave.triggermanager.triggers.clock.random.BeginTrigger;
 import com.ubhave.triggermanager.triggers.clock.random.JeevesIntervalTrigger;
 import com.ubhave.triggermanager.triggers.clock.random.RandomFrequencyTrigger;
@@ -64,10 +63,6 @@ public class TriggerList extends AbstractSubscriptionList<Trigger>
 		else if (type == TriggerUtils.TYPE_CLOCK_TRIGGER_DAILY_RANDOM)
 		{
 			return new RandomFrequencyTrigger(context, id, listener, params);
-		}
-		else if (type == TriggerUtils.TYPE_CLOCK_TRIGGER_DAY_INTERVAL)
-		{
-			return new TimeOfDayTrigger(context, id, listener, params);
 		}
 		else if (type == TriggerUtils.TYPE_CLOCK_TRIGGER_SETTIMES)
 		{

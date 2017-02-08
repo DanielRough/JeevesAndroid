@@ -22,9 +22,6 @@ IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 package com.ubhave.sensormanager.classifier;
 
-import android.app.Application;
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.location.Location;
 import android.util.Log;
 
@@ -42,6 +39,7 @@ public class LocationDataClassifier implements SensorDataClassifier
 		//First, we need to find the lat/long that this location name corresponds to
 		String[] locationInfo = value.split(";");
 		if(locationInfo.length == 0)return false; //There was nothing here!
+		if(locationInfo[0].length() == 0)return false;
 		double latitude = Double.parseDouble(locationInfo[0]);
 		double longitude = Double.parseDouble(locationInfo[1]);
 		Location targetLocation = new Location("");//provider name is unecessary

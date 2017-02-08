@@ -35,8 +35,6 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
-import android.widget.RatingBar;
-import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
@@ -647,7 +645,7 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
             trueButton.setTextSize(24);
             RadioButton falseButton = new RadioButton(this);
             falseButton.setText("No");
-            trueButton.setTextSize(24);
+            falseButton.setTextSize(24);
             grpBool.addView(trueButton);
             grpBool.addView(falseButton);
             trueButton.setOnClickListener(new View.OnClickListener() {
@@ -700,7 +698,7 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
                 }
 
             }
-            txtQNo.setText("Question " + (currentQuestionCount));
+         //   txtQNo.setText("Question " + (currentQuestionCount));
             viewFlipper.setDisplayedChild(questionType - 1);
             currentData = questiondata.get(currentQuestion);
 
