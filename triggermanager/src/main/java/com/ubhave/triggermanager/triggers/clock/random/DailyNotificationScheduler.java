@@ -18,7 +18,6 @@ import java.util.Random;
 public class DailyNotificationScheduler implements TriggerReceiver
 {
 	private final static long DAILY_INTERVAL = 1000 * 60 * 60 * 24;
-	private final static int MAX_SCHEDULING_ATTEMPTS = 1000;
 	public final static int ERROR = -1;
 	
 	private final ESTriggerManager triggerManager;
@@ -46,8 +45,8 @@ public class DailyNotificationScheduler implements TriggerReceiver
 		}
 
 		TriggerConfig params = new TriggerConfig();
-		params.addParameter(TriggerConfig.INTERVAL_TRIGGER_START_DELAY, startDelay());
-		params.addParameter(TriggerConfig.INTERVAL_TIME_MILLIS, schedulerInterval());
+		params.addParameter(TriggerConfig.DO_NOT_DISTURB_BEFORE_MINUTES, startDelay());
+		params.addParameter(TriggerConfig.MIN_TRIGGER_INTERVAL_MINUTES, schedulerInterval());
 		params.addParameter(TriggerConfig.IGNORE_USER_PREFERENCES, true);
 		
 		dailySchedulerId = triggerManager.addTrigger(TriggerUtils.TYPE_CLOCK_TRIGGER_ON_INTERVAL, this, params);
@@ -77,6 +76,8 @@ public class DailyNotificationScheduler implements TriggerReceiver
 		else
 			scheduleNotifications(); //Schedules for the random trigger
 	}
+
+	//This means that the scheduler does its thing EVERY DAY
 	private long schedulerInterval()
 	{
 	//	if (params.containsKey(TriggerConfig.INTERVAL_TIME_MILLIS))
@@ -88,12 +89,14 @@ public class DailyNotificationScheduler implements TriggerReceiver
 			return DAILY_INTERVAL;
 //		}
 	}
-	
+
+
+	//When should we actually start the scheduling? If we have a FROM time, its then. Otherwise, we start afresh on midnight of the next day.
 	private long startDelay()
 	{
-		if (params.containsKey(TriggerConfig.INTERVAL_TRIGGER_START_DELAY))
+		if (params.containsKey(TriggerConfig.DO_NOT_DISTURB_BEFORE_MINUTES))
 		{
-			return (Long) params.getParameter(TriggerConfig.INTERVAL_TRIGGER_START_DELAY);
+			return (Long) params.getParameter(TriggerConfig.DO_NOT_DISTURB_BEFORE_MINUTES);
 		}
 		else
 		{
@@ -116,7 +119,8 @@ public class DailyNotificationScheduler implements TriggerReceiver
 			isSubscribed = false;
 		}
 	}
-	
+
+	//Actually DailyNotificationScheduler is a TriggerReceiver. I think it works by having a trigger that fires off every day, causing this to reset its schedule
 	@Override
 	public void onNotificationTriggered(int triggerId)
 	{
@@ -138,11 +142,13 @@ public class DailyNotificationScheduler implements TriggerReceiver
 		if (params.containsKey(TriggerConfig.DO_NOT_DISTURB_AFTER_MINUTES))
 			endTime = new Long(params.getParameter(TriggerConfig.DO_NOT_DISTURB_AFTER_MINUTES).toString());
 		long intervalTime = 0;
-		if (params.containsKey(TriggerConfig.INTERVAL_TIME_MILLIS))
-			intervalTime =  new Long(params.getParameter(TriggerConfig.INTERVAL_TIME_MILLIS).toString());
+		if (params.containsKey(TriggerConfig.MIN_TRIGGER_INTERVAL_MINUTES))
+			intervalTime =  new Long(params.getParameter(TriggerConfig.MIN_TRIGGER_INTERVAL_MINUTES).toString());
 		ArrayList<Integer> times = new ArrayList<Integer>();
 
 		long realEndTime = endTime;
+
+		//So if our startTime is 10pm and our end time is 6pm, our endtime becomes 6pm on the NEXT DAY
 		if(startTime > endTime)
 			endTime = endTime + 1440; //Add a new day onto things
 		while(startTime < endTime){

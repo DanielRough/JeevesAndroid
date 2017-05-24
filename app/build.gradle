@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 25
-    buildToolsVersion "23.0.3"
+    buildToolsVersion '25.0.0'
     defaultConfig {
         applicationId "com.example.daniel.jeeves"
         minSdkVersion 18
@@ -23,19 +23,15 @@ android {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     testCompile 'junit:junit:4.12'
-
     compile 'com.google.firebase:firebase-core:9.8.0'
     compile 'com.google.firebase:firebase-auth:9.8.0'
-    compile "com.google.firebase:firebase-database:9.8.0"
-
+    compile 'com.google.firebase:firebase-database:9.8.0'
     compile project(':SensorManager')
-    compile project(':SensorDataManager')
     compile project(path: ':triggermanager')
     compile 'com.android.support:appcompat-v7:25.0.0'
     compile 'com.android.support:design:25.0.0'
-
-       compile 'com.google.android.gms:play-services-maps:9.8.0'
-     compile 'com.google.android.gms:play-services-places:9.8.0'
+    compile 'com.google.android.gms:play-services-maps:9.8.0'
+    compile 'com.google.android.gms:play-services-places:9.8.0'
     compile 'com.google.android.gms:play-services-auth:9.8.0'
 }
 apply plugin: 'com.google.gms.google-services'

@@ -38,6 +38,7 @@ import com.ubhave.triggermanager.triggers.TriggerUtils;
 
 import java.util.HashSet;
 
+//Why does this extend the Random trigger? Bit weird...
 public class SetTimesTrigger extends RandomFrequencyTrigger
 {	private final ESTriggerManager triggerManager;
 
@@ -130,7 +131,7 @@ public class SetTimesTrigger extends RandomFrequencyTrigger
         try
         {
             TriggerConfig params = new TriggerConfig();
-            params.addParameter(TriggerConfig.CLOCK_TRIGGER_DATE_MILLIS, millis);
+            params.addParameter(TriggerConfig.FROM_DATE, millis);
 
             int triggerId = triggerManager.addTrigger(TriggerUtils.TYPE_CLOCK_TRIGGER_ONCE, this, params);
             randomlySelectedTriggerIds.add(triggerId);

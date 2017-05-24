@@ -2,43 +2,16 @@ package com.example.daniel.jeeves;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.example.daniel.jeeves.actions.FirebaseAction;
-import com.example.daniel.jeeves.firebase.FirebasePatient;
-import com.example.daniel.jeeves.firebase.FirebaseProject;
-import com.example.daniel.jeeves.firebase.FirebaseTrigger;
-import com.example.daniel.jeeves.firebase.UserVariable;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-import com.ubhave.sensormanager.sensors.SensorUtils;
-import com.ubhave.triggermanager.TriggerException;
-import com.ubhave.triggermanager.config.GlobalState;
-import com.ubhave.triggermanager.config.TriggerConfig;
-import com.ubhave.triggermanager.triggers.TriggerUtils;
-
-import org.json.JSONException;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 
 /**
@@ -65,10 +38,8 @@ public class WelcomeActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         instance = this;
-        Log.d("RECREATED","Recreated the thing");
+
         mFirebaseAuth = FirebaseAuth.getInstance();
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference myRef = database.getReference("JeevesData");
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sense);

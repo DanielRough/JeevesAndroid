@@ -16,6 +16,8 @@ import java.util.HashSet;
 /**
  * Created by Daniel on 01/06/2016.
  */
+
+//This is definitely like a trigger that fires off at specified intervals. A sort of cross between a RandomFrequencyTrigger and a SetTimesTrigger
 public class JeevesIntervalTrigger extends RandomFrequencyTrigger{
 
     private final ESTriggerManager triggerManager;
@@ -46,6 +48,7 @@ public class JeevesIntervalTrigger extends RandomFrequencyTrigger{
     @Override
     public void stop() throws TriggerException
     {
+        //When this trigger is finished, we want to get rid of the specific 'one time triggers' that are occurring every day
         if (isRunning)
         {
             dailySchedulerAlarm.stop();
@@ -109,7 +112,7 @@ public class JeevesIntervalTrigger extends RandomFrequencyTrigger{
         try
         {
             TriggerConfig params = new TriggerConfig();
-            params.addParameter(TriggerConfig.CLOCK_TRIGGER_DATE_MILLIS, millis);
+            params.addParameter(TriggerConfig.FROM_DATE, millis);
 
             int triggerId = triggerManager.addTrigger(TriggerUtils.TYPE_CLOCK_TRIGGER_ONCE, this, params);
             randomlySelectedTriggerIds.add(triggerId);

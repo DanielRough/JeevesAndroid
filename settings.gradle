@@ -1,1 +1,1 @@
-include ':app', ':SensorManager', ':SensorDataManager', ':triggermanager'
+include ':app', ':SensorManager', ':triggermanager'

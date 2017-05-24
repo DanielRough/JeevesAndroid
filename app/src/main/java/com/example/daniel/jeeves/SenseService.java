@@ -1,6 +1,5 @@
 package com.example.daniel.jeeves;
 
-import android.app.IntentService;
 import android.app.Service;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -32,6 +31,15 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import static com.example.daniel.jeeves.firebase.FirebaseUtils.BOOLEAN;
+import static com.example.daniel.jeeves.firebase.FirebaseUtils.DATE;
+import static com.example.daniel.jeeves.firebase.FirebaseUtils.LOCATION;
+import static com.example.daniel.jeeves.firebase.FirebaseUtils.MAIN_KEY;
+import static com.example.daniel.jeeves.firebase.FirebaseUtils.NUMERIC;
+import static com.example.daniel.jeeves.firebase.FirebaseUtils.PROJECTS_KEY;
+import static com.example.daniel.jeeves.firebase.FirebaseUtils.TEXT;
+import static com.example.daniel.jeeves.firebase.FirebaseUtils.TIME;
+
 public class SenseService extends Service{
 
     public ArrayList<String> triggerids = new ArrayList<String>();
@@ -56,10 +64,10 @@ public class SenseService extends Service{
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference myRef = database.getReference("JeevesData");
+        DatabaseReference myRef = database.getReference(MAIN_KEY);
         String studyname = intent.getStringExtra("studyname");
 
-        DatabaseReference projectRef = myRef.child("projects").child(studyname);
+        DatabaseReference projectRef = myRef.child(PROJECTS_KEY).child(studyname);
 
         projectRef.addValueEventListener(new ValueEventListener() {
             @Override
@@ -87,6 +95,7 @@ public class SenseService extends Service{
     }
 
 
+    //This is the main method in which the required project is pulled from Firebase and interpreted
     public void updateConfig(FirebaseProject app) throws JSONException {
         ApplicationContext.setCurrentproject(app);
         List<FirebaseTrigger> triggers = app.gettriggers();
@@ -96,14 +105,19 @@ public class SenseService extends Service{
         for(UserVariable var : variables){
             String type = var.getvartype();
             switch(type){
-                case "Time" : prefseditor.putLong(var.getname(),0); break;
-                case "Boolean" : prefseditor.putBoolean(var.getname(),false); break;
-                case "Text" : prefseditor.putString(var.getname(),""); break;
-                case "Numeric" : prefseditor.putLong(var.getname(),0);break;
+                case TIME:
+                case DATE:
+                case NUMERIC:
+                    prefseditor.putLong(var.getname(),0); break;
+                case LOCATION:
+                case TEXT:
+                    prefseditor.putString(var.getname(),""); break;
+                case BOOLEAN : prefseditor.putBoolean(var.getname(),false); break;
             }
         }
         Log.d("UPDATING","Updating the config");
         ArrayList<String> newIds = new ArrayList<>();
+
         for (int i = 0; i < triggers.size(); i++) {
             FirebaseTrigger triggerconfig = triggers.get(i);
             String triggerId = triggerconfig.gettriggerId();
@@ -112,6 +126,7 @@ public class SenseService extends Service{
                 launchTrigger(triggerconfig);
             }
         }
+        //Find all the old Trigger IDs that are not in the 'new' Trigger IDs, and get rid of them
         for (String toRemove : triggerids) {
             if(!newIds.contains(toRemove))
                 removeTrigger(toRemove);
@@ -119,12 +134,13 @@ public class SenseService extends Service{
         triggerids = newIds;
         try {
             GlobalState triggerState = GlobalState.getGlobalState(this);
-            triggerState.setNotificationCap(199);
+            triggerState.setNotificationCap(199); //TODO: Figure out why it's 199, should it be? Should the user specify this?
         } catch (TriggerException e) {
             e.printStackTrace();
         }
     }
 
+    //Here we actually 'launch' the trigger, i.e. activate it so that it performs its actions when the necessary conditions are met
     private void launchTrigger(FirebaseTrigger trigger) {
         Log.d("TRIGLAUNCH","Launching trigger " + trigger.getname() + trigger.gettriggerId());
         String triggerType = trigger.getname();
@@ -141,6 +157,8 @@ public class SenseService extends Service{
             e.printStackTrace();
         }
         triggerlisteners.put(triggerId, newListener);
+
+        //The 'TriggerConfig' has all the necessary parameters to determine under what conditions we fire off this trigger
         TriggerConfig config = new TriggerConfig();
         if(trigger.getparams() != null) {
             Iterator<String> keys = params.keySet().iterator();
@@ -155,12 +173,16 @@ public class SenseService extends Service{
                 config.addParameter(param, value);
             }
         }
+
+        //Here we make the list of actions that this trigger executes when it's activated
         ArrayList<FirebaseAction> toExecute = new ArrayList<>();
         for (int i = 0; i < actions.size(); i++) {
             toExecute.add( actions.get(i));
         }
         newListener.subscribeToTrigger(config, toExecute, triggerId);
     }
+
+    //Here we do the opposite. We deactivate the trigger and remove its functionality
     private void removeTrigger(String triggerId) {
         Log.d("TRIGREMOVE","Removing trigger " + triggerId);
         TriggerListener toRemove = triggerlisteners.get(triggerId);

@@ -95,7 +95,7 @@ public class IntervalTrigger extends AbstractClockTrigger
         if (params.containsKey(TriggerConfig.DO_NOT_DISTURB_BEFORE_MINUTES))
         {
             if(params.getParameter(TriggerConfig.DO_NOT_DISTURB_BEFORE_MINUTES) instanceof Long)
-                return (long)params.getParameter(TriggerConfig.INTERVAL_TIME_MILLIS);
+                return (long)params.getParameter(TriggerConfig.DO_NOT_DISTURB_BEFORE_MINUTES);
             else
                 return new Long(params.getParameter(TriggerConfig.DO_NOT_DISTURB_BEFORE_MINUTES).toString());
         }
@@ -109,12 +109,12 @@ public class IntervalTrigger extends AbstractClockTrigger
     //DR Added a bit of type safety
     protected long getIntervalLength() throws TriggerException
     {
-        if (params.containsKey(TriggerConfig.INTERVAL_TIME_MILLIS))
+        if (params.containsKey(TriggerConfig.MIN_TRIGGER_INTERVAL_MINUTES))
         {
-            if(params.getParameter(TriggerConfig.INTERVAL_TIME_MILLIS) instanceof Long)
-                return (long)params.getParameter(TriggerConfig.INTERVAL_TIME_MILLIS);
+            if(params.getParameter(TriggerConfig.MIN_TRIGGER_INTERVAL_MINUTES) instanceof Long)
+                return (long)params.getParameter(TriggerConfig.MIN_TRIGGER_INTERVAL_MINUTES);
             else
-                return new Long(params.getParameter(TriggerConfig.INTERVAL_TIME_MILLIS).toString());
+                return new Long(params.getParameter(TriggerConfig.MIN_TRIGGER_INTERVAL_MINUTES).toString());
         }
         else
         {

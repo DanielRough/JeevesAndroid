@@ -72,10 +72,12 @@ public class TriggerListener implements TriggerReceiver {
         }
     }
 
+    //Here's the method that gets called when the conditions are fulfilled. It starts the 'ActionExecutorService' to begin going through dem actions
     @Override
     public void onNotificationTriggered(int triggerId) {
         Intent actionIntent = new Intent(serviceContext,ActionExecutorService.class);
         actionIntent.putExtra("com/example/daniel/jeeves/actions",actionsToPerform);
+        //For some reason I need to know whether the user has triggered this manually by pushing a button or not...
         if(triggerType == TriggerUtils.TYPE_SENSOR_TRIGGER_BUTTON) {
             actionIntent.putExtra("manual", true);
         }

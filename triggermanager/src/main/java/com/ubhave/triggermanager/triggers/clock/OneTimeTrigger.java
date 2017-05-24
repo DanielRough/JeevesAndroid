@@ -78,11 +78,11 @@ public class OneTimeTrigger extends AbstractClockTrigger
 
     private long getSurveyDate() throws TriggerException
     {
-        if (params.containsKey(TriggerConfig.CLOCK_TRIGGER_DATE_MILLIS))
+        if (params.containsKey(TriggerConfig.FROM_DATE))
         {
-            return (Long) params.getParameter(TriggerConfig.CLOCK_TRIGGER_DATE_MILLIS);
+            return (Long) params.getParameter(TriggerConfig.FROM_DATE);
         }
-        else throw new TriggerException(TriggerException.MISSING_PARAMETERS, "Parameters must include TriggerConfig.CLOCK_TRIGGER_DATE");
+        else throw new TriggerException(TriggerException.MISSING_PARAMETERS, "Parameters must include TriggerConfig.FROM_DATE");
     }
 
     @Override

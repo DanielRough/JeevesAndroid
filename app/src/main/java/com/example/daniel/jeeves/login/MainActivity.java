@@ -36,10 +36,9 @@ public class MainActivity extends Activity implements GoogleApiClient.OnConnecti
     private FirebaseAuth mFirebaseAuth;
     private FirebaseUser mFirebaseUser;
     private String mUsername;
-  //  private GoogleApiClient mGoogleApiClient;
     public static final String ANONYMOUS = "anonymous";
 
-//    private RecyclerView mMessageRecyclerView;
+    //    private RecyclerView mMessageRecyclerView;
     private LinearLayoutManager mLinearLayoutManager;
     private ProgressBar mProgressBar;
 
@@ -79,29 +78,32 @@ public class MainActivity extends Activity implements GoogleApiClient.OnConnecti
         mProgressBar = (ProgressBar)findViewById(R.id.progressBar);
         mProgressBar.setVisibility(View.VISIBLE);
 
-       // mMessageRecyclerView = (RecyclerView) findViewById(R.id.messageRecyclerView);
+        // mMessageRecyclerView = (RecyclerView) findViewById(R.id.messageRecyclerView);
         mLinearLayoutManager = new LinearLayoutManager(this);
         mLinearLayoutManager.setStackFromEnd(true);
-      //  mMessageRecyclerView.setLayoutManager(mLinearLayoutManager);
+        //  mMessageRecyclerView.setLayoutManager(mLinearLayoutManager);
 
-    //    mProgressBar.setVisibility(ProgressBar.INVISIBLE);
+        //    mProgressBar.setVisibility(ProgressBar.INVISIBLE);
 
-     //    Initialize Firebase Auth
+        //    Initialize Firebase Auth
         mFirebaseAuth = FirebaseAuth.getInstance();
         mFirebaseUser = mFirebaseAuth.getCurrentUser();
+
+        //If we're not signed in, launch the sign-in activity
         if (mFirebaseUser == null) {
             // Not signed in, launch the Sign In activity
             startActivity(new Intent(this, SignInActivity.class));
             finish();
             return;
         } else {
+
+            //Bit of code to get the user's data from the Firebase database
             FirebaseDatabase database = FirebaseDatabase.getInstance();
             final DatabaseReference myRef = database.getReference("JeevesData").child("patients").child(mFirebaseUser.getUid());
             myRef.addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     myRef.removeEventListener(this);
-                    Log.d("MAINSTUFF","Oh no");
                     FirebasePatient user = dataSnapshot.getValue(FirebasePatient.class);
                     SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getContext());
                     SharedPreferences.Editor editor = preferences.edit();
@@ -116,7 +118,7 @@ public class MainActivity extends Activity implements GoogleApiClient.OnConnecti
                         finish();
                     }
                     else
-                      goToSecondActivity();
+                        goToSecondActivity();
                 }
 
                 @Override
@@ -131,7 +133,7 @@ public class MainActivity extends Activity implements GoogleApiClient.OnConnecti
         startActivity(intent);
         finish();
     }
-//
+    //
 //    @Override
 //    public boolean onCreateOptionsMenu(Menu menu) {
 //        MenuInflater inflater = getMenuInflater();
@@ -148,8 +150,8 @@ public class MainActivity extends Activity implements GoogleApiClient.OnConnecti
 //                startActivity(new Intent(this, SignInActivity.class));
 //                return true;
 //            default:
-                return super.onOptionsItemSelected(item);
-        }
+        return super.onOptionsItemSelected(item);
+    }
     //}
 
     @Override

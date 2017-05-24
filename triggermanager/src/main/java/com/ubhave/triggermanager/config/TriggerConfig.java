@@ -36,11 +36,15 @@ public class TriggerConfig
 	//Start and end dates of particular triggers
 	public final static String FROM_DATE = "dateFrom";
 	public final static String TO_DATE = "dateTo";
-
-	// Clock based Triggers
-	public final static String CLOCK_TRIGGER_DATE_MILLIS = "clockTriggerDate";
-	public final static String INTERVAL_TIME_MILLIS = "intervalTime";
-	public final static String INTERVAL_TRIGGER_START_DELAY = "intervalTriggerStartDelay";
+	// Time Boundaries
+	public static final String DO_NOT_DISTURB_BEFORE_MINUTES = "limitBeforeHour";
+	public static final String DO_NOT_DISTURB_AFTER_MINUTES = "limitAfterHour";
+	public static final String MIN_TRIGGER_INTERVAL_MINUTES = "notificationMinInterval";
+//
+//	// Clock based Triggers
+//	public final static String CLOCK_TRIGGER_DATE_MILLIS = "clockTriggerDate";
+//	public final static String INTERVAL_TIME_MILLIS = "intervalTime";
+//	public final static String INTERVAL_TRIGGER_START_DELAY = "intervalTriggerStartDelay";
 
 	//This is for random triggers
 	public final static String NUMBER_OF_NOTIFICATIONS = "numberOfNotifications";
@@ -55,10 +59,7 @@ public class TriggerConfig
 	public final static String NOTIFICATION_PROBABILITY = "notificationProb";
 	public final static String POST_SENSE_WAIT_INTERVAL_MILLIS = "postSenseWait";
 	
-	// Time Boundaries
-	public static final String DO_NOT_DISTURB_BEFORE_MINUTES = "limitBeforeHour";
-	public static final String DO_NOT_DISTURB_AFTER_MINUTES = "limitAfterHour";
-	public static final String MIN_TRIGGER_INTERVAL_MINUTES = "notificationMinInterval";
+
 
 
 	//BUTTON NAME

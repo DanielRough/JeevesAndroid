@@ -50,7 +50,7 @@ public class TriggerUtils
 	public static final String NAME_SENSOR_TRIGGER_BUTTON		= "Button Trigger";
 	public static final String NAME_CLOCK_TRIGGER_SETTIMES		= "Set Times Trigger";
 	public static final String NAME_SENSOR_TRIGGER_DELAYED 		= "type_sensor_delayed";
-	public static final String NAME_JEEVES_TRIGGER_ON_INTERVAL 	= "Interval Trigger";
+	public static final String NAME_JEEVES_TRIGGER_ON_INTERVAL 	= "Interval Contingent";
 	public static final String NAME_SENSOR_TRIGGER_SURVEY		= "Survey Trigger";
 
 

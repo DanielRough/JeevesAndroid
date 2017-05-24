@@ -146,7 +146,7 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
                                 }
                             });
                         }
-                            // ...
+                        // ...
                     }
                 });
     }
@@ -184,19 +184,19 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
             case R.id.link_signup:
                 Intent intent = new Intent(getApplicationContext(), SignUpActivity.class);
                 startActivityForResult(intent, REQUEST_SIGNUP);
-             //   createAccount(mEmailField.getText().toString(), mPasswordField.getText().toString());
+                //   createAccount(mEmailField.getText().toString(), mPasswordField.getText().toString());
                 break;
             case R.id.email_sign_in_button:
                 signIn(mEmailField.getText().toString(), mPasswordField.getText().toString());
                 break;
-            }
         }
+    }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-      if (requestCode == REQUEST_SIGNUP) {
+        if (requestCode == REQUEST_SIGNUP) {
             if (resultCode == RESULT_OK) {
                 final String name = data.getStringExtra("name");
                 mFirebaseAuth = FirebaseAuth.getInstance();

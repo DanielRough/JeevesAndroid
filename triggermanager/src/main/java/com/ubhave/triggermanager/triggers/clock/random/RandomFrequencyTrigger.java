@@ -22,8 +22,6 @@ IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 package com.ubhave.triggermanager.triggers.clock.random;
 
-import java.util.HashSet;
-
 import android.app.PendingIntent;
 import android.content.Context;
 import android.util.Log;
@@ -35,6 +33,8 @@ import com.ubhave.triggermanager.config.TriggerConfig;
 import com.ubhave.triggermanager.config.TriggerManagerConstants;
 import com.ubhave.triggermanager.triggers.Trigger;
 import com.ubhave.triggermanager.triggers.TriggerUtils;
+
+import java.util.HashSet;
 
 public class RandomFrequencyTrigger extends Trigger implements TriggerReceiver
 {
@@ -57,7 +57,7 @@ public class RandomFrequencyTrigger extends Trigger implements TriggerReceiver
 		try
 		{
 			TriggerConfig params = new TriggerConfig();
-			params.addParameter(TriggerConfig.CLOCK_TRIGGER_DATE_MILLIS, millis);
+			params.addParameter(TriggerConfig.FROM_DATE, millis);
 			
 			int triggerId = triggerManager.addTrigger(TriggerUtils.TYPE_CLOCK_TRIGGER_ONCE, this, params);
 			randomlySelectedTriggerIds.add(triggerId);

@@ -69,7 +69,6 @@ public class ESTriggerManager implements TriggerManagerInterface
 	@Override
 	public int addTrigger(int triggerType, TriggerReceiver listener, TriggerConfig parameters) throws TriggerException
 	{
-	//	Log.d("AAAGH", "AWTFWTF");
 
 		int key = triggers.randomKey();
 		Trigger trigger = TriggerList.createTrigger(context, triggerType, key, listener, parameters);

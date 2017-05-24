@@ -3,8 +3,6 @@ package com.example.daniel.jeeves;
 import android.content.Context;
 import android.util.Log;
 
-import com.ubhave.dataformatter.DataFormatter;
-import com.ubhave.dataformatter.json.JSONFormatter;
 import com.ubhave.sensormanager.ESException;
 import com.ubhave.sensormanager.ESSensorManager;
 import com.ubhave.sensormanager.ESSensorManagerInterface;
@@ -21,8 +19,6 @@ public class SensorListener implements SensorDataListener {
 
     private final int sensorType;
     private ESSensorManagerInterface sensorManager;
-    private final JSONFormatter formatter;
-
     private boolean isSubscribed;
 
     public SensorListener(int sensorType)
@@ -31,7 +27,6 @@ public class SensorListener implements SensorDataListener {
         isSubscribed = false;
 
         Context context = ApplicationContext.getContext();
-        formatter = DataFormatter.getJSONFormatter(context, sensorType);
 
         try
         {
