@@ -120,8 +120,8 @@ public abstract class Trigger extends BroadcastReceiver
 	{
 		Calendar calendar = Calendar.getInstance();	
 		int currentMinute = (60 * calendar.get(Calendar.HOUR_OF_DAY)) + calendar.get(Calendar.MINUTE);
-		int earlyLimit = params.getValueInMinutes(TriggerConfig.DO_NOT_DISTURB_AFTER_MINUTES);
-		int lateLimit = params.getValueInMinutes(TriggerConfig.DO_NOT_DISTURB_BEFORE_MINUTES);
+		int earlyLimit = params.getValueInMinutes(TriggerConfig.LIMIT_AFTER_HOUR);
+		int lateLimit = params.getValueInMinutes(TriggerConfig.LIMIT_BEFORE_HOUR);
 		
 		return (currentMinute < earlyLimit
 				|| currentMinute > lateLimit);

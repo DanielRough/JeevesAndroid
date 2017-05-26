@@ -30,4 +30,8 @@ public class ApplicationContext extends Application
         return instance;
     }
 
+
+    //UIDesign constants
+    public static final String BUTTON = "button";
+    public static final String LABEL = "label";
 }

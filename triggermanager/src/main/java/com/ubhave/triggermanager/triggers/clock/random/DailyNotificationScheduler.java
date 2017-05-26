@@ -45,8 +45,8 @@ public class DailyNotificationScheduler implements TriggerReceiver
 		}
 
 		TriggerConfig params = new TriggerConfig();
-		params.addParameter(TriggerConfig.DO_NOT_DISTURB_BEFORE_MINUTES, startDelay());
-		params.addParameter(TriggerConfig.MIN_TRIGGER_INTERVAL_MINUTES, schedulerInterval());
+		params.addParameter(TriggerConfig.LIMIT_BEFORE_HOUR, startDelay());
+		params.addParameter(TriggerConfig.INTERVAL_TRIGGER_TIME, schedulerInterval());
 		params.addParameter(TriggerConfig.IGNORE_USER_PREFERENCES, true);
 		
 		dailySchedulerId = triggerManager.addTrigger(TriggerUtils.TYPE_CLOCK_TRIGGER_ON_INTERVAL, this, params);
@@ -63,10 +63,13 @@ public class DailyNotificationScheduler implements TriggerReceiver
 		if (params.containsKey(TriggerConfig.TO_DATE))
 			toDay = new Long(params.getParameter(TriggerConfig.TO_DATE).toString());
 		long daysSinceEpoch = System.currentTimeMillis() / (24 * 3600 * 1000);
-		if (daysSinceEpoch < fromDay || daysSinceEpoch > toDay){
+
+		//if fromDay and toDay are both 0, then we have no date constraints and this is triggered every day
+		if ((fromDay != 0 || toDay != 0) && (daysSinceEpoch < fromDay || daysSinceEpoch > toDay)){
 			Log.i("TOO EARLY OR TOO LATE", "to day is " + toDay + " and from day is " + fromDay + " and this very day is " + daysSinceEpoch);
 			return;
 		}
+
 		else
 			Log.i("THIS IS FINE","This is fine because the TO is " + toDay + " and the FROM is " + fromDay + " and this very day is " + daysSinceEpoch);
 		if(trigger instanceof SetTimesTrigger)
@@ -94,20 +97,27 @@ public class DailyNotificationScheduler implements TriggerReceiver
 	//When should we actually start the scheduling? If we have a FROM time, its then. Otherwise, we start afresh on midnight of the next day.
 	private long startDelay()
 	{
-		if (params.containsKey(TriggerConfig.DO_NOT_DISTURB_BEFORE_MINUTES))
-		{
-			return (Long) params.getParameter(TriggerConfig.DO_NOT_DISTURB_BEFORE_MINUTES);
-		}
-		else
-		{
+//		return System.currentTimeMillis();
+//	}
+//		return 0;
+//		if (params.containsKey(TriggerConfig.LIMIT_BEFORE_HOUR))
+//		{
+//			return (Long) params.getParameter(TriggerConfig.LIMIT_BEFORE_HOUR);
+//		}
+//		else
+//		{
+//			return
 			// Milliseconds until midnight
 			Calendar calendar = Calendar.getInstance();
-			calendar.add(Calendar.HOUR_OF_DAY, 24 - calendar.get(Calendar.HOUR_OF_DAY));
-			calendar.set(Calendar.MINUTE, 0);
-			calendar.set(Calendar.SECOND, 0);
-			
-			return calendar.getTimeInMillis() - System.currentTimeMillis();
-		}
+			Calendar midnight = Calendar.getInstance();
+			midnight.set(Calendar.HOUR_OF_DAY,0);
+			midnight.set(Calendar.MINUTE,0);
+			midnight.set(Calendar.SECOND,0);
+		long startDelay = (calendar.getTimeInMillis()-midnight.getTimeInMillis())/(1000*60);
+
+		Log.d("Start delay", "My current starting time is " + startDelay);
+			return startDelay; //This ought to be the number of minutes since midnight. i.e.: NOW
+//		}
 	}
 	
 	public void stop() throws TriggerException
@@ -136,14 +146,14 @@ public class DailyNotificationScheduler implements TriggerReceiver
 
 		long startTime = 0;
 
-		if (params.containsKey(TriggerConfig.DO_NOT_DISTURB_BEFORE_MINUTES))
-			startTime = new Long(params.getParameter(TriggerConfig.DO_NOT_DISTURB_BEFORE_MINUTES).toString());
+		if (params.containsKey(TriggerConfig.LIMIT_BEFORE_HOUR))
+			startTime = new Long(params.getParameter(TriggerConfig.LIMIT_BEFORE_HOUR).toString());
 		long endTime = 0;
-		if (params.containsKey(TriggerConfig.DO_NOT_DISTURB_AFTER_MINUTES))
-			endTime = new Long(params.getParameter(TriggerConfig.DO_NOT_DISTURB_AFTER_MINUTES).toString());
+		if (params.containsKey(TriggerConfig.LIMIT_AFTER_HOUR))
+			endTime = new Long(params.getParameter(TriggerConfig.LIMIT_AFTER_HOUR).toString());
 		long intervalTime = 0;
-		if (params.containsKey(TriggerConfig.MIN_TRIGGER_INTERVAL_MINUTES))
-			intervalTime =  new Long(params.getParameter(TriggerConfig.MIN_TRIGGER_INTERVAL_MINUTES).toString());
+		if (params.containsKey(TriggerConfig.INTERVAL_TRIGGER_TIME))
+			intervalTime =  new Long(params.getParameter(TriggerConfig.INTERVAL_TRIGGER_TIME).toString());
 		ArrayList<Integer> times = new ArrayList<Integer>();
 
 		long realEndTime = endTime;
@@ -205,9 +215,9 @@ public class DailyNotificationScheduler implements TriggerReceiver
 	private void scheduleNotifications()
 	{
 		ArrayList<Integer> times = new ArrayList<Integer>();
-		int earlyLimit = params.getValueInMinutes(TriggerConfig.DO_NOT_DISTURB_BEFORE_MINUTES);
-		int lateLimit = params.getValueInMinutes(TriggerConfig.DO_NOT_DISTURB_AFTER_MINUTES);
-		int minInterval = params.getValueInMinutes(TriggerConfig.MIN_TRIGGER_INTERVAL_MINUTES);
+		int earlyLimit = params.getValueInMinutes(TriggerConfig.LIMIT_BEFORE_HOUR);
+		int lateLimit = params.getValueInMinutes(TriggerConfig.LIMIT_AFTER_HOUR);
+		int minInterval = params.getValueInMinutes(TriggerConfig.INTERVAL_WINDOW);
 		int timeFrame = lateLimit - earlyLimit;
 		int numberOfNotifications = timeFrame / minInterval; //The max notifications we can schedule in this space
 	//	Log.d("Daily", "scheduleNotifications(), "+numberOfNotifications);

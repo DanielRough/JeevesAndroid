@@ -16,6 +16,9 @@ import com.example.daniel.jeeves.firebase.FirebaseUI;
 import com.ubhave.triggermanager.config.TriggerManagerConstants;
 import java.util.List;
 
+import static com.example.daniel.jeeves.ApplicationContext.BUTTON;
+import static com.example.daniel.jeeves.ApplicationContext.LABEL;
+
 public class MonitorActivity extends AppCompatActivity {
     List<FirebaseUI> uielements;
 
@@ -38,7 +41,7 @@ public class MonitorActivity extends AppCompatActivity {
 
                 params.setMargins(0,50,0,50);
                 for (FirebaseUI uielement : uielements) {
-                    if(uielement.getname().equals("BUTTON")){
+                    if(uielement.getname().equals(BUTTON)){
                         final Button button = (Button)getLayoutInflater().inflate(R.layout.buttontemplate, null);
 
                   //      final Button button = new Button(getApplicationContext(),null,com.android.internal.R.attr.buttonStyle);
@@ -56,7 +59,7 @@ public class MonitorActivity extends AppCompatActivity {
                         });
                         customlayout.addView(button,params);
                     }
-                    else if(uielement.getname().equals("LABEL")){
+                    else if(uielement.getname().equals(LABEL)){
                         TextView view = new TextView(getApplicationContext());
                         view.setText(uielement.gettext());
                         view.setTextSize(20);

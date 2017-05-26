@@ -45,7 +45,7 @@ public class TriggerUtils
 	public static final String NAME_CLOCK_TRIGGER_ONCE 			= "type_clock_once";
 	public static final String NAME_CLOCK_TRIGGER_ON_INTERVAL 	= "type_clock_interval";
 	public static final String NAME_CLOCK_TRIGGER_DAILY			= "type_clock_daily";
-	public static final String NAME_CLOCK_TRIGGER_DAILY_RANDOM 	= "Random Trigger";
+	public static final String NAME_CLOCK_TRIGGER_DAILY_RANDOM 	= "Signal Contingent";
 	public static final String NAME_SENSOR_TRIGGER_IMMEDIATE 	= "Sensor Trigger";
 	public static final String NAME_SENSOR_TRIGGER_BUTTON		= "Button Trigger";
 	public static final String NAME_CLOCK_TRIGGER_SETTIMES		= "Set Times Trigger";

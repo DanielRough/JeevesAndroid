@@ -65,8 +65,17 @@ public class SenseService extends Service{
     public int onStartCommand(Intent intent, int flags, int startId) {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference myRef = database.getReference(MAIN_KEY);
-        String studyname = intent.getStringExtra("studyname");
+        String studyname = "";
+        SharedPreferences varPrefs = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getContext());
+        SharedPreferences.Editor prefseditor = varPrefs.edit();
 
+        if(intent != null) { //intent will be null if this service gets restarted
+            studyname = intent.getStringExtra("studyname");
+            prefseditor.putString("studyname",studyname); //add our current study name to the shared preferences
+        }
+        else {
+            studyname = varPrefs.getString("studyname", "");
+        }
         DatabaseReference projectRef = myRef.child(PROJECTS_KEY).child(studyname);
 
         projectRef.addValueEventListener(new ValueEventListener() {

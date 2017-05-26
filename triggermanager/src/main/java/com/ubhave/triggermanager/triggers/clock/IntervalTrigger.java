@@ -92,12 +92,12 @@ public class IntervalTrigger extends AbstractClockTrigger
     {
         //I THINK TECHNICALLY THE START DELAY IS GOING TO BE THE 'FROM' TIME IN OUR INTERVAL TRIGGER. THIS IS WHEN IT FIRST STARTS
         //if (params.containsKey(TriggerConfig.INTERVAL_TRIGGER_START_DELAY))
-        if (params.containsKey(TriggerConfig.DO_NOT_DISTURB_BEFORE_MINUTES))
+        if (params.containsKey(TriggerConfig.LIMIT_BEFORE_HOUR))
         {
-            if(params.getParameter(TriggerConfig.DO_NOT_DISTURB_BEFORE_MINUTES) instanceof Long)
-                return (long)params.getParameter(TriggerConfig.DO_NOT_DISTURB_BEFORE_MINUTES);
+            if(params.getParameter(TriggerConfig.LIMIT_BEFORE_HOUR) instanceof Long)
+                return (long)params.getParameter(TriggerConfig.LIMIT_BEFORE_HOUR);
             else
-                return new Long(params.getParameter(TriggerConfig.DO_NOT_DISTURB_BEFORE_MINUTES).toString());
+                return new Long(params.getParameter(TriggerConfig.LIMIT_BEFORE_HOUR).toString());
         }
         else
         {
@@ -109,12 +109,12 @@ public class IntervalTrigger extends AbstractClockTrigger
     //DR Added a bit of type safety
     protected long getIntervalLength() throws TriggerException
     {
-        if (params.containsKey(TriggerConfig.MIN_TRIGGER_INTERVAL_MINUTES))
+        if (params.containsKey(TriggerConfig.INTERVAL_TRIGGER_TIME))
         {
-            if(params.getParameter(TriggerConfig.MIN_TRIGGER_INTERVAL_MINUTES) instanceof Long)
-                return (long)params.getParameter(TriggerConfig.MIN_TRIGGER_INTERVAL_MINUTES);
+            if(params.getParameter(TriggerConfig.INTERVAL_TRIGGER_TIME) instanceof Long)
+                return (long)params.getParameter(TriggerConfig.INTERVAL_TRIGGER_TIME);
             else
-                return new Long(params.getParameter(TriggerConfig.MIN_TRIGGER_INTERVAL_MINUTES).toString());
+                return new Long(params.getParameter(TriggerConfig.INTERVAL_TRIGGER_TIME).toString());
         }
         else
         {
