@@ -17,9 +17,9 @@ public class WaitingAction extends FirebaseAction {
 
     }
     @Override
-    public void execute() {
+    public boolean execute() {
         Log.d("ACTIONWAIT", "SOMEHOW GONNA WAIT BEFORE EXECUTING");
         Context app = ApplicationContext.getContext();
-
+        return true;
     }
 }

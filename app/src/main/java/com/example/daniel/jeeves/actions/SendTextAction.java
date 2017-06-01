@@ -23,7 +23,7 @@ public class SendTextAction extends FirebaseAction {
 
     }
     @Override
-    public void execute() {
+    public boolean execute() {
         Context app = ApplicationContext.getContext();
         String recipient = "";
         //TODO: Make this a little bit nicer at least
@@ -42,5 +42,6 @@ public class SendTextAction extends FirebaseAction {
         SmsManager sms = SmsManager.getDefault();
         Log.d("Number","Trying to send a text to " + Long.toString(number));
         sms.sendTextMessage("0" +Long.toString(number), null, message, null, null);
+        return true;
     }
 }

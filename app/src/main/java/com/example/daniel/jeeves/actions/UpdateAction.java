@@ -28,13 +28,13 @@ public class UpdateAction extends FirebaseAction {
         setvars(vars);
     }
     @Override
-    public void execute() {
+    public boolean execute() {
         Log.d("ACTIONUPDATEUSER", "UPDATED USER VAR");
         Context app = ApplicationContext.getContext();
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getContext());
         if(getvars()==null){
                     Log.d("NULL","WHAT THE ACTUAL FUCK");
-                return;
+                return true;
         } //got an empty action!!
         FirebaseExpression variable = getvars().get(0);
             String varName = variable.getname();
@@ -56,5 +56,6 @@ public class UpdateAction extends FirebaseAction {
                 editor.putString(varName, (String)valueresult);
             }
             editor.commit();
+        return true;
     }
 }

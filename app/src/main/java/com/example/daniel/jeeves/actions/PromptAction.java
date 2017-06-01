@@ -20,7 +20,7 @@ public class PromptAction extends FirebaseAction {
     }
     static int count = 0;
     @Override
-    public void execute(){
+    public boolean execute(){
         int notificationId = Integer.parseInt("8" + count++);
         Log.i("ACTIONPROMPT", "PROMPTED AN ACTON");
 //        Log.d("NAME", getname());
@@ -36,5 +36,6 @@ public class PromptAction extends FirebaseAction {
                 .setContentTitle("Jeeves")
                 .setContentText(text);
         notificationManager.notify(notificationId,mBuilder.build());
+        return true;
     }
 }

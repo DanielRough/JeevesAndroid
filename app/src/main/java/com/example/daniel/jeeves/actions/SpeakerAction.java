@@ -19,7 +19,7 @@ public class SpeakerAction extends FirebaseAction {
 
     }
     @Override
-    public void execute() {
+    public boolean execute() {
         Log.d("ACTIONMUTE", "MUTED PHONE");
         Context app = ApplicationContext.getContext();
 
@@ -29,5 +29,6 @@ public class SpeakerAction extends FirebaseAction {
             audioManager.setRingerMode(AudioManager.RINGER_MODE_VIBRATE);
         else
             audioManager.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
+        return true;
     }
 }

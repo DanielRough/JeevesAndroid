@@ -51,7 +51,7 @@ public class SurveyAction extends FirebaseAction {
     }
     @Override
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-    public void execute() {
+    public boolean execute() {
         thisActionsId = Integer.parseInt("9" + NOTIFICATION_ID++);
         Log.d("ACTIONSURVEY", "SENT A SURVEY WITH ACTION ID " + thisActionsId);
         Context app = ApplicationContext.getContext();
@@ -110,7 +110,7 @@ public class SurveyAction extends FirebaseAction {
             resultIntent.putExtra("manual",true);
             resultIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             app.startActivity(resultIntent);
-            return;
+            return true;
         }
         else{
             Log.d("nope","no not manual");
@@ -161,6 +161,7 @@ public class SurveyAction extends FirebaseAction {
         }
 
         //   firebaseSurvey.push().setValue(surveyDetails);
+        return true;
     }
 
 //    public void setOnetimeTimer(Context context) {
