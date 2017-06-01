@@ -19,9 +19,6 @@ public class FirebaseSurvey {
         return id;
     }
 
-    public String getname() {
-        return name;
-    }
 
     public String getdescription() { return description; }
 
@@ -29,7 +26,7 @@ public class FirebaseSurvey {
         return questions;
     }
 
-    public  List<Map<String, String>> getanswers(){ return answers; }
+    public List<String> getanswers(){ return answers; }
 
     public String gettype() {
         return type;
@@ -56,15 +53,29 @@ public class FirebaseSurvey {
     long timeFinished;
     long score;
         long id;
-        String name;
         List<FirebaseQuestion> questions;
         String description;
         String type;
+        String title;
+        String surveyId;
         long xPos;
         long yPos;
     boolean begun; //Has the user begun completing the survey?
-    List<Map<String, String>> answers;
+    List<String> answers;
     String key;
+    public String getsurveyId(){
+        return surveyId;
+    }
+    public void setsurveyId(String id){
+        this.surveyId = id;
+    }
+    public String gettitle(){
+        return title;
+    }
+    public void settitle(String title){
+        this.title = title;
+    }
+
     public void setkey(String key){
         this.key = key;
     }
@@ -72,7 +83,7 @@ public class FirebaseSurvey {
         return key;
     }
     public void settimeSent(long timeSent){ this.timeSent = timeSent;}
-    public void setanswers( List<Map<String, String>> answers){
+    public void setanswers( List<String> answers){
         this.answers = answers;
     }
     public void settimeFinished(long timeFinished){

@@ -110,6 +110,8 @@ public class SignUpActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (!task.isSuccessful()) {
+                            Log.d("FAIL",task.getResult().toString());
+                            Log.d("FAILEURE",task.getException().toString());
                             onSignupFailed();
                         }
                         else {

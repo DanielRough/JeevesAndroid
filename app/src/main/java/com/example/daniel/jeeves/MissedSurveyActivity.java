@@ -65,9 +65,9 @@ public class MissedSurveyActivity extends AppCompatActivity {
                     if (survey.getexpiryTime() > System.currentTimeMillis() || survey.getexpiryTime() == 0) {
                         surveynames.add(survey);
                         if (timeAlive > 0)
-                            array.add(survey.getname() + "\nSent at " + dateString + "\nExpiring in " + (minutes + 1) + " minutes");
+                            array.add(survey.gettitle() + "\nSent at " + dateString + "\nExpiring in " + (minutes + 1) + " minutes");
                         else
-                            array.add(survey.getname() + "\nSent at " + dateString);
+                            array.add(survey.gettitle() + "\nSent at " + dateString);
                     }
 
                 }
@@ -78,7 +78,7 @@ public class MissedSurveyActivity extends AppCompatActivity {
                         Intent resultIntent = new Intent(MissedSurveyActivity.this, SurveyActivity.class);
                         FirebaseSurvey clickedSurvey = surveynames.get(position);
                         resultIntent.putExtra("surveyid", clickedSurvey.getkey());
-                        resultIntent.putExtra("name", clickedSurvey.getname());
+                        resultIntent.putExtra("name", clickedSurvey.gettitle());
                         resultIntent.putExtra("timeSent", clickedSurvey.gettimeSent());
                         clickedSurvey.setbegun(); //Confirm that this survey has been started
                         startActivity(resultIntent);

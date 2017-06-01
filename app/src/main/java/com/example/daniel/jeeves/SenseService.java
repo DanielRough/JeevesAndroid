@@ -7,8 +7,10 @@ import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.example.daniel.jeeves.actions.FirebaseAction;
+import com.example.daniel.jeeves.firebase.FirebaseExpression;
 import com.example.daniel.jeeves.firebase.FirebaseProject;
 import com.example.daniel.jeeves.firebase.FirebaseTrigger;
 import com.example.daniel.jeeves.firebase.UserVariable;
@@ -125,6 +127,7 @@ public class SenseService extends Service{
             }
         }
         Log.d("UPDATING","Updating the config");
+        Toast.makeText(ApplicationContext.getContext(),"Updated app configuration",Toast.LENGTH_SHORT).show();
         ArrayList<String> newIds = new ArrayList<>();
 
         for (int i = 0; i < triggers.size(); i++) {
@@ -169,6 +172,16 @@ public class SenseService extends Service{
 
         //The 'TriggerConfig' has all the necessary parameters to determine under what conditions we fire off this trigger
         TriggerConfig config = new TriggerConfig();
+
+        ArrayList<Integer> times = new ArrayList<>();
+        if(trigger.gettimes() != null){
+            for(FirebaseExpression time : trigger.gettimes()){
+                if(time.getisValue()){
+                    times.add(Integer.parseInt(time.getvalue()));
+                }
+            }
+            config.addParameter("times",times);
+        }
         if(trigger.getparams() != null) {
             Iterator<String> keys = params.keySet().iterator();
             while (keys.hasNext()) {

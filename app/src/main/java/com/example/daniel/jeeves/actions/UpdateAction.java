@@ -2,12 +2,15 @@ package com.example.daniel.jeeves.actions;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.example.daniel.jeeves.ApplicationContext;
 import com.example.daniel.jeeves.ExpressionParser;
 import com.example.daniel.jeeves.firebase.FirebaseExpression;
+import com.firebase.client.Firebase;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -20,32 +23,36 @@ public class UpdateAction extends FirebaseAction {
         return value;
     }
 
-    public UpdateAction(Map<String,Object> params){
+    public UpdateAction(Map<String,Object> params, List<FirebaseExpression> vars){
         setparams(params);
-
+        setvars(vars);
     }
     @Override
     public void execute() {
         Log.d("ACTIONUPDATEUSER", "UPDATED USER VAR");
         Context app = ApplicationContext.getContext();
-        SharedPreferences pref = app.getSharedPreferences("userPrefs", Context.MODE_PRIVATE);
-        Map<String,Object> variable = (Map<String,Object>)getparams().get("variable");
-            String varName = variable.get("name").toString();
-            String varType = getparams().get("vartype").toString();
-            SharedPreferences.Editor editor = pref.edit();
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getContext());
+        if(getvars()==null){
+                    Log.d("NULL","WHAT THE ACTUAL FUCK");
+                return;
+        } //got an empty action!!
+        FirebaseExpression variable = getvars().get(0);
+            String varName = variable.getname();
+            String varType = variable.getvartype();
+            SharedPreferences.Editor editor = preferences.edit();
             Object valueresult = null;
             ExpressionParser parser = new ExpressionParser(ApplicationContext.getContext());
-            FirebaseExpression expr = null;
-            expr = (FirebaseExpression)(getparams().get("value"));
-                valueresult = parser.evaluate(getvalue());
+            FirebaseExpression expr = getvars().get(1);
+            valueresult = parser.evaluate(expr);
 
+            Log.d("PUTTING","Put " + varName + " as value " + valueresult.toString());
             if (varType.equals("Text")) {
                 editor.putString(varName, (String)valueresult);
             } else if (varType.equals("Numeric")) {
-                editor.putLong(varName, (Long)valueresult);
+                editor.putLong(varName, Long.parseLong(valueresult.toString()));
             } else if (varType.equals("Boolean")) {
-                editor.putBoolean(varName, (boolean)valueresult);
-            } else if (varType.equals("Time")) {
+                editor.putBoolean(varName, ( Boolean.parseBoolean(valueresult.toString())));
+            } else {
                 editor.putString(varName, (String)valueresult);
             }
             editor.commit();

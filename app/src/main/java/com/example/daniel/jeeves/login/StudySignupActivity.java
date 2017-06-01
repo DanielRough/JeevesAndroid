@@ -102,6 +102,7 @@ public class StudySignupActivity extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 // Get Post object and use the values to update the UI
+                listItems.clear();
                 Iterable<DataSnapshot> post = dataSnapshot.getChildren();
                 Iterator<DataSnapshot> iter = post.iterator();
                 while(iter.hasNext()){

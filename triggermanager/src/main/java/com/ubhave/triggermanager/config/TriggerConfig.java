@@ -70,7 +70,7 @@ public class TriggerConfig
 	//SURVEY NAME
 	public static final String SURVEY_NAME = "selectedSurvey";
 	public static final String SURVEY_RESULT = "result";
-	public static final String SURVEY_MISSED = "missed";
+	public static final String SURVEY_NUMBER = "numTimes";
 
 	public TriggerConfig()
 	{

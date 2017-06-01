@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
+import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -35,8 +36,8 @@ public class UpdateSettingsActivity extends AppCompatActivity {
         btnSelectContact = (Button)findViewById(R.id.btnSelectContact);
         btnSaveContact = (Button)findViewById(R.id.btnSaveContact);
 
-        SharedPreferences pref = this.getSharedPreferences("userPrefs", Context.MODE_PRIVATE);
-        editor = pref.edit();
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getContext());
+        editor = preferences.edit();
         btnSaveContact.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

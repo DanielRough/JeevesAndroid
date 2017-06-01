@@ -60,8 +60,8 @@ public class MissedSurveyItem extends BaseAdapter {
         TextView startedView = (TextView) rowView.findViewById(R.id.startedView);
 
         // 4. Set the text for textView
-        labelView.setText(result.get(position).getname());
-        final String surveyName = result.get(position).getname();
+        labelView.setText(result.get(position).gettitle());
+        final String surveyName = result.get(position).gettitle();
         final String surveyKey = result.get(position).getkey();
         final long timeSent = result.get(position).gettimeSent();
         final long expiryTime = result.get(position).getexpiryTime();

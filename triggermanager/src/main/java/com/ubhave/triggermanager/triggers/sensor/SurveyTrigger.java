@@ -22,7 +22,7 @@ public class SurveyTrigger extends Trigger {
     private final static String TRIGGER_NAME = "SurveyTrigger";
     private String surveyName;
     private boolean result;
-    private int missedTimes;
+    private int numTimes;
 
     public SurveyTrigger(Context context, int id, TriggerReceiver listener, TriggerConfig params) throws TriggerException {
         super(context, id, listener, params);
@@ -37,9 +37,7 @@ public class SurveyTrigger extends Trigger {
         super.start();
         surveyName = getSurveyName();
         result = Boolean.parseBoolean(getSurveyResult());
-        if(result == false){
-            missedTimes = Integer.parseInt(getMissedTimes());
-        }
+        numTimes = Integer.parseInt(getNumTimes());
 
 
     }
@@ -56,10 +54,10 @@ public class SurveyTrigger extends Trigger {
 
     }
 
-    protected String getMissedTimes() throws TriggerException
-    { if (params.containsKey(TriggerConfig.SURVEY_MISSED))
+    protected String getNumTimes() throws TriggerException
+    { if (params.containsKey(TriggerConfig.SURVEY_NUMBER))
     {
-        return params.getParameter(TriggerConfig.SURVEY_MISSED).toString();
+        return params.getParameter(TriggerConfig.SURVEY_NUMBER).toString();
     }
 
     else
@@ -118,14 +116,18 @@ public class SurveyTrigger extends Trigger {
                 boolean result = intent.getBooleanExtra("result", true);
                 if (result == this.result) { //then check it's the right result
                     if (result == true) {
-                        sendNotification();
+                        int completedTimes = intent.getIntExtra("completed", 0);
+                        Log.d("COMPLETED","And you've completed it " + numTimes + " times");
+
+                        if (completedTimes == this.numTimes)
+                            sendNotification();
                     }
                     if (result == false) {
                         Log.d("MISSED","Missed the survey " + survey);
                         int missedTimes = intent.getIntExtra("missed", 0);
-                        Log.d("MISSED","And you've missed it " + missedTimes + " times");
+                        Log.d("MISSED","And you've missed it " + numTimes + " times");
 
-                        if (missedTimes == this.missedTimes)
+                        if (missedTimes == this.numTimes)
                             sendNotification();
                     }
                 }

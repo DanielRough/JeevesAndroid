@@ -13,32 +13,34 @@ import com.ubhave.triggermanager.triggers.TriggerUtils;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 public class DailyNotificationScheduler implements TriggerReceiver
 {
 	private final static long DAILY_INTERVAL = 1000 * 60 * 60 * 24;
 	public final static int ERROR = -1;
-	
+
 	private final ESTriggerManager triggerManager;
 	private final RandomFrequencyTrigger trigger;
-	
+
 	private int dailySchedulerId;
 	private boolean isSubscribed;
 	private final Random random;
 	private TriggerConfig params;
-	
+
 	public DailyNotificationScheduler(Context context, TriggerConfig params, RandomFrequencyTrigger trigger) throws TriggerException
 	{
 		random = new Random();
 		random.setSeed(System.currentTimeMillis());
-		
+
 		this.triggerManager = ESTriggerManager.getTriggerManager(context);
 		this.params = params;
 		this.trigger = trigger;
 		this.isSubscribed = false;
 	}
-	
+
 	public void start() throws TriggerException {
 		if (isSubscribed) {
 			stop();
@@ -48,7 +50,7 @@ public class DailyNotificationScheduler implements TriggerReceiver
 		params.addParameter(TriggerConfig.LIMIT_BEFORE_HOUR, startDelay());
 		params.addParameter(TriggerConfig.INTERVAL_TRIGGER_TIME, schedulerInterval());
 		params.addParameter(TriggerConfig.IGNORE_USER_PREFERENCES, true);
-		
+
 		dailySchedulerId = triggerManager.addTrigger(TriggerUtils.TYPE_CLOCK_TRIGGER_ON_INTERVAL, this, params);
 		Log.i("SCHEUDLER ID","Scheduler ID is " + dailySchedulerId);
 		isSubscribed = true;
@@ -83,13 +85,13 @@ public class DailyNotificationScheduler implements TriggerReceiver
 	//This means that the scheduler does its thing EVERY DAY
 	private long schedulerInterval()
 	{
-	//	if (params.containsKey(TriggerConfig.INTERVAL_TIME_MILLIS))
+		//	if (params.containsKey(TriggerConfig.INTERVAL_TIME_MILLIS))
 //		{
 //			return (Long) params.getParameter(TriggerConfig.INTERVAL_TIME_MILLIS);
 //		}
 //		else
 //		{
-			return DAILY_INTERVAL;
+		return DAILY_INTERVAL;
 //		}
 	}
 
@@ -107,19 +109,19 @@ public class DailyNotificationScheduler implements TriggerReceiver
 //		else
 //		{
 //			return
-			// Milliseconds until midnight
-			Calendar calendar = Calendar.getInstance();
-			Calendar midnight = Calendar.getInstance();
-			midnight.set(Calendar.HOUR_OF_DAY,0);
-			midnight.set(Calendar.MINUTE,0);
-			midnight.set(Calendar.SECOND,0);
+		// Milliseconds until midnight
+		Calendar calendar = Calendar.getInstance();
+		Calendar midnight = Calendar.getInstance();
+		midnight.set(Calendar.HOUR_OF_DAY,0);
+		midnight.set(Calendar.MINUTE,0);
+		midnight.set(Calendar.SECOND,0);
 		long startDelay = (calendar.getTimeInMillis()-midnight.getTimeInMillis())/(1000*60);
 
 		Log.d("Start delay", "My current starting time is " + startDelay);
-			return startDelay; //This ought to be the number of minutes since midnight. i.e.: NOW
+		return startDelay; //This ought to be the number of minutes since midnight. i.e.: NOW
 //		}
 	}
-	
+
 	public void stop() throws TriggerException
 	{
 		if (isSubscribed)
@@ -145,7 +147,7 @@ public class DailyNotificationScheduler implements TriggerReceiver
 		//if (params.containsKey(TriggerConfig.INTERVAL_TRIGGER_START_DELAY))
 
 		long startTime = 0;
-
+		Log.d("WHATBOUTHERE",params.getParams().toString());
 		if (params.containsKey(TriggerConfig.LIMIT_BEFORE_HOUR))
 			startTime = new Long(params.getParameter(TriggerConfig.LIMIT_BEFORE_HOUR).toString());
 		long endTime = 0;
@@ -172,33 +174,36 @@ public class DailyNotificationScheduler implements TriggerReceiver
 		Calendar calendar = Calendar.getInstance();
 
 		if(times.size()>0)
-		for (Integer minuteOfDay : times) {
-			calendar.set(Calendar.HOUR_OF_DAY, (minuteOfDay / 60));
-			calendar.set(Calendar.MINUTE, (minuteOfDay % 60));
-			calendar.set(Calendar.SECOND,0);
-			//I've added this in the hope that it can schedule random triggers for the next day
-			if (calendar.getTimeInMillis() < System.currentTimeMillis())
-			{
-				calendar.add(Calendar.DATE, 1);
+			for (Integer minuteOfDay : times) {
+				calendar.set(Calendar.HOUR_OF_DAY, (minuteOfDay / 60));
+				calendar.set(Calendar.MINUTE, (minuteOfDay % 60));
+				calendar.set(Calendar.SECOND,0);
+				//I've added this in the hope that it can schedule random triggers for the next day
+				if (calendar.getTimeInMillis() < System.currentTimeMillis())
+				{
+					calendar.add(Calendar.DATE, 1);
+				}
+				trigger.subscribeTriggerFor(calendar.getTimeInMillis());
 			}
-			trigger.subscribeTriggerFor(calendar.getTimeInMillis());
-		}
 	}
 	private void scheduleSetTimes(){
 		ArrayList<Integer> times = new ArrayList<Integer>();
+		Log.d("HERE",params.getParams().toString());
+		times = (ArrayList<Integer>)params.getParams().get("times");
 		//Map<String,Object> settimes = (Map<String,Object>)params.getParameter(TriggerConfig.DAILY_TIMES);
-		Iterator<String> iter = params.getParams().keySet().iterator();
-		while(iter.hasNext()){
-			String key = iter.next();
-			if(key.startsWith("time")) {//The keys are called time0, time1, time2 and so on
-				int minuteofday = Integer.parseInt(params.getParams().get(key).toString());
-//				String[] hoursmins = timeStr.split(":");
-//				int dailyhour = Integer.parseInt(hoursmins[0]);
-//				int dailyminute = Integer.parseInt(hoursmins[1]);
-//				int minuteofday = dailyhour*60 + dailyminute;
-				times.add(minuteofday); //Convert each JSONObject time into a minute-of-day value
-			}
-		}
+//		for(Integer newtime : times){
+//			Log.d("TIME","FOUN A TIME");
+//			//if((boolean)newtime.get("isValue")){
+//			//	int minuteofday = Integer.parseInt(newtime.get("value").toString());
+//			//	Log.d("MINUTE","MInute of day is " + minuteofday);
+////				String[] hoursmins = timeStr.split(":");
+////				int dailyhour = Integer.parseInt(hoursmins[0]);
+////				int dailyminute = Integer.parseInt(hoursmins[1]);
+////				int minuteofday = dailyhour*60 + dailyminute;
+//				times.add(newtime); //Convert each JSONObject time into a minute-of-day value
+//			}
+
+
 		Calendar calendar = Calendar.getInstance();
 		for (Integer minuteOfDay : times) {
 			calendar.set(Calendar.HOUR_OF_DAY, (minuteOfDay / 60));
@@ -220,7 +225,7 @@ public class DailyNotificationScheduler implements TriggerReceiver
 		int minInterval = params.getValueInMinutes(TriggerConfig.INTERVAL_WINDOW);
 		int timeFrame = lateLimit - earlyLimit;
 		int numberOfNotifications = timeFrame / minInterval; //The max notifications we can schedule in this space
-	//	Log.d("Daily", "scheduleNotifications(), "+numberOfNotifications);
+		//	Log.d("Daily", "scheduleNotifications(), "+numberOfNotifications);
 		if (TriggerManagerConstants.LOG_MESSAGES)
 		{
 			Log.d("Daily Scheduler", "Attempting to schedule: "+numberOfNotifications);
@@ -258,13 +263,13 @@ public class DailyNotificationScheduler implements TriggerReceiver
 			//	}
 		}
 //			}
-	//	}
-		
+		//	}
+
 		if (TriggerManagerConstants.LOG_MESSAGES)
 		{
 			Log.d("Daily Scheduler", "Selected: "+times.size());
 		}
-		
+
 		Calendar calendar = Calendar.getInstance();
 		for (Integer minuteOfDay : times)
 		{
@@ -272,16 +277,16 @@ public class DailyNotificationScheduler implements TriggerReceiver
 			calendar.set(Calendar.MINUTE, (minuteOfDay % 60));
 			//I've added this in the hope that it can schedule random triggers for the next day
 			if (calendar.getTimeInMillis() < System.currentTimeMillis())
-		{
-			calendar.add(Calendar.DATE, 1);
-		}
+			{
+				calendar.add(Calendar.DATE, 1);
+			}
 			trigger.subscribeTriggerFor(calendar.getTimeInMillis());
 		}
 	}
-	
+
 	private int pickRandomTimeWithinPreferences(int earlyLimit, int lateLimit)
 	{
-	//	int from = max(earlyLimit, currentMinute+1);
+		//	int from = max(earlyLimit, currentMinute+1);
 		if (lateLimit - earlyLimit > 0)
 		{
 			return random.nextInt(lateLimit - earlyLimit) + earlyLimit;
@@ -291,7 +296,7 @@ public class DailyNotificationScheduler implements TriggerReceiver
 			return DailyNotificationScheduler.ERROR;
 		}
 	}
-	
+
 	private boolean selectedTimeFitsGroup(int selectedTime, ArrayList<Integer> times, int minInterval)
 	{
 		if (selectedTime == ERROR)
@@ -310,7 +315,7 @@ public class DailyNotificationScheduler implements TriggerReceiver
 			return true;
 		}
 	}
-	
+
 	private int max(int a, int b)
 	{
 		if (a > b)
@@ -319,12 +324,12 @@ public class DailyNotificationScheduler implements TriggerReceiver
 		}
 		else return b;
 	}
-	
+
 	private int currentMinute()
 	{
 		Calendar calendar = Calendar.getInstance();
 		int hour = calendar.get(Calendar.HOUR_OF_DAY);
-		int minute = calendar.get(Calendar.MINUTE);	
+		int minute = calendar.get(Calendar.MINUTE);
 		return (60 * hour) + minute;
 	}
 }

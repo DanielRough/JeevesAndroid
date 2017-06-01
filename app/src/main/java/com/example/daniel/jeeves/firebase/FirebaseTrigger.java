@@ -54,6 +54,15 @@ public class FirebaseTrigger {
     }
 
     public List<FirebaseAction> actions;
+
+    public List<FirebaseExpression> times;
+
+    public void settimes(List<FirebaseExpression> times){
+        this.times = times;
+    }
+    public List<FirebaseExpression> gettimes(){
+        return times;
+    }
     public String type;
     public long xPos;
     public long yPos;

@@ -54,7 +54,6 @@ public class TriggerListener implements TriggerReceiver {
 
                 actionsToPerform.add(ActionUtils.create(action)); //Oh good lord really!?
                 Log.d("Action is ", action.getname());
-                Log.d("Description is ", action.getdescription());
             }
             triggerSubscriptionId = triggerManager.addTrigger(triggerType, this, params);
             //SubscriptionIds.setId(Long.toString(triggerId), triggerSubscriptionId);

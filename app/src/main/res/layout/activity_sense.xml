@@ -79,6 +79,34 @@
             android:id="@+id/btnMonitor"
             android:layout_weight="0.04"
             android:clickable="true" />
+
+        <TextView
+            android:id="@+id/textView8"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.04"
+            android:text="Logout" />
+
+        <Button
+            android:id="@+id/buttonLogout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.04"
+            android:text="Logout (testing purposes)" />
+
+        <TextView
+            android:id="@+id/textView9"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.04"
+            android:text="Check user variable values" />
+
+        <Button
+            android:id="@+id/buttonVars"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.04"
+            android:text="View vars (testing purposes)" />
     </LinearLayout>
 
 </RelativeLayout>

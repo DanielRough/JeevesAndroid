@@ -1,6 +1,7 @@
 package com.example.daniel.jeeves.actions;
 
 import com.example.daniel.jeeves.firebase.FirebaseExpression;
+import com.example.daniel.jeeves.firebase.FirebaseQuestion;
 
 import java.io.Serializable;
 import java.util.List;
@@ -51,9 +52,16 @@ public class FirebaseAction implements Serializable,IAction {
     private String type;
     private long xPos;
     private long yPos;
+    private List<FirebaseExpression> vars;
+    public boolean execute(){
+    return true;
+    }
 
-    public void execute(){
-
+    public void setvars(List<FirebaseExpression> vars){
+        this.vars = vars;
+    }
+    public List<FirebaseExpression> getvars(){
+        return vars;
     }
     public boolean manual;
     public void setManual(boolean manual){

@@ -66,6 +66,8 @@ public class WelcomeActivity extends Activity {
         Button btnContact = (Button) findViewById(R.id.btnContact);
         Button btnSurveys = (Button) findViewById(R.id.btnSurvey);
         Button btnMonitor = (Button) findViewById(R.id.btnMonitor);
+        Button btnLogout = (Button) findViewById(R.id.buttonLogout);
+        Button btnVars = (Button) findViewById(R.id.buttonVars);
         btnContact.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -82,6 +84,7 @@ public class WelcomeActivity extends Activity {
             }
         });
 
+
         btnMonitor.setOnClickListener(new View.OnClickListener(){
 
             @Override
@@ -90,7 +93,22 @@ public class WelcomeActivity extends Activity {
                 startActivity(intent);
             }
         });
+        btnLogout.setOnClickListener(new View.OnClickListener(){
 
+            @Override
+            public void onClick(View v) {
+                mFirebaseAuth = FirebaseAuth.getInstance();
+                mFirebaseAuth.signOut();
+                finish();
+            }
+        });
+        btnVars.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(instance,CheckVariablesActivity.class);
+                startActivity(intent);
+            }
+        });
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

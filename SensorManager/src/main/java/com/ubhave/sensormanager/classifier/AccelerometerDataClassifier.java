@@ -22,6 +22,8 @@ IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 package com.ubhave.sensormanager.classifier;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 
 import com.ubhave.sensormanager.config.SensorConfig;
@@ -35,7 +37,7 @@ public class AccelerometerDataClassifier implements SensorDataClassifier
 	@Override
 	public boolean isInteresting(final SensorData sensorData, final SensorConfig sensorConfig, String value)
 	{
-
+		Log.d("RESULT", "Our interesting result would be " + value);
 		AccelerometerData data = (AccelerometerData) sensorData;
 		ArrayList<float[]> sensorReadings = data.getSensorReadings();
 
@@ -172,6 +174,8 @@ public class AccelerometerDataClassifier implements SensorDataClassifier
 				return true;
 			}
 		}
+		Log.d("NAAAH","Nah it was actually false how sad");
+
 		return false;
 	}
 

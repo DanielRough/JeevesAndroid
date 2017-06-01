@@ -41,6 +41,7 @@ public class IfControl extends FirebaseAction {
         controlactions = (ArrayList<FirebaseAction>) getactions();
         //Converting the actions into their correct types
         ArrayList<FirebaseAction> actionsToPerform = new ArrayList<>();
+        if(controlactions == null)return; //It might be null if we've got nothing inseide
         for(FirebaseAction action : controlactions){
             actionsToPerform.add(ActionUtils.create(action)); //Oh good lord really!?
         }

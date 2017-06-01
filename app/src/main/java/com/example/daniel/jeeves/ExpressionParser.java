@@ -34,43 +34,48 @@ public class ExpressionParser {
      * @return
      */
 
-    public static final String AND = "AND";
-    public static final String OR = "OR";
-    public static final String LESS_THAN = "IS LESS THAN";
-    public static final String GREATER_THAN = "IS GREATER THAN";
-    public static final String EQUALS = "IS EQUAL";
-    public static final String NOT_EQUALS = "NOT";
-
-    public static final String ADD = "ADD";
-    public static final String SUBTRACT = "SUBTRACT";
-    public static final String DIVIDE = "DIVIDE";
-    public static final String MULTIPLY = "MULTIPLY";
+    public static final String AND = "Both True";
+    public static final String OR = "Either True";
+    public static final String LESS_THAN = "Less Than";
+    public static final String GREATER_THAN = "Greater Than";
+    public static final String EQUALS = "Equality";
+    public static final String NOT_EQUALS = "Not True";
+//
+//    public static final String ADD = "ADD";
+//    public static final String SUBTRACT = "SUBTRACT";
+//    public static final String DIVIDE = "DIVIDE";
+//    public static final String MULTIPLY = "MULTIPLY";
 
     protected Context appContext;
     public ExpressionParser(Context appContext){
         this.appContext = appContext;
     }
-    public Object evaluate(FirebaseExpression expr) {
+    public String evaluate(FirebaseExpression expr) {
 
         SharedPreferences userPrefs = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getContext());
         if(expr.getisValue() || expr.getisCustom()) {
             //Is it a named variable, or just a standard value?
             if(expr.getisValue() == false){
-                String varname = ((UserVariable)expr).getname();
                 Log.d("VARNAME","Varname is " + (expr).getname());
                 Log.d("VARTYPE","Vartype is " + ( expr).getvartype());
                 String name = (expr).getname();
                 //GET THE HARDCODED STRING OUT OF HERE, THIS IS BAD
                 switch(expr.getvartype()){
                     case "Location": return userPrefs.getString(name,"");
-                    case "Numeric": return userPrefs.getLong(name,0);
-                    case "Time": return userPrefs.getLong(name,0);
-                    case "Boolean" : return userPrefs.getBoolean(name,false);
+                    case "Numeric": return Long.toString(userPrefs.getLong(name,0));
+                    case "Time": return Long.toString(userPrefs.getLong(name,0));
+                    case "Boolean" : if(userPrefs.contains(name)){
+                        Log.d("YEAH","Yeah I have " + name + " and it's " + userPrefs.getBoolean(name,false));
+                    }
+                    else {
+                        Log.d("NAH", "Nah mate couldn't find it");
+                    }
+                        return Boolean.toString(userPrefs.getBoolean(name,false));
+                    }
                 }
-            }
             else{
                 Log.i("VAAALUE","Value is " + (expr).getvalue());
-                return (expr).getvalue();
+                return (expr).getvalue().toString();
             }
         }
 
@@ -95,8 +100,8 @@ public class ExpressionParser {
                     SensorDataClassifier classifier = SensorUtils.getSensorDataClassifier(sensortype);
                     Log.d("HOPEFULLY GOT SOME","SENSOR DATA");
                     if(classifier.isInteresting(data, SensorConfig.getDefaultConfig(sensortype),returns))
-                        return true; //Return true if it returns the result we want!
-                    return false;
+                        return "true"; //Return true if it returns the result we want!
+                    return "false";
                 } catch (ESException e) {
                     Log.d("EXCEPTION",e.getMessage());
                     e.printStackTrace();
@@ -135,17 +140,17 @@ public class ExpressionParser {
                 long currentTime = System.currentTimeMillis();
                 long diff = timevar - currentTime;
                 if(beforeAfter.equals("before")){
-                    if(diff < 0)return false;
+                    if(diff < 0)return "false";
                     long error = diff-differenceInMillis;
-                    if(Math.abs(error) < marginOfError)return true;
-                    return false;
+                    if(Math.abs(error) < marginOfError)return "true";
+                    return "false";
 
                 }
                 else if(beforeAfter.equals("after")){
-                    if(diff > 0)return false;
+                    if(diff > 0)return "false";
                     long error = (-diff)-differenceInMillis;
-                    if(Math.abs(error) < marginOfError) return true;
-                    return false;
+                    if(Math.abs(error) < marginOfError) return "true";
+                    return "false";
 
                 }
 
@@ -158,9 +163,9 @@ public class ExpressionParser {
                 //GET THE HARDCODED STRING OUT OF HERE, THIS IS BAD
                 switch(expr.getvartype()){
                     case "Location": return userPrefs.getString(name,"");
-                    case "Numeric": return userPrefs.getLong(name,0);
-                    case "Time": return userPrefs.getLong(name,0);
-                    case "Boolean" : return userPrefs.getBoolean(name,false);
+                    case "Numeric": return Long.toString(userPrefs.getLong(name,0));
+                    case "Time": return Long.toString(userPrefs.getLong(name,0));
+                    case "Boolean" : return Boolean.toString(userPrefs.getBoolean(name,false));
                 }
             }
         }
@@ -173,26 +178,26 @@ public class ExpressionParser {
         String operation = expr.getname();
         Log.d("OPERATION","Operation is " + operation);
         if(operation.equals(AND))
-            return (boolean)evaluate(lhs) && (boolean)evaluate(rhs);
+            return Boolean.toString(Boolean.parseBoolean(evaluate(lhs)) && Boolean.parseBoolean(evaluate(rhs)));
         else if(operation.equals(OR))
-            return (boolean)evaluate(lhs) || (boolean)evaluate(rhs);
+            return Boolean.toString(Boolean.parseBoolean(evaluate(lhs)) || Boolean.parseBoolean(evaluate(rhs)));
         else if(operation.equals(EQUALS)) {
-            return ((String) evaluate(lhs)).equals((String) evaluate(rhs));
+            return Boolean.toString((evaluate(lhs)).equals(evaluate(rhs)));
         }
         else if(operation.equals(NOT_EQUALS))
-            return !Boolean.parseBoolean((String) evaluate(lhs));
+            return Boolean.toString(!(Boolean.parseBoolean(evaluate(lhs))));
         else if(operation.equals(LESS_THAN))
-            return Long.parseLong((String) evaluate(lhs)) < Long.parseLong((String) evaluate(rhs));
+            return Boolean.toString(Long.parseLong(evaluate(lhs)) < Long.parseLong(evaluate(rhs)));
         else if(operation.equals(GREATER_THAN))
-            return Long.parseLong((String) evaluate(lhs)) > Long.parseLong((String) evaluate(rhs));
-        if(operation.equals(ADD))
-            return Long.parseLong((String) evaluate(lhs)) + Long.parseLong((String) evaluate(rhs));
-        else if(operation.equals(SUBTRACT))
-            return Long.parseLong((String) evaluate(lhs)) - Long.parseLong((String) evaluate(rhs));
-        else if(operation.equals(MULTIPLY))
-            return Long.parseLong((String) evaluate(lhs)) * Long.parseLong((String) evaluate(rhs));
-        else if(operation.equals(DIVIDE))
-            return Long.parseLong((String) evaluate(lhs)) / Long.parseLong((String) evaluate(rhs));
-        return false;
+            return Boolean.toString(Long.parseLong(evaluate(lhs)) > Long.parseLong(evaluate(rhs)));
+//        if(operation.equals(ADD))
+//            return Long.parseLong((String) evaluate(lhs)) + Long.parseLong((String) evaluate(rhs));
+//        else if(operation.equals(SUBTRACT))
+//            return Long.parseLong((String) evaluate(lhs)) - Long.parseLong((String) evaluate(rhs));
+//        else if(operation.equals(MULTIPLY))
+//            return Long.parseLong((String) evaluate(lhs)) * Long.parseLong((String) evaluate(rhs));
+//        else if(operation.equals(DIVIDE))
+//            return Long.parseLong((String) evaluate(lhs)) / Long.parseLong((String) evaluate(rhs));
+        return "false";
     }
 }

@@ -94,6 +94,15 @@ public class ActionExecutorService extends IntentService{
                     e.printStackTrace();
                 }
             }
+            if(newaction instanceof IfControl) {
+                String stimeToWait = newaction.getparams().get("time").toString();
+                int timeToWait = Integer.parseInt(stimeToWait) *1000;
+                try {
+                    Thread.sleep(timeToWait);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
             newaction.setManual(manual);
             newaction.execute();
         }
@@ -105,7 +114,7 @@ public class ActionExecutorService extends IntentService{
     public void checkCondition(){
         ExpressionParser parser = new ExpressionParser(ApplicationContext.getContext());
                 Log.d("ExPRNAME", expr.getname());
-                if((boolean) parser.evaluate(expr) == false) //expressionw will be null if we don't have an expression in the first place
+                if(parser.evaluate(expr).equals("false")) //expressionw will be null if we don't have an expression in the first place
                     return; //Our expression is false, don't execute
                 else
                     executeActions(); //Let's execute our actions!

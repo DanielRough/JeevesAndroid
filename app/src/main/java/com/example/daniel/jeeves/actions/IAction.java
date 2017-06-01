@@ -9,5 +9,5 @@ import java.io.Serializable;
  */
 public interface IAction {
 
-    public void execute();
+    public boolean execute();
 }

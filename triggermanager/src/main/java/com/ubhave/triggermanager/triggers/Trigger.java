@@ -132,6 +132,7 @@ public abstract class Trigger extends BroadcastReceiver
 		if (isRunning)
 		{
 			Log.d("STOPPED", "why the fuck did it stop!?");
+			if(pendingIntent != null) //I think pendingIntent is null for a begin trigger, don't know why
 			alarmManager.cancel(pendingIntent);
 			try {
 				context.unregisterReceiver(this);

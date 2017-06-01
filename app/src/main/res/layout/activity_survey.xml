@@ -57,132 +57,144 @@
         android:paddingLeft="20dp" />
 
     <ViewFlipper
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/viewFlipper" >
+        android:id="@+id/viewFlipper"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
         <LinearLayout
-            android:orientation="vertical"
+            android:id="@+id/viewOpenEnded"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:id="@+id/viewOpenEnded">
+            android:orientation="vertical">
 
             <EditText
+                android:id="@+id/txtOpenEnded"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/txtOpenEnded"
-                android:layout_below="@+id/txtQuestion"
                 android:layout_alignParentStart="true"
+                android:layout_below="@+id/txtQuestion"
                 android:hint="Enter answer here"
                 android:paddingLeft="20dp" />
         </LinearLayout>
 
         <LinearLayout
-            android:orientation="vertical"
+            android:id="@+id/viewMultSingle"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:id="@+id/viewMultSingle">
+            android:orientation="vertical">
 
             <RadioGroup
+                android:id="@+id/grpMultSingle"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:id="@+id/grpMultSingle"></RadioGroup>
+                android:layout_height="match_parent"></RadioGroup>
 
         </LinearLayout>
 
         <LinearLayout
-            android:orientation="vertical"
+            android:id="@+id/viewMultMany"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:id="@+id/viewMultMany">
+            android:orientation="vertical">
 
             <LinearLayout
-                android:orientation="vertical"
+                android:id="@+id/grpMultMany"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:id="@+id/grpMultMany"></LinearLayout>
+                android:orientation="vertical"></LinearLayout>
         </LinearLayout>
 
         <LinearLayout
-            android:orientation="vertical"
+            android:id="@+id/viewScale"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:id="@+id/viewScale">
+            android:orientation="vertical">
 
             <RadioGroup
+                android:id="@+id/grpScale"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:id="@+id/grpScale"></RadioGroup>
+                android:layout_height="match_parent"></RadioGroup>
+
         </LinearLayout>
 
         <LinearLayout
-            android:orientation="vertical"
+            android:id="@+id/viewDateTime"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:id="@+id/viewDateTime">
+            android:orientation="vertical"
+            android:weightSum="1">
 
-            <DateTimePicker.DateTimePicker
-                android:id="@+id/DateTimePicker" android:layout_width="fill_parent"
-                android:layout_height="wrap_content" />
+            <DatePicker
+                android:id="@+id/datePicker2"
+                android:layout_width="match_parent"
+                android:layout_height="186dp"
+                android:calendarViewShown="false"
+                android:datePickerMode="spinner" />
+
+            <TimePicker
+                android:id="@+id/timePicker2"
+                android:layout_width="match_parent"
+                android:layout_height="165dp"
+                android:timePickerMode="spinner" />
+
         </LinearLayout>
 
         <LinearLayout
-            android:orientation="vertical"
+            android:id="@+id/viewGeo"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:id="@+id/viewGeo">
+            android:orientation="vertical">
 
             <Button
+                android:id="@+id/btnPlacePicker"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Open Location Picker"
-                android:id="@+id/btnPlacePicker"
-                android:layout_gravity="center_horizontal" />
+                android:layout_gravity="center_horizontal"
+                android:text="Open Location Picker" />
 
             <TextView
+                android:id="@+id/txtPlaceName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:id="@+id/txtPlaceName"
                 android:layout_gravity="center_horizontal"
-                android:textAlignment="center" />
+                android:textAlignment="center"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <fragment xmlns:android="http://schemas.android.com/apk/res/android"
                 xmlns:tools="http://schemas.android.com/tools"
+                android:id="@+id/map"
+                android:name="com.google.android.gms.maps.SupportMapFragment"
                 android:layout_width="match_parent"
                 android:layout_height="275dp"
-                android:id="@+id/map"
-                tools:context=".MapsActivity"
-                android:name="com.google.android.gms.maps.SupportMapFragment"></fragment>
+                tools:context=".MapsActivity"></fragment>
 
         </LinearLayout>
 
         <LinearLayout
-            android:orientation="vertical"
+            android:id="@+id/viewBoolean"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:id="@+id/viewBoolean">
+            android:orientation="vertical">
 
             <RadioGroup
+                android:id="@+id/grpBool"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:id="@+id/grpBool"></RadioGroup>
+                android:layout_height="match_parent"></RadioGroup>
 
         </LinearLayout>
 
         <LinearLayout
-            android:orientation="vertical"
+            android:id="@+id/viewNumeric"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:id="@+id/viewNumeric">
+            android:orientation="vertical">
 
             <EditText
+                android:id="@+id/txtNumeric"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:inputType="number"
                 android:ems="10"
-                android:id="@+id/txtNumeric"
-                android:hint="Enter a number here" />
+                android:hint="Enter a number here"
+                android:inputType="number" />
         </LinearLayout>
 
     </ViewFlipper>

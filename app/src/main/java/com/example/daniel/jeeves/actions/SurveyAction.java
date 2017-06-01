@@ -11,6 +11,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
+import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
@@ -54,7 +55,7 @@ public class SurveyAction extends FirebaseAction {
         thisActionsId = Integer.parseInt("9" + NOTIFICATION_ID++);
         Log.d("ACTIONSURVEY", "SENT A SURVEY WITH ACTION ID " + thisActionsId);
         Context app = ApplicationContext.getContext();
-        SharedPreferences prefs = app.getSharedPreferences("userprefs", Context.MODE_PRIVATE);
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getContext());
         String surveyname = getparams().get("survey").toString();
 //        Firebase incompleteSurveys = new Firebase("https://incandescent-torch-8695.firebaseio.com/JeevesData/patients/" + userid + "/incomplete/" + surveyname);
         HashMap<String, Object> surveyDetails = new HashMap<String, Object>();
@@ -66,8 +67,8 @@ public class SurveyAction extends FirebaseAction {
         FirebaseSurvey currentsurvey = null;
         List<FirebaseSurvey> surveys = ApplicationContext.getProject().getsurveys();
         for (FirebaseSurvey survey : surveys) {
-            Log.d("Here", "SURVEY NAME IS " + survey.getname());
-            if (survey.getname().equals(surveyname)) {
+            Log.d("Here", "SURVEY NAME IS " + survey.gettitle());
+            if (survey.gettitle().equals(surveyname)) {
                 currentsurvey = survey;
                 break;
             }
@@ -176,8 +177,8 @@ public class SurveyAction extends FirebaseAction {
             //Here is where the user's left the survey too long and it's expiree
 //SEND A BROADCAST TO LISTENING SURVEY TRIGGERS
             int missedSurveys = 0;
-            SharedPreferences prefs = context.getSharedPreferences("userprefs", Context.MODE_PRIVATE);
-            missedSurveys = prefs.getInt(intent.getStringExtra("name"),0); //HOWEVER MANY OF THIS SURVEY THE USER HAS MISSED IN A ROW
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getContext());
+            missedSurveys = preferences.getInt(intent.getStringExtra("name"),0); //HOWEVER MANY OF THIS SURVEY THE USER HAS MISSED IN A ROW
             //HAS A TYPE TO DISTINGUISH IT FROM OTHER MISSED SURVEYS
             Intent intended = new Intent();
             int id = intent.getIntExtra("notificationid",0);
@@ -190,8 +191,8 @@ public class SurveyAction extends FirebaseAction {
 
             //Store the incremeneted missed value in shared preferences
 
-            SharedPreferences.Editor editor = prefs.edit();
-            long missedSurveyCount = prefs.getLong("Missed Surveys",0);
+            SharedPreferences.Editor editor = preferences.edit();
+            long missedSurveyCount = preferences.getLong("Missed Surveys",0);
             missedSurveyCount++;
             editor.putLong("Missed Surveys", missedSurveyCount);
             editor.putInt(intent.getStringExtra("name"),missedSurveys);
