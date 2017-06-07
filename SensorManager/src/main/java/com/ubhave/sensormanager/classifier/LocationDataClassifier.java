@@ -70,9 +70,11 @@ public class LocationDataClassifier implements SensorDataClassifier
 	{
 		if ((loc1 != null) && (loc2 != null))
 		{
+			Log.d("DISTANCE","distnace from " + loc1.getLatitude()+";"+loc1.getLongitude() + " and " + loc2.getLatitude() + ";" + loc2.getLatitude() + " is " + loc1.distanceTo(loc2));
+			Log.d("THRESHOLD","Threshold is " + LocationConfig.LOCATION_CHANGE_DISTANCE_THRESHOLD);
 			if ((loc1.distanceTo(loc2) < LocationConfig.LOCATION_CHANGE_DISTANCE_THRESHOLD) && wasSameLastTime == false)
 			{
-				Log.d("LOC","current loc " + loc1.getLatitude()+";"+loc1.getLongitude() + " and taret loc is " + loc2.getLatitude() + ";" + loc2.getLongitude());
+//				Log.d("LOC","current loc " + loc1.getLatitude()+";"+loc1.getLongitude() + " and taret loc is " + loc2.getLatitude() + ";" + loc2.getLongitude());
 				wasSameLastTime = true;
 				return true;
 			}

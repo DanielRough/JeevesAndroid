@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.AdapterView;
@@ -41,14 +42,14 @@ public class MissedSurveyActivity extends AppCompatActivity {
         setContentView(R.layout.activity_missed_survey);
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
-        final ArrayList<String> array = new ArrayList<String>();
+      // final ArrayList<String> array = new ArrayList<String>();
         mFirebaseAuth = FirebaseAuth.getInstance();
 
         FirebaseUser user = mFirebaseAuth.getCurrentUser();
         String userid = user.getUid();
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         final DatabaseReference firebaseSurvey = database.getReference("JeevesData").child("patients").child(userid);
-        Query myTopPostsQuery = firebaseSurvey.child("incomplete").orderByChild("timeSent").limitToFirst(10);
+        Query myTopPostsQuery = firebaseSurvey.child("incomplete").orderByChild("timeSent").limitToLast(10);
         myTopPostsQuery.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
@@ -57,17 +58,22 @@ public class MissedSurveyActivity extends AppCompatActivity {
                     FirebaseSurvey survey = postSnapshot.getValue(FirebaseSurvey.class);
                     String id = postSnapshot.getKey();
                     survey.setkey(id);
-                    long timeToGo = survey.getexpiryTime() - System.currentTimeMillis();
-                    int minutes = (int) (timeToGo / 60000);
+                    long expiryTime = survey.getexpiryTime();
+                    long expiryMillis = expiryTime*60*1000;
+                    long deadline = survey.gettimeSent() + expiryMillis;
+                    long timeToGo = deadline - System.currentTimeMillis();
+          //          int minutes = (int) (timeToGo / 60000);
                     SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-                    final long timeAlive = survey.gettimeAlive();
-                    String dateString = formatter.format(new Date(survey.gettimeSent()));
-                    if (survey.getexpiryTime() > System.currentTimeMillis() || survey.getexpiryTime() == 0) {
+          //          final long timeAlive = survey.gettimeAlive();
+            //        String dateString = formatter.format(new Date(survey.gettimeSent()));
+                    Log.d("TIMETOGO","Tiem to go for this survey is " + timeToGo);
+                    if (deadline > System.currentTimeMillis() || survey.getexpiryTime() == 0) {
                         surveynames.add(survey);
-                        if (timeAlive > 0)
-                            array.add(survey.gettitle() + "\nSent at " + dateString + "\nExpiring in " + (minutes + 1) + " minutes");
-                        else
-                            array.add(survey.gettitle() + "\nSent at " + dateString);
+                        Log.d("EXPIRY TME","Expriy time is " + expiryTime);
+//                        if (expiryTime > 0)
+//                            array.add(survey.gettitle() + "\nSent at " + dateString + "\nExpiring in " + (minutes + 1) + " minutes");
+//                        else
+//                            array.add(survey.gettitle() + "\nSent at " + dateString);
                     }
 
                 }

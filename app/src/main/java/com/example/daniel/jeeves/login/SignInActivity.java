@@ -15,13 +15,20 @@
  */
 package com.example.daniel.jeeves.login;
 
+import android.Manifest;
 import android.app.Activity;
+import android.app.NotificationManager;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
@@ -45,9 +52,13 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class SignInActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final String TAG = "SignInActivity";
+    private static final int MY_PERMISSIONS = 12345;
 
     FirebaseUser mFirebaseUser;
     private FirebaseAuth mFirebaseAuth;
@@ -86,7 +97,41 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
         findViewById(R.id.link_signup).setOnClickListener(this);
         findViewById(R.id.link_forgot).setOnClickListener(this);
         mFirebaseAuth = FirebaseAuth.getInstance();
+        Context context = this.getApplicationContext();
 
+        Log.d("MAIN", "Main activity created");
+        String[] allpermissions = new String[]{
+                Manifest.permission.READ_CONTACTS,
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.RECORD_AUDIO,
+                Manifest.permission.PROCESS_OUTGOING_CALLS,
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.READ_PHONE_STATE,
+                Manifest.permission.RECEIVE_SMS,
+                Manifest.permission.READ_SMS,
+                Manifest.permission.READ_CONTACTS,
+                Manifest.permission.READ_CALL_LOG,
+                Manifest.permission.READ_PHONE_STATE
+        };
+//        List<String> permsList = new ArrayList<String>();
+//        for (String perm : allpermissions)
+//            permsList.add(perm);
+//
+//        for(String permission : allpermissions){
+//        if (ContextCompat.checkSelfPermission(this,permission)
+//                == PackageManager.PERMISSION_GRANTED) {
+//            permsList.remove(permission);
+//        }
+//        }
+//        //Ask for all the permissions we don't have
+//        String[] permyperms = {};
+//        permsList.toArray(permyperms);
+//        for(String permission : permyperms){
+//            Log.d("PERM",permission);
+//        }
+        ActivityCompat.requestPermissions(this,allpermissions,
+                MY_PERMISSIONS);
 
 
     }

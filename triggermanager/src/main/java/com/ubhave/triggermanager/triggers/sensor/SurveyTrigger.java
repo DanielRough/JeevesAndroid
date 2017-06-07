@@ -36,7 +36,14 @@ public class SurveyTrigger extends Trigger {
 
         super.start();
         surveyName = getSurveyName();
-        result = Boolean.parseBoolean(getSurveyResult());
+        String sResult = getSurveyResult();
+        if(sResult.equals("completed")){
+            result = true;
+        }
+        else{
+            result = false;
+        }
+ //       result = Boolean.parseBoolean(getSurveyResult());
         numTimes = Integer.parseInt(getNumTimes());
 
 
@@ -110,22 +117,24 @@ public class SurveyTrigger extends Trigger {
     @Override
     public void onReceive(final Context context, final Intent intent)
     {
+        Log.d("HELLO","DID I HAPPEN");
         if(listener != null){
+            Log.d("ANOTHERHELLO","WHAT ABOUT BOW");
             String survey = intent.getStringExtra("surveyName");
             if(survey.equals(surveyName)) { //first check it's the right survey
                 boolean result = intent.getBooleanExtra("result", true);
                 if (result == this.result) { //then check it's the right result
                     if (result == true) {
-                        int completedTimes = intent.getIntExtra("completed", 0);
-                        Log.d("COMPLETED","And you've completed it " + numTimes + " times");
+                        long completedTimes = intent.getLongExtra("completed", 0);
+                        Log.d("COMPLETED","And you've completed it " + completedTimes + " times");
 
                         if (completedTimes == this.numTimes)
                             sendNotification();
                     }
                     if (result == false) {
                         Log.d("MISSED","Missed the survey " + survey);
-                        int missedTimes = intent.getIntExtra("missed", 0);
-                        Log.d("MISSED","And you've missed it " + numTimes + " times");
+                        long missedTimes = intent.getLongExtra("missed", 0);
+                        Log.d("MISSED","And you've missed it " + missedTimes + " times");
 
                         if (missedTimes == this.numTimes)
                             sendNotification();

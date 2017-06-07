@@ -2,6 +2,7 @@ package com.example.daniel.jeeves;
 
 import android.app.Application;
 import android.content.Context;
+import android.location.Location;
 
 import com.example.daniel.jeeves.firebase.FirebaseProject;
 
@@ -29,7 +30,6 @@ public class ApplicationContext extends Application
     {
         return instance;
     }
-
 
     //UIDesign constants
     public static final String BUTTON = "button";

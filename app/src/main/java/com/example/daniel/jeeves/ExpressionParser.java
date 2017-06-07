@@ -2,6 +2,7 @@ package com.example.daniel.jeeves;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.location.Location;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
@@ -10,12 +11,14 @@ import com.example.daniel.jeeves.firebase.UserVariable;
 import com.ubhave.sensormanager.ESException;
 import com.ubhave.sensormanager.classifier.SensorDataClassifier;
 import com.ubhave.sensormanager.config.SensorConfig;
+import com.ubhave.sensormanager.config.pull.LocationConfig;
 import com.ubhave.sensormanager.data.SensorData;
 import com.ubhave.sensormanager.sensors.SensorUtils;
 
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -94,8 +97,32 @@ public class ExpressionParser {
 
                     //We need to irritatingly make an exception for location sensor
 
-                    if(sensortype == SensorUtils.SENSOR_TYPE_LOCATION)
-                        returns = userPrefs.getString(returns,"");
+                    //This gets the last known location from our user prefs
+                    //It then gets the location required in the test expression
+                    //If they are roughly equal, it returns true!
+                    if(sensortype == SensorUtils.SENSOR_TYPE_LOCATION) {
+                        Log.d("WAT","DID WE GET HERE");
+                        returns = userPrefs.getString(returns, "");
+                        if(returns.isEmpty())return "false";
+                        String[] testLatLong = returns.split(";");
+
+                        String lastLoc = userPrefs.getString("LastLocation","");
+                        if(lastLoc.isEmpty()) return "false";
+                        String[] lastLatLong = lastLoc.split(";");
+
+                        Location testLocation = new Location("");
+                        testLocation.setLatitude(Double.parseDouble(testLatLong[0]));
+                        testLocation.setLongitude(Double.parseDouble(testLatLong[1]));
+
+                        Location lastLocation = new Location("");
+                        lastLocation.setLatitude(Double.parseDouble(lastLatLong[0]));
+                        lastLocation.setLongitude(Double.parseDouble(lastLatLong[1]));
+
+                        if(testLocation.distanceTo(lastLocation) <= LocationConfig.LOCATION_CHANGE_DISTANCE_THRESHOLD)
+                            return "true";
+                        else
+                            return "false";
+                    }
                     SensorData data = sampler.execute().get();
                     SensorDataClassifier classifier = SensorUtils.getSensorDataClassifier(sensortype);
                     Log.d("HOPEFULLY GOT SOME","SENSOR DATA");
@@ -121,27 +148,32 @@ public class ExpressionParser {
                 String beforeAfter = params.get("beforeAfter").toString();
                 String timeDiff = params.get("timeDiff").toString();
                 String dateStr = params.get("timeVar").toString();
-                DateFormat formatter = new SimpleDateFormat("dd/MM/yy");
-                Date date = null;
-                try {
-                    date = (Date)formatter.parse(dateStr);
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
-                long timevar = date.getTime();
+                long timevar = Long.parseLong(dateStr); //Milliseconds since epoch
+                Calendar c = Calendar.getInstance();
+                c.setTimeInMillis(timevar);
+           //     SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
+                Log.d("DAY/MONTH/YEAR",c.get(Calendar.DAY_OF_MONTH) + "/" + c.get(Calendar.MONTH) + "/" + c.get(Calendar.YEAR));
                 long differenceInMillis = 0;
                 long marginOfError = 0;
+                Log.d("Hello", "it's me");
                 switch(timeDiff){
-                    case "1 month": differenceInMillis = 30 * 24 * 3600 *1000; marginOfError = 24*3600*1000; break; //Margin of error of a day
-                    case "1 week": differenceInMillis = 7 * 24 * 3600 * 1000; marginOfError = 24*3600*1000; break; //Margin of error of a day
-                    case "1 day": differenceInMillis = 24 * 3600 * 1000; marginOfError = 24*3600*1000; break; //Margin of error of a day
-                    case "1 hour": differenceInMillis = 3600 * 1000; marginOfError = 3600*1000; break; //Margin of error of an hour
+                    case "1 month": differenceInMillis = 30L * 24L * 3600L *1000L;
+                        marginOfError = 24*3600*1000; break; //Margin of error of a day
+                    case "1 week": differenceInMillis = 7L * 24L * 3600L * 1000; marginOfError = 24*3600*1000; break; //Margin of error of a day
+                    case "1 day": differenceInMillis = 24L * 3600L * 1000L; marginOfError = 24*3600*1000; break; //Margin of error of a day
+             //       case "1 hour": differenceInMillis = 3600 * 1000; marginOfError = 3600*1000; break; //Margin of error of an hour
                 }
                 long currentTime = System.currentTimeMillis();
+                c.setTimeInMillis(currentTime);
+           //     SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
+                Log.d("CURRENT DAY/MONTH/YEAR",c.get(Calendar.DAY_OF_MONTH) + "/" + c.get(Calendar.MONTH) + "/" + c.get(Calendar.YEAR));
                 long diff = timevar - currentTime;
+                Log.d("Diff", "diff between " + timevar + " and " + currentTime + " is " + (diff/(3600*1000)));
                 if(beforeAfter.equals("before")){
                     if(diff < 0)return "false";
                     long error = diff-differenceInMillis;
+                    long hourerror = error/(3600*1000);
+                    Log.d("TIMEDIFF","Our actual error in hours is " + hourerror + "  is " + Math.abs(error) + " and margin of error " + marginOfError);
                     if(Math.abs(error) < marginOfError)return "true";
                     return "false";
 
@@ -149,6 +181,8 @@ public class ExpressionParser {
                 else if(beforeAfter.equals("after")){
                     if(diff > 0)return "false";
                     long error = (-diff)-differenceInMillis;
+                    Log.d("TIMEDIFF","Our actual error is " + Math.abs(error) + " and margin of error " + marginOfError);
+
                     if(Math.abs(error) < marginOfError) return "true";
                     return "false";
 

@@ -48,6 +48,10 @@ public class FirebaseTrigger {
     public String triggerId;
     public String name;
     public Map<String,Object> params;
+    private FirebaseExpression dateFrom;
+    private FirebaseExpression dateTo;
+    private FirebaseExpression timeFrom;
+    private FirebaseExpression timeTo;
 
     public List<FirebaseAction> getactions() {
         return actions;
@@ -57,6 +61,13 @@ public class FirebaseTrigger {
 
     public List<FirebaseExpression> times;
 
+    public List<String> variables;
+    public void setvariables(List<String> variables){
+        this.variables = variables;
+    }
+    public List<String> getvariables(){
+        return variables;
+    }
     public void settimes(List<FirebaseExpression> times){
         this.times = times;
     }
@@ -66,4 +77,37 @@ public class FirebaseTrigger {
     public String type;
     public long xPos;
     public long yPos;
+
+    public FirebaseExpression getdateFrom() {
+        return dateFrom;
+    }
+
+    public FirebaseExpression getdateTo() {
+        return dateTo;
+    }
+
+    public FirebaseExpression gettimeFrom() {
+        return timeFrom;
+    }
+
+    public FirebaseExpression gettimeTo() {
+        return timeTo;
+    }
+
+    public void setdateFrom(FirebaseExpression dateFrom) {
+        this.dateFrom = dateFrom;
+    }
+
+    public void setdateTo(FirebaseExpression dateTo) {
+        this.dateTo = dateTo;
+    }
+
+    public void settimeFrom(FirebaseExpression timeFrom) {
+        this.timeFrom = timeFrom;
+    }
+
+
+    public void settimeTo(FirebaseExpression timeTo) {
+        this.timeTo = timeTo;
+    }
 }

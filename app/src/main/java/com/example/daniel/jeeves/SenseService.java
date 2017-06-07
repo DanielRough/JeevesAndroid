@@ -1,8 +1,12 @@
 package com.example.daniel.jeeves;
 
 import android.app.Service;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
@@ -23,6 +27,7 @@ import com.ubhave.sensormanager.sensors.SensorUtils;
 import com.ubhave.triggermanager.TriggerException;
 import com.ubhave.triggermanager.config.GlobalState;
 import com.ubhave.triggermanager.config.TriggerConfig;
+import com.ubhave.triggermanager.config.TriggerManagerConstants;
 import com.ubhave.triggermanager.triggers.TriggerUtils;
 
 import org.json.JSONException;
@@ -84,6 +89,7 @@ public class SenseService extends Service{
             @Override
             public void onDataChange(DataSnapshot snapshot) {
                 FirebaseProject post = snapshot.getValue(FirebaseProject.class);
+                Log.d("Isnull?","Post is null?" + (post == null));
                 ApplicationContext.setCurrentproject(post);
                 try {
                     updateConfig(post);
@@ -96,6 +102,39 @@ public class SenseService extends Service{
             public void onCancelled(DatabaseError databaseError) {
             }
         });
+        //This is a broadcast receiver that is notified whenever the user's variables have changed in response to a survey
+        //Because some triggers' configuration is dependent on these variables, we need to reset them when, for example,
+        //the start or end date has changed
+        final BroadcastReceiver receiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String action = intent.getAction();
+                if(action.equals(TriggerManagerConstants.ACTION_NAME_SURVEY_TRIGGER)){
+                    ArrayList<String> changedVariables = intent.getStringArrayListExtra("changedVariables");
+                    Log.d("CHANGEDVARS","Changed variables are " + changedVariables);
+                    //action for sms received
+                    List<FirebaseTrigger> triggers = ApplicationContext.getProject().gettriggers();
+                    for (int i = 0; i < triggers.size(); i++) {
+                        FirebaseTrigger triggerconfig = triggers.get(i);
+                        List<String> configVariables = triggerconfig.getvariables();
+                        Log.d("CONFIGVARS","Config variables are " + configVariables);
+                        if(configVariables == null)continue;
+                        for(String var : configVariables){
+                            if(changedVariables.contains(var)){
+                                Log.d("UPDATEDVAR","This trigger has a variable that needs updating!");
+                                //Get rid of and relaunch!
+                                removeTrigger(triggerconfig.gettriggerId());
+                                launchTrigger(triggerconfig);
+                            }
+                        }
+
+                    }
+                }
+            }
+        };
+        IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+        filter.addAction(TriggerManagerConstants.ACTION_NAME_SURVEY_TRIGGER);
+        this.registerReceiver(receiver, filter);
         return START_STICKY;
     }
 
@@ -106,8 +145,11 @@ public class SenseService extends Service{
     }
 
 
+
     //This is the main method in which the required project is pulled from Firebase and interpreted
     public void updateConfig(FirebaseProject app) throws JSONException {
+        Log.d("Isnull?","Post is null?" + (app == null));
+
         ApplicationContext.setCurrentproject(app);
         List<FirebaseTrigger> triggers = app.gettriggers();
         List<UserVariable> variables = app.getvariables();
@@ -172,12 +214,16 @@ public class SenseService extends Service{
 
         //The 'TriggerConfig' has all the necessary parameters to determine under what conditions we fire off this trigger
         TriggerConfig config = new TriggerConfig();
+        SharedPreferences varPrefs = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getContext());
 
         ArrayList<Integer> times = new ArrayList<>();
         if(trigger.gettimes() != null){
             for(FirebaseExpression time : trigger.gettimes()){
                 if(time.getisValue()){
                     times.add(Integer.parseInt(time.getvalue()));
+                }
+                else{
+                    times.add(Integer.parseInt(varPrefs.getString(time.getname(),"0")));
                 }
             }
             config.addParameter("times",times);
@@ -194,6 +240,24 @@ public class SenseService extends Service{
                 }
                 config.addParameter(param, value);
             }
+        }
+        //Now try and find what variables we have
+        //If we have the 'dateFrom' variable for example, this overrides the 'dateFrom' value in the parameters
+        if(trigger.getdateFrom() != null){
+            String name = trigger.getdateFrom().getname();
+            config.addParameter(TriggerConfig.FROM_DATE,varPrefs.getString(name,"0"));
+        }
+        if(trigger.gettimeFrom() != null){
+            String name = trigger.gettimeFrom().getname();
+            config.addParameter(TriggerConfig.LIMIT_BEFORE_HOUR,varPrefs.getString(name,"0"));
+        }
+        if(trigger.getdateTo() != null){
+            String name = trigger.getdateTo().getname();
+            config.addParameter(TriggerConfig.TO_DATE,varPrefs.getString(name,"0"));
+        }
+        if(trigger.gettimeTo() != null){
+            String name = trigger.gettimeTo().getname();
+            config.addParameter(TriggerConfig.LIMIT_AFTER_HOUR,varPrefs.getString(name,"0"));
         }
 
         //Here we make the list of actions that this trigger executes when it's activated

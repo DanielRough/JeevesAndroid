@@ -64,16 +64,20 @@ public class MissedSurveyItem extends BaseAdapter {
         final String surveyName = result.get(position).gettitle();
         final String surveyKey = result.get(position).getkey();
         final long timeSent = result.get(position).gettimeSent();
-        final long expiryTime = result.get(position).getexpiryTime();
-        final long timeAlive = result.get(position).gettimeAlive();
+        long expiryTime = result.get(position).getexpiryTime();
+        long expiryMillis = expiryTime*60*1000;
+        long deadline = result.get(position).gettimeSent() + expiryMillis;
+        long timeToGo = deadline - System.currentTimeMillis();
+       // final long expiryTime = result.get(position).getexpiryTime();
+      //  final long timeAlive = result.get(position).gettimeAlive();
         boolean begun = result.get(position).getbegun();
         if(begun)
             startedView.setText("Partially completed");
-        long timeToGo = expiryTime - System.currentTimeMillis();
+    //    long timeToGo = expiryTime - System.currentTimeMillis();
         int minutes = (int)(timeToGo /60000);
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         String dateString = formatter.format(new Date(timeSent));
-        if(timeAlive > 0)
+        if(timeToGo > 0)
             valueView.setText("Sent at " + dateString + "\nExpiring in " + (minutes+1) + " minutes");
         else
             valueView.setText("Sent at " + dateString);

@@ -126,16 +126,11 @@ public class ActionExecutorService extends IntentService{
     public void executeActions(){
 
         Log.i("EXEUTION","AWAY TO EXEUTE SOME ACTIONS  ");
-     //   Iterator<FirebaseAction> actionIterator = actions.iterator();
-        int count = 0;
+        int count;
 
         //while(actionIterator.hasNext()){
         for(int i = 0; i < actions.size(); i++){
-         //   count++;
-            Log.i("Actionnnaaay","Action index is " + i);
             FirebaseAction newaction = actions.get(i);
-            //    FirebaseAction actualAction = ActionFactory.createAction(newaction);
-            Log.i("ACTION IS","Action is " + newaction.toString());
 
             if(newaction instanceof WaitingAction) {
                 String stimeToWait = newaction.getparams().get("time").toString();
@@ -158,7 +153,6 @@ public class ActionExecutorService extends IntentService{
                 ArrayList<FirebaseAction> actionsToPerform = new ArrayList<>();
                 if (controlactions == null)
                     continue; //It might be null if we've got nothing inseide
-
                 if (expression != null && parser.evaluate(expression).equals("false")) //expressionw will be null if we don't have an expression in the first place
                     continue; //If this IfControl has a dodgy expression, just skip it
                     //otherwise what we do is we add all the internal actions to this iterator, and carry on as normal
@@ -172,32 +166,24 @@ public class ActionExecutorService extends IntentService{
                     }
                     continue;
                 }
-                //    newaction.executeActions();
-                //           Intent actionIntent = new Intent(app,ActionExecutorService.class);
-//
-//                if(this.getmanual())
-//                    actionIntent.putExtra("manual",true);
-//                actionIntent.putExtra("com/example/daniel/jeeves/actions",actionsToPerform);
-//                actionIntent.putExtra("expression",expression);
-//                actionIntent.putExtra("controltype","if");
+
             }
             newaction.setManual(manual);
-          //  count++;
-            boolean value = newaction.execute(); //Will this block?
+            newaction.execute(); //Will this block?
         }
 
     }
-    /**
-     * This method will check that our Boolean expression that we passed in evaluates to true, in which case we stop executing com.example.daniel.jeeves.actions
-     */
-    public void checkCondition(){
-        ExpressionParser parser = new ExpressionParser(ApplicationContext.getContext());
-        Log.d("ExPRNAME", expr.getname());
-        if(parser.evaluate(expr).equals("false")) //expressionw will be null if we don't have an expression in the first place
-            return; //Our expression is false, don't execute
-        else
-            executeActions(); //Let's execute our actions!
-    }
+//    /**
+//     * This method will check that our Boolean expression that we passed in evaluates to true, in which case we stop executing com.example.daniel.jeeves.actions
+//     */
+//    public void checkCondition(){
+//        ExpressionParser parser = new ExpressionParser(ApplicationContext.getContext());
+//        Log.d("ExPRNAME", expr.getname());
+//        if(parser.evaluate(expr).equals("false")) //expressionw will be null if we don't have an expression in the first place
+//            return; //Our expression is false, don't execute
+//        else
+//            executeActions(); //Let's execute our actions!
+//    }
 
     ActionExecutorService getService(){
         return ActionExecutorService.this;

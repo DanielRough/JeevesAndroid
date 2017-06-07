@@ -29,7 +29,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="New Text"
+            android:text=""
             android:id="@+id/txtQno"
             android:textColor="@android:color/black"
             android:textSize="24dp"
@@ -117,7 +117,7 @@
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/viewDateTime"
+            android:id="@+id/viewDate"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical"
@@ -130,11 +130,6 @@
                 android:calendarViewShown="false"
                 android:datePickerMode="spinner" />
 
-            <TimePicker
-                android:id="@+id/timePicker2"
-                android:layout_width="match_parent"
-                android:layout_height="165dp"
-                android:timePickerMode="spinner" />
 
         </LinearLayout>
 
@@ -197,6 +192,20 @@
                 android:inputType="number" />
         </LinearLayout>
 
+        <LinearLayout
+            android:id="@+id/viewTime"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:weightSum="1">
+
+            <TimePicker
+                android:id="@+id/timePicker2"
+                android:layout_width="match_parent"
+                android:layout_height="165dp"
+                android:timePickerMode="spinner" />
+
+        </LinearLayout>
     </ViewFlipper>
 
 </LinearLayout>

@@ -34,7 +34,6 @@ import com.google.firebase.database.ValueEventListener;
 
 public class MainActivity extends Activity implements GoogleApiClient.OnConnectionFailedListener{
     Context context;
-    private static final int MY_PERMISSIONS = 12345;
     private FirebaseAuth mFirebaseAuth;
     private FirebaseUser mFirebaseUser;
     private String mUsername;
@@ -51,36 +50,8 @@ public class MainActivity extends Activity implements GoogleApiClient.OnConnecti
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        context = this.getApplicationContext();
 
-        Log.d("MAIN", "Main activity created");
-        ActivityCompat.requestPermissions(this,
-                new String[]{
-                        Manifest.permission.READ_CONTACTS,
-                        Manifest.permission.ACCESS_COARSE_LOCATION,
-                        Manifest.permission.ACCESS_FINE_LOCATION,
-                        Manifest.permission.RECORD_AUDIO,
-                        Manifest.permission.PROCESS_OUTGOING_CALLS,
-                        Manifest.permission.ACCESS_COARSE_LOCATION,
-                        Manifest.permission.READ_PHONE_STATE,
-                        Manifest.permission.RECEIVE_SMS,
-                        Manifest.permission.READ_SMS,
-                        Manifest.permission.READ_CONTACTS,
-                        Manifest.permission.READ_CALL_LOG,
-                        Manifest.permission.READ_PHONE_STATE},
-                MY_PERMISSIONS);
-        NotificationManager notificationManager =
-                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N
-                && !notificationManager.isNotificationPolicyAccessGranted()) {
-
-            Intent intent = new Intent(
-                    android.provider.Settings
-                            .ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS);
-
-            startActivity(new Intent(android.provider.Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS));
-        }
         carryOn();
 
     }

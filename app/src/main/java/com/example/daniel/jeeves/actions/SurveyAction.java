@@ -9,8 +9,10 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Build;
+import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
@@ -36,6 +38,9 @@ import java.util.Map;
  * Created by Daniel on 26/05/15.
  */
 public class SurveyAction extends FirebaseAction {
+
+    private BroadcastReceiver mReceiver;
+
     public static int NOTIFICATION_ID = 0;
     public static final String ACTION_1 = "action_1";
     public static final String ACTION_2 = "action_2";
@@ -46,6 +51,7 @@ public class SurveyAction extends FirebaseAction {
     public SurveyAction(Map<String,Object> params){
         setparams(params);
         FirebaseDatabase database = FirebaseDatabase.getInstance();
+
     //    myRef = database.getReference("JeevesData");
 
     }
@@ -54,7 +60,8 @@ public class SurveyAction extends FirebaseAction {
     public boolean execute() {
         thisActionsId = Integer.parseInt("9" + NOTIFICATION_ID++);
         Log.d("ACTIONSURVEY", "SENT A SURVEY WITH ACTION ID " + thisActionsId);
-        Context app = ApplicationContext.getContext();
+        final Context app = ApplicationContext.getContext();
+
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getContext());
         String surveyname = getparams().get("survey").toString();
 //        Firebase incompleteSurveys = new Firebase("https://incandescent-torch-8695.firebaseio.com/JeevesData/patients/" + userid + "/incomplete/" + surveyname);
@@ -73,8 +80,22 @@ public class SurveyAction extends FirebaseAction {
                 break;
             }
         }
-        long timeSent = System.currentTimeMillis();
+        final long timeSent = System.currentTimeMillis();
+        //Hopefully we can use this to pick up on when a survey is completed
+        IntentFilter intentFilter = new IntentFilter(TriggerManagerConstants.ACTION_NAME_SURVEY_TRIGGER);
+        mReceiver = new BroadcastReceiver() {
 
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                long completedtimesent = intent.getLongExtra("timeSent",0);
+                if(completedtimesent == timeSent) { //Then this survey was completed woohoo!
+                    NotificationManager manager = (NotificationManager) app.getSystemService(app.NOTIFICATION_SERVICE);
+                    manager.cancel(thisActionsId);
+                }
+            }
+        };
+        //registering our receiver
+        app.registerReceiver(mReceiver, intentFilter);
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference myRef = database.getReference("JeevesData").child("patients").child(userid).child("incomplete");
         DatabaseReference newPostRef = myRef.push();
@@ -96,13 +117,59 @@ public class SurveyAction extends FirebaseAction {
         action1Intent.putExtra("timeSent",timeSent);
         PendingIntent action1PendingIntent = PendingIntent.getService(app, 0,
                 action1Intent, PendingIntent.FLAG_UPDATE_CURRENT);
+//
+//        Intent action2Intent = new Intent(app, NotificationActionService.class)
+//                .setAction(ACTION_2);
+//        action2Intent.putExtra("notificationid",thisActionsId);
+//        action2Intent.setType(Integer.toString(thisActionsId)+ "ignore");
+////        action2Intent.setAction(Integer.toString(thisActionsId)+ "ignore"); //gives intent a unique action to stop it overwriting previous notifications
+//
+//        PendingIntent action2PendingIntent = PendingIntent.getService(app, 0,
+//                action2Intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
+        final NotificationManager notificationManager =
+                (NotificationManager) app.getSystemService(app.NOTIFICATION_SERVICE);
+
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(app)
+                .setContentTitle("Ready to take a survey?")
+                .setVibrate(new long[]{0, 1000})
+                .setSmallIcon(R.drawable.ic_action_search)
+        .setPriority(Notification.PRIORITY_MAX)
+
+                .setStyle(new NotificationCompat.InboxStyle()
+                        .setSummaryText("Survey"));
+
+        long expiryTime = currentsurvey.getexpiryTime();
+        long expiryMillis = expiryTime*60*1000;
+        long deadline = currentsurvey.gettimeSent() + expiryMillis;
+        long timeToGo = deadline - System.currentTimeMillis();
+
+        mBuilder.setAutoCancel(true);
+        mBuilder.setOngoing(true);
+        mBuilder.addAction(R.drawable.ic_create_black_24dp, "Start survey", action1PendingIntent);
+
+       // notificationManager.notify(thisActionsId, mBuilder.build());
+        AlarmManager am = (AlarmManager) app.getSystemService(Context.ALARM_SERVICE);
+        if(timeToGo>0) {
+            Intent intent = new Intent(app, AlarmManagerBroadcastReceiver.class);
+            intent.putExtra("name",surveyname);
+            intent.putExtra("notificationid",thisActionsId);
+
+            intent.setType(System.currentTimeMillis()+surveyname); //Unique type to distinguish intents
+            PendingIntent pi = PendingIntent.getBroadcast(app, 0, intent, 0);
+            Log.d("STARTED", "Set an alarm for " + timeToGo + "milliseconds time");
+            am.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + timeToGo, pi);
+        }
 
         //This requires some explanation...
         //If the user has triggered the survey manually (i.e., with a button press), then there's no need for the prompting dialog.
         //The ycan just skip straight to the survey
+
+        //We still want to have a dialog to keep the expiry stuff alive (at least for now)
         if(getmanual()){
             Log.d("Yup","should be starting...");
+            mBuilder.setContentTitle("Started a survey!");
+            mBuilder.mActions.clear();;
             Intent resultIntent = new Intent(app, SurveyActivity.class);
             resultIntent.putExtra("surveyid",newPostRefId);
             resultIntent.putExtra("name",surveyname);
@@ -110,54 +177,15 @@ public class SurveyAction extends FirebaseAction {
             resultIntent.putExtra("manual",true);
             resultIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             app.startActivity(resultIntent);
+            notificationManager.notify(thisActionsId, mBuilder.build());
+
             return true;
+
         }
         else{
+            notificationManager.notify(thisActionsId, mBuilder.build());
+
             Log.d("nope","no not manual");
-        }
-
-
-
-        Intent action2Intent = new Intent(app, NotificationActionService.class)
-                .setAction(ACTION_2);
-        action2Intent.putExtra("notificationid",thisActionsId);
-        action2Intent.setType(Integer.toString(thisActionsId)+ "ignore");
-//        action2Intent.setAction(Integer.toString(thisActionsId)+ "ignore"); //gives intent a unique action to stop it overwriting previous notifications
-
-        PendingIntent action2PendingIntent = PendingIntent.getService(app, 0,
-                action2Intent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-        final NotificationManager notificationManager =
-                (NotificationManager) app.getSystemService(app.NOTIFICATION_SERVICE);
-
-        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(app)
-                .setContentTitle("Survey")
-                .setVibrate(new long[]{0, 1000})
-                .setSmallIcon(R.drawable.ic_action_search)
-        .setPriority(Notification.PRIORITY_MAX)
-
-                .setStyle(new NotificationCompat.InboxStyle()
-                        .setSummaryText("Ready to take a survey?"));
-        long timeAlive = currentsurvey.gettimeAlive()*1000;
-        if(timeAlive>0)
-        newPostRef.child("expiryTime").setValue(System.currentTimeMillis() + (timeAlive)); //Put the expiry time in
-        newPostRef.child("timeSent").setValue(System.currentTimeMillis());
-        mBuilder.setAutoCancel(true);
-        mBuilder.setOngoing(true);
-        mBuilder.addAction(R.drawable.ic_create_black_24dp, "Start survey", action1PendingIntent);
-        mBuilder.addAction(R.drawable.ic_block_black_24dp, "Ignore", action2PendingIntent);
-
-        notificationManager.notify(thisActionsId, mBuilder.build());
-        AlarmManager am = (AlarmManager) app.getSystemService(Context.ALARM_SERVICE);
-        if(timeAlive>0) {
-            Intent intent = new Intent(app, AlarmManagerBroadcastReceiver.class);
-            intent.putExtra("name",surveyname);
-            intent.putExtra("notificationid",thisActionsId);
-
-            intent.setType(System.currentTimeMillis()+surveyname); //Unique type to distinguish intents
-            PendingIntent pi = PendingIntent.getBroadcast(app, 0, intent, 0);
-            Log.d("STARTED", "Set an alarm for " + timeAlive + "milliseconds time");
-            am.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + timeAlive, pi);
         }
 
         //   firebaseSurvey.push().setValue(surveyDetails);
@@ -177,10 +205,10 @@ public class SurveyAction extends FirebaseAction {
         public void onReceive(Context context, Intent intent) {
             //Here is where the user's left the survey too long and it's expiree
 //SEND A BROADCAST TO LISTENING SURVEY TRIGGERS
-            int missedSurveys = 0;
+     //       long missedSurveys = 0;
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getContext());
-            missedSurveys = preferences.getInt(intent.getStringExtra("name"),0); //HOWEVER MANY OF THIS SURVEY THE USER HAS MISSED IN A ROW
-            //HAS A TYPE TO DISTINGUISH IT FROM OTHER MISSED SURVEYS
+       //     missedSurveys = preferences.getLong("")
+
             Intent intended = new Intent();
             int id = intent.getIntExtra("notificationid",0);
         //    intended.setType(id + "missed");
@@ -188,7 +216,7 @@ public class SurveyAction extends FirebaseAction {
             intended.setAction(TriggerManagerConstants.ACTION_NAME_SURVEY_TRIGGER);
             intended.putExtra("surveyName",intent.getStringExtra("name"));
             intended.putExtra("result",false);
-            missedSurveys++; //The user has officially missed this survey
+      //      missedSurveys++; //The user has officially missed this survey
 
             //Store the incremeneted missed value in shared preferences
 
@@ -196,11 +224,15 @@ public class SurveyAction extends FirebaseAction {
             long missedSurveyCount = preferences.getLong("Missed Surveys",0);
             missedSurveyCount++;
             editor.putLong("Missed Surveys", missedSurveyCount);
-            editor.putInt(intent.getStringExtra("name"),missedSurveys);
+          //  editor.putInt(intent.getStringExtra("name"),missedSurveys);
+
+            long thisMissedSurveyCount = preferences.getLong(intent.getStringExtra("name")+"-Missed",0);
+            thisMissedSurveyCount++;
+            editor.putLong(intent.getStringExtra("name")+"-Missed",thisMissedSurveyCount);
             editor.commit();
 
             //But wait, how many have they missed already?
-            intended.putExtra("missed",missedSurveys);
+            intended.putExtra("missed",thisMissedSurveyCount);
             context.sendBroadcast(intended);
             Context app = ApplicationContext.getContext();
             Log.d("HELLOOOOO","whyisthis");
@@ -242,6 +274,7 @@ public class SurveyAction extends FirebaseAction {
             if (ACTION_2.equals(action)) {
 
                 NotificationManager manager = (NotificationManager) app.getSystemService(app.NOTIFICATION_SERVICE);
+             //   manager.c
                 manager.cancel(id);
             }
         }

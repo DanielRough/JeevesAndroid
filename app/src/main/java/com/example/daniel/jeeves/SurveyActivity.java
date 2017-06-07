@@ -79,6 +79,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import static com.example.daniel.jeeves.firebase.FirebaseUtils.DATE;
+import static com.example.daniel.jeeves.firebase.FirebaseUtils.TIME;
+
 //import DateTimePicker.DateTimePicker;
 
 public class SurveyActivity extends AppCompatActivity  implements GoogleApiClient.OnConnectionFailedListener, OnMapReadyCallback {
@@ -109,10 +112,11 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
     public static final int MULT_SINGLE = 2;
     public static final int MULT_MANY = 3;
     public static final int SCALE = 4;
-    public static final int DATETIME = 5;
+    public static final int DATE = 5;
     public static final int GEO = 6;
     public static final int BOOLEAN = 7;
     public static final int NUMERIC = 8;
+    public static final int TIME = 9;
     Animation slide_in_left, slide_out_right;
     GoogleMap map;
     private GoogleApiClient mGoogleApiClient;
@@ -125,7 +129,7 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
     final Handler handler = new Handler();
     boolean finished = false;
     long timeSent = 0;
-    private int missedSurveys;
+  //  private int missedSurveys;
     FirebaseSurvey currentsurvey = null;
 
     public void hideKeyboard(View view) {
@@ -172,8 +176,8 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
         FirebaseUser user = mFirebaseAuth.getCurrentUser();
         String userid = user.getUid();
         prefs = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getContext());
-        String surveyname = getIntent().getStringExtra("name");
-         missedSurveys = prefs.getInt(surveyname,0);
+      //  String surveyname = getIntent().getStringExtra("name");
+       //  missedSurveys = prefs.getInt(surveyname,0);
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         surveyRef = database.getReference("JeevesData").child("patients").child(userid).child("incomplete").child(surveyid);
         completedSurveysRef = database.getReference("JeevesData").child("patients").child(userid).child("complete");
@@ -186,6 +190,7 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
         grpScale = ((RadioGroup)findViewById(R.id.grpScale));
 
         txtQNo = ((TextView) findViewById(R.id.txtQno));
+        txtQNo.setText("Question 1");
         mGoogleApiClient = new GoogleApiClient
                 .Builder(this)
                 .addApi(Places.GEO_DATA_API)
@@ -198,6 +203,8 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
         // alert.setMessage("Message");
         btnNext = ((Button) findViewById(R.id.btnNext));
         btnBack = ((Button) findViewById(R.id.btnBack));
+        btnBack.setEnabled(false);
+
         viewFlipper = (ViewFlipper) findViewById(R.id.viewFlipper);
 
         slide_in_left = AnimationUtils.loadAnimation(this,
@@ -226,12 +233,15 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
             public void onClick(DialogInterface dialog, int whichButton) {
                 currentsurvey.setanswers(answers);
                 currentsurvey.settimeFinished(System.currentTimeMillis());
+                ArrayList<String> changedVariables = new ArrayList<String>();
+
                 for (int i = 0; i < answers.size(); i++){
                     String answer = answers.get(i);
                     FirebaseQuestion correspondingQuestion = questions.get(i);
 //                    String answer = stringStringMap.get("answer");
                     if(correspondingQuestion.getassignedVar() != null){ //If we need to assign this answer to a variable
                         String varname = currentsurvey.getquestions().get(i).getassignedVar();
+                        changedVariables.add(varname);
                         SharedPreferences.Editor editor = prefs.edit();
                         if(!answer.isEmpty()){
                             editor.putString(varname, answer); //Put the variable into the var
@@ -240,6 +250,7 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
                             editor.commit();
                     }
                     if(correspondingQuestion.getparams() != null && correspondingQuestion.getparams().containsKey("assignToScore"))
+                        if(!answer.isEmpty())
                         finalscore += Long.parseLong(answer);
 //                    if(stringStringMap.containsKey("score")){
 //                        String value = stringStringMap.get("score");
@@ -254,17 +265,24 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
                 long difference = finalscore - oldscore;
                 editor.putLong("Last Survey Score",finalscore);
                 editor.putLong("Survey Score Difference", difference);
-                long completedSurveyCount = prefs.getLong("Completed Surveys",0);
-                completedSurveyCount++;
-                editor.putLong("Completed Surveys", completedSurveyCount);
+                long totalCompletedSurveyCount = prefs.getLong("Completed Surveys",0);
+                totalCompletedSurveyCount++;
+                editor.putLong("Completed Surveys", totalCompletedSurveyCount);
+                long thisCompletedSurveyCount = prefs.getLong(currentsurvey.gettitle()+"-Completed",0);
+                thisCompletedSurveyCount++;
+                editor.putLong(currentsurvey.gettitle()+"-Completed",thisCompletedSurveyCount);
                 editor.commit();
 
                 //SEND A BROADCAST TO LISTENING SURVEY TRIGGERS
                 Intent intended = new Intent();
                 intended.setAction(TriggerManagerConstants.ACTION_NAME_SURVEY_TRIGGER);
                 intended.putExtra("surveyName",currentsurvey.gettitle());
-                intended.putExtra("completed",completedSurveyCount);
-
+                intended.putExtra("completed",thisCompletedSurveyCount);
+                intended.putExtra("result",true);
+                intended.putExtra("timeSent",currentsurvey.gettimeSent()); //need this for removing SurveyAction notifications
+                intended.putExtra("changedVariables",changedVariables);
+                Log.d("NAME",currentsurvey.gettitle());
+                Log.d("COMPLETED",thisCompletedSurveyCount+"!");
                 sendBroadcast(intended);
                 surveyRef.addValueEventListener(new ValueEventListener() {
                     @Override
@@ -321,11 +339,16 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
                         currentsurvey.setbegun(); //Confirm that this survey has been started
 
 
-                    long expirytime = currentsurvey.gettimeAlive() * 1000;
-                    long timeGone = System.currentTimeMillis() - timeSent;
-                    long timeLeft = expirytime - timeGone;
-                    if(expirytime > 0) {
+                    long expiryTime = currentsurvey.getexpiryTime();
+                    long expiryMillis = expiryTime*60*1000;
+                    long deadline = currentsurvey.gettimeSent() + expiryMillis;
+                    long timeToGo = deadline - System.currentTimeMillis();
+//                    long expirytime = currentsurvey.gettimeAlive() * 1000;
+//                    long timeGone = System.currentTimeMillis() - timeSent;
+//                    long timeLeft = expirytime - timeGone;
+                    if(timeToGo > 0) {
                         warningalert = new AlertDialog.Builder(getInstance());
+                        warningalert.setCancelable(false);
                         warningalert.setTitle("Sorry, your time to complete this survey has expired");
                         warningalert.setPositiveButton("Return", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int whichButton) {
@@ -333,18 +356,21 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
                                 intended.setAction(TriggerManagerConstants.ACTION_NAME_SURVEY_TRIGGER);
                                 intended.putExtra("surveyName",currentsurvey.gettitle());
                                 intended.putExtra("result",false);
-                                missedSurveys++; //The user has officially missed this survey
+                               // missedSurveys++; //The user has officially missed this survey
 
                                 prefs = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getContext());
                                 SharedPreferences.Editor editor = prefs.edit();
-                                long missedSurveyCount = prefs.getLong("Missed Surveys",0);
-                                missedSurveyCount++;
-                                editor.putLong("Missed Surveys", missedSurveyCount);
-                                editor.putInt(currentsurvey.gettitle(),missedSurveys);
+                                long totalMissedSurveyCount = prefs.getLong("Missed Surveys",0);
+                                totalMissedSurveyCount++;
+                                editor.putLong("Missed Surveys", totalMissedSurveyCount);
+                              //  editor.putInt(currentsurvey.gettitle(),missedSurveys);
                                 editor.commit();
-
+                                long thisMissedSurveyCount = prefs.getLong(currentsurvey.gettitle()+"-Missed",0);
+                                thisMissedSurveyCount++;
+                                editor.putLong(currentsurvey.gettitle()+"-Missed",thisMissedSurveyCount);
+                                editor.commit();
                                 //But wait, how many have they missed already?
-                                intended.putExtra("missed",missedSurveys);
+                                intended.putExtra("missed",thisMissedSurveyCount);
                                 sendBroadcast(intended);
                                 finish();
                             }
@@ -356,7 +382,7 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
                                     warningalert.show();
 
                             }
-                        }, timeLeft);
+                        }, timeToGo);
                     }
                     Log.d("Questions", "questions are " + questions.toString());
                     launchQuestion(questions.get(0),"forward");
@@ -507,33 +533,28 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
     }
 
     @TargetApi(Build.VERSION_CODES.M)
-    private void handleDateTime() {
+    private void handleDate() {
         final Calendar calendar = Calendar.getInstance();
-
-        DatePicker picker = (DatePicker)findViewById(R.id.datePicker2);
-        TimePicker tpicker = (TimePicker)findViewById(R.id.timePicker2);
-        String askFor = myparams.get("askFor").toString();
-        LinearLayout dateTimeView = (LinearLayout)findViewById(R.id.viewDateTime);
+        final DatePicker picker = (DatePicker)findViewById(R.id.datePicker2);
+     //   LinearLayout dateTimeView = (LinearLayout)findViewById(R.id.viewDateTime);
         //TODO: More ridiculously convoluted horse shite
-        if(askFor.equals("date")){
-            dateTimeView.removeView(tpicker);
-            dateTimeView.addView(tpicker);
-            tpicker.setVisibility(View.INVISIBLE);
-            picker.setVisibility(View.VISIBLE);
-        }
-        else if(askFor.equals("time")){
-            dateTimeView.removeView(picker);
-            dateTimeView.addView(picker);
-            picker.setVisibility(View.INVISIBLE);
-            tpicker.setVisibility(View.VISIBLE);
-        }
-        else{
-            dateTimeView.removeAllViews();
-            dateTimeView.addView(picker);
-            dateTimeView.addView(tpicker);
-            picker.setVisibility(View.VISIBLE);
-            tpicker.setVisibility(View.VISIBLE);
-        }
+//            dateTimeView.addView(tpicker);
+//            tpicker.setVisibility(View.INVISIBLE);
+//            picker.setVisibility(View.VISIBLE);
+//        }
+//        else if(askFor.equals("time")){
+//            dateTimeView.removeView(picker);
+//            dateTimeView.addView(picker);
+//            picker.setVisibility(View.INVISIBLE);
+//            tpicker.setVisibility(View.VISIBLE);
+//        }
+//        else{
+//            dateTimeView.removeAllViews();
+//            dateTimeView.addView(picker);
+//            dateTimeView.addView(tpicker);
+//            picker.setVisibility(View.VISIBLE);
+//            tpicker.setVisibility(View.VISIBLE);
+//        }
               String answer = answers.get(currentIndex);
         picker.init(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH), new DatePicker.OnDateChangedListener() {
 
@@ -544,21 +565,108 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
                 Log.d("SETANSER","Setting answer to " + Long.toString(calendar.getTimeInMillis()));
             }
         });
+//        tpicker.setOnTimeChangedListener(new TimePicker.OnTimeChangedListener() {
+//            @Override
+//            public void onTimeChanged(TimePicker timePicker, int i, int i1) {
+//                calendar.set(Calendar.HOUR_OF_DAY,i);
+//                calendar.set(Calendar.MINUTE,i1);
+//
+//                //Convoluted, but if the date picker is NOT visible, then our time needs to be the number of milliseconds since midnight
+//                Calendar midnight = Calendar.getInstance();
+//                midnight.set(Calendar.HOUR_OF_DAY,0);
+//                midnight.set(Calendar.MINUTE,0);
+//                long msFromMidnight = calendar.getTimeInMillis() - midnight.getTimeInMillis();
+//
+//                if(picker.getVisibility() == View.VISIBLE)
+//                    answers.set(currentIndex,Long.toString(calendar.getTimeInMillis()));
+//                else
+//                    answers.set(currentIndex,Long.toString(msFromMidnight));
+//                Log.d("SETANSER","Setting answer to " + Long.toString(calendar.getTimeInMillis()));
+//
+//            }
+//        });
+
+        if (!answer.isEmpty()) {
+            String time = answer.toString();
+            calendar.setTimeInMillis(Long.parseLong(time));
+            picker.updateDate(calendar.get(Calendar.YEAR),calendar.get(Calendar.MONTH),calendar.get(Calendar.DAY_OF_MONTH));
+
+//
+//  Date date = Calendar.getInstance().setTimeInMillis(Long.parseLong);
+            //   picker.set
+//            timePicker.setHour(Integer.parseInt(hoursmins[0]));
+//            timePicker.setMinute(Integer.parseInt(hoursmins[1]));
+        } else {
+            answers.set(currentIndex,Long.toString(calendar.getTimeInMillis()));
+//            timePicker.setHour(0);
+//            timePicker.setMinute(0);
+        }
+
+
+    }
+    @TargetApi(Build.VERSION_CODES.M)
+    private void handleTime() {
+        final Calendar calendar = Calendar.getInstance();
+        final Calendar midnight = Calendar.getInstance();
+        midnight.set(Calendar.HOUR_OF_DAY,0);
+        midnight.set(Calendar.MINUTE,0);
+      //  final DatePicker picker = (DatePicker)findViewById(R.id.datePicker2);
+        TimePicker tpicker = (TimePicker)findViewById(R.id.timePicker2);
+//        String askFor = myparams.get("askFor").toString();
+//        LinearLayout dateTimeView = (LinearLayout)findViewById(R.id.viewDateTime);
+//        //TODO: More ridiculously convoluted horse shite
+//        if(askFor.equals("date")){
+//            dateTimeView.removeView(tpicker);
+//            dateTimeView.addView(tpicker);
+//            tpicker.setVisibility(View.INVISIBLE);
+//            picker.setVisibility(View.VISIBLE);
+//        }
+//        else if(askFor.equals("time")){
+//            dateTimeView.removeView(picker);
+//            dateTimeView.addView(picker);
+//            picker.setVisibility(View.INVISIBLE);
+//            tpicker.setVisibility(View.VISIBLE);
+//        }
+//        else{
+//            dateTimeView.removeAllViews();
+//            dateTimeView.addView(picker);
+//            dateTimeView.addView(tpicker);
+//            picker.setVisibility(View.VISIBLE);
+//            tpicker.setVisibility(View.VISIBLE);
+//        }
+        String answer = answers.get(currentIndex);
+//        picker.init(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH), new DatePicker.OnDateChangedListener() {
+//
+//            @Override
+//            public void onDateChanged(DatePicker datePicker, int year, int month, int dayOfMonth) {
+//                calendar.set(year,month,dayOfMonth);
+//                answers.set(currentIndex,Long.toString(calendar.getTimeInMillis()));
+//                Log.d("SETANSER","Setting answer to " + Long.toString(calendar.getTimeInMillis()));
+//            }
+//        });
         tpicker.setOnTimeChangedListener(new TimePicker.OnTimeChangedListener() {
             @Override
             public void onTimeChanged(TimePicker timePicker, int i, int i1) {
                 calendar.set(Calendar.HOUR_OF_DAY,i);
                 calendar.set(Calendar.MINUTE,i1);
-                answers.set(currentIndex,Long.toString(calendar.getTimeInMillis()));
-                Log.d("SETANSER","Setting answer to " + Long.toString(calendar.getTimeInMillis()));
+
+                //Convoluted, but if the date picker is NOT visible, then our time needs to be the number of milliseconds since midnight
+
+                long msFromMidnight = calendar.getTimeInMillis() - midnight.getTimeInMillis();
+
+//                if(picker.getVisibility() == View.VISIBLE)
+//                    answers.set(currentIndex,Long.toString(calendar.getTimeInMillis()));
+//                else
+                    answers.set(currentIndex,Long.toString(msFromMidnight));
+                Log.d("SETANSER","Setting answer to " + Long.toString(msFromMidnight));
 
             }
         });
 
         if (!answer.isEmpty()) {
             String time = answer.toString();
-            calendar.setTimeInMillis(Long.parseLong(time));
-            picker.updateDate(calendar.get(Calendar.YEAR),calendar.get(Calendar.MONTH),calendar.get(Calendar.DAY_OF_MONTH));
+            calendar.setTimeInMillis(midnight.getTimeInMillis() + Long.parseLong(time));
+        //    picker.updateDate(calendar.get(Calendar.YEAR),calendar.get(Calendar.MONTH),calendar.get(Calendar.DAY_OF_MONTH));
             tpicker.setHour(calendar.get(Calendar.HOUR_OF_DAY));
             tpicker.setMinute(calendar.get(Calendar.MINUTE));
 
@@ -575,7 +683,6 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
 
 
     }
-
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == PLACE_PICKER_REQUEST) {
             if (resultCode == RESULT_OK) {
@@ -712,13 +819,16 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
             if(conditionQuestion!= null){
                 String questionid = conditionQuestion.getquestionId();
                 int conditionQuestionIndex = 0;
+                long conditionQuestionType = 0;
                 for(int i = 0; i < questions.size(); i++){
                     if(questions.get(i).getquestionId().equals(questionid)){
                         conditionQuestionIndex = i;
+                        conditionQuestionType = questions.get(i).getquestionType();
                         break;
                     }
                 }
                 String expectedanswer = question.getconditionConstraints();
+               // int conditionQuestionType =
                 String actualanswer = answers.get(conditionQuestionIndex);
                 Log.d("Expected","expected answer was " + expectedanswer + ", actual answer was " + actualanswer);
                 boolean satisfied = false;
@@ -742,30 +852,32 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
                             break;
                         case "before":
                         case "after":
-                            long dateval = Long.parseLong(constraints[1]);
-                            long timeval = Long.parseLong(constraints[2]);
-                            String askFor = conditionQuestion.getparams().get("askFor").toString();
-                            long datetime = Long.parseLong(actualanswer);
+                            long constraintDateTime = Long.parseLong(constraints[1]);
+                            //long timeval = Long.parseLong(constraints[2]);
+                            //String askFor = conditionQuestion.getparams().get("askFor").toString();
+                            long actualDateTime = Long.parseLong(actualanswer);
                             Calendar c = Calendar.getInstance();
                             c.set(Calendar.HOUR_OF_DAY,0);
                             c.set(Calendar.MINUTE,0);
                             c.set(Calendar.SECOND,0); //midnight calendar
-                            c.setTimeInMillis(datetime);
-                            long constraintMillis;
-                            if (askFor.equals("date")) {
-                                constraintMillis = dateval;
-                            }
-                            else if(askFor.equals("time")){
-                                constraintMillis = c.getTimeInMillis() + timeval;
-                            }
-                            else{
-                                constraintMillis = dateval+timeval;
-                            }
-                            Log.d("BEFORE","datetime: " + datetime + ", required: " + constraintMillis);
+                     //       c.setTimeInMillis(actualDateTime);
+                            long constraintMillis = 0;
+//                            if (askFor.equals("date")) {
+                            if(conditionQuestionType == DATE)
+                                constraintMillis = constraintDateTime;
+  //                          }
+    //                        else if(askFor.equals("time")){
+                            else if(conditionQuestionType == TIME)
+                                constraintMillis = c.getTimeInMillis() + constraintDateTime;
+      //                      }
+        //                    else{
+          //                      constraintMillis = dateval+timeval;
+            //                }
+                            Log.d("BEFORE","datetime: " + actualDateTime + ", required: " + constraints[0] + " " + constraintMillis);
 
-                            if(constraints[0].equals("before") && datetime < constraintMillis)
+                            if(constraints[0].equals("before") && actualDateTime < constraintMillis)
                                 satisfied = true;
-                            if(constraints[0].equals("after") && datetime > constraintMillis)
+                            if(constraints[0].equals("after") && actualDateTime > constraintMillis)
                                 satisfied = true;
                             break;
                     }
@@ -792,7 +904,9 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
                 }
 
             }
-         //   txtQNo.setText("Question " + (currentQuestionCount));
+      //      txtQNo.setText("Question " + (currentIndex+1));
+            txtQNo.setText("Question " + (currentQuestionCount));
+
             viewFlipper.setDisplayedChild(questionType - 1);
 //            currentData = questiondata.get(currentQuestion);
 
@@ -807,8 +921,11 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
                 case SCALE:
                     handleScale();
                     break;
-                case DATETIME:
-                    handleDateTime();
+                case DATE:
+                    handleDate();
+                    break;
+                case TIME:
+                    handleTime();
                     break;
                 case GEO:
                     try {
@@ -834,6 +951,7 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
             //  viewFlipper.showPrevious();
             Log.d("BACK", "Going back");
             currentIndex--;
+
             if (currentIndex < 1)
                 btnBack.setEnabled(false);
             currentQuestionCount--;
@@ -854,7 +972,7 @@ public class SurveyActivity extends AppCompatActivity  implements GoogleApiClien
                 return;
                 //    finish();
             }
-
+            if(currentIndex > questions.size())return; //safety net
             btnBack.setEnabled(true);
             launchQuestion(questions.get(currentIndex),"forward");
         }
