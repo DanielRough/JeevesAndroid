@@ -21,6 +21,7 @@ import com.example.daniel.jeeves.ApplicationContext;
 import com.example.daniel.jeeves.R;
 import com.example.daniel.jeeves.SurveyActivity;
 import com.example.daniel.jeeves.firebase.FirebaseSurvey;
+import com.example.daniel.jeeves.firebase.FirebaseUtils;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
@@ -44,37 +45,23 @@ public class SurveyAction extends FirebaseAction {
     public static int NOTIFICATION_ID = 0;
     public static final String ACTION_1 = "action_1";
     public static final String ACTION_2 = "action_2";
-    int missedSurveys;
     public int thisActionsId = 0;
-  //  DatabaseReference myRef;
 
     public SurveyAction(Map<String,Object> params){
         setparams(params);
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-
-    //    myRef = database.getReference("JeevesData");
-
     }
+
     @Override
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     public boolean execute() {
         thisActionsId = Integer.parseInt("9" + NOTIFICATION_ID++);
-        Log.d("ACTIONSURVEY", "SENT A SURVEY WITH ACTION ID " + thisActionsId);
         final Context app = ApplicationContext.getContext();
 
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getContext());
         String surveyname = getparams().get("survey").toString();
-//        Firebase incompleteSurveys = new Firebase("https://incandescent-torch-8695.firebaseio.com/JeevesData/patients/" + userid + "/incomplete/" + surveyname);
-        HashMap<String, Object> surveyDetails = new HashMap<String, Object>();
 
-
-        FirebaseAuth mFirebaseAuth = FirebaseAuth.getInstance();
-        FirebaseUser currentUser = mFirebaseAuth.getCurrentUser();
-        String userid = currentUser.getUid();
         FirebaseSurvey currentsurvey = null;
         List<FirebaseSurvey> surveys = ApplicationContext.getProject().getsurveys();
         for (FirebaseSurvey survey : surveys) {
-            Log.d("Here", "SURVEY NAME IS " + survey.gettitle());
             if (survey.gettitle().equals(surveyname)) {
                 currentsurvey = survey;
                 break;
@@ -97,12 +84,12 @@ public class SurveyAction extends FirebaseAction {
         //registering our receiver
         app.registerReceiver(mReceiver, intentFilter);
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference myRef = database.getReference("JeevesData").child("patients").child(userid).child("incomplete");
+        DatabaseReference myRef = FirebaseUtils.PATIENT_REF.child("incomplete");
         DatabaseReference newPostRef = myRef.push();
         currentsurvey.settimeSent(timeSent);
         newPostRef.setValue(currentsurvey); //Maybe this needs tobe made explicit?
         String newPostRefId = newPostRef.getKey();
-        Log.d("REFID", "New postrefid is " + newPostRefId);
+
         Intent action1Intent = new Intent(app, NotificationActionService.class)
                 .setAction(ACTION_1);
 
@@ -157,7 +144,6 @@ public class SurveyAction extends FirebaseAction {
 
             intent.setType(System.currentTimeMillis()+surveyname); //Unique type to distinguish intents
             PendingIntent pi = PendingIntent.getBroadcast(app, 0, intent, 0);
-            Log.d("STARTED", "Set an alarm for " + timeToGo + "milliseconds time");
             am.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + timeToGo, pi);
         }
 
@@ -184,11 +170,7 @@ public class SurveyAction extends FirebaseAction {
         }
         else{
             notificationManager.notify(thisActionsId, mBuilder.build());
-
-            Log.d("nope","no not manual");
         }
-
-        //   firebaseSurvey.push().setValue(surveyDetails);
         return true;
     }
 
@@ -203,28 +185,19 @@ public class SurveyAction extends FirebaseAction {
     public AlarmManagerBroadcastReceiver(){}
         @Override
         public void onReceive(Context context, Intent intent) {
-            //Here is where the user's left the survey too long and it's expiree
-//SEND A BROADCAST TO LISTENING SURVEY TRIGGERS
-     //       long missedSurveys = 0;
+
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getContext());
-       //     missedSurveys = preferences.getLong("")
 
             Intent intended = new Intent();
             int id = intent.getIntExtra("notificationid",0);
-        //    intended.setType(id + "missed");
-        //    intended.setType(id + "missed");
             intended.setAction(TriggerManagerConstants.ACTION_NAME_SURVEY_TRIGGER);
             intended.putExtra("surveyName",intent.getStringExtra("name"));
             intended.putExtra("result",false);
-      //      missedSurveys++; //The user has officially missed this survey
-
-            //Store the incremeneted missed value in shared preferences
 
             SharedPreferences.Editor editor = preferences.edit();
             long missedSurveyCount = preferences.getLong("Missed Surveys",0);
             missedSurveyCount++;
             editor.putLong("Missed Surveys", missedSurveyCount);
-          //  editor.putInt(intent.getStringExtra("name"),missedSurveys);
 
             long thisMissedSurveyCount = preferences.getLong(intent.getStringExtra("name")+"-Missed",0);
             thisMissedSurveyCount++;
@@ -235,9 +208,7 @@ public class SurveyAction extends FirebaseAction {
             intended.putExtra("missed",thisMissedSurveyCount);
             context.sendBroadcast(intended);
             Context app = ApplicationContext.getContext();
-            Log.d("HELLOOOOO","whyisthis");
             NotificationManager manager = (NotificationManager) app.getSystemService(app.NOTIFICATION_SERVICE);
-            Log.d("ID","The id is " + id);
             manager.cancel(id);
         }
     }
@@ -252,29 +223,22 @@ public class SurveyAction extends FirebaseAction {
             String action = intent.getAction();
             int id = intent.getIntExtra("notificationid",0);
 
-            Log.d("WOOHOO","ACTION IS " + id);
             if (ACTION_1.equals(action)) {
-                // TODO: handle action 1.
                 NotificationManager manager = (NotificationManager) app.getSystemService(app.NOTIFICATION_SERVICE);
                 manager.cancel(id);
                 Intent resultIntent = new Intent(app, SurveyActivity.class);
                 resultIntent.putExtra("surveyid",intent.getStringExtra("surveyid"));
-                Log.d("SURVEY ID, ", intent.getStringExtra("surveyid"));
                 resultIntent.putExtra("name",intent.getStringExtra("name"));
                 resultIntent.putExtra("timeSent",intent.getLongExtra("timeSent",0));
                 SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
                 String dateString = formatter.format(new Date(intent.getLongExtra("timeSent",0)));
-                Log.d("THIS SURVEY WAS ", dateString);
                 resultIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 sendBroadcast(new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS));
                 this.startActivity(resultIntent);
 
-                // If you want to cancel the notification: NotificationManagerCompat.from(this).cancel(NOTIFICATION_ID);
             }
             if (ACTION_2.equals(action)) {
-
                 NotificationManager manager = (NotificationManager) app.getSystemService(app.NOTIFICATION_SERVICE);
-             //   manager.c
                 manager.cancel(id);
             }
         }

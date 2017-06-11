@@ -67,16 +67,16 @@
         <!-- Signup Button -->
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp">
 
             <EditText
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="phone"
-                android:ems="10"
                 android:id="@+id/input_phone"
-                android:layout_weight="1"
-                tools:hint="Phone Number" />
+                android:hint="Phone Number" />
         </android.support.design.widget.TextInputLayout>
 
         <android.support.v7.widget.AppCompatButton
@@ -92,9 +92,9 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="24dp"
-            android:text="Already a member? Login"
+            android:text="@string/already_member"
             android:gravity="center"
-            android:textSize="16dip"/>
+            android:textSize="18dip"/>
 
     </LinearLayout>
 </ScrollView>

@@ -5,29 +5,19 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
-import com.example.daniel.jeeves.firebase.FirebasePatient;
 import com.example.daniel.jeeves.firebase.FirebaseSurvey;
+import com.example.daniel.jeeves.firebase.FirebaseUtils;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
-
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.Map;
 
 public class MissedSurveyActivity extends AppCompatActivity {
     ListView list;
@@ -42,14 +32,8 @@ public class MissedSurveyActivity extends AppCompatActivity {
         setContentView(R.layout.activity_missed_survey);
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
-      // final ArrayList<String> array = new ArrayList<String>();
         mFirebaseAuth = FirebaseAuth.getInstance();
-
-        FirebaseUser user = mFirebaseAuth.getCurrentUser();
-        String userid = user.getUid();
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        final DatabaseReference firebaseSurvey = database.getReference("JeevesData").child("patients").child(userid);
-        Query myTopPostsQuery = firebaseSurvey.child("incomplete").orderByChild("timeSent").limitToLast(10);
+        Query myTopPostsQuery = FirebaseUtils.PATIENT_REF.child("incomplete").orderByChild("timeSent").limitToLast(10);
         myTopPostsQuery.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
@@ -61,19 +45,8 @@ public class MissedSurveyActivity extends AppCompatActivity {
                     long expiryTime = survey.getexpiryTime();
                     long expiryMillis = expiryTime*60*1000;
                     long deadline = survey.gettimeSent() + expiryMillis;
-                    long timeToGo = deadline - System.currentTimeMillis();
-          //          int minutes = (int) (timeToGo / 60000);
-                    SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-          //          final long timeAlive = survey.gettimeAlive();
-            //        String dateString = formatter.format(new Date(survey.gettimeSent()));
-                    Log.d("TIMETOGO","Tiem to go for this survey is " + timeToGo);
                     if (deadline > System.currentTimeMillis() || survey.getexpiryTime() == 0) {
                         surveynames.add(survey);
-                        Log.d("EXPIRY TME","Expriy time is " + expiryTime);
-//                        if (expiryTime > 0)
-//                            array.add(survey.gettitle() + "\nSent at " + dateString + "\nExpiring in " + (minutes + 1) + " minutes");
-//                        else
-//                            array.add(survey.gettitle() + "\nSent at " + dateString);
                     }
 
                 }

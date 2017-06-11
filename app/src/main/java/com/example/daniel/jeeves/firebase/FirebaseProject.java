@@ -12,7 +12,7 @@ public class FirebaseProject {
         return description;
     }
 
-    public long getid() {
+    public String getid() {
         return id;
     }
 
@@ -32,10 +32,26 @@ public class FirebaseProject {
         return yPos;
     }
 
+    public boolean getisPublic(){
+        return isPublic;
+    }
+    public void setisPublic(boolean isPublic){
+        this.isPublic = isPublic;
+    }
+
+    public String getpubKey(){
+        return pubKey;
+    }
+    public void setpubKey(String pubKey){
+        this.pubKey = pubKey;
+    }
     public String getresearcherno() { return researcherno; }
     String description;
-    long id;
+    String id;
     String name;
+    boolean isPublic;
+    String pubKey;
+
     List<FirebaseSurvey> surveys = new ArrayList<>();
     List<FirebaseTrigger> triggers = new ArrayList<>();
     List<FirebaseUI> uidesign = new ArrayList<>();

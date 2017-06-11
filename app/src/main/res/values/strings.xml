@@ -24,5 +24,7 @@
     <string name="desc_firebase_lockup">Firebase logo and name</string>
     <string name="title_activity_sign_up">SignUpActivity</string>
     <string name="title_activity_check_variables">CheckVariablesActivity</string>
-
+    <string name="no_account"><u>No account yet? Create one</u></string>
+    <string name="already_member"><u>Already a member? Log in</u></string>
+    <string name="forgot_password"><u>Forgot your password?</u></string>
 </resources>

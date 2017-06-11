@@ -1,36 +1,20 @@
 package com.example.daniel.jeeves;
 
-import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.Cursor;
-import android.net.Uri;
 import android.preference.PreferenceManager;
-import android.provider.ContactsContract;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.telephony.PhoneNumberUtils;
 import android.telephony.SmsManager;
-import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 
-import com.firebase.client.DataSnapshot;
-import com.firebase.client.Firebase;
-import com.firebase.client.FirebaseError;
-import com.firebase.client.ValueEventListener;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
+import com.example.daniel.jeeves.firebase.FirebaseUtils;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-
-import java.util.Map;
 
 public class ContactActivity extends AppCompatActivity {
     AlertDialog.Builder finishalert;
@@ -46,16 +30,13 @@ public class ContactActivity extends AppCompatActivity {
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getContext());
-        SharedPreferences.Editor editor = preferences.edit();
         researcherno = preferences.getString("researcherno","");
-        final String userid = preferences.getString("userid", "null");
         finishalert = new AlertDialog.Builder(this);
         finishalert.setTitle("Your message has been sent!");
         Button btnContactResearcher = (Button) findViewById(R.id.btnContactResearcher);
         txtContactResearcher = (EditText) findViewById(R.id.txtContactResearcher);
         finishalert.setPositiveButton("Return", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
-
                 finish();
             }
         });
@@ -69,11 +50,7 @@ public class ContactActivity extends AppCompatActivity {
                         SmsManager sms = SmsManager.getDefault();
                         sms.sendTextMessage(researcherno, null, message, null, null);
                     }
-                    FirebaseAuth mFirebaseAuth = FirebaseAuth.getInstance();
-                    FirebaseUser user = mFirebaseAuth.getCurrentUser();
-                    String userid = user.getUid();
-                    FirebaseDatabase database = FirebaseDatabase.getInstance();
-                    final DatabaseReference firebaseFeedback = database.getReference("JeevesData").child("patients").child(userid).child("feedback").child(Long.toString(System.currentTimeMillis()));
+                    final DatabaseReference firebaseFeedback = FirebaseUtils.PATIENT_REF.child("feedback").child(Long.toString(System.currentTimeMillis()));
                     firebaseFeedback.setValue(txtContactResearcher.getText().toString());
                     finishalert.setCancelable(false); //Once they're done they're done
                     finishalert.show();

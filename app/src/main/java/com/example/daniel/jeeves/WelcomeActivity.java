@@ -10,7 +10,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.example.daniel.jeeves.firebase.FirebaseUtils;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.FirebaseDatabase;
 
 
 /**
@@ -40,7 +43,7 @@ public class WelcomeActivity extends Activity {
         Log.d("STUDYNAME","study name is " );
 
         mFirebaseAuth = FirebaseAuth.getInstance();
-
+        FirebaseUser mFirebaseUser = mFirebaseAuth.getCurrentUser();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sense);
 
@@ -52,6 +55,7 @@ public class WelcomeActivity extends Activity {
 
         //--------------------------------
         //START THE SENSING SERVICE
+
         String studyname = getIntent().getStringExtra("studyname");
         Intent intent = new Intent(this, SenseService.class);
         intent.putExtra("studyname",studyname);

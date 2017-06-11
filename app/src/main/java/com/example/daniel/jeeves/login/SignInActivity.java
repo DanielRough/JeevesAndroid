@@ -17,18 +17,13 @@ package com.example.daniel.jeeves.login;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.NotificationManager;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
@@ -39,21 +34,12 @@ import android.widget.Toast;
 import com.example.daniel.jeeves.ApplicationContext;
 import com.example.daniel.jeeves.R;
 import com.example.daniel.jeeves.WelcomeActivity;
-import com.example.daniel.jeeves.firebase.FirebasePatient;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class SignInActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -97,9 +83,7 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
         findViewById(R.id.link_signup).setOnClickListener(this);
         findViewById(R.id.link_forgot).setOnClickListener(this);
         mFirebaseAuth = FirebaseAuth.getInstance();
-        Context context = this.getApplicationContext();
 
-        Log.d("MAIN", "Main activity created");
         String[] allpermissions = new String[]{
                 Manifest.permission.READ_CONTACTS,
                 Manifest.permission.ACCESS_COARSE_LOCATION,
@@ -114,31 +98,14 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
                 Manifest.permission.READ_CALL_LOG,
                 Manifest.permission.READ_PHONE_STATE
         };
-//        List<String> permsList = new ArrayList<String>();
-//        for (String perm : allpermissions)
-//            permsList.add(perm);
-//
-//        for(String permission : allpermissions){
-//        if (ContextCompat.checkSelfPermission(this,permission)
-//                == PackageManager.PERMISSION_GRANTED) {
-//            permsList.remove(permission);
-//        }
-//        }
-//        //Ask for all the permissions we don't have
-//        String[] permyperms = {};
-//        permsList.toArray(permyperms);
-//        for(String permission : permyperms){
-//            Log.d("PERM",permission);
-//        }
-        ActivityCompat.requestPermissions(this,allpermissions,
-                MY_PERMISSIONS);
 
-
+        ActivityCompat.requestPermissions(this,allpermissions, MY_PERMISSIONS);
     }
 
     public Activity getInstance(){
         return this;
     }
+
     private void signIn(String email, String password){
         if (!validateForm()) {
             return;
@@ -161,37 +128,18 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
                         }
                         else {
                             mFirebaseUser = mFirebaseAuth.getCurrentUser();
-                            FirebaseDatabase database = FirebaseDatabase.getInstance();
-                            final DatabaseReference myRef = database.getReference("JeevesData").child("patients").child(mFirebaseUser.getUid());
-                            myRef.addValueEventListener(new ValueEventListener() {
-                                @Override
-                                public void onDataChange(DataSnapshot dataSnapshot) {
-                                    FirebasePatient user = dataSnapshot.getValue(FirebasePatient.class);
-                                    myRef.removeEventListener(this);
-                                    SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getContext());
-                                    preferences.edit().putString("userphone",user.getphoneNo());
-                                    preferences.edit().commit();
-                                    if(user.getcurrentStudy() != null){
-                                        Intent intent = new Intent(getInstance(),WelcomeActivity.class);
-                                        intent.putExtra("studyname",user.getcurrentStudy());
-                                        intent.putExtra("username",user.getname());
-                                        startActivity(intent);
-                                        finish();
-                                    }
-                                    else {
-                                        goToSecondActivity();
-                                        finish();
-
-                                    }
-                                }
-
-                                @Override
-                                public void onCancelled(DatabaseError databaseError) {
-
-                                }
-                            });
+                            String uid = mFirebaseUser.getUid();
+                            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getContext());
+                            if (preferences.contains(uid+"_STUDY")) {
+                                String studyname = preferences.getString(uid+"_STUDY","");
+                                Intent intent = new Intent(getInstance(), WelcomeActivity.class);
+                                intent.putExtra("studyname", studyname);
+                                intent.putExtra("username", mFirebaseUser.getDisplayName());
+                                startActivity(intent);
+                                finish();
+                            } else
+                                startStudySignUp();
                         }
-                        // ...
                     }
                 });
     }
@@ -253,23 +201,20 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful()) {
-                            goToSecondActivity();
+                            startStudySignUp();
                             finish();
                         }
                     }
                 });
-                // TODO: Implement successful signup logic here
-                // By default we just finish the Activity and log them in automatically
+
             }
         }
     }
 
-    private void goToSecondActivity(){
+    private void startStudySignUp(){
         Intent intent = new Intent(this,StudySignupActivity.class);
         startActivity(intent);
         finish();
-
-        //   finish(); //Stops them going back to the login screen EVER
     }
 
 }

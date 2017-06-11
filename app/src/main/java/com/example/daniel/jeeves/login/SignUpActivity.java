@@ -1,5 +1,6 @@
 package com.example.daniel.jeeves.login;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -12,17 +13,15 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.daniel.jeeves.ApplicationContext;
 import com.example.daniel.jeeves.R;
-import com.example.daniel.jeeves.firebase.FirebasePatient;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 
 public class SignUpActivity extends AppCompatActivity {
 
@@ -66,21 +65,18 @@ public class SignUpActivity extends AppCompatActivity {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
-                Log.i("HERE","Am i here");
                 if (user != null) {
                     final String name = nameText.getText().toString();
                     final String email = emailText.getText().toString();
-                    // User is signed in
                     onSignupSuccess(user.getUid(),name,email);
-                } else {
-                    Log.i("HERE","Oh dear oh dear oh dear");
                 }
-                // ...
             }
         };
         mFirebaseAuth.addAuthStateListener(mAuthListener);
     }
-
+    public Activity getInstance(){
+        return this;
+    }
 
     public void signup() {
 
@@ -110,40 +106,35 @@ public class SignUpActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (!task.isSuccessful()) {
-                            Log.d("FAIL",task.getResult().toString());
-                            Log.d("FAILEURE",task.getException().toString());
+                            Log.d("NOPE",task.getException().getMessage());
+                            progressDialog.dismiss();
                             onSignupFailed();
+                            Toast.makeText(getInstance(),task.getException().getMessage(),Toast.LENGTH_SHORT).show();
                         }
                         else {
                             progressDialog.dismiss();
-
                         }
-
                         }
 
                 });
-
     }
 
 
     public void onSignupSuccess(String userId, String name, String email) {
         signUpButton.setEnabled(true);
-        Log.i("HERE","HURRAY");
-
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference myRef = database.getReference("JeevesData");
-        FirebasePatient user = new FirebasePatient(name, email);
-        user.phoneNo = phoneText.getText().toString();
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getContext());
-        preferences.edit().putString("userphone",user.getphoneNo());
-        preferences.edit().commit();
-        myRef.child("patients").child(userId).setValue(user);
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getContext());
+        SharedPreferences.Editor prefsEditor = prefs.edit();
+        String phoneNo = phoneText.getText().toString();
         Intent resultIntent = new Intent();
-        resultIntent.putExtra("name",name);
+        //Add the user's personal/confidential information to SharedPreferences
+        prefsEditor.putString(userId+"_NAME",name);
+        prefsEditor.putString(userId+"_EMAIL",email);
+        prefsEditor.putString(userId+"_PHONE",phoneNo);
+        prefsEditor.commit();
         setResult(RESULT_OK, resultIntent);
+       // startStudySignup();
         finish();
     }
-
 
     public void onSignupFailed() {
 
@@ -172,13 +163,13 @@ public class SignUpActivity extends AppCompatActivity {
             emailText.setError(null);
         }
 
-        if (password.isEmpty() || password.length() < 4 || password.length() > 10) {
-            passwordText.setError("between 4 and 10 alphanumeric characters");
+        if (password.isEmpty() || password.length() < 6 || password.length() > 10) {
+            passwordText.setError("between 6 and 10 alphanumeric characters");
             valid = false;
         } else {
             passwordText.setError(null);
         }
-        if(android.util.Patterns.PHONE.matcher(phone).matches()){
+        if(!android.util.Patterns.PHONE.matcher(phone).matches()){
             phoneText.setError("enter a valid phone number");
             valid = false;
         } else {

@@ -1,151 +1,71 @@
 package com.example.daniel.jeeves.login;
 
-import android.Manifest;
 import android.app.Activity;
-import android.app.NotificationManager;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
 import android.support.v7.widget.LinearLayoutManager;
-import android.util.Log;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 
 import com.example.daniel.jeeves.ApplicationContext;
 import com.example.daniel.jeeves.R;
 import com.example.daniel.jeeves.WelcomeActivity;
-import com.example.daniel.jeeves.firebase.FirebasePatient;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 
-public class MainActivity extends Activity implements GoogleApiClient.OnConnectionFailedListener{
-    Context context;
+public class MainActivity extends Activity{
     private FirebaseAuth mFirebaseAuth;
     private FirebaseUser mFirebaseUser;
-    private String mUsername;
-    public static final String ANONYMOUS = "anonymous";
-
-    //    private RecyclerView mMessageRecyclerView;
     private LinearLayoutManager mLinearLayoutManager;
     private ProgressBar mProgressBar;
 
-    public Activity getInstance(){
+    public Activity getInstance() {
         return this;
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-
-        carryOn();
-
-    }
-    protected void carryOn(){
         setContentView(R.layout.activity_main);
 
-        mUsername = ANONYMOUS;
-//
-//        mGoogleApiClient = new GoogleApiClient.Builder(this)
-//                .enableAutoManage(this /* FragmentActivity */, this /* OnConnectionFailedListener */)
-//                .addApi(Auth.GOOGLE_SIGN_IN_API)
-//                .build();
-
-        mProgressBar = (ProgressBar)findViewById(R.id.progressBar);
+        mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
         mProgressBar.setVisibility(View.VISIBLE);
 
-        // mMessageRecyclerView = (RecyclerView) findViewById(R.id.messageRecyclerView);
         mLinearLayoutManager = new LinearLayoutManager(this);
         mLinearLayoutManager.setStackFromEnd(true);
-        //  mMessageRecyclerView.setLayoutManager(mLinearLayoutManager);
 
-        //    mProgressBar.setVisibility(ProgressBar.INVISIBLE);
-
-        //    Initialize Firebase Auth
         mFirebaseAuth = FirebaseAuth.getInstance();
         mFirebaseUser = mFirebaseAuth.getCurrentUser();
 
         //If we're not signed in, launch the sign-in activity
         if (mFirebaseUser == null) {
-            // Not signed in, launch the Sign In activity
             startActivity(new Intent(this, SignInActivity.class));
             finish();
             return;
         } else {
+            String uid = mFirebaseUser.getUid();
 
-            //Bit of code to get the user's data from the Firebase database
-            FirebaseDatabase database = FirebaseDatabase.getInstance();
-            final DatabaseReference myRef = database.getReference("JeevesData").child("patients").child(mFirebaseUser.getUid());
-            myRef.addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    myRef.removeEventListener(this);
-                    FirebasePatient user = dataSnapshot.getValue(FirebasePatient.class);
-                    SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getContext());
-                    SharedPreferences.Editor editor = preferences.edit();
-                    editor.putString("userphone",user.getphoneNo());
-                    editor.commit();
-                    Log.d("PHONEIO","Put userphone in prefs " + user.getphoneNo());
-                    if(user.getcurrentStudy() != null){
-                        Intent intent = new Intent(getInstance(),WelcomeActivity.class);
-                        intent.putExtra("studyname",user.getcurrentStudy());
-                        intent.putExtra("username",user.getname());
-                        startActivity(intent);
-                        finish();
-                    }
-                    else
-                        goToSecondActivity();
-                }
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getContext());
+            if (preferences.contains(uid+"_STUDY")) {
+                String studyname = preferences.getString(uid+"_STUDY","");
+                String username = preferences.getString(uid+"_NAME","");
+                Intent intent = new Intent(getInstance(), WelcomeActivity.class);
+                intent.putExtra("studyname", studyname);
+                intent.putExtra("username",username);
 
-                @Override
-                public void onCancelled(DatabaseError databaseError) {}
-            });
-
+                startActivity(intent);
+                finish();
+            } else
+                startStudySignUp();
         }
     }
-
-    private void goToSecondActivity(){
-        Intent intent = new Intent(this,StudySignupActivity.class);
+    private void startStudySignUp() {
+        Intent intent = new Intent(this, StudySignupActivity.class);
         startActivity(intent);
         finish();
     }
-    //
-//    @Override
-//    public boolean onCreateOptionsMenu(Menu menu) {
-//        MenuInflater inflater = getMenuInflater();
-//        inflater.inflate(R.menu.main_menu, menu);
-//        return true;
-//    }
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-//        switch (item.getItemId()) {
-//            case R.id.sign_out_menu:
-//                mFirebaseAuth.signOut();
-//                Auth.GoogleSignInApi.signOut(mGoogleApiClient);
-//                mUsername = ANONYMOUS;
-//                startActivity(new Intent(this, SignInActivity.class));
-//                return true;
-//            default:
-        return super.onOptionsItemSelected(item);
-    }
-    //}
 
-    @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-
-    }
 }

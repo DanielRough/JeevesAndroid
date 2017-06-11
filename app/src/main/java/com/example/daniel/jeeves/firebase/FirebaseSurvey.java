@@ -60,6 +60,14 @@ public class FirebaseSurvey {
         String surveyId;
         long xPos;
         long yPos;
+        String encodedAnswers;
+
+    public String getencodedAnswers(){
+        return encodedAnswers;
+    }
+    public void setencodedAnswers(String encodedAnswers){
+        this.encodedAnswers = encodedAnswers;
+    }
     boolean begun; //Has the user begun completing the survey?
     List<String> answers;
     String key;

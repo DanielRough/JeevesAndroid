@@ -17,7 +17,10 @@ import com.example.daniel.jeeves.actions.FirebaseAction;
 import com.example.daniel.jeeves.firebase.FirebaseExpression;
 import com.example.daniel.jeeves.firebase.FirebaseProject;
 import com.example.daniel.jeeves.firebase.FirebaseTrigger;
+import com.example.daniel.jeeves.firebase.FirebaseUtils;
 import com.example.daniel.jeeves.firebase.UserVariable;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -41,9 +44,9 @@ import java.util.Map;
 import static com.example.daniel.jeeves.firebase.FirebaseUtils.BOOLEAN;
 import static com.example.daniel.jeeves.firebase.FirebaseUtils.DATE;
 import static com.example.daniel.jeeves.firebase.FirebaseUtils.LOCATION;
-import static com.example.daniel.jeeves.firebase.FirebaseUtils.MAIN_KEY;
 import static com.example.daniel.jeeves.firebase.FirebaseUtils.NUMERIC;
 import static com.example.daniel.jeeves.firebase.FirebaseUtils.PROJECTS_KEY;
+import static com.example.daniel.jeeves.firebase.FirebaseUtils.PUBLIC_KEY;
 import static com.example.daniel.jeeves.firebase.FirebaseUtils.TEXT;
 import static com.example.daniel.jeeves.firebase.FirebaseUtils.TIME;
 
@@ -70,12 +73,11 @@ public class SenseService extends Service{
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference myRef = database.getReference(MAIN_KEY);
-        String studyname = "";
+       final FirebaseDatabase database = FirebaseDatabase.getInstance();
         SharedPreferences varPrefs = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getContext());
         SharedPreferences.Editor prefseditor = varPrefs.edit();
 
+        String studyname;
         if(intent != null) { //intent will be null if this service gets restarted
             studyname = intent.getStringExtra("studyname");
             prefseditor.putString("studyname",studyname); //add our current study name to the shared preferences
@@ -83,24 +85,27 @@ public class SenseService extends Service{
         else {
             studyname = varPrefs.getString("studyname", "");
         }
-        DatabaseReference projectRef = myRef.child(PROJECTS_KEY).child(studyname);
+        //Find the project config in the 'public' section of the database
+        DatabaseReference projectRef = database.getReference(PUBLIC_KEY).child(PROJECTS_KEY).child(studyname);
 
         projectRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
                 FirebaseProject post = snapshot.getValue(FirebaseProject.class);
-                Log.d("Isnull?","Post is null?" + (post == null));
                 ApplicationContext.setCurrentproject(post);
+                String developerid = post.getresearcherno();
+                FirebaseAuth mFirebaseAuth = FirebaseAuth.getInstance();
+                FirebaseUser mFirebaseUser = mFirebaseAuth.getCurrentUser();
+                FirebaseUtils.PATIENT_REF = database.getReference(FirebaseUtils.PRIVATE_KEY).child(developerid).child(FirebaseUtils.PATIENTS_KEY).child(mFirebaseUser.getUid());
+                //I don't like it but it should hopefully stop any errors
                 try {
                     updateConfig(post);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
             }
-
             @Override
-            public void onCancelled(DatabaseError databaseError) {
-            }
+            public void onCancelled(DatabaseError databaseError) {}
         });
         //This is a broadcast receiver that is notified whenever the user's variables have changed in response to a survey
         //Because some triggers' configuration is dependent on these variables, we need to reset them when, for example,
@@ -144,8 +149,6 @@ public class SenseService extends Service{
         return null;
     }
 
-
-
     //This is the main method in which the required project is pulled from Firebase and interpreted
     public void updateConfig(FirebaseProject app) throws JSONException {
         Log.d("Isnull?","Post is null?" + (app == null));
@@ -155,6 +158,7 @@ public class SenseService extends Service{
         List<UserVariable> variables = app.getvariables();
         SharedPreferences varPrefs = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getContext());
         SharedPreferences.Editor prefseditor = varPrefs.edit();
+
         for(UserVariable var : variables){
             String type = var.getvartype();
             switch(type){
