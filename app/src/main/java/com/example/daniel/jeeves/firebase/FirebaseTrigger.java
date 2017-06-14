@@ -11,6 +11,22 @@ import java.util.Map;
  */
 public class FirebaseTrigger {
 
+    public long clocktype;
+    public String description;
+    public String triggerId;
+    public String name;
+    public Map<String,Object> params;
+    public List<FirebaseAction> actions;
+    public List<FirebaseExpression> times;
+    public List<String> variables;
+    public String type;
+    public long xPos;
+    public long yPos;
+    private FirebaseExpression dateFrom;
+    private FirebaseExpression dateTo;
+    private FirebaseExpression timeFrom;
+    private FirebaseExpression timeTo;
+
     public long getclocktype() {
         return clocktype;
     }
@@ -43,40 +59,25 @@ public class FirebaseTrigger {
         return yPos;
     }
 
-    public long clocktype;
-    public String description;
-    public String triggerId;
-    public String name;
-    public Map<String,Object> params;
-    private FirebaseExpression dateFrom;
-    private FirebaseExpression dateTo;
-    private FirebaseExpression timeFrom;
-    private FirebaseExpression timeTo;
-
     public List<FirebaseAction> getactions() {
         return actions;
     }
 
-    public List<FirebaseAction> actions;
-
-    public List<FirebaseExpression> times;
-
-    public List<String> variables;
     public void setvariables(List<String> variables){
         this.variables = variables;
     }
+
     public List<String> getvariables(){
         return variables;
     }
+
     public void settimes(List<FirebaseExpression> times){
         this.times = times;
     }
+
     public List<FirebaseExpression> gettimes(){
         return times;
     }
-    public String type;
-    public long xPos;
-    public long yPos;
 
     public FirebaseExpression getdateFrom() {
         return dateFrom;

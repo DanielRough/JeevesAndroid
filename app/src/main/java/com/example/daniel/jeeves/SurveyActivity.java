@@ -4,7 +4,6 @@ import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
-
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -19,14 +18,10 @@ import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.DialogFragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.text.format.DateFormat;
-import android.text.format.DateUtils;
-import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
@@ -49,7 +44,6 @@ import android.widget.ViewFlipper;
 import com.example.daniel.jeeves.firebase.FirebaseQuestion;
 import com.example.daniel.jeeves.firebase.FirebaseSurvey;
 import com.example.daniel.jeeves.firebase.FirebaseUtils;
-import com.firebase.client.Firebase;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
@@ -62,40 +56,21 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.ubhave.triggermanager.config.TriggerManagerConstants;
-import java.io.UnsupportedEncodingException;
-import java.security.InvalidKeyException;
-import java.security.KeyFactory;
-import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.PKCS8EncodedKeySpec;
-import java.security.spec.X509EncodedKeySpec;
+
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
-
-import static com.example.daniel.jeeves.firebase.FirebaseUtils.DATE;
-import static com.example.daniel.jeeves.firebase.FirebaseUtils.TIME;
 
 public class SurveyActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener, OnMapReadyCallback {
     public static final int OPEN_ENDED = 1;
@@ -135,6 +110,8 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
     SharedPreferences prefs;
     boolean finished = false;
     long timeSent = 0;
+    long initTime = 0;
+    int triggerType = 0;
     FirebaseSurvey currentsurvey = null;
     ArrayList<CheckBox> allBoxes = new ArrayList<CheckBox>();
 
@@ -177,14 +154,15 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
         setContentView(R.layout.activity_survey);
 
         surveyid = getIntent().getStringExtra("surveyid");
-
+        initTime = getIntent().getLongExtra("initTime",0);
+        timeSent = getIntent().getLongExtra("timeSent",0);
+        triggerType = getIntent().getIntExtra("triggertype",0);
         mFirebaseAuth = FirebaseAuth.getInstance();
-        FirebaseUser user = mFirebaseAuth.getCurrentUser();
 
         prefs = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getContext());
 
         surveyRef = FirebaseUtils.PATIENT_REF.child("incomplete").child(surveyid);
-        completedSurveysRef =  FirebaseUtils.PATIENT_REF.child("complete");
+        completedSurveysRef = FirebaseUtils.PATIENT_REF.child("complete");
 
         txtOpenEnded = ((EditText) findViewById(R.id.txtOpenEnded));
         txtNumeric = ((EditText) findViewById(R.id.txtNumeric));
@@ -217,6 +195,7 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
                 android.R.anim.slide_out_right);
         viewFlipper.setInAnimation(slide_in_left);
         viewFlipper.setOutAnimation(slide_out_right);
+
         btnNext.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -233,6 +212,8 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        //Patient finished the survey!
         finishalert.setPositiveButton("Return", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
                 currentsurvey.setanswers(null); //remove the unencoded answers
@@ -258,6 +239,27 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
                 }
                 currentsurvey.setencodedAnswers(FirebaseUtils.encodeAnswers(concatAnswers));
                 currentsurvey.setscore(finalscore);
+
+                //Add the relevant information to the survey ref of this project
+                //We need to know that it was completed, the time it took for the patient to begin, and the time it took them to finish.
+                //We also need to know what it was that triggered the survey (i.e. button press, sensor trigger, etc).
+                Map<String,Object> surveymap = new HashMap<String,Object>();
+                surveymap.put("status",1);
+                if(initTime != timeSent) //Then this was a button trigger and the init time doesn't count
+                    surveymap.put("inittime",initTime-timeSent);
+                surveymap.put("completetime",System.currentTimeMillis()-initTime);
+                surveymap.put("trigger",triggerType);
+                FirebaseUtils.SURVEY_REF.child(currentsurvey.gettitle()).push().setValue(surveymap, new DatabaseReference.CompletionListener() {
+                    @Override
+                    public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                        if (databaseError != null) {
+                            Log.d("RESUUUUUULT","Data could not be saved " + databaseError.getMessage());
+                        } else {
+                            Log.d("RESUUUUUULT","Data saved successfully.");
+                        }
+                    }
+                });
+                //Update the various Survey-relevant variables
                 SharedPreferences.Editor editor = prefs.edit();
                 long oldscore = prefs.getLong("Last Survey Score", 0);
                 long difference = finalscore - oldscore;
@@ -312,11 +314,11 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
                     questions = currentsurvey.getquestions();
 
                     if (currentsurvey.getbegun()) {
-                        if (getIntent().getBooleanExtra("manual", false)) {
+//                        if (getIntent().getBooleanExtra("manual", false)) {
                             timeSent = getIntent().getLongExtra("timeSent", 0);
-                        } else {
-                            timeSent = currentsurvey.gettimeSent();
-                        }
+//                        } else {
+//                            timeSent = currentsurvey.gettimeSent();
+//                        }
                         answers = currentsurvey.getanswers(); //Pre-populated answers
                         int size = answers.size();
                         for (int i = 0; i < (questions.size() - size); i++)
@@ -333,10 +335,14 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
 
                     long expiryTime = currentsurvey.getexpiryTime();
                     long expiryMillis = expiryTime * 60 * 1000;
-                    long deadline = currentsurvey.gettimeSent() + expiryMillis;
+                    long deadline = timeSent + expiryMillis;
+                    Log.d("TImeSSENT",timeSent+"");
+                    Log.d("Expeiry millis",expiryMillis+"");
                     long timeToGo = deadline - System.currentTimeMillis();
-
+                    Log.d("TIME TO GO","Time to go is " + timeToGo);
+                    //User has missed the survey, having previously triggered the notification
                     if (timeToGo > 0) {
+
                         warningalert = new AlertDialog.Builder(getInstance());
                         warningalert.setCancelable(false);
                         warningalert.setTitle("Sorry, your time to complete this survey has expired");
@@ -346,6 +352,25 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
                                 intended.setAction(TriggerManagerConstants.ACTION_NAME_SURVEY_TRIGGER);
                                 intended.putExtra("surveyName", currentsurvey.gettitle());
                                 intended.putExtra("result", false);
+
+                                //This is the same thing as in the 'Survey Action' class. It adds the missed
+                                //survey information to the database (as soon as the user misses it of course)
+                                Map<String,Object> surveymap = new HashMap<String,Object>();
+                                surveymap.put("status",0);
+                                if(initTime != timeSent) //Then this was a button trigger and the init time doesn't count
+                                    surveymap.put("inittime",initTime-timeSent);
+//                                surveymap.put("inittime",initTime);
+                                surveymap.put("trigger",triggerType);
+                                FirebaseUtils.SURVEY_REF.child(currentsurvey.gettitle()).push().setValue(surveymap, new DatabaseReference.CompletionListener() {
+                                    @Override
+                                    public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                                        if (databaseError != null) {
+                                            Log.d("RESUUUUUULT","Data could not be saved " + databaseError.getMessage());
+                                        } else {
+                                            Log.d("RESUUUUUULT","Data saved successfully.");
+                                        }
+                                    }
+                                });
 
                                 prefs = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getContext());
                                 SharedPreferences.Editor editor = prefs.edit();
@@ -378,7 +403,7 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Log.d("Error", "we have an error EVERYWHERE" +  databaseError.getDetails() + databaseError.getMessage());
+                Log.d("Error", "we have an error EVERYWHERE" + databaseError.getDetails() + databaseError.getMessage());
                 Log.d("CAUSE", databaseError.getDetails());
             }
 
@@ -641,8 +666,12 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
             txtNumeric.setText("");
         }
         txtNumeric.addTextChangedListener(new TextWatcher() {
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
             public void afterTextChanged(Editable s) {
                 answers.set(currentIndex, txtNumeric.getText().toString());
             }
@@ -835,7 +864,6 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
         btnBack.setEnabled(true);
         launchQuestion(questions.get(currentIndex), "forward");
     }
-
 
 
     @Override

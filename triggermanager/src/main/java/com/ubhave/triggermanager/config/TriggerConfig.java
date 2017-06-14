@@ -43,19 +43,8 @@ public class TriggerConfig
 	public static final String LIMIT_AFTER_HOUR = "limitAfterHour";
 	public static final String INTERVAL_TRIGGER_TIME = "intervalTriggerTime";
 	public static final String INTERVAL_WINDOW = "intervalWindowLength";
-//
-//	// Clock based Triggers
-//	public final static String CLOCK_TRIGGER_DATE_MILLIS = "clockTriggerDate";
-//	public final static String INTERVAL_TIME_MILLIS = "intervalTime";
-//	public final static String INTERVAL_TRIGGER_START_DELAY = "intervalTriggerStartDelay";
+	public static final String GRANULARITY = "granularity";
 
-	//This is for random triggers
-	public final static String NUMBER_OF_NOTIFICATIONS = "numberOfNotifications";
-	
-	public final static String DAILY_HOUR = "dailyHour";
-	public final static String DAILY_MINUTE = "dailyMinute";
-	//DJR
-	public final static String DAILY_TIMES = "times";
 	// Sensor Based Triggers
 	public final static String SENSOR_TYPE = "selectedSensor";
 	public final static String INTERESTING_VALUE = "result";
@@ -151,21 +140,7 @@ public class TriggerConfig
 	{
 		return (Boolean) getParameter(TriggerConfig.IGNORE_USER_PREFERENCES);
 	}
-	
-	public int numberOfNotifications()
-	{
-		try
-		{
-			int frequency = Integer.parseInt(getParameter("frequency").toString());
-			return frequency;
-			//return (Integer) getParameter(TriggerConfig.NUMBER_OF_NOTIFICATIONS);
-		}
-		catch (java.lang.ClassCastException e)
-		{
-			return ((Long) getParameter(TriggerConfig.NUMBER_OF_NOTIFICATIONS)).intValue();
-		}	
-	}
-	
+
 	public int getValueInMinutes(String key)
 	{
 		return Integer.parseInt(getParameter(key).toString());

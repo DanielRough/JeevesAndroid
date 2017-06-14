@@ -1,10 +1,4 @@
 package com.example.daniel.jeeves.actions;
-
-import android.content.Context;
-import android.util.Log;
-
-import com.example.daniel.jeeves.ApplicationContext;
-
 import java.util.Map;
 
 /**
@@ -18,8 +12,6 @@ public class WaitingAction extends FirebaseAction {
     }
     @Override
     public boolean execute() {
-        Log.d("ACTIONWAIT", "SOMEHOW GONNA WAIT BEFORE EXECUTING");
-        Context app = ApplicationContext.getContext();
         return true;
     }
 }

@@ -5,6 +5,14 @@ package com.example.daniel.jeeves.firebase;
  */
 public class FirebaseUI {
 
+    public String id;
+    public String name;
+    public String text;
+    public String type;
+    public long xPos;
+    public long yPos;
+    public String description;
+
     public String getid() {
         return id;
     }
@@ -30,12 +38,5 @@ public class FirebaseUI {
     }
 
     public String getdescription(){ return description; }
-    public String id;
-    public String name;
-    public String text;
-    public String type;
-    public long xPos;
-    public long yPos;
-    public String description;
 
 }

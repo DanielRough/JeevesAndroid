@@ -149,11 +149,8 @@ public class DailyNotificationScheduler implements TriggerReceiver
 	}
 
 	private void scheduleIntervalTimes(){
-		//I THINK TECHNICALLY THE START DELAY IS GOING TO BE THE 'FROM' TIME IN OUR INTERVAL TRIGGER. THIS IS WHEN IT FIRST STARTS
-		//if (params.containsKey(TriggerConfig.INTERVAL_TRIGGER_START_DELAY))
 
 		long startTime = 0;
-		Log.d("WHATBOUTHERE",params.getParams().toString());
 		if (params.containsKey(TriggerConfig.LIMIT_BEFORE_HOUR))
 			startTime = new Long(params.getParameter(TriggerConfig.LIMIT_BEFORE_HOUR).toString())/60000;
 		long endTime = 0;
@@ -162,6 +159,12 @@ public class DailyNotificationScheduler implements TriggerReceiver
 		long intervalTime = 0;
 		if (params.containsKey(TriggerConfig.INTERVAL_TRIGGER_TIME))
 			intervalTime =  new Long(params.getParameter(TriggerConfig.INTERVAL_TRIGGER_TIME).toString());
+		String granularity = "";
+		if (params.containsKey(TriggerConfig.GRANULARITY)) {
+			granularity = params.getParameter(TriggerConfig.GRANULARITY).toString();
+			if(granularity.equals("hours"))
+				intervalTime *= 60;
+		}
 		ArrayList<Integer> times = new ArrayList<Integer>();
 
 		long realEndTime = endTime;

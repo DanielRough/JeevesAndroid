@@ -27,20 +27,15 @@ public class TriggerManagerConstants
 	public final static boolean LOG_MESSAGES = true;
 	
 	public static final boolean DEFAULT_TRIGGER_ENABLED = true;
-	public static final boolean DEFAULT_IS_TRIGGER_UNCAPPED = false;
 	public static final boolean DEFAULT_IS_SYSTEM_TRIGGER = false;
 	
 	public static final int DEFAULT_DO_NOT_DISTURB_BEFORE_MINUTES = 8 * 60;
 	public static final int DEFAULT_DO_NOT_DISTURB_AFTER_MINUTES = 22 * 60;
 	public static final int DEFAULT_MIN_TRIGGER_INTERVAL_MINUTES = 120;
 	public static final int DEFAULT_DAILY_NOTIFICATION_CAP = 50;
-	public static final int DEFAULT_NUMBER_OF_NOTIFICATIONS = 2;
 
-	public static final int DEFAULT_MAXIMUM_DAILY_SURVEYS = 2;
 	public static final int DEFAULT_NOTIFICATION_PROBABILITY = 1;
 
-	public final static String GLOBAL_PREFERENCES = "global_preferences";
-	public final static String TRIGGER_PREFERENCES = "trigger_preferences";
 	public final static String GLOBAL_STATE = "triggerManager_state";
 	
 	private final static String ACTION_NAME_ROOT = "com.ubhave.triggermanager.triggers";

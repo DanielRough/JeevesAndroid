@@ -8,6 +8,25 @@ import java.util.List;
  */
 public class FirebaseProject {
 
+    String description;
+    String id;
+    String name;
+    boolean isPublic;
+    String pubKey;
+    List<FirebaseSurvey> surveys = new ArrayList<>();
+    List<FirebaseTrigger> triggers = new ArrayList<>();
+    List<FirebaseUI> uidesign = new ArrayList<>();
+    String type;
+    List<UserVariable> variables = new ArrayList<>();
+    List<FirebaseExpression> expressions = new ArrayList<>();
+    long xPos;
+    long yPos;
+    String researcherno;
+    long maxNotifications;
+    public FirebaseProject() {
+        // empty default constructor, necessary for Firebase to be able to deserialize blog posts
+    }
+
     public String getdescription() {
         return description;
     }
@@ -35,6 +54,7 @@ public class FirebaseProject {
     public boolean getisPublic(){
         return isPublic;
     }
+
     public void setisPublic(boolean isPublic){
         this.isPublic = isPublic;
     }
@@ -42,30 +62,13 @@ public class FirebaseProject {
     public String getpubKey(){
         return pubKey;
     }
+
     public void setpubKey(String pubKey){
         this.pubKey = pubKey;
     }
+
     public String getresearcherno() { return researcherno; }
-    String description;
-    String id;
-    String name;
-    boolean isPublic;
-    String pubKey;
 
-    List<FirebaseSurvey> surveys = new ArrayList<>();
-    List<FirebaseTrigger> triggers = new ArrayList<>();
-    List<FirebaseUI> uidesign = new ArrayList<>();
-    String type;
-    List<UserVariable> variables = new ArrayList<>();
-    List<FirebaseExpression> expressions = new ArrayList<>();
-    long xPos;
-    long yPos;
-    String researcherno;
-    long maxNotifications;
-
-    public FirebaseProject() {
-        // empty default constructor, necessary for Firebase to be able to deserialize blog posts
-    }
     public List<FirebaseSurvey> getsurveys() {
         return surveys;
     }

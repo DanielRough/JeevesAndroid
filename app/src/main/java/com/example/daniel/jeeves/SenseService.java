@@ -47,6 +47,7 @@ import static com.example.daniel.jeeves.firebase.FirebaseUtils.LOCATION;
 import static com.example.daniel.jeeves.firebase.FirebaseUtils.NUMERIC;
 import static com.example.daniel.jeeves.firebase.FirebaseUtils.PROJECTS_KEY;
 import static com.example.daniel.jeeves.firebase.FirebaseUtils.PUBLIC_KEY;
+import static com.example.daniel.jeeves.firebase.FirebaseUtils.SURVEYS_KEY;
 import static com.example.daniel.jeeves.firebase.FirebaseUtils.TEXT;
 import static com.example.daniel.jeeves.firebase.FirebaseUtils.TIME;
 
@@ -96,6 +97,7 @@ public class SenseService extends Service{
                 String developerid = post.getresearcherno();
                 FirebaseAuth mFirebaseAuth = FirebaseAuth.getInstance();
                 FirebaseUser mFirebaseUser = mFirebaseAuth.getCurrentUser();
+                FirebaseUtils.SURVEY_REF = database.getReference(FirebaseUtils.PRIVATE_KEY).child(developerid).child(SURVEYS_KEY);
                 FirebaseUtils.PATIENT_REF = database.getReference(FirebaseUtils.PRIVATE_KEY).child(developerid).child(FirebaseUtils.PATIENTS_KEY).child(mFirebaseUser.getUid());
                 //I don't like it but it should hopefully stop any errors
                 try {
@@ -116,6 +118,8 @@ public class SenseService extends Service{
                 String action = intent.getAction();
                 if(action.equals(TriggerManagerConstants.ACTION_NAME_SURVEY_TRIGGER)){
                     ArrayList<String> changedVariables = intent.getStringArrayListExtra("changedVariables");
+                    //Of course, it might be null if we didn't actually finish the survey on time
+                    if(changedVariables == null)return;
                     Log.d("CHANGEDVARS","Changed variables are " + changedVariables);
                     //action for sms received
                     List<FirebaseTrigger> triggers = ApplicationContext.getProject().gettriggers();

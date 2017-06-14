@@ -9,7 +9,5 @@
     <service android:name=".triggers.SurveyTriggerService" />
     <service android:name=".GeofenceTransitionsIntentService"/>
 
-    <application>
-        <service android:name=".GeofenceTransitionsIntentService"/>
-    </application>
+    <application></application>
 </manifest>

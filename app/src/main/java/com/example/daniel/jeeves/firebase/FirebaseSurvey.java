@@ -8,17 +8,36 @@ import java.util.Map;
  */
 public class FirebaseSurvey {
 
+    long timeAlive;
+    long expiryTime;
+    long timeSent;
+    long timeFinished;
+    long score;
+    long id;
+    List<FirebaseQuestion> questions;
+    String description;
+    String type;
+    String title;
+    String surveyId;
+    long xPos;
+    long yPos;
+    String encodedAnswers;
+    boolean begun; //Has the user begun completing the survey?
+    List<String> answers;
+    String key;
     public FirebaseSurvey(){
 
     }
+
     public long getexpiryTime() {
         return expiryTime;
     }
 
+    public void setexpiryTime(long expiryTime){this.expiryTime = expiryTime;}
+
     public long getid() {
         return id;
     }
-
 
     public String getdescription() { return description; }
 
@@ -43,34 +62,21 @@ public class FirebaseSurvey {
     public long gettimeSent(){ return timeSent; }
 
     public long gettimeAlive(){ return timeAlive; }
+
     public long gettimeFinished(){ return timeFinished; }
 
     public long getscore(){ return score; }
+
     public void setscore(long score){this.score = score;}
-    long timeAlive;
-    long expiryTime;
-    long timeSent;
-    long timeFinished;
-    long score;
-        long id;
-        List<FirebaseQuestion> questions;
-        String description;
-        String type;
-        String title;
-        String surveyId;
-        long xPos;
-        long yPos;
-        String encodedAnswers;
 
     public String getencodedAnswers(){
         return encodedAnswers;
     }
+
     public void setencodedAnswers(String encodedAnswers){
         this.encodedAnswers = encodedAnswers;
     }
-    boolean begun; //Has the user begun completing the survey?
-    List<String> answers;
-    String key;
+
     public String getsurveyId(){
         return surveyId;
     }

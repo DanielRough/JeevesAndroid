@@ -20,7 +20,6 @@ public class SpeakerAction extends FirebaseAction {
     }
     @Override
     public boolean execute() {
-        Log.d("ACTIONMUTE", "MUTED PHONE");
         Context app = ApplicationContext.getContext();
 
         String volume = getparams().get("volume").toString();

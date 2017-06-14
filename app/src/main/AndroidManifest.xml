@@ -62,7 +62,7 @@
             android:name=".WelcomeActivity"
             android:launchMode="singleTop" />
         <!-- Stops it restarting -->
-        <receiver android:name=".actions.SurveyAction$AlarmManagerBroadcastReceiver" />
+        <receiver android:name=".actions.SurveyAction$MissedSurveyReceiver" />
 
         <service android:name=".actions.SurveyAction$NotificationActionService" />
         <service

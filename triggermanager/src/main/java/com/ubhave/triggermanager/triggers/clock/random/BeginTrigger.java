@@ -59,9 +59,6 @@ public class BeginTrigger extends Trigger
         }
     }
 
-
-
-
     @Override
     public String getActionName()
     {

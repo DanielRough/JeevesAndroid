@@ -30,6 +30,8 @@ public class ActionExecutorService extends IntentService{
     private ArrayList<FirebaseAction> actions;
     private FirebaseExpression expr;
     private String controlType;
+
+    private int triggerType;
     //Default constructor
     public ActionExecutorService(){
         super("HelloIntentService");
@@ -72,6 +74,8 @@ public class ActionExecutorService extends IntentService{
         //  final Handler h = new Handler(); //In case some of our com.example.daniel.jeeves.actions have delayed execution
         ArrayList<FirebaseAction> remainingActions = (ArrayList<FirebaseAction>)intent.getExtras().get("com/example/daniel/jeeves/actions");
         manual = intent.getBooleanExtra("manual",false);
+        triggerType = intent.getIntExtra("TRIGGER_TYPE",0);
+
         Log.i("MANUAL","Manual in intent is " + manual);
         FirebaseExpression expression = (FirebaseExpression)intent.getExtras().get("expression");
         controlType = (String)intent.getExtras().get("controltype");
@@ -169,6 +173,7 @@ public class ActionExecutorService extends IntentService{
 
             }
             newaction.setManual(manual);
+            newaction.getparams().put("TRIGGER_TYPE",triggerType);
             newaction.execute(); //Will this block?
         }
 

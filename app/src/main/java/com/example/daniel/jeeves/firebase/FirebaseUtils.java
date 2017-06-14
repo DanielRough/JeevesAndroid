@@ -29,6 +29,7 @@ public class FirebaseUtils {
     public static String PRIVATE_KEY = "private";
     public static String PROJECTS_KEY = "projects";
     public static String PATIENTS_KEY = "patients";
+    public static String SURVEYS_KEY = "surveys";
 
     //Variable types
     public static final String BOOLEAN = "Boolean";
@@ -39,6 +40,7 @@ public class FirebaseUtils {
     public static final String TEXT = "Text";
 
     public static DatabaseReference PATIENT_REF;
+    public static DatabaseReference SURVEY_REF;
 
     //Encryption for sensitive data
     public static String encodeAnswers(String concatAnswers){

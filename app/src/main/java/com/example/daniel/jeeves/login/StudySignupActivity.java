@@ -35,6 +35,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import static com.example.daniel.jeeves.firebase.FirebaseUtils.SURVEYS_KEY;
+
 public class StudySignupActivity extends AppCompatActivity {
 
     private FirebaseAuth mFirebaseAuth;
@@ -141,7 +143,7 @@ public class StudySignupActivity extends AppCompatActivity {
 
         String developerid = selectedProject.getresearcherno();
         //Set the reference we need to push our survey results to
-
+        FirebaseUtils.SURVEY_REF = database.getReference(FirebaseUtils.PRIVATE_KEY).child(developerid).child(SURVEYS_KEY);
         FirebaseUtils.PATIENT_REF = database.getReference(FirebaseUtils.PRIVATE_KEY).child(developerid).child(FirebaseUtils.PATIENTS_KEY).child(mFirebaseUser.getUid());
 
         Intent intent = new Intent(getInstance(),WelcomeActivity.class);

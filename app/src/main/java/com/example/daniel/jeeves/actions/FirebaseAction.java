@@ -12,11 +12,22 @@ import java.util.Map;
  */
 
 public class FirebaseAction implements Serializable,IAction {
+    public boolean manual;
+
+    public List<FirebaseAction> actions;
+    public FirebaseExpression condition;
+    private String description;
+    private long id;
+    private String name;
+    private Map<String,Object> params;
+    private String type;
+    private long xPos;
+    private long yPos;
+    private List<FirebaseExpression> vars;
+
     public String getdescription() {
         return description;
     }
-
- //   public abstract void execute();
 
     public long getid() {
         return id;
@@ -33,6 +44,7 @@ public class FirebaseAction implements Serializable,IAction {
     public void setparams(Map<String,Object> params){
         this.params = params;
     }
+
     public String gettype() {
         return type;
     }
@@ -45,14 +57,6 @@ public class FirebaseAction implements Serializable,IAction {
         return yPos;
     }
 
-    private String description;
-    private long id;
-    private String name;
-    private Map<String,Object> params;
-    private String type;
-    private long xPos;
-    private long yPos;
-    private List<FirebaseExpression> vars;
     public boolean execute(){
     return true;
     }
@@ -60,19 +64,18 @@ public class FirebaseAction implements Serializable,IAction {
     public void setvars(List<FirebaseExpression> vars){
         this.vars = vars;
     }
+
     public List<FirebaseExpression> getvars(){
         return vars;
     }
-    public boolean manual;
+
     public void setManual(boolean manual){
         this.manual = manual;
     }
+
     public boolean getmanual(){
         return manual;
     }
-
-    public List<FirebaseAction> actions;
-    public FirebaseExpression condition;
 
     public FirebaseExpression getcondition(){
         return condition;

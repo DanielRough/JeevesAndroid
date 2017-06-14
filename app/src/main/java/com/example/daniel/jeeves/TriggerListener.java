@@ -83,6 +83,7 @@ public class TriggerListener implements TriggerReceiver {
         else {
             actionIntent.putExtra("manual", false);
         }
+        actionIntent.putExtra("TRIGGER_TYPE",triggerType);
             serviceContext.startService(actionIntent);
     }
 
