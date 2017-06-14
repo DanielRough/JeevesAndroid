@@ -31,12 +31,11 @@ import com.ubhave.triggermanager.TriggerReceiver;
 import com.ubhave.triggermanager.config.TriggerConfig;
 import com.ubhave.triggermanager.triggers.clock.IntervalTrigger;
 import com.ubhave.triggermanager.triggers.clock.OneTimeTrigger;
-import com.ubhave.triggermanager.triggers.clock.random.BeginTrigger;
-import com.ubhave.triggermanager.triggers.clock.random.JeevesIntervalTrigger;
-import com.ubhave.triggermanager.triggers.clock.random.RandomFrequencyTrigger;
-import com.ubhave.triggermanager.triggers.clock.random.SetTimesTrigger;
+import com.ubhave.triggermanager.triggers.clock.BeginTrigger;
+import com.ubhave.triggermanager.triggers.clock.JeevesIntervalTrigger;
+import com.ubhave.triggermanager.triggers.clock.RandomFrequencyTrigger;
+import com.ubhave.triggermanager.triggers.clock.SetTimesTrigger;
 import com.ubhave.triggermanager.triggers.sensor.ButtonTrigger;
-import com.ubhave.triggermanager.triggers.sensor.DelayedSensorTrigger;
 import com.ubhave.triggermanager.triggers.sensor.ImmediateSensorTrigger;
 import com.ubhave.triggermanager.triggers.sensor.SurveyTrigger;
 
@@ -81,10 +80,6 @@ public class TriggerList extends AbstractSubscriptionList<Trigger>
 			if (type == TriggerUtils.TYPE_SENSOR_TRIGGER_IMMEDIATE)
 			{
 				return new ImmediateSensorTrigger(context, id, listener, params);
-			}
-			else if (type == TriggerUtils.TYPE_SENSOR_TRIGGER_DELAYED)
-			{
-				return new DelayedSensorTrigger(context, id, listener, params);
 			}
 			else if (type == TriggerUtils.TYPE_SENSOR_TRIGGER_BUTTON)
 			{

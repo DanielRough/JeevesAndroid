@@ -79,7 +79,8 @@ public class SurveyAction extends FirebaseAction {
                     cancelIntent.setType(timeSent+surveyname);
                     PendingIntent pi = PendingIntent.getBroadcast(app, 0, cancelIntent, 0);
                     am.cancel(pi);
-
+                    NotificationManager manager = (NotificationManager) app.getSystemService(app.NOTIFICATION_SERVICE);
+                    manager.cancel(thisActionsId);
                 }
             }
         };
@@ -89,6 +90,7 @@ public class SurveyAction extends FirebaseAction {
         DatabaseReference myRef = FirebaseUtils.PATIENT_REF.child("incomplete");
         DatabaseReference newPostRef = myRef.push();
         currentsurvey.settimeSent(timeSent);
+        currentsurvey.settriggerType((int)getparams().get("TRIGGER_TYPE"));
         newPostRef.setValue(currentsurvey);
         String newPostRefId = newPostRef.getKey();
 

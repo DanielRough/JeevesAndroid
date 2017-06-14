@@ -3,23 +3,21 @@ package com.example.daniel.jeeves;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.location.Location;
+import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.example.daniel.jeeves.firebase.FirebaseExpression;
 import com.example.daniel.jeeves.firebase.UserVariable;
 import com.ubhave.sensormanager.ESException;
+import com.ubhave.sensormanager.ESSensorManager;
 import com.ubhave.sensormanager.classifier.SensorDataClassifier;
 import com.ubhave.sensormanager.config.SensorConfig;
 import com.ubhave.sensormanager.config.pull.LocationConfig;
 import com.ubhave.sensormanager.data.SensorData;
 import com.ubhave.sensormanager.sensors.SensorUtils;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -233,5 +231,34 @@ public class ExpressionParser {
 //        else if(operation.equals(DIVIDE))
 //            return Long.parseLong((String) evaluate(lhs)) / Long.parseLong((String) evaluate(rhs));
         return "false";
+    }
+
+    public static class SampleOnceTask extends AsyncTask<Void, Void, SensorData>
+    {
+        private final ESSensorManager sensorManager;
+        private final int sensorType;
+        protected String errorMessage;
+
+        public SampleOnceTask(int sensorType) throws ESException
+        {
+            this.sensorType = sensorType;
+            sensorManager = ESSensorManager.getSensorManager(ApplicationContext.getContext());
+        }
+
+        @Override
+        protected SensorData doInBackground(Void... params)
+        {
+            try
+            {
+                return sensorManager.getDataFromSensor(sensorType);
+            }
+            catch (ESException e)
+            {
+                e.printStackTrace();
+                errorMessage = e.getMessage();
+                return null;
+            }
+        }
+
     }
 }

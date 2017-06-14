@@ -64,6 +64,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 import com.ubhave.triggermanager.config.TriggerManagerConstants;
+import com.ubhave.triggermanager.triggers.TriggerUtils;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -245,7 +246,7 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
                 //We also need to know what it was that triggered the survey (i.e. button press, sensor trigger, etc).
                 Map<String,Object> surveymap = new HashMap<String,Object>();
                 surveymap.put("status",1);
-                if(initTime != timeSent) //Then this was a button trigger and the init time doesn't count
+                if(triggerType != TriggerUtils.TYPE_SENSOR_TRIGGER_BUTTON) //Then this was a button trigger and the init time doesn't count
                     surveymap.put("inittime",initTime-timeSent);
                 surveymap.put("completetime",System.currentTimeMillis()-initTime);
                 surveymap.put("trigger",triggerType);
@@ -591,7 +592,7 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
             tpicker.setHour(calendar.get(Calendar.HOUR_OF_DAY));
             tpicker.setMinute(calendar.get(Calendar.MINUTE));
         } else {
-            answers.set(currentIndex, Long.toString(calendar.getTimeInMillis()));
+            answers.set(currentIndex, Long.toString(calendar.getTimeInMillis()- midnight.getTimeInMillis()));
         }
 
 

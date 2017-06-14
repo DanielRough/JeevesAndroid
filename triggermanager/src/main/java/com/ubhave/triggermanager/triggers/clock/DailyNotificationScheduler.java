@@ -1,4 +1,4 @@
-package com.ubhave.triggermanager.triggers.clock.random;
+package com.ubhave.triggermanager.triggers.clock;
 
 import android.content.Context;
 import android.util.Log;
@@ -12,9 +12,6 @@ import com.ubhave.triggermanager.triggers.TriggerUtils;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 import java.util.Random;
 
 public class DailyNotificationScheduler implements TriggerReceiver
@@ -105,17 +102,6 @@ public class DailyNotificationScheduler implements TriggerReceiver
 	//When should we actually start the scheduling? If we have a FROM time, its then. Otherwise, we start afresh on midnight of the next day.
 	private long startDelay()
 	{
-//		return System.currentTimeMillis();
-//	}
-//		return 0;
-//		if (params.containsKey(TriggerConfig.LIMIT_BEFORE_HOUR))
-//		{
-//			return (Long) params.getParameter(TriggerConfig.LIMIT_BEFORE_HOUR);
-//		}
-//		else
-//		{
-//			return
-		// Milliseconds until midnight
 		Calendar calendar = Calendar.getInstance();
 		Calendar midnight = Calendar.getInstance();
 		midnight.set(Calendar.HOUR_OF_DAY,0);
@@ -197,21 +183,7 @@ public class DailyNotificationScheduler implements TriggerReceiver
 	}
 	private void scheduleSetTimes(){
 		ArrayList<Integer> times = new ArrayList<Integer>();
-		Log.d("HERE",params.getParams().toString());
 		times = (ArrayList<Integer>)params.getParams().get("times");
-		//Map<String,Object> settimes = (Map<String,Object>)params.getParameter(TriggerConfig.DAILY_TIMES);
-//		for(Integer newtime : times){
-//			Log.d("TIME","FOUN A TIME");
-//			//if((boolean)newtime.get("isValue")){
-//			//	int minuteofday = Integer.parseInt(newtime.get("value").toString());
-//			//	Log.d("MINUTE","MInute of day is " + minuteofday);
-////				String[] hoursmins = timeStr.split(":");
-////				int dailyhour = Integer.parseInt(hoursmins[0]);
-////				int dailyminute = Integer.parseInt(hoursmins[1]);
-////				int minuteofday = dailyhour*60 + dailyminute;
-//				times.add(newtime); //Convert each JSONObject time into a minute-of-day value
-//			}
-
 
 		Calendar calendar = Calendar.getInstance();
 		for (Integer minuteOfDay : times) {
@@ -233,6 +205,14 @@ public class DailyNotificationScheduler implements TriggerReceiver
 		int earlyLimit = params.getValueInMinutes(TriggerConfig.LIMIT_BEFORE_HOUR)/60000;
 		int lateLimit = params.getValueInMinutes(TriggerConfig.LIMIT_AFTER_HOUR)/60000;
 		int minInterval = params.getValueInMinutes(TriggerConfig.INTERVAL_WINDOW);
+		if (params.containsKey(TriggerConfig.GRANULARITY)) {
+			String granularity = params.getParameter(TriggerConfig.GRANULARITY).toString();
+			if(granularity.equals("hours"))
+				minInterval *= 60;
+		}
+        if(earlyLimit > lateLimit){
+            lateLimit += 1440; //Add an extra day onto the late limit so we can schedule shit overnight
+        }
 		int timeFrame = lateLimit - earlyLimit;
 		int numberOfNotifications = timeFrame / minInterval; //The max notifications we can schedule in this space
 		//	Log.d("Daily", "scheduleNotifications(), "+numberOfNotifications);
@@ -241,39 +221,18 @@ public class DailyNotificationScheduler implements TriggerReceiver
 			Log.d("Daily Scheduler", "Attempting to schedule: "+numberOfNotifications);
 		}
 
-		//This isn't QUITE that simple. What we'll need to do is somehow manually schedule a time within each 'window'
-		//I know what I mean and that's not the best way of phrasing it...
-//		for (int t=0; t<numberOfNotifications; t++)
-//		{
-//			boolean entryAdded = false;
-//			for (int i=0; i<MAX_SCHEDULING_ATTEMPTS && !entryAdded; i++)
-//			{
-
 		int windowEarlyLimit = earlyLimit;
 		int windowLateLimit = earlyLimit + minInterval;
 		while (windowLateLimit < lateLimit) {
 			int time = pickRandomTimeWithinPreferences(windowEarlyLimit, windowLateLimit);
-			times.add(time);
-			//	if (selectedTimeFitsGroup(time, times, minInterval)) {
-			//	for (int j = 0; j < times.size(); j++) {
-			//		if (times.get(j) > time) {
-			//	times.add(j, time);
-//							entryAdded = true;
-			//			break;
-			//		}
-			//}
-//					if (!entryAdded)
-//					{
-//						times.add(time);
-//						entryAdded = true;
-//					}
-			//	}
+		//	times.add(time);
 			windowEarlyLimit = windowLateLimit;
+            if(windowLateLimit < 1440)
+                times.add((int)time); //Convert each JSONObject time into a minute-of-day value
+            else
+                times.add((int)(time-1440)); //Accounts for next-day times
 			windowLateLimit += minInterval;
-			//	}
 		}
-//			}
-		//	}
 
 		if (TriggerManagerConstants.LOG_MESSAGES)
 		{

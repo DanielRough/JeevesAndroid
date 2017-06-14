@@ -1,4 +1,4 @@
-package com.example.daniel.jeeves;
+package com.example.daniel.jeeves.login;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

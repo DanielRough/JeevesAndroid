@@ -84,13 +84,5 @@ public class ButtonTrigger extends Trigger {
             if(btn.equals(buttonName))
                 sendNotification();
         }
-//        if (listener != null)
-//        {
-//            int id = intent.getIntExtra(TRIGGER_ID, -1);
-//            if (triggerId == id)
-//            {
-//                sendNotification();
-//            }
-//        }
     }
 }

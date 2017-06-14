@@ -26,21 +26,10 @@ public class WelcomeActivity extends Activity {
     TextView txtWelcome;
 
 
-//    @Override
-//    protected void onPause(){
-//        Log.d("PAUSED","Onpause");
-//        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-//     //   preferences.edit().
-//        SharedPreferences.Editor editor = preferences.edit();
-//        Set set = new HashSet(triggerids);
-//        editor.putStringSet("triggerIds",set);
-//        editor.commit();
-//        super.onPause();
-//    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         instance = this;
-        Log.d("STUDYNAME","study name is " );
+        Log.d("STUDYNAME","study name is " + getIntent().getStringExtra("studyname"));
 
         mFirebaseAuth = FirebaseAuth.getInstance();
         FirebaseUser mFirebaseUser = mFirebaseAuth.getCurrentUser();

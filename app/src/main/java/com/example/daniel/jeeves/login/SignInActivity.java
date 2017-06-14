@@ -134,7 +134,7 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
                                 String studyname = preferences.getString(uid+"_STUDY","");
                                 Intent intent = new Intent(getInstance(), WelcomeActivity.class);
                                 intent.putExtra("studyname", studyname);
-                                intent.putExtra("username", mFirebaseUser.getDisplayName());
+                                intent.putExtra("username",preferences.getString(uid+"_NAME",""));
                                 startActivity(intent);
                                 finish();
                             } else

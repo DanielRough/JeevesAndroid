@@ -26,7 +26,6 @@ import static android.content.ContentValues.TAG;
  * This is a service which sequentially executes a series of com.example.daniel.jeeves.actions passed to it via its intent. It maybe doesn't quite work but that remains to be seen
  */
 public class ActionExecutorService extends IntentService{
-    private Context serviceContext;
     private ArrayList<FirebaseAction> actions;
     private FirebaseExpression expr;
     private String controlType;
@@ -51,17 +50,7 @@ public class ActionExecutorService extends IntentService{
     public void onCreate() {
         super.onCreate();
     }
-//
-//    @Override
-//    public int onStartCommand(Intent intent, int flags, int startId) {
-//        List<FirebaseAction> toexecute = (List<FirebaseAction>)intent.getExtras().get("com.example.daniel.jeeves.actions");
-//        executeActions(toexecute);
-//        return START_STICKY;
-//    }
 
-    /**
-     * Actually, what we could do in here is check the evaluation condition, and decide whether to call execute com.example.daniel.jeeves.actions again, or just destroy everything
-     */
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -178,17 +167,7 @@ public class ActionExecutorService extends IntentService{
         }
 
     }
-//    /**
-//     * This method will check that our Boolean expression that we passed in evaluates to true, in which case we stop executing com.example.daniel.jeeves.actions
-//     */
-//    public void checkCondition(){
-//        ExpressionParser parser = new ExpressionParser(ApplicationContext.getContext());
-//        Log.d("ExPRNAME", expr.getname());
-//        if(parser.evaluate(expr).equals("false")) //expressionw will be null if we don't have an expression in the first place
-//            return; //Our expression is false, don't execute
-//        else
-//            executeActions(); //Let's execute our actions!
-//    }
+
 
     ActionExecutorService getService(){
         return ActionExecutorService.this;

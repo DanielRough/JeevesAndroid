@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.widget.LinearLayoutManager;
+import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 
@@ -55,7 +56,7 @@ public class MainActivity extends Activity{
                 Intent intent = new Intent(getInstance(), WelcomeActivity.class);
                 intent.putExtra("studyname", studyname);
                 intent.putExtra("username",username);
-
+                Log.d("USERNAME","Username is " + username);
                 startActivity(intent);
                 finish();
             } else

@@ -8,6 +8,7 @@ import java.util.Map;
  */
 public class FirebaseSurvey {
 
+    int triggerType;
     long timeAlive;
     long expiryTime;
     long timeSent;
@@ -28,6 +29,10 @@ public class FirebaseSurvey {
     public FirebaseSurvey(){
 
     }
+
+    public int gettriggerType() { return triggerType; }
+
+    public void settriggerType(int triggerType) { this.triggerType = triggerType; }
 
     public long getexpiryTime() {
         return expiryTime;

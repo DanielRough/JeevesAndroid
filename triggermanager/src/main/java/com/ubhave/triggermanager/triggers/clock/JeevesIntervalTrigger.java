@@ -1,29 +1,4 @@
-package com.ubhave.triggermanager.triggers.clock.random;
-
-/**
- * Created by Daniel on 14/06/2015.4
- */
-/* **************************************************
- Copyright (c) 2012, University of Cambridge
- Neal Lathia, neal.lathia@cl.cam.ac.uk
- Kiran Rachuri, kiran.rachuri@cl.cam.ac.uk
-
-This library was developed as part of the EPSRC Ubhave (Ubiquitous and
-Social Computing for Positive Behaviour Change) Project. For more
-information, please visit http://www.emotionsense.org
-
-Permission to use, copy, modify, and/or distribute this software for any
-purpose with or without fee is hereby granted, provided that the above
-copyright notice and this permission notice appear in all copies.
-
-THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY
-SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
-IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
- ************************************************** */
+package com.ubhave.triggermanager.triggers.clock;
 
 import android.app.PendingIntent;
 import android.content.Context;
@@ -38,15 +13,20 @@ import com.ubhave.triggermanager.triggers.TriggerUtils;
 
 import java.util.HashSet;
 
-//Why does this extend the Random trigger? Bit weird...
-public class SetTimesTrigger extends RandomFrequencyTrigger
-{	private final ESTriggerManager triggerManager;
+/**
+ * Created by Daniel on 01/06/2016.
+ */
 
-    private final static String TRIGGER_NAME = "TimeOfDayTrigger";
+//This is definitely like a trigger that fires off at specified intervals. A sort of cross between a RandomFrequencyTrigger and a SetTimesTrigger
+public class JeevesIntervalTrigger extends RandomFrequencyTrigger{
+
+    private final ESTriggerManager triggerManager;
+
+    private final static String TRIGGER_NAME = "JeevesIntervalTrigger";
     private HashSet<Integer> randomlySelectedTriggerIds;
     protected final DailyNotificationScheduler dailySchedulerAlarm;
 
-    public SetTimesTrigger(Context context, int id, final TriggerReceiver listener, final TriggerConfig parameters) throws TriggerException
+    public JeevesIntervalTrigger(Context context, int id, final TriggerReceiver listener, final TriggerConfig parameters) throws TriggerException
     {
         super(context, id, listener, parameters);
         this.triggerManager = ESTriggerManager.getTriggerManager(context);
@@ -68,6 +48,7 @@ public class SetTimesTrigger extends RandomFrequencyTrigger
     @Override
     public void stop() throws TriggerException
     {
+        //When this trigger is finished, we want to get rid of the specific 'one time triggers' that are occurring every day
         if (isRunning)
         {
             dailySchedulerAlarm.stop();

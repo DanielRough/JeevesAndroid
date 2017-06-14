@@ -1,4 +1,4 @@
-package com.ubhave.triggermanager.triggers.clock.random;
+package com.ubhave.triggermanager.triggers.clock;
 
 /**
  * Created by Daniel on 14/06/2015.4

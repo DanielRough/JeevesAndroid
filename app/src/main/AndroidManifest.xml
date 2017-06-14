@@ -36,13 +36,13 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyB1I4mF6dGlLQRN_53F-uTmYbAu7PvFIrI" />
 
+        <!-- Start the Main Activity again on reboot -->
         <receiver
-            android:name=".StartUpReceiver"
+            android:name=".login.StartUpReceiver"
             android:enabled="true"
             android:permission="android.permission.RECEIVE_BOOT_COMPLETED">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
-
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </receiver>
@@ -70,9 +70,6 @@
             android:enabled="true"
             android:exported="true" />
 
-        <activity
-            android:name=".UpdateSettingsActivity"
-            android:parentActivityName=".WelcomeActivity" />
         <activity
             android:name=".ContactActivity"
             android:parentActivityName=".WelcomeActivity" />

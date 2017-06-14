@@ -68,7 +68,7 @@ public class OneTimeTrigger extends AbstractClockTrigger
             {
                 Log.d("OneTimeTrigger", "Scheduled time is: "+calendar.getTime().toString());
             }
-            alarmManager.set(AlarmManager.RTC_WAKEUP, surveyDate, pendingIntent);
+            alarmManager.setExact(AlarmManager.RTC_WAKEUP, surveyDate, pendingIntent);
         }
         else
         {

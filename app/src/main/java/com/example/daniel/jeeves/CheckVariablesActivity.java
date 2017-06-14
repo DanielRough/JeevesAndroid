@@ -1,13 +1,20 @@
 package com.example.daniel.jeeves;
 
+import android.app.Activity;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.example.daniel.jeeves.firebase.FirebaseProject;
 import com.example.daniel.jeeves.firebase.FirebaseSurvey;
@@ -15,7 +22,6 @@ import com.example.daniel.jeeves.firebase.UserVariable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class CheckVariablesActivity extends AppCompatActivity {
@@ -122,5 +128,67 @@ public class CheckVariablesActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    /**
+     * Created by Daniel on 24/06/16.
+     */
+    public static class UserVariableItem extends BaseAdapter {
+        ArrayList<Map<String,String>>  result;
+
+        Activity context;
+        private static LayoutInflater inflater=null;
+        public UserVariableItem(Activity mainActivity, ArrayList<Map<String,String>> varsList) {
+            // TODO Auto-generated constructor stub
+            result=varsList;
+            context=mainActivity;
+            inflater = (LayoutInflater)context.
+                    getSystemService(LAYOUT_INFLATER_SERVICE);
+        }
+        @Override
+        public int getCount() {
+            return result.size();
+        }
+
+        @Override
+        public Object getItem(int position) {
+            return position;
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
+
+        @Override
+        public View getView(final int position, View convertView, ViewGroup parent) {
+            LayoutInflater inflater = (LayoutInflater) context
+                    .getSystemService(LAYOUT_INFLATER_SERVICE);
+
+            // 2. Get rowView from inflater
+            View rowView = inflater.inflate(R.layout.user_variable_list, parent, false);
+
+            // 3. Get the two text view from the rowView
+            TextView labelView = (TextView) rowView.findViewById(R.id.labelView);
+            TextView valueView = (TextView) rowView.findViewById(R.id.valueView);
+            TextView startedView = (TextView) rowView.findViewById(R.id.startedView);
+            LinearLayout layout = (LinearLayout)rowView.findViewById(R.id.listlayout);
+            // 4. Set the text for textView
+            labelView.setText(result.get(position).get("name"));
+            final String vartype = result.get(position).get("vartype");
+            switch(vartype){
+                case "Location":layout.setBackgroundColor(Color.RED);break;
+                case "Time":layout.setBackgroundColor(Color.BLUE);break;
+                case "Date":layout.setBackgroundColor(Color.MAGENTA);break;
+                case "Numeric":layout.setBackgroundColor(Color.GREEN);break;
+                case "Boolean":layout.setBackgroundColor(Color.CYAN);break;
+
+            }
+            final String value = result.get(position).get("value");
+            valueView.setText(value);
+
+            return rowView;
+        }
+
     }
 }

@@ -86,6 +86,7 @@ public class SenseService extends Service{
         else {
             studyname = varPrefs.getString("studyname", "");
         }
+        Log.d("Suty name" , studyname);
         //Find the project config in the 'public' section of the database
         DatabaseReference projectRef = database.getReference(PUBLIC_KEY).child(PROJECTS_KEY).child(studyname);
 
@@ -97,6 +98,9 @@ public class SenseService extends Service{
                 String developerid = post.getresearcherno();
                 FirebaseAuth mFirebaseAuth = FirebaseAuth.getInstance();
                 FirebaseUser mFirebaseUser = mFirebaseAuth.getCurrentUser();
+
+                Log.d("Developer id ",developerid);
+
                 FirebaseUtils.SURVEY_REF = database.getReference(FirebaseUtils.PRIVATE_KEY).child(developerid).child(SURVEYS_KEY);
                 FirebaseUtils.PATIENT_REF = database.getReference(FirebaseUtils.PRIVATE_KEY).child(developerid).child(FirebaseUtils.PATIENTS_KEY).child(mFirebaseUser.getUid());
                 //I don't like it but it should hopefully stop any errors
