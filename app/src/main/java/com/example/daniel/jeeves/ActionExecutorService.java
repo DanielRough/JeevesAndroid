@@ -18,32 +18,24 @@ import com.example.daniel.jeeves.actions.WaitingAction;
 import com.example.daniel.jeeves.firebase.FirebaseExpression;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 
 import static android.content.ContentValues.TAG;
+import static com.example.daniel.jeeves.ApplicationContext.TRIG_TYPE;
+import static com.example.daniel.jeeves.actions.ActionUtils.ACTIONS;
 
 /**
  * This is a service which sequentially executes a series of com.example.daniel.jeeves.actions passed to it via its intent. It maybe doesn't quite work but that remains to be seen
  */
-public class ActionExecutorService extends IntentService{
+public class ActionExecutorService extends IntentService {
+    //Service binder code from https://developer.android.com/guide/components/bound-services.html#Binding
+    ActionExecutorService mService;
     private ArrayList<FirebaseAction> actions;
-    private FirebaseExpression expr;
-    private String controlType;
-
     private int triggerType;
-    //Default constructor
-    public ActionExecutorService(){
-        super("HelloIntentService");
 
-    }
-    public boolean manual = false; //Were these actions triggered by the user?
-    /**
-     * Creates an IntentService.  Invoked by your subclass's constructor.
-     *
-     * @param name Used to name the worker thread, important only for debugging.
-     */
-    public ActionExecutorService(String name) {
-        super(name);
+    public ActionExecutorService() {
+        super("HelloIntentService");
     }
 
     @Override
@@ -56,78 +48,30 @@ public class ActionExecutorService extends IntentService{
         super.onDestroy();
     }
 
-
     @Override
     protected void onHandleIntent(Intent intent) {
-        Log.i("EXECUTION","gonna execute some com.example.daniel.jeeves.actions now");
-        //  final Handler h = new Handler(); //In case some of our com.example.daniel.jeeves.actions have delayed execution
-        ArrayList<FirebaseAction> remainingActions = (ArrayList<FirebaseAction>)intent.getExtras().get("com/example/daniel/jeeves/actions");
-        manual = intent.getBooleanExtra("manual",false);
-        triggerType = intent.getIntExtra("TRIGGER_TYPE",0);
-
-        Log.i("MANUAL","Manual in intent is " + manual);
-        FirebaseExpression expression = (FirebaseExpression)intent.getExtras().get("expression");
-        controlType = (String)intent.getExtras().get("controltype");
+        Log.i("EXECUTION", "gonna execute some com.example.daniel.jeeves.actions now");
+        ArrayList<FirebaseAction> remainingActions = (ArrayList<FirebaseAction>) intent.getExtras().get(ACTIONS);
+        triggerType = intent.getIntExtra(TRIG_TYPE, 0);
         this.actions = remainingActions;
-        this.expr = expression;
-//        if(expr != null)
-//            checkCondition();
-//        else
         executeActions();
-        //Made this so that the executor service sends out stuff when it's finished with all its actions
-//        Intent localIntent = new Intent("BROADCAST");
-//        LocalBroadcastManager.getInstance(this).sendBroadcast(localIntent);
-
     }
-
-    public class LocalBinder extends Binder {
-        public ActionExecutorService getService() {
-            // Return this instance of LocalService so clients can call public methods
-            return ActionExecutorService.this;
-        }
-    }
-    boolean mBound = false;
-
-    ActionExecutorService mService;
-    private ServiceConnection mConnection = new ServiceConnection() {
-        // Called when the connection with the service is established
-        public void onServiceConnected(ComponentName className, IBinder service) {
-            // Because we have bound to an explicit
-            // service that is running in our own process, we can
-            // cast its IBinder to a concrete class and directly access it.
-            ActionExecutorService.LocalBinder binder = (ActionExecutorService.LocalBinder) service;
-            mService = binder.getService();
-            mBound = true;
-        }
-
-        // Called when the connection with the service disconnects unexpectedly
-        public void onServiceDisconnected(ComponentName className) {
-            Log.e(TAG, "onServiceDisconnected");
-            mBound = false;
-        }
-    };
-    //Service binder code from https://developer.android.com/guide/components/bound-services.html#Binding
-    private final IBinder mBinder = new LocalBinder();
 
     @Override
     public IBinder onBind(Intent intent) {
-        return mBinder;
+        return null;
     }
 
-    /** method for clients */
 
-    public void executeActions(){
-
-        Log.i("EXEUTION","AWAY TO EXEUTE SOME ACTIONS  ");
+    public void executeActions() {
+        Log.i("EXEUTION", "AWAY TO EXEUTE SOME ACTIONS  ");
         int count;
-
-        //while(actionIterator.hasNext()){
-        for(int i = 0; i < actions.size(); i++){
+        for (int i = 0; i < actions.size(); i++) {
             FirebaseAction newaction = actions.get(i);
 
-            if(newaction instanceof WaitingAction) {
+            if (newaction instanceof WaitingAction) {
                 String stimeToWait = newaction.getparams().get("time").toString();
-                int timeToWait = Integer.parseInt(stimeToWait) *1000;
+                int timeToWait = Integer.parseInt(stimeToWait) * 1000;
                 try {
                     Thread.sleep(timeToWait);
                 } catch (InterruptedException e) {
@@ -135,13 +79,14 @@ public class ActionExecutorService extends IntentService{
                 }
             }
             ArrayList<FirebaseAction> controlactions;
-            if(newaction instanceof IfControl) {
+            if (newaction instanceof IfControl) {
                 count = 1;
                 IfControl ifAction = (IfControl) newaction;
                 ExpressionParser parser = new ExpressionParser(ApplicationContext.getContext());
                 FirebaseExpression expression = null;
                 expression = ifAction.getcondition();
                 controlactions = (ArrayList<FirebaseAction>) ifAction.getactions();
+
                 //Converting the actions into their correct types
                 ArrayList<FirebaseAction> actionsToPerform = new ArrayList<>();
                 if (controlactions == null)
@@ -149,11 +94,12 @@ public class ActionExecutorService extends IntentService{
                 if (expression != null && parser.evaluate(expression).equals("false")) //expressionw will be null if we don't have an expression in the first place
                     continue; //If this IfControl has a dodgy expression, just skip it
                     //otherwise what we do is we add all the internal actions to this iterator, and carry on as normal
+
                 else {
                     for (FirebaseAction action : controlactions) {
                         //   actionsToPerform.add(ActionUtils.create(action)); //Oh good lord really!?
-                        actions.add(i+count, ActionUtils.create(action));
-                        Log.d("Added", "added " + action.getname() + " to index " + (i+count));
+                        actions.add(i + count, ActionUtils.create(action));
+                        Log.d("Added", "added " + action.getname() + " to index " + (i + count));
                         count++;
 
                     }
@@ -161,16 +107,13 @@ public class ActionExecutorService extends IntentService{
                 }
 
             }
-            newaction.setManual(manual);
-            newaction.getparams().put("TRIGGER_TYPE",triggerType);
+            //Some actions might not have parameters
+            if (newaction.getparams() == null)
+                newaction.setparams(new HashMap<String, Object>());
+            newaction.getparams().put(TRIG_TYPE, triggerType);
             newaction.execute(); //Will this block?
         }
 
-    }
-
-
-    ActionExecutorService getService(){
-        return ActionExecutorService.this;
     }
 
 }

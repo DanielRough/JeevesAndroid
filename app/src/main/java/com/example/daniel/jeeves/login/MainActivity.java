@@ -16,6 +16,9 @@ import com.example.daniel.jeeves.WelcomeActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import static com.example.daniel.jeeves.ApplicationContext.STUDY_NAME;
+import static com.example.daniel.jeeves.ApplicationContext.USERNAME;
+
 
 public class MainActivity extends Activity{
     private FirebaseAuth mFirebaseAuth;
@@ -47,16 +50,9 @@ public class MainActivity extends Activity{
             finish();
             return;
         } else {
-            String uid = mFirebaseUser.getUid();
-
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getContext());
-            if (preferences.contains(uid+"_STUDY")) {
-                String studyname = preferences.getString(uid+"_STUDY","");
-                String username = preferences.getString(uid+"_NAME","");
+            if (preferences.contains(STUDY_NAME)) {
                 Intent intent = new Intent(getInstance(), WelcomeActivity.class);
-                intent.putExtra("studyname", studyname);
-                intent.putExtra("username",username);
-                Log.d("USERNAME","Username is " + username);
                 startActivity(intent);
                 finish();
             } else

@@ -19,12 +19,10 @@ public class SensorListener implements SensorDataListener {
 
     private final int sensorType;
     private ESSensorManagerInterface sensorManager;
-    private boolean isSubscribed;
 
     public SensorListener(int sensorType)
     {
         this.sensorType = sensorType;
-        isSubscribed = false;
 
         Context context = ApplicationContext.getContext();
 

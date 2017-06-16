@@ -19,6 +19,10 @@ import java.util.List;
 import static com.example.daniel.jeeves.ApplicationContext.BUTTON;
 import static com.example.daniel.jeeves.ApplicationContext.LABEL;
 
+/**
+ * Activity that displays all the buttons and labels configured by the user in the Jeeves Desktop application
+ * Buttons fire off an intent that gets picked up by Broadcast Receivers in the Button trigger.
+ */
 public class MonitorActivity extends AppCompatActivity {
     List<FirebaseUI> uielements;
 
@@ -43,11 +47,7 @@ public class MonitorActivity extends AppCompatActivity {
                 for (FirebaseUI uielement : uielements) {
                     if(uielement.getname().equals(BUTTON)){
                         final Button button = (Button)getLayoutInflater().inflate(R.layout.buttontemplate, null);
-
-                  //      final Button button = new Button(getApplicationContext(),null,com.android.internal.R.attr.buttonStyle);
                         button.setText(uielement.gettext());
-                  //      button.setBackgroundColor(Color.LTGRAY);
-                   //     button.setTextColor(Color.BLACK);
                         button.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {

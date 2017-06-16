@@ -23,6 +23,11 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import static com.example.daniel.jeeves.ApplicationContext.EMAIL;
+import static com.example.daniel.jeeves.ApplicationContext.PHONE;
+import static com.example.daniel.jeeves.ApplicationContext.UID;
+import static com.example.daniel.jeeves.ApplicationContext.USERNAME;
+
 public class SignUpActivity extends AppCompatActivity {
 
     private EditText nameText;
@@ -93,7 +98,6 @@ public class SignUpActivity extends AppCompatActivity {
         progressDialog.setMessage("Creating Account...");
         progressDialog.show();
 
-        final String name = nameText.getText().toString();
         final String email = emailText.getText().toString();
         String password = passwordText.getText().toString();
 
@@ -127,9 +131,10 @@ public class SignUpActivity extends AppCompatActivity {
         String phoneNo = phoneText.getText().toString();
         Intent resultIntent = new Intent();
         //Add the user's personal/confidential information to SharedPreferences
-        prefsEditor.putString(userId+"_NAME",name);
-        prefsEditor.putString(userId+"_EMAIL",email);
-        prefsEditor.putString(userId+"_PHONE",phoneNo);
+        prefsEditor.putString(UID,userId);
+        prefsEditor.putString(USERNAME,name);
+        prefsEditor.putString(EMAIL,email);
+        prefsEditor.putString(PHONE,phoneNo);
         prefsEditor.commit();
         setResult(RESULT_OK, resultIntent);
        // startStudySignup();

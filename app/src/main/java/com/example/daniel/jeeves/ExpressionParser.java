@@ -22,18 +22,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
+import static com.example.daniel.jeeves.ApplicationContext.BOOLEAN;
+import static com.example.daniel.jeeves.ApplicationContext.DATE;
+import static com.example.daniel.jeeves.ApplicationContext.LOCATION;
+import static com.example.daniel.jeeves.ApplicationContext.NUMERIC;
+import static com.example.daniel.jeeves.ApplicationContext.TIME;
+
 /**
  * Created by Daniel on 09/06/15.
  */
 public class ExpressionParser {
-
-    /**
-     * This should ideally figure out whether the expression involving the variable and value evaluates to true or false
-     * @param variable
-     * @param operation
-     * @param value
-     * @return
-     */
 
     public static final String AND = "Both True";
     public static final String OR = "Either True";
@@ -41,71 +39,58 @@ public class ExpressionParser {
     public static final String GREATER_THAN = "Greater Than";
     public static final String EQUALS = "Equality";
     public static final String NOT_EQUALS = "Not True";
-//
-//    public static final String ADD = "ADD";
-//    public static final String SUBTRACT = "SUBTRACT";
-//    public static final String DIVIDE = "DIVIDE";
-//    public static final String MULTIPLY = "MULTIPLY";
+
+    private static final String TRUE = "true";
+    private static final String FALSE = "false";
+
+    //Sensor expression constants
+    private static final String SENSOR = "selectedSensor";
+    private static final String RESULT = "result";
+
+    //Time expression constants
+    private static final String TIME_DIFF = "timeDiff";
+    private static final String BEFORE_AFTER = "beforeAfter";
+    private static final String BEFORE = "before";
+    private static final String AFTER = "after";
+    private static final String TIME_VAR = "timeVar";
+    private static final String MONTH = "1 month";
+    private static final String WEEK = "1 week";
+    private static final String DAY = "1 day";
 
     protected Context appContext;
-    public ExpressionParser(Context appContext){
+
+    public ExpressionParser(Context appContext) {
         this.appContext = appContext;
     }
+
     public String evaluate(FirebaseExpression expr) {
 
         SharedPreferences userPrefs = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getContext());
-        if(expr.getisValue() || expr.getisCustom()) {
-            //Is it a named variable, or just a standard value?
-            if(expr.getisValue() == false){
-                Log.d("VARNAME","Varname is " + (expr).getname());
-                Log.d("VARTYPE","Vartype is " + ( expr).getvartype());
-                String name = (expr).getname();
-                //GET THE HARDCODED STRING OUT OF HERE, THIS IS BAD
-                switch(expr.getvartype()){
-                    case "Location": return userPrefs.getString(name,"");
-                    case "Numeric": return Long.toString(userPrefs.getLong(name,0));
-                    case "Time": return Long.toString(userPrefs.getLong(name,0));
-                    case "Boolean" : if(userPrefs.contains(name)){
-                        Log.d("YEAH","Yeah I have " + name + " and it's " + userPrefs.getBoolean(name,false));
-                    }
-                    else {
-                        Log.d("NAH", "Nah mate couldn't find it");
-                    }
-                        return Boolean.toString(userPrefs.getBoolean(name,false));
-                    }
-                }
-            else{
-                Log.i("VAAALUE","Value is " + (expr).getvalue());
-                return (expr).getvalue().toString();
-            }
+        if (expr.getisValue()) {
+            return (expr).getvalue().toString();
         }
-
-        else if(expr.getvariables() == null){
-            Map<String,Object> params = expr.getparams();
-            if(params.containsKey("selectedSensor")){ //a sensor expression
-                String sensor = params.get("selectedSensor").toString();
-                String returns = params.get("result").toString();
-                Log.d("HELLO","ADFADF");
-
+        else if (expr.getvariables() == null) {
+            Map<String, Object> params = expr.getparams();
+            if (params.containsKey(SENSOR)) { //a sensor expression
+                String sensor = params.get(SENSOR).toString();
+                String returns = params.get(RESULT).toString();
                 //Now we want to poll this sensor here to see what it returns
                 try {
                     int sensortype = SensorUtils.getSensorType(sensor);
                     SampleOnceTask sampler = new SampleOnceTask(sensortype);
-                    Log.d("GOODBYE","ADFADF");
 
                     //We need to irritatingly make an exception for location sensor
 
                     //This gets the last known location from our user prefs
                     //It then gets the location required in the test expression
                     //If they are roughly equal, it returns true!
-                    if(sensortype == SensorUtils.SENSOR_TYPE_LOCATION) {
-                        Log.d("WAT","DID WE GET HERE");
+                    if (sensortype == SensorUtils.SENSOR_TYPE_LOCATION) {
                         returns = userPrefs.getString(returns, "");
-                        if(returns.isEmpty())return "false";
+                        if (returns.isEmpty()) return FALSE;
                         String[] testLatLong = returns.split(";");
 
-                        String lastLoc = userPrefs.getString("LastLocation","");
-                        if(lastLoc.isEmpty()) return "false";
+                        String lastLoc = userPrefs.getString("LastLocation", "");
+                        if (lastLoc.isEmpty()) return FALSE;
                         String[] lastLatLong = lastLoc.split(";");
 
                         Location testLocation = new Location("");
@@ -116,88 +101,78 @@ public class ExpressionParser {
                         lastLocation.setLatitude(Double.parseDouble(lastLatLong[0]));
                         lastLocation.setLongitude(Double.parseDouble(lastLatLong[1]));
 
-                        if(testLocation.distanceTo(lastLocation) <= LocationConfig.LOCATION_CHANGE_DISTANCE_THRESHOLD)
-                            return "true";
+                        if (testLocation.distanceTo(lastLocation) <= LocationConfig.LOCATION_CHANGE_DISTANCE_THRESHOLD)
+                            return TRUE;
                         else
-                            return "false";
+                            return FALSE;
                     }
+
+                    //Otherwise we're looking at other sensor data (just accelerometer for now)
                     SensorData data = sampler.execute().get();
                     SensorDataClassifier classifier = SensorUtils.getSensorDataClassifier(sensortype);
-                    Log.d("HOPEFULLY GOT SOME","SENSOR DATA");
-                    if(classifier.isInteresting(data, SensorConfig.getDefaultConfig(sensortype),returns))
-                        return "true"; //Return true if it returns the result we want!
-                    return "false";
-                } catch (ESException e) {
-                    Log.d("EXCEPTION",e.getMessage());
-                    e.printStackTrace();
-                } catch (InterruptedException e) {
-                    Log.d("EXCEPTION",e.getMessage());
-
-                    e.printStackTrace();
-                } catch (ExecutionException e) {
-                    Log.d("EXCEPTION",e.getMessage());
-
+                    if (classifier.isInteresting(data, SensorConfig.getDefaultConfig(sensortype), returns))
+                        return TRUE; //Return true if it returns the result we want!
+                    return FALSE;
+                } catch (Exception e){
                     e.printStackTrace();
                 }
-            }
-
-
-            else if(params.containsKey("timeDiff")){ //a timediff expression
-                String beforeAfter = params.get("beforeAfter").toString();
-                String timeDiff = params.get("timeDiff").toString();
-                String dateStr = params.get("timeVar").toString();
+            } else if (params.containsKey(TIME_DIFF)) { //a timediff expression
+                String beforeAfter = params.get(BEFORE_AFTER).toString();
+                String timeDiff = params.get(TIME_DIFF).toString();
+                String dateStr = params.get(TIME_VAR).toString();
                 long timevar = Long.parseLong(dateStr); //Milliseconds since epoch
                 Calendar c = Calendar.getInstance();
                 c.setTimeInMillis(timevar);
-           //     SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
-                Log.d("DAY/MONTH/YEAR",c.get(Calendar.DAY_OF_MONTH) + "/" + c.get(Calendar.MONTH) + "/" + c.get(Calendar.YEAR));
+                //     SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
+                Log.d("DAY/MONTH/YEAR", c.get(Calendar.DAY_OF_MONTH) + "/" + c.get(Calendar.MONTH) + "/" + c.get(Calendar.YEAR));
                 long differenceInMillis = 0;
                 long marginOfError = 0;
-                Log.d("Hello", "it's me");
-                switch(timeDiff){
-                    case "1 month": differenceInMillis = 30L * 24L * 3600L *1000L;
-                        marginOfError = 24*3600*1000; break; //Margin of error of a day
-                    case "1 week": differenceInMillis = 7L * 24L * 3600L * 1000; marginOfError = 24*3600*1000; break; //Margin of error of a day
-                    case "1 day": differenceInMillis = 24L * 3600L * 1000L; marginOfError = 24*3600*1000; break; //Margin of error of a day
-             //       case "1 hour": differenceInMillis = 3600 * 1000; marginOfError = 3600*1000; break; //Margin of error of an hour
+                switch (timeDiff) {
+                    case MONTH:
+                        differenceInMillis = 30L * 24L * 3600L * 1000L;
+                        marginOfError = 24 * 3600 * 1000;
+                        break; //Margin of error of a day
+                    case WEEK:
+                        differenceInMillis = 7L * 24L * 3600L * 1000;
+                        marginOfError = 24 * 3600 * 1000;
+                        break; //Margin of error of a day
+                    case DAY:
+                        differenceInMillis = 24L * 3600L * 1000L;
+                        marginOfError = 24 * 3600 * 1000;
+                        break; //Margin of error of a day
+                    //       case "1 hour": differenceInMillis = 3600 * 1000; marginOfError = 3600*1000; break; //Margin of error of an hour
                 }
                 long currentTime = System.currentTimeMillis();
                 c.setTimeInMillis(currentTime);
-           //     SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
-                Log.d("CURRENT DAY/MONTH/YEAR",c.get(Calendar.DAY_OF_MONTH) + "/" + c.get(Calendar.MONTH) + "/" + c.get(Calendar.YEAR));
                 long diff = timevar - currentTime;
-                Log.d("Diff", "diff between " + timevar + " and " + currentTime + " is " + (diff/(3600*1000)));
-                if(beforeAfter.equals("before")){
-                    if(diff < 0)return "false";
-                    long error = diff-differenceInMillis;
-                    long hourerror = error/(3600*1000);
-                    Log.d("TIMEDIFF","Our actual error in hours is " + hourerror + "  is " + Math.abs(error) + " and margin of error " + marginOfError);
-                    if(Math.abs(error) < marginOfError)return "true";
-                    return "false";
 
-                }
-                else if(beforeAfter.equals("after")){
-                    if(diff > 0)return "false";
-                    long error = (-diff)-differenceInMillis;
-                    Log.d("TIMEDIFF","Our actual error is " + Math.abs(error) + " and margin of error " + marginOfError);
+                if (beforeAfter.equals(BEFORE)) {
+                    if (diff < 0) return FALSE;
+                    long error = diff - differenceInMillis;
+                    if (Math.abs(error) < marginOfError) return TRUE;
+                    return FALSE;
 
-                    if(Math.abs(error) < marginOfError) return "true";
-                    return "false";
+                } else if (beforeAfter.equals(AFTER)) {
+                    if (diff > 0) return FALSE;
+                    long error = (-diff) - differenceInMillis;
+                    if (Math.abs(error) < marginOfError) return TRUE;
+                    return FALSE;
 
                 }
 
-            }
-            else{
-                String varname = ((UserVariable)expr).getname();
-                Log.i("VARNAME","Varname is " + (expr).getname());
-                Log.i("VARTYPE","Vartype is " + ( expr).getvartype());
+            } else {
                 String name = (expr).getname();
-                //GET THE HARDCODED STRING OUT OF HERE, THIS IS BAD
-                switch(expr.getvartype()){
-                    case "Location": return userPrefs.getString(name,"");
-                    case "Numeric": return Long.toString(userPrefs.getLong(name,0));
-                    case "Time": return Long.toString(userPrefs.getLong(name,0));
-                    case "Boolean" : return Boolean.toString(userPrefs.getBoolean(name,false));
+                switch (expr.getvartype()) {
+                    case LOCATION:
+                        return userPrefs.getString(name, "");
+                    case NUMERIC:
+                        return Long.toString(userPrefs.getLong(name, 0));
+                    case TIME:
+                        return Long.toString(userPrefs.getLong(name, 0));
+                    case DATE:
+                        return Long.toString(userPrefs.getLong(name, 0));
+                    case BOOLEAN:
+                        return Boolean.toString(userPrefs.getBoolean(name, false));
                 }
             }
         }
@@ -205,55 +180,42 @@ public class ExpressionParser {
         List<FirebaseExpression> vars = expr.getvariables();
         FirebaseExpression lhs = vars.get(0);
         FirebaseExpression rhs = null;
-        if(vars.size() >1) //Sometimes expressions will only have one variable, i.e. NOT(var)
+        if (vars.size() > 1) //Sometimes expressions will only have one variable, i.e. NOT(var)
             rhs = vars.get(1);
         String operation = expr.getname();
-        Log.d("OPERATION","Operation is " + operation);
-        if(operation.equals(AND))
+        Log.d("OPERATION", "Operation is " + operation);
+        if (operation.equals(AND))
             return Boolean.toString(Boolean.parseBoolean(evaluate(lhs)) && Boolean.parseBoolean(evaluate(rhs)));
-        else if(operation.equals(OR))
+        else if (operation.equals(OR))
             return Boolean.toString(Boolean.parseBoolean(evaluate(lhs)) || Boolean.parseBoolean(evaluate(rhs)));
-        else if(operation.equals(EQUALS)) {
+        else if (operation.equals(EQUALS)) {
             return Boolean.toString((evaluate(lhs)).equals(evaluate(rhs)));
-        }
-        else if(operation.equals(NOT_EQUALS))
+        } else if (operation.equals(NOT_EQUALS))
             return Boolean.toString(!(Boolean.parseBoolean(evaluate(lhs))));
-        else if(operation.equals(LESS_THAN))
+        else if (operation.equals(LESS_THAN))
             return Boolean.toString(Long.parseLong(evaluate(lhs)) < Long.parseLong(evaluate(rhs)));
-        else if(operation.equals(GREATER_THAN))
+        else if (operation.equals(GREATER_THAN))
             return Boolean.toString(Long.parseLong(evaluate(lhs)) > Long.parseLong(evaluate(rhs)));
-//        if(operation.equals(ADD))
-//            return Long.parseLong((String) evaluate(lhs)) + Long.parseLong((String) evaluate(rhs));
-//        else if(operation.equals(SUBTRACT))
-//            return Long.parseLong((String) evaluate(lhs)) - Long.parseLong((String) evaluate(rhs));
-//        else if(operation.equals(MULTIPLY))
-//            return Long.parseLong((String) evaluate(lhs)) * Long.parseLong((String) evaluate(rhs));
-//        else if(operation.equals(DIVIDE))
-//            return Long.parseLong((String) evaluate(lhs)) / Long.parseLong((String) evaluate(rhs));
-        return "false";
+        return FALSE;
     }
 
-    public static class SampleOnceTask extends AsyncTask<Void, Void, SensorData>
-    {
+
+    //Need this to sample once in our sensor expression
+    public static class SampleOnceTask extends AsyncTask<Void, Void, SensorData> {
         private final ESSensorManager sensorManager;
         private final int sensorType;
         protected String errorMessage;
 
-        public SampleOnceTask(int sensorType) throws ESException
-        {
+        public SampleOnceTask(int sensorType) throws ESException {
             this.sensorType = sensorType;
             sensorManager = ESSensorManager.getSensorManager(ApplicationContext.getContext());
         }
 
         @Override
-        protected SensorData doInBackground(Void... params)
-        {
-            try
-            {
+        protected SensorData doInBackground(Void... params) {
+            try {
                 return sensorManager.getDataFromSensor(sensorType);
-            }
-            catch (ESException e)
-            {
+            } catch (ESException e) {
                 e.printStackTrace();
                 errorMessage = e.getMessage();
                 return null;

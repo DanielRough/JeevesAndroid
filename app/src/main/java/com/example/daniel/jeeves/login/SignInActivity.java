@@ -41,6 +41,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
 
+import static com.example.daniel.jeeves.ApplicationContext.STUDY_NAME;
+
 public class SignInActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final String TAG = "SignInActivity";
@@ -130,11 +132,8 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
                             mFirebaseUser = mFirebaseAuth.getCurrentUser();
                             String uid = mFirebaseUser.getUid();
                             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getContext());
-                            if (preferences.contains(uid+"_STUDY")) {
-                                String studyname = preferences.getString(uid+"_STUDY","");
+                            if (preferences.contains(STUDY_NAME)) {
                                 Intent intent = new Intent(getInstance(), WelcomeActivity.class);
-                                intent.putExtra("studyname", studyname);
-                                intent.putExtra("username",preferences.getString(uid+"_NAME",""));
                                 startActivity(intent);
                                 finish();
                             } else
@@ -177,7 +176,6 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
             case R.id.link_signup:
                 Intent intent = new Intent(getApplicationContext(), SignUpActivity.class);
                 startActivityForResult(intent, REQUEST_SIGNUP);
-                //   createAccount(mEmailField.getText().toString(), mPasswordField.getText().toString());
                 break;
             case R.id.email_sign_in_button:
                 signIn(mEmailField.getText().toString(), mPasswordField.getText().toString());
@@ -206,7 +204,6 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
                         }
                     }
                 });
-
             }
         }
     }

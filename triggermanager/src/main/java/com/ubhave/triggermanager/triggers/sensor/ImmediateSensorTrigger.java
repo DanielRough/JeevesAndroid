@@ -184,7 +184,7 @@ public class ImmediateSensorTrigger extends Trigger implements SensorDataListene
 		if (classifier.isInteresting(sensorData, sensorData.getSensorConfig(), value)) {
 			sendNotification();
 		} else {
-			Log.d("NAH", "Nah wasn't very interesting at all. Sensor data was " + ((LocationData) sensorData).getLocations());
+			Log.d("NAH", "Nah wasn't very interesting at all");
 		}
 	}
 

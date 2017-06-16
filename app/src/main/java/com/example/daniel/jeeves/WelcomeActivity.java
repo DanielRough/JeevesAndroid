@@ -2,7 +2,9 @@ package com.example.daniel.jeeves;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -12,48 +14,40 @@ import android.widget.TextView;
 
 import com.example.daniel.jeeves.firebase.FirebaseUtils;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.FirebaseDatabase;
 
+import static com.example.daniel.jeeves.ApplicationContext.DEVELOPER_ID;
+import static com.example.daniel.jeeves.ApplicationContext.UID;
+import static com.example.daniel.jeeves.ApplicationContext.USERNAME;
+import static com.example.daniel.jeeves.firebase.FirebaseUtils.SURVEYS_KEY;
 
-/**
- * This activity is begun when the 'Sense Data' button is pressed on the Launch screen.
- */
 public class WelcomeActivity extends Activity {
     private static WelcomeActivity instance;
     FirebaseAuth mFirebaseAuth;
-   // FirebaseProject currentConfig = new FirebaseProject();
     TextView txtWelcome;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         instance = this;
-        Log.d("STUDYNAME","study name is " + getIntent().getStringExtra("studyname"));
 
         mFirebaseAuth = FirebaseAuth.getInstance();
-        FirebaseUser mFirebaseUser = mFirebaseAuth.getCurrentUser();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sense);
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getContext());
 
-//        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-//        if(prefs.contains("triggerIds")) {
-//            Set<String> trigs = prefs.getStringSet("triggerIds", null);
-//            triggerids = new ArrayList<>(trigs);
-//        }
-
-        //--------------------------------
+        //We MAY need to reset these
+        if(FirebaseUtils.PATIENT_REF == null){
+            FirebaseDatabase database = FirebaseDatabase.getInstance();
+            FirebaseUtils.SURVEY_REF = database.getReference(FirebaseUtils.PRIVATE_KEY).child(prefs.getString(DEVELOPER_ID,"")).child(SURVEYS_KEY);
+            FirebaseUtils.PATIENT_REF = database.getReference(FirebaseUtils.PRIVATE_KEY).child(prefs.getString(DEVELOPER_ID,"")).child(FirebaseUtils.PATIENTS_KEY).child(prefs.getString(UID,""));
+        }
         //START THE SENSING SERVICE
-
-        String studyname = getIntent().getStringExtra("studyname");
         Intent intent = new Intent(this, SenseService.class);
-        intent.putExtra("studyname",studyname);
         startService(intent);
-        //START THE SENSING SERVICE
-        //--------------------------------
 
         txtWelcome = (TextView)findViewById(R.id.txtWelcome);
-        txtWelcome.setText("Welcome, " + getIntent().getStringExtra("username"));
+        txtWelcome.setText("Welcome, " + prefs.getString(USERNAME,""));
 
 
         Button btnContact = (Button) findViewById(R.id.btnContact);

@@ -141,8 +141,27 @@ public class AccelerometerDataClassifier implements SensorDataClassifier
 				status += 1;
 			}
 		}
-
-		if( value.equals("Started")){
+//
+//		if( value.equals("Started")){
+//			if (status >= 0 && lastStatus <0)
+//			{
+//				lastStatus = status;
+//				// stationary
+//				return true;
+//			}
+//		}
+//		else if(value.equals("Stopped")){
+//			if (status < 0 && lastStatus >=0)
+//			{
+//				lastStatus = status;
+//				// stationary
+//				return true;
+//			}
+//		}
+//		else
+//
+		//Only interested if they weren't moving before and now they are
+		if(value.equals("Moving")){
 			if (status >= 0 && lastStatus <0)
 			{
 				lastStatus = status;
@@ -150,31 +169,19 @@ public class AccelerometerDataClassifier implements SensorDataClassifier
 				return true;
 			}
 		}
-		else if(value.equals("Stopped")){
-			if (status < 0 && lastStatus >=0)
-			{
-				lastStatus = status;
-				// stationary
-				return true;
-			}
-		}
-		else if(value.equals("Moving")){
-			if (status >= 0 && lastStatus >=0)
-			{
-				lastStatus = status;
-				// stationary
-				return true;
-			}
-		}
+		//Only interested if they were moving before and now they're not
 		else if(value.equals("Stationary")){
-			if (status < 0 && lastStatus < 0)
+			if (status < 0 && lastStatus >= 0)
 			{
 				lastStatus = status;
 				// stationary
 				return true;
 			}
 		}
-		Log.d("NAAAH","Nah it was actually false how sad");
+
+		lastStatus = status;
+
+		Log.d("NAAAH","Nah it was actually false how sad. Last status was " + lastStatus + " and this status was " + status);
 
 		return false;
 	}

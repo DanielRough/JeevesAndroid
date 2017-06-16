@@ -4,15 +4,16 @@ package com.example.daniel.jeeves.actions;
  * Created by Daniel on 27/05/15.
  */
 public class ActionUtils {
+    public static final String ACTIONS = "actions";
     public static final String NAME_PROMPT_ACTION 			= "Send Prompt";
     public static final String NAME_MESSAGE_ACTION 	= "Send SMS";
     public static final String NAME_SEND_SURVEY_ACTION			= "Send Survey";
     public static final String NAME_SPEAKER_PHONE_ACTION 		= "Adjust phone volume";
     public static final String NAME_UPDATE_USER_ACTION = "Update patient attribute";
     public static final String NAME_WAIT_ACTION = "Wait";
-
-    //IControl com.example.daniel.jeeves.actions
     public static final String NAME_IF_CONTROL = "If Condition";
+
+
 
     public static FirebaseAction create(FirebaseAction baseAction){
         switch(baseAction.getname()){

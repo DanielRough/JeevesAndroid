@@ -35,6 +35,11 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import static com.example.daniel.jeeves.ApplicationContext.DEVELOPER_ID;
+import static com.example.daniel.jeeves.ApplicationContext.EMAIL;
+import static com.example.daniel.jeeves.ApplicationContext.PHONE;
+import static com.example.daniel.jeeves.ApplicationContext.STUDY_NAME;
+import static com.example.daniel.jeeves.ApplicationContext.USERNAME;
 import static com.example.daniel.jeeves.firebase.FirebaseUtils.SURVEYS_KEY;
 
 public class StudySignupActivity extends AppCompatActivity {
@@ -61,7 +66,7 @@ public class StudySignupActivity extends AppCompatActivity {
         final EditText txtStudyId = (EditText) findViewById(R.id.textStudyId);
         TextView txtWelcome = (TextView) findViewById(R.id.txtWelcome);
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getContext());
-        username = prefs.getString(mFirebaseUser.getUid()+"_NAME","");
+        username = prefs.getString(USERNAME,"");
         txtWelcome.setText("Welcome, " + username);
 
         final Button beginStudy = (Button) findViewById(R.id.btnBeginStudy);
@@ -142,23 +147,25 @@ public class StudySignupActivity extends AppCompatActivity {
         ApplicationContext.setCurrentproject(selectedProject);
 
         String developerid = selectedProject.getresearcherno();
+
         //Set the reference we need to push our survey results to
         FirebaseUtils.SURVEY_REF = database.getReference(FirebaseUtils.PRIVATE_KEY).child(developerid).child(SURVEYS_KEY);
         FirebaseUtils.PATIENT_REF = database.getReference(FirebaseUtils.PRIVATE_KEY).child(developerid).child(FirebaseUtils.PATIENTS_KEY).child(mFirebaseUser.getUid());
+
 
         Intent intent = new Intent(getInstance(),WelcomeActivity.class);
         SharedPreferences varPrefs = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getContext());
         //Add the user's selected study to SharedPreferences
         SharedPreferences.Editor prefsEditor = varPrefs.edit();
-        prefsEditor.putString(mFirebaseUser.getUid()+"_STUDY",selectedStudy);
+        prefsEditor.putString(STUDY_NAME,selectedStudy);
+        prefsEditor.putString(DEVELOPER_ID,developerid);
         prefsEditor.commit();
-        intent.putExtra("studyname",selectedStudy);
-        intent.putExtra("username",username);
+
         //Add in the initial values
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getContext());
-        String username = prefs.getString(mFirebaseUser.getUid()+"_NAME","");
-        String email = prefs.getString(mFirebaseUser.getUid()+"_EMAIL","");
-        String phoneno = prefs.getString(mFirebaseUser.getUid()+"_PHONE","");
+        String username = prefs.getString(USERNAME,"");
+        String email = prefs.getString(EMAIL,"");
+        String phoneno = prefs.getString(PHONE,"");
         String sensitiveData = username+";"+email+";"+phoneno;
         FirebaseUtils.PATIENT_REF.child("userinfo").setValue(FirebaseUtils.encodeAnswers(sensitiveData));
         FirebaseUtils.PATIENT_REF.child("name").setValue(mFirebaseUser.getUid());

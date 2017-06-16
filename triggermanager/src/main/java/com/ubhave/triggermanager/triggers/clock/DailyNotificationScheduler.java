@@ -88,14 +88,7 @@ public class DailyNotificationScheduler implements TriggerReceiver
 	//This means that the scheduler does its thing EVERY DAY
 	private long schedulerInterval()
 	{
-		//	if (params.containsKey(TriggerConfig.INTERVAL_TIME_MILLIS))
-//		{
-//			return (Long) params.getParameter(TriggerConfig.INTERVAL_TIME_MILLIS);
-//		}
-//		else
-//		{
 		return DAILY_INTERVAL;
-//		}
 	}
 
 
@@ -109,7 +102,7 @@ public class DailyNotificationScheduler implements TriggerReceiver
 		midnight.set(Calendar.SECOND,0);
 		long startDelay = (calendar.getTimeInMillis()-midnight.getTimeInMillis())/(1000*60);
 
-		Log.d("Start delay", "My current starting time is " + startDelay);
+//		Log.d("Start delay", "My current starting time is " + startDelay);
 		return startDelay; //This ought to be the number of minutes since midnight. i.e.: NOW
 //		}
 	}

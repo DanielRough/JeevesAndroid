@@ -30,6 +30,9 @@ import com.ubhave.triggermanager.triggers.TriggerUtils;
 
 import java.util.ArrayList;
 
+import static com.example.daniel.jeeves.ApplicationContext.TRIG_TYPE;
+import static com.example.daniel.jeeves.actions.ActionUtils.ACTIONS;
+
 public class TriggerListener implements TriggerReceiver {
 
     private final ESTriggerManager triggerManager;
@@ -39,7 +42,6 @@ public class TriggerListener implements TriggerReceiver {
     private ArrayList<FirebaseAction> actionsToPerform;
     public TriggerListener(int triggerType, Context c) throws TriggerException {
         this.triggerType = triggerType;
-      //  this.triggerName = TriggerUtils.getTriggerName(triggerType);
         this.serviceContext = c;
         this.triggerManager = ESTriggerManager.getTriggerManager(ApplicationContext.getContext());
     }
@@ -51,12 +53,10 @@ public class TriggerListener implements TriggerReceiver {
             this.triggerId = triggerId;
             actionsToPerform = new ArrayList<>();
             for(FirebaseAction action : actions){
-
-                actionsToPerform.add(ActionUtils.create(action)); //Oh good lord really!?
+                actionsToPerform.add(ActionUtils.create(action));
                 Log.d("Action is ", action.getname());
             }
             triggerSubscriptionId = triggerManager.addTrigger(triggerType, this, params);
-            //SubscriptionIds.setId(Long.toString(triggerId), triggerSubscriptionId);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -75,15 +75,9 @@ public class TriggerListener implements TriggerReceiver {
     @Override
     public void onNotificationTriggered(int triggerId) {
         Intent actionIntent = new Intent(serviceContext,ActionExecutorService.class);
-        actionIntent.putExtra("com/example/daniel/jeeves/actions",actionsToPerform);
-        //For some reason I need to know whether the user has triggered this manually by pushing a button or not...
-        if(triggerType == TriggerUtils.TYPE_SENSOR_TRIGGER_BUTTON) {
-            actionIntent.putExtra("manual", true);
-        }
-        else {
-            actionIntent.putExtra("manual", false);
-        }
-        actionIntent.putExtra("TRIGGER_TYPE",triggerType);
+        actionIntent.putExtra(ACTIONS,actionsToPerform);
+
+        actionIntent.putExtra(TRIG_TYPE,triggerType);
             serviceContext.startService(actionIntent);
     }
 
