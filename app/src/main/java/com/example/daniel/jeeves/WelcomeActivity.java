@@ -38,7 +38,7 @@ public class WelcomeActivity extends Activity {
 
         //We MAY need to reset these
         if(FirebaseUtils.PATIENT_REF == null){
-            FirebaseDatabase database = FirebaseDatabase.getInstance();
+            FirebaseDatabase database =FirebaseUtils.getDatabase();
             FirebaseUtils.SURVEY_REF = database.getReference(FirebaseUtils.PRIVATE_KEY).child(prefs.getString(DEVELOPER_ID,"")).child(SURVEYS_KEY);
             FirebaseUtils.PATIENT_REF = database.getReference(FirebaseUtils.PRIVATE_KEY).child(prefs.getString(DEVELOPER_ID,"")).child(FirebaseUtils.PATIENTS_KEY).child(prefs.getString(UID,""));
         }

@@ -187,8 +187,8 @@ public class SensorUtils
 			return BluetoothSensor.getSensor(context);
 		case SENSOR_TYPE_LOCATION:
 			return LocationSensor.getSensor(context);
-		case SENSOR_TYPE_MICROPHONE:
-			return MicrophoneSensor.getSensor(context);
+//		case SENSOR_TYPE_MICROPHONE:
+//			return MicrophoneSensor.getSensor(context);
 		case SENSOR_TYPE_PHONE_STATE:
 			return PhoneStateSensor.getSensor(context);	
 		case SENSOR_TYPE_PROXIMITY:
@@ -203,26 +203,26 @@ public class SensorUtils
 			return ConnectionStateSensor.getSensor(context);
 		case SENSOR_TYPE_SMS_CONTENT_READER:
 			return SMSContentReaderSensor.getSensor(context);
-		case SENSOR_TYPE_CALL_CONTENT_READER:
-			return CallContentReaderSensor.getSensor(context);
-		case SENSOR_TYPE_GYROSCOPE:
-			return GyroscopeSensor.getSensor(context);
-		case SENSOR_TYPE_LIGHT:
-			return LightSensor.getSensor(context);
-		case SENSOR_TYPE_PHONE_RADIO:
-			return PhoneRadioSensor.getPhoneRadioSensor(context);
+//		case SENSOR_TYPE_CALL_CONTENT_READER:
+//			return CallContentReaderSensor.getSensor(context);
+//		case SENSOR_TYPE_GYROSCOPE:
+//			return GyroscopeSensor.getSensor(context);
+//		case SENSOR_TYPE_LIGHT:
+//			return LightSensor.getSensor(context);
+//		case SENSOR_TYPE_PHONE_RADIO:
+//			return PhoneRadioSensor.getPhoneRadioSensor(context);
 		case SENSOR_TYPE_CONNECTION_STRENGTH:
 			return ConnectionStrengthSensor.getSensor(context);
 		case SENSOR_TYPE_PASSIVE_LOCATION:
 			return PassiveLocationSensor.getSensor(context);
-		case SENSOR_TYPE_AMBIENT_TEMPERATURE:
-			return AmbientTemperatureSensor.getSensor(context);
-		case SENSOR_TYPE_PRESSURE:
-			return PressureSensor.getSensor(context);
-		case SENSOR_TYPE_HUMIDITY:
-			return HumiditySensor.getSensor(context);
-		case SENSOR_TYPE_MAGNETIC_FIELD:
-			return MagneticFieldSensor.getSensor(context);
+//		case SENSOR_TYPE_AMBIENT_TEMPERATURE:
+//			return AmbientTemperatureSensor.getSensor(context);
+//		case SENSOR_TYPE_PRESSURE:
+//			return PressureSensor.getSensor(context);
+//		case SENSOR_TYPE_HUMIDITY:
+//			return HumiditySensor.getSensor(context);
+//		case SENSOR_TYPE_MAGNETIC_FIELD:
+//			return MagneticFieldSensor.getSensor(context);
 		case SENSOR_TYPE_STEP_COUNTER:
 			return StepCounterSensor.getSensor(context);
 		default:

@@ -41,6 +41,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import static com.example.daniel.jeeves.ApplicationContext.FINISHED_INTRODUCTION;
 import static com.example.daniel.jeeves.ApplicationContext.STUDY_NAME;
 import static com.example.daniel.jeeves.firebase.FirebaseUtils.BOOLEAN;
 import static com.example.daniel.jeeves.firebase.FirebaseUtils.DATE;
@@ -78,13 +79,13 @@ public class SenseService extends Service{
     }
     @Override
     public void onCreate(){
-        final FirebaseDatabase database = FirebaseDatabase.getInstance();
+        final FirebaseDatabase database = FirebaseUtils.getDatabase();
         SharedPreferences varPrefs = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getContext());
         String studyname = varPrefs.getString(STUDY_NAME, "");
-//        Log.d("SUTDYNAME","IT'S...." + studyname);
-        //Find the project config in the 'public' section of the database
         DatabaseReference projectRef = database.getReference(PUBLIC_KEY).child(PROJECTS_KEY).child(studyname);
 
+        //We also listen on the project ref in here (this is a constant listener as opposed to
+        //the one in the MainActivity
         projectRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
@@ -95,23 +96,16 @@ public class SenseService extends Service{
                     Log.d("OH NO","IT WAS NULL");
                     return;
                 }
-      //          String developerid = post.getresearcherno();
-    //            FirebaseAuth mFirebaseAuth = FirebaseAuth.getInstance();
-  //              FirebaseUser mFirebaseUser = mFirebaseAuth.getCurrentUser();
-//
-//                FirebaseUtils.SURVEY_REF = database.getReference(FirebaseUtils.PRIVATE_KEY).child(developerid).child(SURVEYS_KEY);
-//                FirebaseUtils.PATIENT_REF = database.getReference(FirebaseUtils.PRIVATE_KEY).child(developerid).child(FirebaseUtils.PATIENTS_KEY).child(mFirebaseUser.getUid());
-                //I don't like it but it should hopefully stop any errors
-                try {
+                try{
                     updateConfig(post);
-                } catch (JSONException e) {
+                }
+                catch(JSONException e){
                     e.printStackTrace();
                 }
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {}
         });
-
         //This is a broadcast receiver that is notified whenever the user's variables have changed in response to a survey
         //Because some triggers' configuration is dependent on these variables, we need to reset them when, for example,
         //the start or end date has changed
@@ -213,6 +207,16 @@ public class SenseService extends Service{
         Log.d("TRIGLAUNCH","Launching trigger " + trigger.getname() + trigger.gettriggerId());
         String triggerType = trigger.getname();
         String triggerId = trigger.gettriggerId();
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getContext());
+
+        //Awkward bit of <code></code>
+        //IF we already completed this starting survey, there's no need to relaunch it again!
+        try {
+            if(prefs.getBoolean(FINISHED_INTRODUCTION,false) && TriggerUtils.getTriggerType(triggerType) == TriggerUtils.TYPE_CLOCK_TRIGGER_BEGIN)
+                return;
+        } catch (TriggerException e) {
+            e.printStackTrace();
+        }
         Map<String, Object> params = trigger.getparams();
         List<FirebaseAction> actions = new ArrayList<>();
         if (trigger.getactions() != null)

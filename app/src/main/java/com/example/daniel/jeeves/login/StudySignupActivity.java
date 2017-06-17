@@ -61,7 +61,7 @@ public class StudySignupActivity extends AppCompatActivity {
         mFirebaseAuth = FirebaseAuth.getInstance();
         mFirebaseUser = mFirebaseAuth.getCurrentUser();
         projectMap = new HashMap<String,FirebaseProject>();
-        database = FirebaseDatabase.getInstance();
+        database = FirebaseUtils.getDatabase();
         setContentView(R.layout.activity_study_signup);
         final EditText txtStudyId = (EditText) findViewById(R.id.textStudyId);
         TextView txtWelcome = (TextView) findViewById(R.id.txtWelcome);

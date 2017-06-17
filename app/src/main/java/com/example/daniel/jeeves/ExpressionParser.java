@@ -69,6 +69,21 @@ public class ExpressionParser {
         if (expr.getisValue()) {
             return (expr).getvalue().toString();
         }
+        else if(expr.getisCustom()){
+            String name = (expr).getname();
+            switch (expr.getvartype()) {
+                case LOCATION:
+                    return userPrefs.getString(name, "");
+                case NUMERIC:
+                    return Long.toString(userPrefs.getLong(name, 0));
+                case TIME:
+                    return Long.toString(userPrefs.getLong(name, 0));
+                case DATE:
+                    return Long.toString(userPrefs.getLong(name, 0));
+                case BOOLEAN:
+                    return Boolean.toString(userPrefs.getBoolean(name, false));
+            }
+        }
         else if (expr.getvariables() == null) {
             Map<String, Object> params = expr.getparams();
             if (params.containsKey(SENSOR)) { //a sensor expression
@@ -160,20 +175,6 @@ public class ExpressionParser {
 
                 }
 
-            } else {
-                String name = (expr).getname();
-                switch (expr.getvartype()) {
-                    case LOCATION:
-                        return userPrefs.getString(name, "");
-                    case NUMERIC:
-                        return Long.toString(userPrefs.getLong(name, 0));
-                    case TIME:
-                        return Long.toString(userPrefs.getLong(name, 0));
-                    case DATE:
-                        return Long.toString(userPrefs.getLong(name, 0));
-                    case BOOLEAN:
-                        return Boolean.toString(userPrefs.getBoolean(name, false));
-                }
             }
         }
 

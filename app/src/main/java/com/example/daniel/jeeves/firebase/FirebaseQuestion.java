@@ -15,9 +15,14 @@ public class FirebaseQuestion {
     public long questionType;
     public String questionText;
     public String assignedVar;
+    public boolean isMandatory;
     public Map<String,Object> params;
     long xPos;
     long yPos;
+
+    public boolean getisMandatory() {return isMandatory; }
+
+    public void setisMandatory(boolean isMandatory){ this.isMandatory = isMandatory; }
 
     public long getquestionType(){
         return questionType;

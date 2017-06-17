@@ -211,10 +211,10 @@ public class SurveyAction extends FirebaseAction {
         //The ycan just skip straight to the survey
 
         //We still want to have a dialog to keep the expiry stuff alive (at least for now)
-        if (triggerType == TriggerUtils.TYPE_SENSOR_TRIGGER_BUTTON) {
-            mBuilder.setContentTitle("Started a survey!");
-             mBuilder.setVibrate(new long[]{0});
-            mBuilder.mActions.clear();
+        if (triggerType == TriggerUtils.TYPE_SENSOR_TRIGGER_BUTTON || triggerType == TriggerUtils.TYPE_CLOCK_TRIGGER_BEGIN) {
+//            mBuilder.setContentTitle("Started a survey!");
+//             mBuilder.setVibrate(new long[]{0});
+//            mBuilder.mActions.clear();
             Intent resultIntent = new Intent(app, SurveyActivity.class);
             resultIntent.putExtra(SURVEY_ID, newPostRefId);
             resultIntent.putExtra(SURVEY_NAME, surveyname);
@@ -223,7 +223,7 @@ public class SurveyAction extends FirebaseAction {
             resultIntent.putExtra(TRIG_TYPE,triggerType);
             resultIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             app.startActivity(resultIntent);
-            notificationManager.notify(thisActionsId, mBuilder.build());
+      //      notificationManager.notify(thisActionsId, mBuilder.build());
 
             return true;
 

@@ -75,6 +75,7 @@ import java.util.Map;
 
 import static com.example.daniel.jeeves.ApplicationContext.COMPLETE;
 import static com.example.daniel.jeeves.ApplicationContext.COMPLETED_SURVEYS;
+import static com.example.daniel.jeeves.ApplicationContext.FINISHED_INTRODUCTION;
 import static com.example.daniel.jeeves.ApplicationContext.INIT_TIME;
 import static com.example.daniel.jeeves.ApplicationContext.LAST_SURVEY_SCORE;
 import static com.example.daniel.jeeves.ApplicationContext.STATUS;
@@ -135,7 +136,11 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
         InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
         inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
+    @Override
+    public void onBackPressed() {
 
+        return;
+    }
     protected void onStop() {
         super.onStop();
         if(currentsurvey != null) //Sometimes it's null if the activity is accessed from the lock screen
@@ -163,7 +168,7 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
 
         setContentView(R.layout.activity_missed_survey);
         ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
+
         setContentView(R.layout.activity_survey);
 
         surveyid = getIntent().getStringExtra(SURVEY_ID);
@@ -172,6 +177,16 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
         triggerType = getIntent().getIntExtra(TRIG_TYPE,0);
         mFirebaseAuth = FirebaseAuth.getInstance();
 
+        //Here's a fiddly wee bit of code that makes our starting survey MANDATORY (i.e. the user can't do anything before
+        //they complete it)
+        if(triggerType == TriggerUtils.TYPE_CLOCK_TRIGGER_BEGIN){
+            actionBar.setDisplayHomeAsUpEnabled(false);
+            actionBar.setHomeButtonEnabled(false);
+        }
+        else{
+            actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setHomeButtonEnabled(true);
+        }
         prefs = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getContext());
 
         surveyRef = FirebaseUtils.PATIENT_REF.child("incomplete").child(surveyid);
@@ -305,6 +320,12 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
                     }
                 });
                 finished = true;
+
+                //We should write this to Shared Preferences so that, if the app closes, we know we've already
+                //finished the introductory survey
+                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getContext());
+                editor.putBoolean(FINISHED_INTRODUCTION,finished);
+                editor.commit();
                 finish();
             }
         });
@@ -804,6 +825,10 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
 
 
     public void nextQ() {
+        if(questions.get(currentIndex).getisMandatory() && answers.get(currentIndex).isEmpty()) {
+            Toast.makeText(this,"This question is mandatory!",Toast.LENGTH_SHORT).show();
+            return;
+        }
         currentIndex++;
         if (currentIndex == questions.size()) {
             finishalert.setCancelable(false); //Once they're done they're done

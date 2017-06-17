@@ -26,9 +26,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -42,6 +44,7 @@ import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 
 import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.CommonStatusCodes;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
@@ -53,6 +56,8 @@ import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResult;
 import com.google.android.gms.location.LocationSettingsStates;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.Task;
 import com.ubhave.sensormanager.ESException;
 import com.ubhave.sensormanager.config.GlobalConfig;
 import com.ubhave.sensormanager.config.pull.LocationConfig;
@@ -70,6 +75,7 @@ public class LocationSensor extends AbstractPullSensor implements GoogleApiClien
 			Manifest.permission.ACCESS_COARSE_LOCATION,
 			Manifest.permission.ACCESS_FINE_LOCATION
 	};
+	public static final int REQUEST_CHECK_SETTINGS = 100;
 
 	private static LocationSensor locationSensor;
 	private static Object lock = new Object();
@@ -101,6 +107,7 @@ public class LocationSensor extends AbstractPullSensor implements GoogleApiClien
 
 	private LocationSensor(Context context) {
 		super(context);
+
 		locationList = new ArrayList<Location>();
 
 		locListener = new LocationListener() {
@@ -162,9 +169,58 @@ public class LocationSensor extends AbstractPullSensor implements GoogleApiClien
 		PendingResult<LocationSettingsResult> result =
 				LocationServices.SettingsApi.checkLocationSettings(mGoogleApiClient,
 						builder.build());
-
+		result.setResultCallback(new ResultCallback<LocationSettingsResult>() {
+			@Override
+			public void onResult(LocationSettingsResult result) {
+				final Status status = result.getStatus();
+				final LocationSettingsStates = result.getLocationSettingsStates();
+				switch (status.getStatusCode()) {
+					case LocationSettingsStatusCodes.SUCCESS:
+						// All location settings are satisfied. The client can initialize location
+						// requests here.
+						break;
+					case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
+						// Location settings are not satisfied. But could be fixed by showing the user
+						// a dialog.
+						try {
+							// Show the dialog by calling startResolutionForResult(),
+							// and check the result in onActivityResult().
+							status.startResolutionForResult(
+									applicationContext,
+									REQUEST_CHECK_SETTINGS);
+						} catch (IntentSender.SendIntentException e) {
+							// Ignore the error.
+						}
+						break;
+					case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
+						// Location settings are not satisfied. However, we have no way to fix the
+						// settings so we won't show the dialog.
+                 ...
+						break;
+				}
+			}
+		});
 	}
 
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		final LocationSettingsStates states = LocationSettingsStates.fromIntent(intent);
+		switch (requestCode) {
+			case REQUEST_CHECK_SETTINGS:
+				switch (resultCode) {
+					case Activity.RESULT_OK:
+						// All required changes were successfully made
+                     ...
+						break;
+					case Activity.RESULT_CANCELED:
+						// The user was asked to change settings, but chose not to
+                     ...
+						break;
+					default:
+						break;
+				}
+				break;
+		}
+	}
 	protected boolean startSensing() {
 //		if (ActivityCompat.checkSelfPermission(applicationContext, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(applicationContext, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 //			return false;

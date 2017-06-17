@@ -2,7 +2,9 @@ package com.example.daniel.jeeves;
 
 import android.app.Application;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.location.Location;
+import android.preference.PreferenceManager;
 
 import com.example.daniel.jeeves.firebase.FirebaseProject;
 
@@ -24,6 +26,7 @@ public class ApplicationContext extends Application
     public static final String UID = "uid";
     public static final String DEVELOPER_ID = "developerid";
 
+    public static final String FINISHED_INTRODUCTION = "finished";
     //Contact
     public static final String FEEDBACK = "feedback";
 

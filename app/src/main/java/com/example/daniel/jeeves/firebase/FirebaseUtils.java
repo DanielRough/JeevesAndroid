@@ -4,6 +4,7 @@ import android.util.Base64;
 
 import com.example.daniel.jeeves.ApplicationContext;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
@@ -79,4 +80,13 @@ public class FirebaseUtils {
         return base64;
     }
     public static Cipher cipher;
+        private static FirebaseDatabase mDatabase;
+
+        public static FirebaseDatabase getDatabase() {
+            if (mDatabase == null) {
+                mDatabase = FirebaseDatabase.getInstance();
+                mDatabase.setPersistenceEnabled(true);
+            }
+            return mDatabase;
+        }
 }
