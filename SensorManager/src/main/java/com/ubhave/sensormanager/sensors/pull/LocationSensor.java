@@ -26,7 +26,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.Manifest;
-import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.ComponentName;
 import android.content.Context;
@@ -42,9 +41,9 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.CommonStatusCodes;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
@@ -56,8 +55,6 @@ import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResult;
 import com.google.android.gms.location.LocationSettingsStates;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.Task;
 import com.ubhave.sensormanager.ESException;
 import com.ubhave.sensormanager.config.GlobalConfig;
 import com.ubhave.sensormanager.config.pull.LocationConfig;
@@ -75,7 +72,6 @@ public class LocationSensor extends AbstractPullSensor implements GoogleApiClien
 			Manifest.permission.ACCESS_COARSE_LOCATION,
 			Manifest.permission.ACCESS_FINE_LOCATION
 	};
-	public static final int REQUEST_CHECK_SETTINGS = 100;
 
 	private static LocationSensor locationSensor;
 	private static Object lock = new Object();
@@ -107,7 +103,6 @@ public class LocationSensor extends AbstractPullSensor implements GoogleApiClien
 
 	private LocationSensor(Context context) {
 		super(context);
-
 		locationList = new ArrayList<Location>();
 
 		locListener = new LocationListener() {
@@ -121,18 +116,6 @@ public class LocationSensor extends AbstractPullSensor implements GoogleApiClien
 				prefseditor.putString("LastLocation",loc.getLatitude()+";" +loc.getLongitude());
 				prefseditor.commit();
 		//		}
-			}
-
-			// Required by the API
-			public void onProviderDisabled(String provider) {
-			}
-
-			// Required by the API
-			public void onProviderEnabled(String provider) {
-			}
-
-			// Required by the API
-			public void onStatusChanged(String provider, int status, Bundle extras) {
 			}
 		};
 		if (mGoogleApiClient == null) {
@@ -173,115 +156,32 @@ public class LocationSensor extends AbstractPullSensor implements GoogleApiClien
 			@Override
 			public void onResult(LocationSettingsResult result) {
 				final Status status = result.getStatus();
-				final LocationSettingsStates = result.getLocationSettingsStates();
 				switch (status.getStatusCode()) {
 					case LocationSettingsStatusCodes.SUCCESS:
-						// All location settings are satisfied. The client can initialize location
-						// requests here.
 						break;
 					case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
-						// Location settings are not satisfied. But could be fixed by showing the user
-						// a dialog.
-						try {
-							// Show the dialog by calling startResolutionForResult(),
-							// and check the result in onActivityResult().
-							status.startResolutionForResult(
-									applicationContext,
-									REQUEST_CHECK_SETTINGS);
-						} catch (IntentSender.SendIntentException e) {
-							// Ignore the error.
-						}
+						Intent intended = new Intent();
+						intended.setAction(SensorUtils.LOCATION_REQUIRED);
+
+						applicationContext.sendBroadcast(intended);
 						break;
 					case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
-						// Location settings are not satisfied. However, we have no way to fix the
-						// settings so we won't show the dialog.
-                 ...
 						break;
 				}
 			}
 		});
 	}
 
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		final LocationSettingsStates states = LocationSettingsStates.fromIntent(intent);
-		switch (requestCode) {
-			case REQUEST_CHECK_SETTINGS:
-				switch (resultCode) {
-					case Activity.RESULT_OK:
-						// All required changes were successfully made
-                     ...
-						break;
-					case Activity.RESULT_CANCELED:
-						// The user was asked to change settings, but chose not to
-                     ...
-						break;
-					default:
-						break;
-				}
-				break;
-		}
-	}
 	protected boolean startSensing() {
-//		if (ActivityCompat.checkSelfPermission(applicationContext, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(applicationContext, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-//			return false;
-//		}
+		Log.d("Gonna","do some location sensing");
 
-//		try {
-//			String accuracyConfig = (String) sensorConfig.getParameter(LocationConfig.ACCURACY_TYPE);
-//
-//			if ((accuracyConfig != null) && (accuracyConfig.equals(LocationConfig.LOCATION_ACCURACY_FINE))) {
-//				if (locationManager.getAllProviders().contains(LocationManager.NETWORK_PROVIDER)) {
-//
-//
-//					if (checkSelfPermission(applicationContext, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && checkSelfPermission(applicationContext, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-//						// TODO: Consider calling
-//						//    ActivityCompat#requestPermissions
-//						// here to request the missing permissions, and then overriding
-//						//   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-//						//                                          int[] grantResults)
-//						// to handle the case where the user grants the permission. See the documentation
-//						// for ActivityCompat#requestPermissions for more details.
-//						return false;
-//					}
-//					locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 5000, 0, locListener,
-//							Looper.getMainLooper());
-//				} else {
-//					Log.d(TAG, "requestLocationUpdates(), Not registering with NETWORK_PROVIDER as it is unavailable");
-//				}
-//
-//				if (locationManager.getAllProviders().contains(LocationManager.GPS_PROVIDER)) {
-//					locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 0, locListener,
-//							Looper.getMainLooper());
-//				} else {
-//					Log.d(TAG, "requestLocationUpdates(), Not registering with GPS_PROVIDER as it is unavailable");
-//				}
-//			} else {
-//				if (locationManager.getAllProviders().contains(LocationManager.NETWORK_PROVIDER)) {
-//					locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 5000, 0, locListener,
-//							Looper.getMainLooper());
-//				} else {
-//					Log.d(TAG, "requestLocationUpdates(), Not registering with NETWORK_PROVIDER as it is unavailable");
-//				}
-//			}
-			return true;
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//			return false;
-//		}
+		//Every time we start sensing, want to make sure that the sensor's actually on
+		createLocationRequest();
+
+		return true;
 	}
 
 	protected void stopSensing() {
-//		if (ActivityCompat.checkSelfPermission(applicationContext, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(applicationContext, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-//			// TODO: Consider calling
-//			//    ActivityCompat#requestPermissions
-//			// here to request the missing permissions, and then overriding
-//			//   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-//			//                                          int[] grantResults)
-//			// to handle the case where the user grants the permission. See the documentation
-//			// for ActivityCompat#requestPermissions for more details.
-//			return;
-//		}
-	//	locationManager.removeUpdates(locListener);
 	}
 
 	protected SensorData getMostRecentRawData() {
@@ -297,8 +197,6 @@ public class LocationSensor extends AbstractPullSensor implements GoogleApiClien
 
 	@Override
 	public void onConnected(@Nullable Bundle bundle) {
-		Log.d(TAG,"HMMMMMMM");
-
 		if (ActivityCompat.checkSelfPermission(applicationContext, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(applicationContext, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 			return;
 		}
@@ -312,8 +210,6 @@ public class LocationSensor extends AbstractPullSensor implements GoogleApiClien
 			prefseditor.putString("LastLocation",mLastLocation.getLatitude()+";" +mLastLocation.getLongitude());
 			prefseditor.commit();
 		}
-		Log.d(TAG,"Requesting udates now");
-
 		LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, locListener);
 
 	}

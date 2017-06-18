@@ -96,6 +96,7 @@
         <activity
             android:name=".login.StudySignupActivity"
             android:windowSoftInputMode="adjustNothing" />
+        <service android:name=".SenseService$NotificationActionService" />
 
         <service
             android:name=".SenseService"

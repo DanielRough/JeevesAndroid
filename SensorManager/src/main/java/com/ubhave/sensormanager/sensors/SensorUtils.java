@@ -29,31 +29,18 @@ import com.ubhave.sensormanager.ESException;
 import com.ubhave.sensormanager.classifier.AccelerometerDataClassifier;
 import com.ubhave.sensormanager.classifier.BluetoothDataClassifier;
 import com.ubhave.sensormanager.classifier.LocationDataClassifier;
-import com.ubhave.sensormanager.classifier.MicrophoneDataClassifier;
 import com.ubhave.sensormanager.classifier.SensorDataClassifier;
 import com.ubhave.sensormanager.classifier.WifiDataClassifier;
 import com.ubhave.sensormanager.config.GlobalConfig;
-import com.ubhave.sensormanager.sensors.env.AmbientTemperatureSensor;
-import com.ubhave.sensormanager.sensors.env.HumiditySensor;
-import com.ubhave.sensormanager.sensors.env.LightSensor;
-import com.ubhave.sensormanager.sensors.env.PressureSensor;
 import com.ubhave.sensormanager.sensors.pull.AccelerometerSensor;
 import com.ubhave.sensormanager.sensors.pull.BluetoothSensor;
-import com.ubhave.sensormanager.sensors.pull.CallContentReaderSensor;
-import com.ubhave.sensormanager.sensors.pull.GyroscopeSensor;
 import com.ubhave.sensormanager.sensors.pull.LocationSensor;
-import com.ubhave.sensormanager.sensors.pull.MagneticFieldSensor;
-import com.ubhave.sensormanager.sensors.pull.MicrophoneSensor;
-import com.ubhave.sensormanager.sensors.pull.PhoneRadioSensor;
-import com.ubhave.sensormanager.sensors.pull.SMSContentReaderSensor;
 import com.ubhave.sensormanager.sensors.pull.StepCounterSensor;
 import com.ubhave.sensormanager.sensors.pull.WifiSensor;
 import com.ubhave.sensormanager.sensors.push.BatterySensor;
 import com.ubhave.sensormanager.sensors.push.ConnectionStateSensor;
 import com.ubhave.sensormanager.sensors.push.ConnectionStrengthSensor;
-import com.ubhave.sensormanager.sensors.push.PassiveLocationSensor;
 import com.ubhave.sensormanager.sensors.push.PhoneStateSensor;
-import com.ubhave.sensormanager.sensors.push.ProximitySensor;
 import com.ubhave.sensormanager.sensors.push.ScreenSensor;
 import com.ubhave.sensormanager.sensors.push.SmsSensor;
 
@@ -61,6 +48,10 @@ import java.util.ArrayList;
 
 public class SensorUtils
 {
+
+	//Something I've added to request location from the main app module
+	public final static String LOCATION_REQUIRED = "LocationRequest";
+
 	public final static int SENSOR_GROUP_PULL = 0;
 	public final static int SENSOR_GROUP_PUSH = 1;
 	public final static int SENSOR_GROUP_ENVIRONMENT = 2;
@@ -72,22 +63,11 @@ public class SensorUtils
 	public final static int SENSOR_TYPE_LOCATION = 5004;
 	public final static int SENSOR_TYPE_MICROPHONE = 5005;
 	public final static int SENSOR_TYPE_PHONE_STATE = 5006;
-	public final static int SENSOR_TYPE_PROXIMITY = 5007;
 	public final static int SENSOR_TYPE_SCREEN = 5008;
 	public final static int SENSOR_TYPE_SMS = 5009;
 	public final static int SENSOR_TYPE_WIFI = 5010;
 	public final static int SENSOR_TYPE_CONNECTION_STATE = 5011;
-	public final static int SENSOR_TYPE_SMS_CONTENT_READER = 5013;
-	public final static int SENSOR_TYPE_CALL_CONTENT_READER = 5014;
-	public final static int SENSOR_TYPE_GYROSCOPE = 5016;
-	public final static int SENSOR_TYPE_LIGHT = 5017;
-	public final static int SENSOR_TYPE_PHONE_RADIO = 5018;
 	public final static int SENSOR_TYPE_CONNECTION_STRENGTH = 5019;
-	public final static int SENSOR_TYPE_PASSIVE_LOCATION = 5020;
-	public final static int SENSOR_TYPE_AMBIENT_TEMPERATURE = 5021;
-	public final static int SENSOR_TYPE_PRESSURE = 5022;
-	public final static int SENSOR_TYPE_HUMIDITY = 5023;
-	public final static int SENSOR_TYPE_MAGNETIC_FIELD = 5024;
 	public final static int SENSOR_TYPE_STEP_COUNTER = 5025;
 	public final static int SENSOR_TYPE_INTERACTION = 5026;
 	//DJR
@@ -106,16 +86,6 @@ public class SensorUtils
 	public final static String SENSOR_NAME_WIFI = "WiFi";
 	public final static String SENSOR_NAME_CONNECTION_STATE = "ConnectionState";
 	public final static String SENSOR_NAME_CONNECTION_STRENGTH = "ConnectionStrength";
-	public final static String SENSOR_NAME_SMS_CONTENT_READER = "SMSContentReader";
-	public final static String SENSOR_NAME_CALL_CONTENT_READER = "CallContentReader";
-	public final static String SENSOR_NAME_GYROSCOPE = "Gyroscope";
-	public final static String SENSOR_NAME_LIGHT = "Light";
-	public final static String SENSOR_NAME_PHONE_RADIO = "PhoneRadio";
-	public final static String SENSOR_NAME_PASSIVE_LOCATION = "PassiveLocation";
-	public final static String SENSOR_NAME_AMBIENT_TEMPERATURE = "AmbientTemperature";
-	public final static String SENSOR_NAME_PRESSURE = "Pressure";
-	public final static String SENSOR_NAME_HUMIDITY = "Humidity";
-	public final static String SENSOR_NAME_MAGNETIC_FIELD = "MagneticField";
 	public final static String SENSOR_NAME_STEP_COUNTER = "StepCounter";
 	public final static String SENSOR_NAME_INTERACTION = "Interaction";
 
@@ -187,12 +157,8 @@ public class SensorUtils
 			return BluetoothSensor.getSensor(context);
 		case SENSOR_TYPE_LOCATION:
 			return LocationSensor.getSensor(context);
-//		case SENSOR_TYPE_MICROPHONE:
-//			return MicrophoneSensor.getSensor(context);
 		case SENSOR_TYPE_PHONE_STATE:
-			return PhoneStateSensor.getSensor(context);	
-		case SENSOR_TYPE_PROXIMITY:
-			return ProximitySensor.getSensor(context);
+			return PhoneStateSensor.getSensor(context);
 		case SENSOR_TYPE_SCREEN:
 			return ScreenSensor.getSensor(context);
 		case SENSOR_TYPE_SMS:
@@ -201,28 +167,8 @@ public class SensorUtils
 			return WifiSensor.getSensor(context);
 		case SENSOR_TYPE_CONNECTION_STATE:
 			return ConnectionStateSensor.getSensor(context);
-		case SENSOR_TYPE_SMS_CONTENT_READER:
-			return SMSContentReaderSensor.getSensor(context);
-//		case SENSOR_TYPE_CALL_CONTENT_READER:
-//			return CallContentReaderSensor.getSensor(context);
-//		case SENSOR_TYPE_GYROSCOPE:
-//			return GyroscopeSensor.getSensor(context);
-//		case SENSOR_TYPE_LIGHT:
-//			return LightSensor.getSensor(context);
-//		case SENSOR_TYPE_PHONE_RADIO:
-//			return PhoneRadioSensor.getPhoneRadioSensor(context);
 		case SENSOR_TYPE_CONNECTION_STRENGTH:
 			return ConnectionStrengthSensor.getSensor(context);
-		case SENSOR_TYPE_PASSIVE_LOCATION:
-			return PassiveLocationSensor.getSensor(context);
-//		case SENSOR_TYPE_AMBIENT_TEMPERATURE:
-//			return AmbientTemperatureSensor.getSensor(context);
-//		case SENSOR_TYPE_PRESSURE:
-//			return PressureSensor.getSensor(context);
-//		case SENSOR_TYPE_HUMIDITY:
-//			return HumiditySensor.getSensor(context);
-//		case SENSOR_TYPE_MAGNETIC_FIELD:
-//			return MagneticFieldSensor.getSensor(context);
 		case SENSOR_TYPE_STEP_COUNTER:
 			return StepCounterSensor.getSensor(context);
 		default:
@@ -240,8 +186,6 @@ public class SensorUtils
 			return new BluetoothDataClassifier();
 		case SensorUtils.SENSOR_TYPE_LOCATION:
 			return new LocationDataClassifier();
-		case SensorUtils.SENSOR_TYPE_MICROPHONE:
-			return new MicrophoneDataClassifier();
 		case SensorUtils.SENSOR_TYPE_WIFI:
 			return new WifiDataClassifier();
 		default:

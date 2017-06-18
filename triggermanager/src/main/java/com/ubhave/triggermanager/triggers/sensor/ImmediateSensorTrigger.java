@@ -22,44 +22,25 @@ IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 package com.ubhave.triggermanager.triggers.sensor;
 
-import java.text.DateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
-import android.Manifest;
-import android.app.ActivityManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.location.Location;
-import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.provider.SyncStateContract;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.Geofence;
-import com.google.android.gms.location.LocationListener;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationServices;
 import com.ubhave.sensormanager.ESException;
 import com.ubhave.sensormanager.ESSensorManager;
 import com.ubhave.sensormanager.ESSensorManagerInterface;
 import com.ubhave.sensormanager.SensorDataListener;
 import com.ubhave.sensormanager.classifier.SensorClassifiers;
 import com.ubhave.sensormanager.classifier.SensorDataClassifier;
-import com.ubhave.sensormanager.config.pull.MicrophoneConfig;
-import com.ubhave.sensormanager.config.pull.PullSensorConfig;
 import com.ubhave.sensormanager.data.SensorData;
-import com.ubhave.sensormanager.data.pull.LocationData;
 import com.ubhave.sensormanager.sensors.SensorUtils;
 import com.ubhave.triggermanager.TriggerException;
 import com.ubhave.triggermanager.TriggerReceiver;
