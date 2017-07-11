@@ -17,8 +17,11 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
 
 import static com.example.daniel.jeeves.ApplicationContext.DEVELOPER_ID;
+import static com.example.daniel.jeeves.ApplicationContext.STUDY_NAME;
 import static com.example.daniel.jeeves.ApplicationContext.UID;
 import static com.example.daniel.jeeves.ApplicationContext.USERNAME;
+import static com.example.daniel.jeeves.firebase.FirebaseUtils.PROJECTS_KEY;
+import static com.example.daniel.jeeves.firebase.FirebaseUtils.SURVEYDATA_KEY;
 import static com.example.daniel.jeeves.firebase.FirebaseUtils.SURVEYS_KEY;
 
 public class WelcomeActivity extends Activity {
@@ -39,7 +42,9 @@ public class WelcomeActivity extends Activity {
         //We MAY need to reset these
         if(FirebaseUtils.PATIENT_REF == null){
             FirebaseDatabase database =FirebaseUtils.getDatabase();
-            FirebaseUtils.SURVEY_REF = database.getReference(FirebaseUtils.PRIVATE_KEY).child(prefs.getString(DEVELOPER_ID,"")).child(SURVEYS_KEY);
+          //  FirebaseUtils.SURVEY_REF = database.getReference(FirebaseUtils.PRIVATE_KEY).child(prefs.getString(DEVELOPER_ID,"")).child(SURVEYS_KEY);
+            FirebaseUtils.SURVEY_REF = database.getReference(FirebaseUtils.PRIVATE_KEY).child(prefs.getString(DEVELOPER_ID,"")).child(PROJECTS_KEY).child(prefs.getString(STUDY_NAME,"")).child(SURVEYDATA_KEY);
+
             FirebaseUtils.PATIENT_REF = database.getReference(FirebaseUtils.PRIVATE_KEY).child(prefs.getString(DEVELOPER_ID,"")).child(FirebaseUtils.PATIENTS_KEY).child(prefs.getString(UID,""));
         }
         //START THE SENSING SERVICE

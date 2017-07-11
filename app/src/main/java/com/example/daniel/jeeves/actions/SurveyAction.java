@@ -93,7 +93,7 @@ public class SurveyAction extends FirebaseAction {
             surveymap.put(STATUS,0);
             surveymap.put(INIT_TIME,initTime-timeSent);
             surveymap.put(TRIG_TYPE,intent.getIntExtra(TRIG_TYPE,0));
-            FirebaseUtils.SURVEY_REF.child(intent.getStringExtra(SURVEY_NAME)).push().setValue(surveymap);
+            FirebaseUtils.SURVEY_REF.child(intent.getStringExtra(SURVEY_NAME)).child("missed").push().setValue(surveymap);
         }
     }
     public int thisActionsId = 0;
@@ -150,7 +150,6 @@ public class SurveyAction extends FirebaseAction {
         currentsurvey.settriggerType((int)getparams().get(TRIG_TYPE));
         newPostRef.setValue(currentsurvey);
         String newPostRefId = newPostRef.getKey();
-
         //If this has an expiry time, we set our 'time to go', i.e. how long the user has to complete the survey
         long expiryTime = currentsurvey.getexpiryTime();
         long expiryMillis = expiryTime * 60 * 1000;
@@ -161,8 +160,8 @@ public class SurveyAction extends FirebaseAction {
         Intent action1Intent = new Intent(app, NotificationActionService.class).setAction(ACTION_1);
         Intent action2Intent = new Intent(app, NotificationActionService.class).setAction(ACTION_2);
 
-        action1Intent.setType(Integer.toString(thisActionsId) + "start"); //gives intent a unique action to stop it overwriting previous notifications
-        action1Intent.putExtra(SURVEY_NAME, surveyname);
+        action1Intent.setType(surveyname+"start"); //gives intent a unique action to stop it overwriting previous notifications
+        action1Intent.putExtra(SURVEY_NAME, surveyname);                      //scrapped that because actually we do want it to overwrite rather than piling up
         action1Intent.putExtra(SURVEY_ID, newPostRefId);
         action1Intent.putExtra(NOTIF_ID, thisActionsId);
         action1Intent.putExtra(TRIG_TYPE,triggerType);

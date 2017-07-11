@@ -42,6 +42,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
 
 import static com.example.daniel.jeeves.ApplicationContext.STUDY_NAME;
+import static com.example.daniel.jeeves.ApplicationContext.UID;
 
 public class SignInActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -132,6 +133,9 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
                             mFirebaseUser = mFirebaseAuth.getCurrentUser();
                             String uid = mFirebaseUser.getUid();
                             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getContext());
+                            SharedPreferences.Editor prefsEditor = preferences.edit();
+                            prefsEditor.putString(UID,uid);
+                            prefsEditor.commit();
                             if (preferences.contains(STUDY_NAME)) {
                                 Intent intent = new Intent(getInstance(), WelcomeActivity.class);
                                 startActivity(intent);

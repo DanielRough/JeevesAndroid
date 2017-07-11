@@ -48,7 +48,7 @@ public class ContactActivity extends AppCompatActivity {
 //                        sms.sendTextMessage(researcherno, null, message, null, null);
 //                    }
                 final DatabaseReference firebaseFeedback = FirebaseUtils.PATIENT_REF.child(FEEDBACK).child(Long.toString(System.currentTimeMillis()));
-                firebaseFeedback.setValue(txtContactResearcher.getText().toString());
+                firebaseFeedback.setValue("Patient: " + txtContactResearcher.getText().toString());
                 finishalert.setCancelable(false); //Once they're done they're done
                 finishalert.show();
                 return;

@@ -84,6 +84,7 @@ import static com.example.daniel.jeeves.ApplicationContext.SURVEY_NAME;
 import static com.example.daniel.jeeves.ApplicationContext.SURVEY_SCORE_DIFF;
 import static com.example.daniel.jeeves.ApplicationContext.TIME_SENT;
 import static com.example.daniel.jeeves.ApplicationContext.TRIG_TYPE;
+import static com.example.daniel.jeeves.ApplicationContext.UID;
 
 public class SurveyActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener, OnMapReadyCallback {
     public static final int OPEN_ENDED = 1;
@@ -270,7 +271,11 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
 
                 //Add the relevant information to the survey ref of this project
                 //We need to know that it was completed, the time it took for the patient to begin, and the time it took them to finish.
+                //WE ALSO NEED TO KNOW WHO THE PATIENT WAS
                 //We also need to know what it was that triggered the survey (i.e. button press, sensor trigger, etc).
+                //Actually we need the full shebang, including the patient's encoded answers
+                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getContext());
+
                 Map<String,Object> surveymap = new HashMap<String,Object>();
                 surveymap.put(STATUS,1);
                 if(triggerType != TriggerUtils.TYPE_SENSOR_TRIGGER_BUTTON) //Then this was a button trigger and the init time doesn't count
@@ -278,7 +283,9 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
                 Toast.makeText(getInstance(),"Init time" + initTime + ". timesent " + timeSent,Toast.LENGTH_SHORT).show();
                 surveymap.put(COMPLETE,System.currentTimeMillis()-initTime);
                 surveymap.put(TRIG_TYPE,triggerType);
-                FirebaseUtils.SURVEY_REF.child(currentsurvey.gettitle()).push().setValue(surveymap);
+                surveymap.put(UID,prefs.getString(UID,""));
+                surveymap.put("encodedAnswers",currentsurvey.getencodedAnswers());
+                FirebaseUtils.SURVEY_REF.child(currentsurvey.gettitle()).child("completed").push().setValue(surveymap);
                 //Update the various Survey-relevant variables
 
                 SharedPreferences.Editor editor = prefs.edit();
@@ -323,7 +330,6 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
 
                 //We should write this to Shared Preferences so that, if the app closes, we know we've already
                 //finished the introductory survey
-                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getContext());
                 editor.putBoolean(FINISHED_INTRODUCTION,finished);
                 editor.commit();
                 finish();

@@ -166,11 +166,11 @@ public class DailyNotificationScheduler implements TriggerReceiver
 				calendar.set(Calendar.HOUR_OF_DAY, (minuteOfDay / 60));
 				calendar.set(Calendar.MINUTE, (minuteOfDay % 60));
 				calendar.set(Calendar.SECOND,0);
-				//I've added this in the hope that it can schedule random triggers for the next day
-				if (calendar.getTimeInMillis() < System.currentTimeMillis())
-				{
-					calendar.add(Calendar.DATE, 1);
-				}
+//				//I've added this in the hope that it can schedule random triggers for the next day
+//				if (calendar.getTimeInMillis() < System.currentTimeMillis())
+//				{
+//					calendar.add(Calendar.DATE, 1);
+//				}
 				trigger.subscribeTriggerFor(calendar.getTimeInMillis());
 			}
 	}
@@ -179,6 +179,7 @@ public class DailyNotificationScheduler implements TriggerReceiver
 		times = (ArrayList<Integer>)params.getParams().get("times");
 
 		Calendar calendar = Calendar.getInstance();
+		if(times == null)return;
 		for (Integer minuteOfDay : times) {
 			minuteOfDay = minuteOfDay / 60000;
 			calendar.set(Calendar.HOUR_OF_DAY, (minuteOfDay / 60));
