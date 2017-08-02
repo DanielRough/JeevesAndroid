@@ -20,38 +20,62 @@ ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
 IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ************************************************** */
 
-package com.ubhave.sensormanager.classifier;
+package com.ubhave.sensormanager.sensors.env;
+
+import android.content.Context;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
 
 import com.ubhave.sensormanager.ESException;
+import com.ubhave.sensormanager.data.SensorData;
+import com.ubhave.sensormanager.process.env.PressureProcessor;
 import com.ubhave.sensormanager.sensors.SensorUtils;
 
-public class SensorClassifiers
+public class PressureSensor extends AbstractEnvironmentSensor
 {
+	private static final String TAG = "PressureSensor";
+	private static PressureSensor sensor;
 
-	public static SensorDataClassifier getSensorClassifier(int sensorType) throws ESException
+	public static PressureSensor getSensor(final Context context) throws ESException
 	{
-		switch (sensorType)
+		if (sensor == null)
 		{
-		case SensorUtils.SENSOR_TYPE_ACCELEROMETER:
-			return new AccelerometerDataClassifier();
-		case SensorUtils.SENSOR_TYPE_BLUETOOTH:
-			return new BluetoothDataClassifier();
-		case SensorUtils.SENSOR_TYPE_LOCATION:
-			return new LocationDataClassifier();
-		case SensorUtils.SENSOR_TYPE_MICROPHONE:
-			return new MicrophoneDataClassifier();
-		case SensorUtils.SENSOR_TYPE_PHONE_STATE:
-			return new PhoneStateDataClassifier();
-		case SensorUtils.SENSOR_TYPE_SCREEN:
-			return new ScreenDataClassifier();
-		case SensorUtils.SENSOR_TYPE_SMS:
-			return new SMSDataClassifier();
-			case SensorUtils.SENSOR_TYPE_SURVEY:
-				return new SurveyDataClassifier();
-		case SensorUtils.SENSOR_TYPE_WIFI:
-			return new WifiDataClassifier();
-		default:
-			throw new ESException(ESException.UNKNOWN_SENSOR_TYPE, "No classifier available");
+			synchronized (lock)
+			{
+				if (sensor == null)
+				{
+					sensor = new PressureSensor(context);
+				}
+			}
 		}
+		return sensor;
+	}
+
+	private PressureSensor(final Context context) throws ESException
+	{
+		super(context);
+	}
+
+	public String getLogTag()
+	{
+		return TAG;
+	}
+
+	public int getSensorType()
+	{
+		return SensorUtils.SENSOR_TYPE_PRESSURE;
+	}
+
+	@Override
+	protected Sensor getSensor()
+	{
+		return sensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE);
+	}
+
+	@Override
+	protected SensorData processEvent(SensorEvent event)
+	{
+		PressureProcessor processor = (PressureProcessor) getProcessor();
+		return processor.process(System.currentTimeMillis(), sensorConfig.clone(), event.values[0]);
 	}
 }

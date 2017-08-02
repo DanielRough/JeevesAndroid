@@ -20,38 +20,55 @@ ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
 IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ************************************************** */
 
-package com.ubhave.sensormanager.classifier;
+package com.ubhave.sensormanager.data.push;
 
-import com.ubhave.sensormanager.ESException;
+import com.ubhave.sensormanager.config.SensorConfig;
+import com.ubhave.sensormanager.data.SensorData;
 import com.ubhave.sensormanager.sensors.SensorUtils;
 
-public class SensorClassifiers
+public class ProximityData extends SensorData
 {
+	private static final float NEAR_DISTANCE = (float) 0.0;
 
-	public static SensorDataClassifier getSensorClassifier(int sensorType) throws ESException
+	private float distance;
+	private float maxRange;
+
+	public ProximityData(long recvTimestamp, SensorConfig sensorConfig)
 	{
-		switch (sensorType)
+		super(recvTimestamp, sensorConfig);
+	}
+
+	public boolean isNear()
+	{
+		if (distance == NEAR_DISTANCE)
 		{
-		case SensorUtils.SENSOR_TYPE_ACCELEROMETER:
-			return new AccelerometerDataClassifier();
-		case SensorUtils.SENSOR_TYPE_BLUETOOTH:
-			return new BluetoothDataClassifier();
-		case SensorUtils.SENSOR_TYPE_LOCATION:
-			return new LocationDataClassifier();
-		case SensorUtils.SENSOR_TYPE_MICROPHONE:
-			return new MicrophoneDataClassifier();
-		case SensorUtils.SENSOR_TYPE_PHONE_STATE:
-			return new PhoneStateDataClassifier();
-		case SensorUtils.SENSOR_TYPE_SCREEN:
-			return new ScreenDataClassifier();
-		case SensorUtils.SENSOR_TYPE_SMS:
-			return new SMSDataClassifier();
-			case SensorUtils.SENSOR_TYPE_SURVEY:
-				return new SurveyDataClassifier();
-		case SensorUtils.SENSOR_TYPE_WIFI:
-			return new WifiDataClassifier();
-		default:
-			throw new ESException(ESException.UNKNOWN_SENSOR_TYPE, "No classifier available");
+			return true;
 		}
+		return false;
+	}
+	
+	public void setDistance(float f)
+	{
+		distance = f;
+	}
+	
+	public float getDistance()
+	{
+		return distance;
+	}
+	
+	public void setMaxRange(float f)
+	{
+		maxRange = f;
+	}
+	
+	public float getMaxRange()
+	{
+		return maxRange;
+	}
+
+	public int getSensorType()
+	{
+		return SensorUtils.SENSOR_TYPE_PROXIMITY;
 	}
 }

@@ -2,15 +2,12 @@
  Copyright (c) 2012, University of Cambridge
  Neal Lathia, neal.lathia@cl.cam.ac.uk
  Kiran Rachuri, kiran.rachuri@cl.cam.ac.uk
-
 This library was developed as part of the EPSRC Ubhave (Ubiquitous and
 Social Computing for Positive Behaviour Change) Project. For more
 information, please visit http://www.emotionsense.org
-
 Permission to use, copy, modify, and/or distribute this software for any
 purpose with or without fee is hereby granted, provided that the above
 copyright notice and this permission notice appear in all copies.
-
 THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
 WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
 MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY
@@ -108,14 +105,14 @@ public class LocationSensor extends AbstractPullSensor implements GoogleApiClien
 		locListener = new LocationListener() {
 
 			public void onLocationChanged(Location loc) {
-		//		if (isSensing) {
-					locationList.add(loc);
-					Log.d(TAG,"Oooh look we changed a bit!");
+				//		if (isSensing) {
+				locationList.add(loc);
+				Log.d(TAG,"Oooh look we changed a bit!");
 				SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(applicationContext);
 				SharedPreferences.Editor prefseditor = preferences.edit();
 				prefseditor.putString("LastLocation",loc.getLatitude()+";" +loc.getLongitude());
 				prefseditor.commit();
-		//		}
+				//		}
 			}
 		};
 		if (mGoogleApiClient == null) {

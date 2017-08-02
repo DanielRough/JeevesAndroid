@@ -16,7 +16,7 @@ public class TriggerUtils
 	public static final int TYPE_CLOCK_TRIGGER_DAY_INTERVAL		= 10005;
 	public static final int TYPE_CLOCK_TRIGGER_SETTIMES			= 10006;
 	public static final int TYPE_SENSOR_TRIGGER_BUTTON			= 10007;
-	public static final int TYPE_JEEVES_TRIGGER_ON_INTERVAL		= 10008;
+//	public static final int TYPE_JEEVES_TRIGGER_ON_INTERVAL		= 10008;
 	public static final int TYPE_SENSOR_TRIGGER_SURVEY			= 10009;
 
 	public static final int SENSOR_TRIGGER_ACCELEROMETER 	= SensorUtils.SENSOR_TYPE_ACCELEROMETER;
@@ -43,14 +43,14 @@ public class TriggerUtils
 
 	public static final String NAME_JEEVES_TRIGGER_BEGIN		= "Begin Trigger";
 	public static final String NAME_CLOCK_TRIGGER_ONCE 			= "type_clock_once";
-	public static final String NAME_CLOCK_TRIGGER_ON_INTERVAL 	= "type_clock_interval";
+	public static final String NAME_CLOCK_TRIGGER_ON_INTERVAL 	= "Repeated Time Trigger";
 	public static final String NAME_CLOCK_TRIGGER_DAILY			= "type_clock_daily";
 	public static final String NAME_CLOCK_TRIGGER_DAILY_RANDOM 	= "Signal Contingent";
 	public static final String NAME_SENSOR_TRIGGER_IMMEDIATE 	= "Sensor Trigger";
 	public static final String NAME_SENSOR_TRIGGER_BUTTON		= "Button Trigger";
 	public static final String NAME_CLOCK_TRIGGER_SETTIMES		= "Set Times Trigger";
 	public static final String NAME_SENSOR_TRIGGER_DELAYED 		= "type_sensor_delayed";
-	public static final String NAME_JEEVES_TRIGGER_ON_INTERVAL 	= "Interval Contingent";
+//	public static final String NAME_JEEVES_TRIGGER_ON_INTERVAL 	= "Interval Contingent";
 	public static final String NAME_SENSOR_TRIGGER_SURVEY		= "Survey Trigger";
 
 
@@ -88,7 +88,7 @@ public class TriggerUtils
 		NAME_CLOCK_TRIGGER_DAILY,
 			NAME_CLOCK_TRIGGER_SETTIMES,
 			NAME_SENSOR_TRIGGER_BUTTON,
-			NAME_JEEVES_TRIGGER_ON_INTERVAL,
+	//		NAME_JEEVES_TRIGGER_ON_INTERVAL,
 			NAME_SENSOR_TRIGGER_SURVEY
 	};
 	
@@ -102,7 +102,7 @@ public class TriggerUtils
 		TYPE_CLOCK_TRIGGER_DAY_INTERVAL,
 			TYPE_CLOCK_TRIGGER_SETTIMES,
 			TYPE_SENSOR_TRIGGER_BUTTON,
-			TYPE_JEEVES_TRIGGER_ON_INTERVAL,
+		//	TYPE_JEEVES_TRIGGER_ON_INTERVAL,
 			TYPE_SENSOR_TRIGGER_SURVEY
 
 	};
@@ -130,7 +130,7 @@ public class TriggerUtils
 			case TYPE_CLOCK_TRIGGER_SETTIMES: return NAME_CLOCK_TRIGGER_SETTIMES;
 			case TYPE_SENSOR_TRIGGER_BUTTON: return NAME_SENSOR_TRIGGER_BUTTON;
 			case TYPE_SENSOR_TRIGGER_SURVEY: return NAME_SENSOR_TRIGGER_SURVEY;
-			case TYPE_JEEVES_TRIGGER_ON_INTERVAL: return NAME_JEEVES_TRIGGER_ON_INTERVAL;
+		//	case TYPE_JEEVES_TRIGGER_ON_INTERVAL: return NAME_JEEVES_TRIGGER_ON_INTERVAL;
 		default: throw new TriggerException(TriggerException.UNKNOWN_TRIGGER, "Unknown trigger: "+type);
 		}
 	}

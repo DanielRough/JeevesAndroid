@@ -20,38 +20,59 @@ ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
 IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ************************************************** */
 
-package com.ubhave.sensormanager.classifier;
+package com.ubhave.sensormanager.sensors.pull;
 
-import com.ubhave.sensormanager.ESException;
-import com.ubhave.sensormanager.sensors.SensorUtils;
+import java.io.File;
 
-public class SensorClassifiers
+import android.content.Context;
+import android.util.Log;
+
+public abstract class AbstractMediaSensor extends AbstractPullSensor
 {
-
-	public static SensorDataClassifier getSensorClassifier(int sensorType) throws ESException
+	protected AbstractMediaSensor(Context context)
 	{
-		switch (sensorType)
+		super(context);
+	}
+	
+	protected abstract String getFileDirectory();
+	
+	protected abstract String getFilePrefix();
+	
+	protected abstract String getFileSuffix();
+	
+	private String getFileName(boolean isUnique)
+	{
+		String fileName = getFilePrefix();
+		if (isUnique)
 		{
-		case SensorUtils.SENSOR_TYPE_ACCELEROMETER:
-			return new AccelerometerDataClassifier();
-		case SensorUtils.SENSOR_TYPE_BLUETOOTH:
-			return new BluetoothDataClassifier();
-		case SensorUtils.SENSOR_TYPE_LOCATION:
-			return new LocationDataClassifier();
-		case SensorUtils.SENSOR_TYPE_MICROPHONE:
-			return new MicrophoneDataClassifier();
-		case SensorUtils.SENSOR_TYPE_PHONE_STATE:
-			return new PhoneStateDataClassifier();
-		case SensorUtils.SENSOR_TYPE_SCREEN:
-			return new ScreenDataClassifier();
-		case SensorUtils.SENSOR_TYPE_SMS:
-			return new SMSDataClassifier();
-			case SensorUtils.SENSOR_TYPE_SURVEY:
-				return new SurveyDataClassifier();
-		case SensorUtils.SENSOR_TYPE_WIFI:
-			return new WifiDataClassifier();
-		default:
-			throw new ESException(ESException.UNKNOWN_SENSOR_TYPE, "No classifier available");
+			fileName += "_"+System.currentTimeMillis();
+		}
+		fileName += getFileSuffix();
+		return fileName;
+	}
+	
+	protected File getMediaFile()
+	{
+		String path = getFileDirectory();
+		if (path != null)
+		{
+			File directory = new File(path);
+			if (!directory.exists())
+			{
+				directory.mkdirs();
+			}
+			File file = new File(directory, getFileName(true));
+			Log.d("SensorManager", "Creating file: "+file.getAbsolutePath());
+			return file;
+		}
+		else
+		{
+			File file = new File(applicationContext.getFilesDir(), getFileName(false));
+			if (file.exists())
+			{
+				file.delete();
+			}
+			return file;
 		}
 	}
 }

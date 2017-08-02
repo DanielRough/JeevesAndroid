@@ -22,36 +22,44 @@ IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 package com.ubhave.sensormanager.classifier;
 
-import com.ubhave.sensormanager.ESException;
-import com.ubhave.sensormanager.sensors.SensorUtils;
+import com.ubhave.sensormanager.config.SensorConfig;
+import com.ubhave.sensormanager.config.pull.MicrophoneConfig;
+import com.ubhave.sensormanager.data.SensorData;
+import com.ubhave.sensormanager.data.pull.MicrophoneData;
 
-public class SensorClassifiers
+public class MicrophoneDataClassifier implements SensorDataClassifier
 {
-
-	public static SensorDataClassifier getSensorClassifier(int sensorType) throws ESException
+	@Override
+	public boolean isInteresting(final SensorData sensorData, final SensorConfig sensorConfig, String value)
 	{
-		switch (sensorType)
+		MicrophoneData data = (MicrophoneData) sensorData;
+		if (isSilent(data.getAmplitudeArray(), (Integer) sensorConfig.getParameter(MicrophoneConfig.SOUND_THRESHOLD)))
 		{
-		case SensorUtils.SENSOR_TYPE_ACCELEROMETER:
-			return new AccelerometerDataClassifier();
-		case SensorUtils.SENSOR_TYPE_BLUETOOTH:
-			return new BluetoothDataClassifier();
-		case SensorUtils.SENSOR_TYPE_LOCATION:
-			return new LocationDataClassifier();
-		case SensorUtils.SENSOR_TYPE_MICROPHONE:
-			return new MicrophoneDataClassifier();
-		case SensorUtils.SENSOR_TYPE_PHONE_STATE:
-			return new PhoneStateDataClassifier();
-		case SensorUtils.SENSOR_TYPE_SCREEN:
-			return new ScreenDataClassifier();
-		case SensorUtils.SENSOR_TYPE_SMS:
-			return new SMSDataClassifier();
-			case SensorUtils.SENSOR_TYPE_SURVEY:
-				return new SurveyDataClassifier();
-		case SensorUtils.SENSOR_TYPE_WIFI:
-			return new WifiDataClassifier();
-		default:
-			throw new ESException(ESException.UNKNOWN_SENSOR_TYPE, "No classifier available");
+			return false;
+		}
+		else
+		{
+			return true;
 		}
 	}
+
+	private boolean isSilent(int[] amplitudeData, int soundThreshold)
+	{
+		double avgAmplitude = 0;
+
+		for (int aValue : amplitudeData)
+		{
+			avgAmplitude += aValue;
+		}
+		avgAmplitude = avgAmplitude / (double)amplitudeData.length;
+		if (avgAmplitude > soundThreshold)
+		{
+			return false;
+		}
+		else
+		{
+			return true;
+		}
+	}
+
 }
