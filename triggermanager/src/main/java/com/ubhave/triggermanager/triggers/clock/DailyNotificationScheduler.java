@@ -18,6 +18,7 @@ public class DailyNotificationScheduler implements TriggerReceiver
 {
 	private final static long DAILY_INTERVAL = 1000 * 60 * 60 * 24;
 	public final static int ERROR = -1;
+	private final static int MAX_SCHEDULING_ATTEMPTS = 1000;
 
 	private final ESTriggerManager triggerManager;
 	private final RandomFrequencyTrigger trigger;
@@ -79,9 +80,18 @@ public class DailyNotificationScheduler implements TriggerReceiver
 			Log.i("THIS IS FINE","This is fine because the TO is " + toDay + " and the FROM is " + fromDay + " and this very day is " + daysSinceEpoch);
 		if(trigger instanceof SetTimesTrigger)
 			scheduleSetTimes(); //Schedules for the set times trigger
-		else if(trigger instanceof JeevesIntervalTrigger)
-			scheduleIntervalTimes();
-		else
+		String fixedRandom = "";
+		if(params.containsKey(TriggerConfig.FIXED_RANDOM)){
+			fixedRandom = params.getParameter(TriggerConfig.FIXED_RANDOM).toString();
+			if(fixedRandom.equals("fixed"))
+				scheduleIntervalTimes();
+			else
+				scheduleNotifications();
+		}
+//		else if(trigger instanceof JeevesIntervalTrigger)
+//			scheduleIntervalTimes();
+
+		else //it's a Jeeves interval trigger!
 			scheduleNotifications(); //Schedules for the random trigger
 	}
 
@@ -136,17 +146,20 @@ public class DailyNotificationScheduler implements TriggerReceiver
 		if (params.containsKey(TriggerConfig.LIMIT_AFTER_HOUR))
 			endTime = new Long(params.getParameter(TriggerConfig.LIMIT_AFTER_HOUR).toString())/60000;
 		long intervalTime = 0;
-		if (params.containsKey(TriggerConfig.INTERVAL_TRIGGER_TIME))
-			intervalTime =  new Long(params.getParameter(TriggerConfig.INTERVAL_TRIGGER_TIME).toString());
-		String granularity = "";
-		if (params.containsKey(TriggerConfig.GRANULARITY)) {
-			granularity = params.getParameter(TriggerConfig.GRANULARITY).toString();
-			if(granularity.equals("hours"))
-				intervalTime *= 60;
-		}
+//		if (params.containsKey(TriggerConfig.INTERVAL_TRIGGER_TIME))
+//			intervalTime =  new Long(params.getParameter(TriggerConfig.INTERVAL_TRIGGER_TIME).toString());
+//		//String granularity = "";
+//	//	if (params.containsKey(TriggerConfig.INTERVAL_TRIGGER_TIME)) {
+			int numberOfNotifications = Integer.parseInt(params.getParameter(TriggerConfig.INTERVAL_TRIGGER_TIME).toString());
+			//granularity = params.getParameter(TriggerConfig.GRANULARITY).toString();
+			//if(granularity.equals("hours"))
+		//		intervalTime *= 60;
+			long totalTime = endTime - startTime;
+			long windowLength = totalTime/numberOfNotifications;
+	//	}
 		ArrayList<Integer> times = new ArrayList<Integer>();
 
-		long realEndTime = endTime;
+//		long realEndTime = endTime;
 
 		//So if our startTime is 10pm and our end time is 6pm, our endtime becomes 6pm on the NEXT DAY
 		if(startTime > endTime)
@@ -156,8 +169,8 @@ public class DailyNotificationScheduler implements TriggerReceiver
 				times.add((int)startTime); //Convert each JSONObject time into a minute-of-day value
 			else
 				times.add((int)(startTime-1440)); //Accounts for next-day times
-			startTime += intervalTime;
-			Log.d("STRTTIME: ","Start time is " + startTime + " and endTime is " + endTime + " and interval: " + intervalTime);
+			startTime += windowLength;
+			Log.d("STRTTIME: ","Start time is " + startTime + " and endTime is " + endTime + " and interval: " + windowLength);
 		}
 		Calendar calendar = Calendar.getInstance();
 
@@ -196,38 +209,69 @@ public class DailyNotificationScheduler implements TriggerReceiver
 	private void scheduleNotifications()
 	{
 		ArrayList<Integer> times = new ArrayList<Integer>();
+		int currentMinute = currentMinute();
+
 		int earlyLimit = params.getValueInMinutes(TriggerConfig.LIMIT_BEFORE_HOUR)/60000;
 		int lateLimit = params.getValueInMinutes(TriggerConfig.LIMIT_AFTER_HOUR)/60000;
-		int minInterval = params.getValueInMinutes(TriggerConfig.INTERVAL_WINDOW);
-		if (params.containsKey(TriggerConfig.GRANULARITY)) {
-			String granularity = params.getParameter(TriggerConfig.GRANULARITY).toString();
-			if(granularity.equals("hours"))
-				minInterval *= 60;
-		}
+		int numberOfNotifications = Integer.parseInt(params.getParameter(TriggerConfig.INTERVAL_TRIGGER_TIME).toString());
+
+		//TODO: Change this so that the researcher can specify the minimum difference
+		int minInterval = 1;
+		//int minInterval = params.getValueInMinutes(TriggerConfig.INTERVAL_WINDOW);
+//		if (params.containsKey(TriggerConfig.GRANULARITY)) {
+//			String granularity = params.getParameter(TriggerConfig.GRANULARITY).toString();
+//			if(granularity.equals("hours"))
+//				minInterval *= 60;
+//		}
         if(earlyLimit > lateLimit){
             lateLimit += 1440; //Add an extra day onto the late limit so we can schedule shit overnight
         }
-		int timeFrame = lateLimit - earlyLimit;
-		int numberOfNotifications = timeFrame / minInterval; //The max notifications we can schedule in this space
+//		int timeFrame = lateLimit - earlyLimit;
+//		int numberOfNotifications = timeFrame / minInterval; //The max notifications we can schedule in this space
 		//	Log.d("Daily", "scheduleNotifications(), "+numberOfNotifications);
-		if (TriggerManagerConstants.LOG_MESSAGES)
+//		if (TriggerManagerConstants.LOG_MESSAGES)
+//		{
+//			Log.d("Daily Scheduler", "Attempting to schedule: "+numberOfNotifications);
+//		}
+//
+//		int windowEarlyLimit = earlyLimit;
+//		int windowLateLimit = earlyLimit + minInterval;
+//		while (windowLateLimit < lateLimit) {
+//			int time = pickRandomTimeWithinPreferences(windowEarlyLimit, windowLateLimit);
+//		//	times.add(time);
+//			windowEarlyLimit = windowLateLimit;
+//            if(windowLateLimit < 1440)
+//                times.add((int)time); //Convert each JSONObject time into a minute-of-day value
+//            else
+//                times.add((int)(time-1440)); //Accounts for next-day times
+//			windowLateLimit += minInterval;
+//		}
+
+		for (int t=0; t<numberOfNotifications; t++)
 		{
-			Log.d("Daily Scheduler", "Attempting to schedule: "+numberOfNotifications);
+			boolean entryAdded = false;
+			for (int i=0; i<MAX_SCHEDULING_ATTEMPTS && !entryAdded; i++)
+			{
+				int time = pickRandomTimeWithinPreferences(currentMinute, earlyLimit, lateLimit);
+				if (selectedTimeFitsGroup(time, times, minInterval))
+				{
+					for (int j=0; j<times.size(); j++)
+					{
+						if (times.get(j) > time)
+						{
+							times.add(j, time);
+							entryAdded = true;
+							break;
+						}
+					}
+					if (!entryAdded)
+					{
+						times.add(time);
+						entryAdded = true;
+					}
+				}
+			}
 		}
-
-		int windowEarlyLimit = earlyLimit;
-		int windowLateLimit = earlyLimit + minInterval;
-		while (windowLateLimit < lateLimit) {
-			int time = pickRandomTimeWithinPreferences(windowEarlyLimit, windowLateLimit);
-		//	times.add(time);
-			windowEarlyLimit = windowLateLimit;
-            if(windowLateLimit < 1440)
-                times.add((int)time); //Convert each JSONObject time into a minute-of-day value
-            else
-                times.add((int)(time-1440)); //Accounts for next-day times
-			windowLateLimit += minInterval;
-		}
-
 		if (TriggerManagerConstants.LOG_MESSAGES)
 		{
 			Log.d("Daily Scheduler", "Selected: "+times.size());
@@ -247,12 +291,12 @@ public class DailyNotificationScheduler implements TriggerReceiver
 		}
 	}
 
-	private int pickRandomTimeWithinPreferences(int earlyLimit, int lateLimit)
+	private int pickRandomTimeWithinPreferences(int currentMinute, int earlyLimit, int lateLimit)
 	{
-		//	int from = max(earlyLimit, currentMinute+1);
-		if (lateLimit - earlyLimit > 0)
+			int from = max(earlyLimit, currentMinute+1);
+		if (lateLimit - from > 0)
 		{
-			return random.nextInt(lateLimit - earlyLimit) + earlyLimit;
+			return random.nextInt(lateLimit - from) + from;
 		}
 		else
 		{

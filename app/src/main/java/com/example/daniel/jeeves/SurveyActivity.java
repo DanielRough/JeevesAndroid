@@ -4,14 +4,20 @@ import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.wifi.ScanResult;
+import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -28,12 +34,14 @@ import android.view.Window;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
@@ -96,6 +104,8 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
     public static final int BOOLEAN = 7;
     public static final int NUMERIC = 8;
     public static final int TIME = 9;
+    public static final int WIFI = 10;
+    public static final int BLUETOOTH = 11;
     final Handler handler = new Handler();
     List<FirebaseQuestion> questions;
     int currentIndex = 0;
@@ -111,6 +121,8 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
     RadioGroup grpMultSingle;
     RadioGroup grpScale;
     LinearLayout grpMultMany;
+    ListView lstWifi;
+    ListView lstBluetooth;
     long finalscore = 0;
     TextView txtQNo;
     int currentQuestionCount = 0;
@@ -160,7 +172,53 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
             }
         });
     }
+    WifiManager mWifiManager;
+    private ArrayList<String> mNetworkList = new ArrayList<String>();
+    private final BroadcastReceiver mWifiScanReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context c, Intent intent) {
+            if (intent.getAction().equals(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)) {
+                Log.d("HELLO","IT@S MEEEEEEE");
+                List<ScanResult> mScanResults = mWifiManager.getScanResults();
+                mNetworkList.clear();
+                for (ScanResult mScanResult : mScanResults) {
+                    Log.d("RESULT","ound " + mScanResult.SSID);
+                    if(!mNetworkList.contains(mScanResult.SSID))
+                        mNetworkList.add(mScanResult.SSID);
+                }
+                lstWifi.setAdapter(new ArrayAdapter<String>(c,android.R.layout.simple_list_item_1,mNetworkList));
+                // add your logic here
+            }
+        }
+    };
 
+
+    private BluetoothAdapter mBluetoothAdapter;
+    private ArrayList<String> mDeviceList = new ArrayList<String>();
+    private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (BluetoothDevice.ACTION_FOUND.equals(action)) {
+                BluetoothDevice device = intent
+                        .getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                if(device.getName() == null)
+                    mDeviceList.add("Unknown device" + "\n" + device.getAddress());
+                else
+                    mDeviceList.add(device.getName() + "\n" + device.getAddress());
+
+                Log.i("BT", device.getName() + "\n" + device.getAddress());
+                lstBluetooth.setAdapter(new ArrayAdapter<String>(context,
+                        android.R.layout.simple_list_item_1, mDeviceList));
+            }
+        }
+    };
+
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        unregisterReceiver(mReceiver);
+        unregisterReceiver(mWifiScanReceiver);
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -200,6 +258,14 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
         grpMultSingle = ((RadioGroup) findViewById(R.id.grpMultSingle));
         grpScale = ((RadioGroup) findViewById(R.id.grpScale));
 
+        lstWifi = ((ListView)findViewById(R.id.lstWifi));
+        mWifiManager = (WifiManager) ApplicationContext.getContext().getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        registerReceiver(mWifiScanReceiver,
+                new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
+        mWifiManager.startScan();
+
+        IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
+        registerReceiver(mReceiver, filter);
         txtQNo = ((TextView) findViewById(R.id.txtQno));
         txtQNo.setText("Question 1");
         mGoogleApiClient = new GoogleApiClient
@@ -595,6 +661,9 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
                 answers.set(currentIndex, answer);
             }
         }
+        if(requestCode == REQUEST_ENABLE_BT)
+            mBluetoothAdapter.startDiscovery();
+
     }
 
     private void handleGeo() throws GooglePlayServicesNotAvailableException, GooglePlayServicesRepairableException {
@@ -695,6 +764,25 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
             answers.set(currentIndex, "");
     }
 
+    private void handleWifi(){
+
+
+    }
+    int REQUEST_ENABLE_BT = 99;
+
+    private void handleBluetooth(){
+        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        lstBluetooth = ((ListView)findViewById(R.id.lstBluetooth));
+
+        if (!mBluetoothAdapter.isEnabled()) {
+            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+
+        }
+        else
+            mBluetoothAdapter.startDiscovery();
+
+    }
     private void launchQuestion(FirebaseQuestion question, String direction) {
 
         String questionText = question.getquestionText();
@@ -816,6 +904,12 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
                 break;
             case NUMERIC:
                 handleNumeric();
+                break;
+            case WIFI:
+                handleWifi();
+                break;
+            case BLUETOOTH:
+                handleBluetooth();
                 break;
         }
         TextView questionView = (TextView) findViewById(R.id.txtQuestion);

@@ -17,10 +17,13 @@ ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
 IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ************************************************** */
 
+//DJR53 This has seen a bit of an overhaul with the new Location API provided by Google
 package com.ubhave.sensormanager.sensors.pull;
+
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executor;
 
 import android.Manifest;
 import android.app.ActivityManager;
@@ -40,18 +43,6 @@ import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.PendingResult;
-import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.common.api.Status;
-import com.google.android.gms.location.LocationListener;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.LocationSettingsRequest;
-import com.google.android.gms.location.LocationSettingsResult;
-import com.google.android.gms.location.LocationSettingsStates;
-import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.ubhave.sensormanager.ESException;
 import com.ubhave.sensormanager.config.GlobalConfig;
 import com.ubhave.sensormanager.config.pull.LocationConfig;
@@ -62,7 +53,7 @@ import com.ubhave.sensormanager.sensors.SensorUtils;
 
 import static android.support.v4.content.ContextCompat.checkSelfPermission;
 
-public class LocationSensor extends AbstractPullSensor implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+public class LocationSensor extends AbstractPullSensor /*implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener */{
 	private static final String TAG = "LocationSensor";
 	private static Location mLastLocation;
 	private static final String[] LOCATION_PERMISSIONS = new String[]{
@@ -75,10 +66,13 @@ public class LocationSensor extends AbstractPullSensor implements GoogleApiClien
 
 	//private LocationManager locationManager;
 	private List<Location> locationList;
-	private LocationListener locListener;
-	private LocationData locationData;
-	private GoogleApiClient mGoogleApiClient;
-	private LocationRequest mLocationRequest;
+//	private LocationListener locListener;
+//	private LocationData locationData;
+//	private GoogleApiClient mGoogleApiClient;
+//	private LocationRequest mLocationRequest;
+//	private FusedLocationProviderClient mFusedLocationClient;
+//	private LocationCallback mLocationCallback;
+
 //	private Location mLastLocation;
 
 	public static LocationSensor getSensor(final Context context) throws ESException {
@@ -100,30 +94,30 @@ public class LocationSensor extends AbstractPullSensor implements GoogleApiClien
 
 	private LocationSensor(Context context) {
 		super(context);
-		locationList = new ArrayList<Location>();
-
-		locListener = new LocationListener() {
-
-			public void onLocationChanged(Location loc) {
-				//		if (isSensing) {
-				locationList.add(loc);
-				Log.d(TAG,"Oooh look we changed a bit!");
-				SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(applicationContext);
-				SharedPreferences.Editor prefseditor = preferences.edit();
-				prefseditor.putString("LastLocation",loc.getLatitude()+";" +loc.getLongitude());
-				prefseditor.commit();
-				//		}
-			}
-		};
-		if (mGoogleApiClient == null) {
-			mGoogleApiClient = new GoogleApiClient.Builder(context)
-					.addConnectionCallbacks(this)
-					.addOnConnectionFailedListener(this)
-					.addApi(LocationServices.API)
-					.build();
-
-		}
-		mGoogleApiClient.connect();
+//		locationList = new ArrayList<Location>();
+//
+//		locListener = new LocationListener() {
+//
+//			public void onLocationChanged(Location loc) {
+//				//		if (isSensing) {
+//				locationList.add(loc);
+//				Log.d(TAG, "Oooh look we changed a bit!");
+//				SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(applicationContext);
+//				SharedPreferences.Editor prefseditor = preferences.edit();
+//				prefseditor.putString("LastLocation", loc.getLatitude() + ";" + loc.getLongitude());
+//				prefseditor.commit();
+//				//		}
+//			}
+//		};
+//		if (mGoogleApiClient == null) {
+//			mGoogleApiClient = new GoogleApiClient.Builder(context)
+//					.addConnectionCallbacks(this)
+//					.addOnConnectionFailedListener(this)
+//					.addApi(LocationServices.API)
+//					.build();
+//
+//		}
+//		mGoogleApiClient.connect();
 
 		//	locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
 
@@ -137,36 +131,72 @@ public class LocationSensor extends AbstractPullSensor implements GoogleApiClien
 		return SensorUtils.SENSOR_TYPE_LOCATION;
 	}
 
+
+	private void startLocationUpdates() {
+		if (ActivityCompat.checkSelfPermission(applicationContext, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(applicationContext, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+			// TODO: Consider calling
+			return;
+		}
+//		mFusedLocationClient.requestLocationUpdates(mLocationRequest,
+//				mLocationCallback,
+//				null /* Looper */);
+	}
+	private void stopLocationUpdates() {
+	//	mFusedLocationClient.removeLocationUpdates(mLocationCallback);
+	}
 	protected void createLocationRequest() {
-		mLocationRequest = new LocationRequest();
-		mLocationRequest.setInterval(LocationConfig.DEFAULT_SLEEP_INTERVAL);
-		mLocationRequest.setFastestInterval(LocationConfig.DEFAULT_SLEEP_INTERVAL);
-		mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-
-		LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
-				.addLocationRequest(mLocationRequest);
-
-		PendingResult<LocationSettingsResult> result =
-				LocationServices.SettingsApi.checkLocationSettings(mGoogleApiClient,
-						builder.build());
-		result.setResultCallback(new ResultCallback<LocationSettingsResult>() {
-			@Override
-			public void onResult(LocationSettingsResult result) {
-				final Status status = result.getStatus();
-				switch (status.getStatusCode()) {
-					case LocationSettingsStatusCodes.SUCCESS:
-						break;
-					case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
-						Intent intended = new Intent();
-						intended.setAction(SensorUtils.LOCATION_REQUIRED);
-
-						applicationContext.sendBroadcast(intended);
-						break;
-					case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
-						break;
-				}
-			}
-		});
+//		mLocationRequest = new LocationRequest();
+//		mLocationRequest.setInterval(10000);
+//		mLocationRequest.setFastestInterval(5000);
+//		mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+//
+//		LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
+//				.addLocationRequest(mLocationRequest);
+//
+//		SettingsClient client = LocationServices.getSettingsClient(applicationContext);
+//		Task<LocationSettingsResponse> task = client.checkLocationSettings(builder.build());
+//		task.addOnSuccessListener((Executor) applicationContext, new OnSuccessListener<LocationSettingsResponse>() {
+//			@Override
+//			public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
+//				startLocationUpdates();
+//			}
+//		});
+//		task.addOnFailureListener((Executor) this, new OnFailureListener() {
+//			@Override
+//			public void onFailure(@NonNull Exception e) {
+//				int statusCode = ((ApiException) e).getStatusCode();
+//				switch (statusCode) {
+//					case CommonStatusCodes.RESOLUTION_REQUIRED:
+//						Intent intended = new Intent();
+//						intended.setAction(SensorUtils.LOCATION_REQUIRED);
+//						applicationContext.sendBroadcast(intended);
+//						break;
+//					case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
+//						break;
+//				}
+//			}
+//		});
+//		PendingResult<LocationSettingsResult> result =
+//				LocationServices.SettingsApi.checkLocationSettings(mGoogleApiClient,
+//						builder.build());
+//		result.setResultCallback(new ResultCallback<LocationSettingsResult>() {
+//			@Override
+//			public void onResult(LocationSettingsResult result) {
+//				final Status status = result.getStatus();
+//				switch (status.getStatusCode()) {
+//					case LocationSettingsStatusCodes.SUCCESS:
+//						break;
+//					case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
+//						Intent intended = new Intent();
+//						intended.setAction(SensorUtils.LOCATION_REQUIRED);
+//
+//						applicationContext.sendBroadcast(intended);
+//						break;
+//					case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
+//						break;
+//				}
+//			}
+//		});
 	}
 
 	protected boolean startSensing() {
@@ -182,43 +212,58 @@ public class LocationSensor extends AbstractPullSensor implements GoogleApiClien
 	}
 
 	protected SensorData getMostRecentRawData() {
-		return locationData;
+		return/* locationData*/ null;
 	}
 
 	protected void processSensorData() {
 		LocationProcessor processor = (LocationProcessor) getProcessor();
-		locationData = processor.process(pullSenseStartTimestamp, locationList, sensorConfig.clone());
+	//	locationData = processor.process(pullSenseStartTimestamp, locationList, sensorConfig.clone());
 		locationList = new ArrayList<Location>();
 
 	}
+//
+//	@Override
+//	public void onConnected(@Nullable Bundle bundle) {
+//		if (ActivityCompat.checkSelfPermission(applicationContext, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(applicationContext, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+//			return;
+//		}
+//		mFusedLocationClient = LocationServices.getFusedLocationProviderClient(applicationContext);
+//
+//		mFusedLocationClient.getLastLocation()
+//				.addOnSuccessListener((Executor) this, new OnSuccessListener<Location>() {
+//					@Override
+//					public void onSuccess(Location location) {
+//						// Got last known location. In some rare situations this can be null.
+//						if (location != null) {
+//							mLastLocation = location;
+//							Log.d(TAG,"Last known location: " + mLastLocation.getLatitude() + "," + mLastLocation.getLongitude());
+//							SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(applicationContext);
+//							SharedPreferences.Editor prefseditor = preferences.edit();
+//							prefseditor.putString("LastLocation",mLastLocation.getLatitude()+";" +mLastLocation.getLongitude());
+//							prefseditor.commit();
+//						}
+//					}
+//				});
+//		createLocationRequest();
+//
+//		mLocationCallback = new LocationCallback() {
+//			@Override
+//			public void onLocationResult(LocationResult locationResult) {
+//				for (Location location : locationResult.getLocations()) {
+//					Toast.makeText(applicationContext,"new location" + location.getLatitude() + "," + location.getLongitude(),Toast.LENGTH_SHORT);
+//				}
+//			};
+//		};
+//	}
 
-	@Override
-	public void onConnected(@Nullable Bundle bundle) {
-		if (ActivityCompat.checkSelfPermission(applicationContext, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(applicationContext, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-			return;
-		}
-		createLocationRequest();
-		mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
-				mGoogleApiClient);
-		if (mLastLocation != null) {
-			Log.d(TAG,"Last known location: " + mLastLocation.getLatitude() + "," + mLastLocation.getLongitude());
-			SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(applicationContext);
-			SharedPreferences.Editor prefseditor = preferences.edit();
-			prefseditor.putString("LastLocation",mLastLocation.getLatitude()+";" +mLastLocation.getLongitude());
-			prefseditor.commit();
-		}
-		LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, locListener);
-
-	}
-
-	@Override
-	public void onConnectionSuspended(int i) {
-
-	}
-
-	@Override
-	public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-
-	}
+//	@Override
+//	public void onConnectionSuspended(int i) {
+//
+//	}
+//
+//	@Override
+//	public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+//
+//	}
 
 }

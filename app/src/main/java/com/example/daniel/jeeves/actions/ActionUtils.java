@@ -5,6 +5,7 @@ package com.example.daniel.jeeves.actions;
  */
 public class ActionUtils {
     public static final String ACTIONS = "actions";
+    public static final String ACTIONSETID = "actionsetid";
     public static final String NAME_PROMPT_ACTION 			= "Send Prompt";
     public static final String NAME_MESSAGE_ACTION 	= "Send SMS";
     public static final String NAME_SEND_SURVEY_ACTION			= "Send Survey";

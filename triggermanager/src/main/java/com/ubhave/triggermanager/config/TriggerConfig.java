@@ -42,8 +42,9 @@ public class TriggerConfig
 	public static final String LIMIT_BEFORE_HOUR = "limitBeforeHour";
 	public static final String LIMIT_AFTER_HOUR = "limitAfterHour";
 	public static final String INTERVAL_TRIGGER_TIME = "intervalTriggerTime";
-	public static final String INTERVAL_WINDOW = "intervalWindowLength";
-	public static final String GRANULARITY = "granularity";
+	public static final String FIXED_RANDOM = "fixedRandom";
+	//public static final String INTERVAL_WINDOW = "intervalWindowLength";
+//	public static final String GRANULARITY = "granularity";
 
 	// Sensor Based Triggers
 	public final static String SENSOR_TYPE = "selectedSensor";
@@ -108,18 +109,18 @@ public class TriggerConfig
 		{
 			return TriggerManagerConstants.DEFAULT_TRIGGER_ENABLED;
 		}
-		else if (key.equals(LIMIT_BEFORE_HOUR))
-		{
-			return TriggerManagerConstants.DEFAULT_DO_NOT_DISTURB_BEFORE_MINUTES;
-		}
-		else if (key.equals(LIMIT_AFTER_HOUR))
-		{
-			return TriggerManagerConstants.DEFAULT_DO_NOT_DISTURB_AFTER_MINUTES;
-		}
-		else if (key.equals(INTERVAL_TRIGGER_TIME))
-		{
-			return TriggerManagerConstants.DEFAULT_MIN_TRIGGER_INTERVAL_MINUTES;
-		}
+//		else if (key.equals(LIMIT_BEFORE_HOUR))
+//		{
+//			return TriggerManagerConstants.DEFAULT_DO_NOT_DISTURB_BEFORE_MINUTES;
+//		}
+//		else if (key.equals(LIMIT_AFTER_HOUR))
+//		{
+//			return TriggerManagerConstants.DEFAULT_DO_NOT_DISTURB_AFTER_MINUTES;
+//		}
+//		else if (key.equals(INTERVAL_TRIGGER_TIME))
+//		{
+//			return TriggerManagerConstants.DEFAULT_MIN_TRIGGER_INTERVAL_MINUTES;
+//		}
 		else if (key.equals(IGNORE_USER_PREFERENCES))
 		{
 			return TriggerManagerConstants.DEFAULT_IS_SYSTEM_TRIGGER;

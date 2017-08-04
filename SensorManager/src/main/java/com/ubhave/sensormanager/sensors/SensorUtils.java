@@ -190,8 +190,8 @@ public class SensorUtils
 			return BluetoothSensor.getSensor(context);
 		case SENSOR_TYPE_LOCATION:
 			return LocationSensor.getSensor(context);
-//		case SENSOR_TYPE_MICROPHONE:
-//			return MicrophoneSensor.getSensor(context);
+		case SENSOR_TYPE_MICROPHONE:
+			return MicrophoneSensor.getSensor(context);
 		case SENSOR_TYPE_PHONE_STATE:
 			return PhoneStateSensor.getSensor(context);
 		case SENSOR_TYPE_PROXIMITY:

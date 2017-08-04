@@ -33,7 +33,7 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
-import com.google.android.gms.location.Geofence;
+//import com.google.android.gms.location.Geofence;
 import com.ubhave.sensormanager.ESException;
 import com.ubhave.sensormanager.ESSensorManager;
 import com.ubhave.sensormanager.ESSensorManagerInterface;
@@ -62,7 +62,7 @@ public class ImmediateSensorTrigger extends Trigger implements SensorDataListene
 //	Location currentLocation;
 //	String lastUpdateTime;
 	int id;
-	protected static List<Geofence> geofenceList = new ArrayList<Geofence>();
+	//protected static List<Geofence> geofenceList = new ArrayList<Geofence>();
 	public ImmediateSensorTrigger(Context context, int id, TriggerReceiver listener, TriggerConfig params) throws TriggerException, ESException {
 		super(context, id, listener, params);
 		this.id = id; //Also used to identify the geofence
@@ -118,6 +118,10 @@ public class ImmediateSensorTrigger extends Trigger implements SensorDataListene
 //			else {
 				this.sensorManager = ESSensorManager.getSensorManager(context);
 			//	setupParams(getSensorType(), true);
+
+			//Temporary fix while I figure out how location is going to work
+			if(sensorType == SensorUtils.SENSOR_TYPE_LOCATION)
+				return;
 				Log.d("DOIGETHERE", "Do I get here?");
 				this.classifier = SensorClassifiers.getSensorClassifier(sensorType);
 				Log.d("HOWBOUTHERE", "And how bout here?");

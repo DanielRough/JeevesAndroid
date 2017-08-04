@@ -190,6 +190,7 @@
                 android:ems="10"
                 android:hint="Enter a number here"
                 android:inputType="number" />
+
         </LinearLayout>
 
         <LinearLayout
@@ -204,6 +205,35 @@
                 android:layout_width="match_parent"
                 android:layout_height="165dp"
                 android:timePickerMode="spinner" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/viewWifi"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <ListView
+                android:id="@+id/lstWifi"
+                android:choiceMode="singleChoice"
+                android:listSelector="@android:color/holo_purple"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/viewBluetooth"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <ListView
+                android:id="@+id/lstBluetooth"
+                android:choiceMode="singleChoice"
+                android:listSelector="@android:color/darker_gray"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
 
         </LinearLayout>
     </ViewFlipper>

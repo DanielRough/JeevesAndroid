@@ -96,7 +96,10 @@ public class SurveyAction extends FirebaseAction {
             FirebaseUtils.SURVEY_REF.child(intent.getStringExtra(SURVEY_NAME)).child("missed").push().setValue(surveymap);
         }
     }
+
+    //We need to have a way to uniquely identify each survey
     public int thisActionsId = 0;
+
     private BroadcastReceiver mReceiver; //Receives notifications from SurveyActivity that we finished
     public SurveyAction(Map<String, Object> params) {
         setparams(params);
@@ -105,30 +108,55 @@ public class SurveyAction extends FirebaseAction {
     @Override
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     public boolean execute() {
-        thisActionsId = Integer.parseInt("9" + NOTIFICATION_ID++);
         final Context app = ApplicationContext.getContext();
         final String surveyname = getparams().get("survey").toString();
 
+
         int triggerType = (int)getparams().get(TRIG_TYPE);
         FirebaseSurvey currentsurvey = null;
+
         List<FirebaseSurvey> surveys = ApplicationContext.getProject().getsurveys();
         for (FirebaseSurvey survey : surveys) {
+            thisActionsId++; //So two of the same survey have the same actionsID...I hope
             if (survey.gettitle().equals(surveyname)) {
                 currentsurvey = survey;
                 break;
             }
         }
-
+        final String surveyId = currentsurvey.getsurveyId();
+        //We need to store that the last survey with this name to be sent out has not been completed. This will help keep
+        //track in the Missed Surveys screen of which surveys to display
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(app);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putBoolean(currentsurvey.getsurveyId(),true);
+        editor.commit();
         final long timeSent = System.currentTimeMillis();
 
-        IntentFilter intentFilter = new IntentFilter(TriggerManagerConstants.ACTION_NAME_SURVEY_TRIGGER);
         //We need to keep the notification alive for as long as the survey isn't completed
         //Whenever this receiver gets a notification that our survey was completed, it cancels
         //the timeout alarm previously set
+
+
+
+        DatabaseReference myRef = FirebaseUtils.PATIENT_REF.child(INCOMPLETE);
+        DatabaseReference newPostRef = myRef.push();
+        currentsurvey.settimeSent(timeSent);
+        currentsurvey.settriggerType((int)getparams().get(TRIG_TYPE));
+        newPostRef.setValue(currentsurvey);
+        final String newPostRefId = newPostRef.getKey();
+        //If this has an expiry time, we set our 'time to go', i.e. how long the user has to complete the survey
+        long expiryTime = currentsurvey.getexpiryTime();
+        long expiryMillis = expiryTime * 60 * 1000;
+        long deadline = currentsurvey.gettimeSent() + expiryMillis;
+        long timeToGo = deadline - System.currentTimeMillis();
+
+        IntentFilter intentFilter = new IntentFilter(TriggerManagerConstants.ACTION_NAME_SURVEY_TRIGGER);
         mReceiver = new BroadcastReceiver() {
 
             @Override
             public void onReceive(Context context, Intent intent) {
+                Log.d("HELLO","DID I PICK THIS UP");
+                //This gets rid of the notification icon and cancels the alarm because the survey is completed
                 long completedtimesent = intent.getLongExtra(TIME_SENT, 0);
                 if (completedtimesent == timeSent) { //Then this survey was completed woohoo!
                     AlarmManager am = (AlarmManager) app.getSystemService(Context.ALARM_SERVICE);
@@ -138,24 +166,26 @@ public class SurveyAction extends FirebaseAction {
                     am.cancel(pi);
                     NotificationManager manager = (NotificationManager) app.getSystemService(app.NOTIFICATION_SERVICE);
                     manager.cancel(thisActionsId);
+
+                    //We need to store that the last survey with this name to be sent out has been completed. This will help keep
+                    //track in the Missed Surveys screen of which surveys to display
+                    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(app);
+                    SharedPreferences.Editor editor = prefs.edit();
+                    editor.putBoolean(surveyId,false);
+                    editor.commit();
+                }
+                //This gets rid of the notification icon without actually cancelling the alarm
+                else {
+                    String surveyid = intent.getStringExtra(SURVEY_ID);
+                    Log.d("surveyid","surveyid is " + surveyid + " and newpostrefid is " + newPostRefId);
+                    if (surveyid != null && surveyid.equals(newPostRefId)) {
+                        NotificationManager manager = (NotificationManager) app.getSystemService(app.NOTIFICATION_SERVICE);
+                        manager.cancel(thisActionsId);
+                    }
                 }
             }
         };
         app.registerReceiver(mReceiver, intentFilter);
-
-
-        DatabaseReference myRef = FirebaseUtils.PATIENT_REF.child(INCOMPLETE);
-        DatabaseReference newPostRef = myRef.push();
-        currentsurvey.settimeSent(timeSent);
-        currentsurvey.settriggerType((int)getparams().get(TRIG_TYPE));
-        newPostRef.setValue(currentsurvey);
-        String newPostRefId = newPostRef.getKey();
-        //If this has an expiry time, we set our 'time to go', i.e. how long the user has to complete the survey
-        long expiryTime = currentsurvey.getexpiryTime();
-        long expiryMillis = expiryTime * 60 * 1000;
-        long deadline = currentsurvey.gettimeSent() + expiryMillis;
-        long timeToGo = deadline - System.currentTimeMillis();
-
 
         Intent action1Intent = new Intent(app, NotificationActionService.class).setAction(ACTION_1);
         Intent action2Intent = new Intent(app, NotificationActionService.class).setAction(ACTION_2);
@@ -175,7 +205,7 @@ public class SurveyAction extends FirebaseAction {
         final NotificationManager notificationManager = (NotificationManager) app.getSystemService(app.NOTIFICATION_SERVICE);
 
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(app)
-                .setContentTitle("Ready to take a survey?")
+                .setContentTitle("You have a new survey available")
                 .setVibrate(new long[]{0, 1000})
                 .setSmallIcon(R.drawable.ic_action_search)
                 .setPriority(Notification.PRIORITY_HIGH)

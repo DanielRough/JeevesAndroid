@@ -51,10 +51,10 @@ public class TriggerList extends AbstractSubscriptionList<Trigger>
 		{
 			return new IntervalTrigger(context, id, listener, params);
 		}
-//		else if (type == TriggerUtils.TYPE_JEEVES_TRIGGER_ON_INTERVAL)
-//		{
-//			return new JeevesIntervalTrigger(context,id,listener,params);
-//		}
+		else if (type == TriggerUtils.TYPE_JEEVES_TRIGGER_ON_INTERVAL)
+		{
+			return new JeevesIntervalTrigger(context,id,listener,params);
+		}
 		else if (type == TriggerUtils.TYPE_CLOCK_TRIGGER_BEGIN)
 		{
 			return new BeginTrigger(context,id,listener,params);

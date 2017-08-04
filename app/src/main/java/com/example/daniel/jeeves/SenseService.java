@@ -10,13 +10,19 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.IntentSender;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.location.Location;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
+import android.os.Binder;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.Toast;
@@ -28,14 +34,12 @@ import com.example.daniel.jeeves.firebase.FirebaseProject;
 import com.example.daniel.jeeves.firebase.FirebaseTrigger;
 import com.example.daniel.jeeves.firebase.FirebaseUtils;
 import com.example.daniel.jeeves.firebase.UserVariable;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.PendingResult;
+
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.LocationSettingsRequest;
-import com.google.android.gms.location.LocationSettingsResult;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -56,6 +60,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executor;
 
 import static com.example.daniel.jeeves.ApplicationContext.DEADLINE;
 import static com.example.daniel.jeeves.ApplicationContext.FINISHED_INTRODUCTION;
@@ -86,7 +91,38 @@ public class SenseService extends Service{
     public static final String ACTION_1 = "action_1";
     public static final String ACTION_2 = "action_2";
     public static final int NOTIF_ID = 1337;
+    private final IBinder mBinder = new LocalBinder();
+    private LocationCallback mLocationCallback;
+    private FusedLocationProviderClient mFusedLocationClient;
+    private BroadcastReceiver mReceiver;
+    /**
+     * Class used for the client Binder.  Because we know this service always
+     * runs in the same process as its clients, we don't need to deal with IPC.
+     */
+    public class LocalBinder extends Binder {
+        SenseService getService() {
+            // Return this instance of LocalService so clients can call public methods
+            return SenseService.this;
+        }
+    }
+    @Override
+    public IBinder onBind(Intent intent) {
+        return mBinder;
+    }
+    public void startLocationUpdates(LocationRequest mLocationRequest) {
+        //START THE (NOW SEPARATE) LOCATION SERVICE
 
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        mFusedLocationClient.requestLocationUpdates(mLocationRequest,
+                mLocationCallback,
+                null /* Looper */);
+    }
+    private void stopLocationUpdates() {
+        mFusedLocationClient.removeLocationUpdates(mLocationCallback);
+    }
     static {
         sensorlisteners.put(SensorUtils.SENSOR_TYPE_BLUETOOTH, new SensorListener(SensorUtils.SENSOR_TYPE_BLUETOOTH));
         sensorlisteners.put(SensorUtils.SENSOR_TYPE_MICROPHONE, new SensorListener(SensorUtils.SENSOR_TYPE_MICROPHONE));
@@ -113,64 +149,40 @@ public class SenseService extends Service{
                 //Followed by an intent to actually start our survey!
                 NotificationManager manager = (NotificationManager) app.getSystemService(app.NOTIFICATION_SERVICE);
                 manager.cancel(NOTIF_ID);
+                //Set that we no longer have the notification actives
+                SharedPreferences varPrefs = PreferenceManager.getDefaultSharedPreferences(app);
+                SharedPreferences.Editor editor = varPrefs.edit();
+                editor.putBoolean("active",false);
+                editor.commit();
+                //
                 Intent resultIntent = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
                 resultIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 sendBroadcast(new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS));
                 this.startActivity(resultIntent);
 
             }
-            if (ACTION_2.equals(action)) {
-                NotificationManager manager = (NotificationManager) app.getSystemService(app.NOTIFICATION_SERVICE);
-                manager.cancel(NOTIF_ID);
-            }
+
         }
     }
     public SenseService getInstance(){
         return this;
     }
 
-    boolean isGpsEnabled;
-    boolean isNetworkEnabled;
-    public void sendLocationRequest(){
-        Context app = ApplicationContext.getContext();
-        Intent action1Intent = new Intent(app, SenseService.NotificationActionService.class).setAction(ACTION_1);
-        Intent action2Intent = new Intent(app, SenseService.NotificationActionService.class).setAction(ACTION_2);
-        PendingIntent action1PendingIntent = PendingIntent.getService(app, 0, action1Intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        PendingIntent action2PendingIntent = PendingIntent.getService(app, 0, action2Intent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-        Log.i("Loc", "Location Providers changed");
-        LocationManager locationManager = (LocationManager) app.getSystemService(Context.LOCATION_SERVICE);
-        isGpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-        isNetworkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-
-        //Start your Activity if location was enabled:
-        if (isGpsEnabled == false){
-            final NotificationManager notificationManager = (NotificationManager) app.getSystemService(app.NOTIFICATION_SERVICE);
-
-            NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(app)
-                    .setContentTitle("Location Required")
-                    .setVibrate(new long[]{0, 1000})
-                    .setSmallIcon(R.drawable.ic_action_search)
-                    .setPriority(Notification.PRIORITY_MAX)
-                    .setAutoCancel(true)
-                    .setStyle(new NotificationCompat.BigTextStyle()
-                            .bigText("Your study relies on knowing your location! Please press 'Enable Location' to make sure your study will run properly"))
-                    .setWhen(0);
-
-            mBuilder.setAutoCancel(true);
-            mBuilder.setOngoing(true);
-            mBuilder.addAction(R.drawable.ic_create_black_24dp, "Enable location", action1PendingIntent);
-            mBuilder.addAction(R.drawable.ic_create_black_24dp, "I'll do it later!", action2PendingIntent);
-            notificationManager.notify(NOTIF_ID, mBuilder.build());
-        }
-    }
     @Override
     public void onCreate(){
         final FirebaseDatabase database = FirebaseUtils.getDatabase();
         SharedPreferences varPrefs = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getContext());
         String studyname = varPrefs.getString(STUDY_NAME, "");
         DatabaseReference projectRef = database.getReference(PUBLIC_KEY).child(PROJECTS_KEY).child(studyname);
+        mLocationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                for (Location location : locationResult.getLocations()) {
+         //           Toast.makeText(getInstance(),"LOCATION UPDATE" + location.getLatitude() +"," + location.getLongitude(),Toast.LENGTH_SHORT).show();
 
+                }
+            };
+        };
         //We also listen on the project ref in here (this is a constant listener as opposed to
         //the one in the MainActivity
         projectRef.addValueEventListener(new ValueEventListener() {
@@ -195,27 +207,11 @@ public class SenseService extends Service{
         });
 
 
-        //This is a broadcast receiver that is notified when the Location Sensor has failed to get back anything,
-        //suggesting that the user has turned their location off. This just requests that they please turn it back
-        //on
-        final BroadcastReceiver locreceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-
-                if (intent.getAction().equals(SensorUtils.LOCATION_REQUIRED))
-                {
-                    sendLocationRequest();
-                }
-            }
-        };
-        IntentFilter locfilter = new IntentFilter(SensorUtils.LOCATION_REQUIRED);
-        this.registerReceiver(locreceiver, locfilter);
-
 
         //This is a broadcast receiver that is notified whenever the user's variables have changed in response to a survey
         //Because some triggers' configuration is dependent on these variables, we need to reset them when, for example,
         //the start or end date has changed
-        final BroadcastReceiver receiver = new BroadcastReceiver() {
+         mReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 String action = intent.getAction();
@@ -246,29 +242,17 @@ public class SenseService extends Service{
         };
         IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
         filter.addAction(TriggerManagerConstants.ACTION_NAME_SURVEY_TRIGGER);
-        this.registerReceiver(receiver, filter);
+        this.registerReceiver(mReceiver, filter);
     }
-    private GoogleApiClient mGoogleApiClient;
-    private LocationRequest mLocationRequest;
+
+    @Override
+    public void onDestroy(){
+        unregisterReceiver(mReceiver);
+    }
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Context app = ApplicationContext.getContext();
-        LocationManager locationManager = (LocationManager) app.getSystemService(Context.LOCATION_SERVICE);
-        isGpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-        isNetworkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
 
-        //Start your Activity if location was enabled:
-        if (isGpsEnabled == false){
-            sendLocationRequest();
-        }
         return START_STICKY;
-    }
-
-
-    @Nullable
-    @Override
-    public IBinder onBind(Intent intent) {
-        return null;
     }
 
     //This is the main method in which the required project is pulled from Firebase and interpreted

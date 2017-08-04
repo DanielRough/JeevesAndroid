@@ -1,8 +1,11 @@
 package com.example.daniel.jeeves;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
@@ -21,6 +24,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.ubhave.triggermanager.config.TriggerManagerConstants;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -55,16 +59,29 @@ public class MissedSurveyActivity extends AppCompatActivity {
         myTopPostsQuery.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
-                final ArrayList<FirebaseSurvey> surveynames = new ArrayList<FirebaseSurvey>();
+                final ArrayList<FirebaseSurvey> surveys = new ArrayList<FirebaseSurvey>();
+                final ArrayList<String> surveynames = new ArrayList<String>();
+                ArrayList<DataSnapshot> children = new ArrayList<DataSnapshot>();
                 for (DataSnapshot postSnapshot : snapshot.getChildren()) {
+                    children.add(0,postSnapshot);
+                }
+                //Hopefully this should reverse them?
+                    for (DataSnapshot postSnapshot : children) {
                     FirebaseSurvey survey = postSnapshot.getValue(FirebaseSurvey.class);
                     String id = postSnapshot.getKey();
                     survey.setkey(id);
                     long expiryTime = survey.getexpiryTime();
                     long expiryMillis = expiryTime * 60 * 1000;
                     long deadline = survey.gettimeSent() + expiryMillis;
-                    if (deadline > System.currentTimeMillis() || survey.getexpiryTime() == 0) {
-                        surveynames.add(survey);
+                    String name = survey.gettitle();
+
+                    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getContext());
+                    boolean isAvailable = prefs.getBoolean(survey.getsurveyId(),false); //Check whether this survey should be avaialble
+                    //This way we only add the most recent survey
+                    if (!surveynames.contains(name) && isAvailable && deadline > System.currentTimeMillis() || survey.getexpiryTime() == 0) {
+                        surveys.add(survey);
+                        surveynames.add(name);
+
                     }
 
                 }
@@ -72,8 +89,11 @@ public class MissedSurveyActivity extends AppCompatActivity {
                 list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
+
                         Intent resultIntent = new Intent(MissedSurveyActivity.this, SurveyActivity.class);
-                        FirebaseSurvey clickedSurvey = surveynames.get(position);
+                        FirebaseSurvey clickedSurvey = surveys.get(position);
+
+
                         resultIntent.putExtra(SURVEY_ID, clickedSurvey.getkey());
                         resultIntent.putExtra(SURVEY_NAME, clickedSurvey.gettitle());
                         resultIntent.putExtra(TIME_SENT, clickedSurvey.gettimeSent());
@@ -82,7 +102,7 @@ public class MissedSurveyActivity extends AppCompatActivity {
                         startActivity(resultIntent);
                     }
                 });
-                MissedSurveyItem adapter = new MissedSurveyItem(MissedSurveyActivity.this, surveynames);
+                MissedSurveyItem adapter = new MissedSurveyItem(MissedSurveyActivity.this, surveys);
                 list.setAdapter(adapter);
             }
 
@@ -164,6 +184,13 @@ public class MissedSurveyActivity extends AppCompatActivity {
                     resultIntent.putExtra(TIME_SENT, timeSent);
                     resultIntent.putExtra(TRIG_TYPE, triggerType);
 
+
+                    Context context = ApplicationContext.getContext();
+                    //This intent sends a broadcast to cancel the notification, if there is one
+                    Intent intended = new Intent();
+                    intended.setAction(TriggerManagerConstants.ACTION_NAME_SURVEY_TRIGGER);
+                    intended.putExtra(SURVEY_ID, surveyKey);
+                    context.sendBroadcast(intended);
                     result.get(position).setbegun(); //Confirm that this survey has been started
                     context.startActivity(resultIntent); //So we know which one to delete
                 }
