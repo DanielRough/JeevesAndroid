@@ -16,18 +16,13 @@ ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
 IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ************************************************** */
 
-import android.app.IntentService;
 import android.app.PendingIntent;
-import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.os.IBinder;
 import android.preference.PreferenceManager;
-import android.provider.SyncStateContract;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 
@@ -35,7 +30,6 @@ import com.example.daniel.jeeves.actions.ActionUtils;
 import com.example.daniel.jeeves.actions.FirebaseAction;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingClient;
-import com.google.android.gms.location.GeofencingEvent;
 import com.google.android.gms.location.GeofencingRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -47,9 +41,7 @@ import com.ubhave.triggermanager.config.TriggerConfig;
 import com.ubhave.triggermanager.triggers.TriggerUtils;
 
 import java.util.ArrayList;
-import java.util.List;
 
-import static android.content.ContentValues.TAG;
 import static com.example.daniel.jeeves.ApplicationContext.TRIG_TYPE;
 import static com.example.daniel.jeeves.actions.ActionUtils.ACTIONS;
 import static com.example.daniel.jeeves.actions.ActionUtils.ACTIONSETID;
@@ -117,7 +109,7 @@ public class TriggerListener implements TriggerReceiver {
                 }
             }
             triggerManager.removeTrigger(triggerSubscriptionId);
-            //SubscriptionIds.removeSubscription(triggerId);
+       ///     SubscriptionIds.removeSubscription(triggerId);
         } catch (TriggerException e) {
             e.printStackTrace();
         }

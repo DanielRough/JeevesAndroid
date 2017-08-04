@@ -34,6 +34,7 @@ import android.view.Window;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -66,7 +67,6 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -198,6 +198,7 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
     private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
+
             if (BluetoothDevice.ACTION_FOUND.equals(action)) {
                 BluetoothDevice device = intent
                         .getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
@@ -257,6 +258,7 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
         grpMultMany = ((LinearLayout) findViewById(R.id.grpMultMany));
         grpMultSingle = ((RadioGroup) findViewById(R.id.grpMultSingle));
         grpScale = ((RadioGroup) findViewById(R.id.grpScale));
+        lstBluetooth = ((ListView)findViewById(R.id.lstBluetooth));
 
         lstWifi = ((ListView)findViewById(R.id.lstWifi));
         mWifiManager = (WifiManager) ApplicationContext.getContext().getApplicationContext().getSystemService(Context.WIFI_SERVICE);
@@ -657,7 +659,7 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
                 map.addMarker(new MarkerOptions()
                         .position(coords)
                         .title(place.getName().toString()));
-                String answer = coords.latitude + ";" + coords.longitude + ";";
+                String answer = coords.latitude + ":" + coords.longitude + ";";
                 answers.set(currentIndex, answer);
             }
         }
@@ -672,7 +674,7 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
         String answer = answers.get(currentIndex);
         if (!answer.isEmpty()) {
             String location = answer.toString();
-            String[] locationbits = location.split(";");
+            String[] locationbits = location.split(":");
             double latitude = Double.parseDouble(locationbits[0]);
             double longitude = Double.parseDouble(locationbits[1]);
             LatLng coords = new LatLng(latitude, longitude);
@@ -765,14 +767,22 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
     }
 
     private void handleWifi(){
-
+        lstWifi.setAdapter(new ArrayAdapter<String>(ApplicationContext.getContext(),android.R.layout.simple_list_item_1,mNetworkList));
+        lstWifi.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String wifiText = mNetworkList.get(position);
+                answers.set(currentIndex,wifiText);
+            }
+        });
 
     }
     int REQUEST_ENABLE_BT = 99;
 
     private void handleBluetooth(){
+       // lstBluetooth.setAdapter(new ArrayAdapter<String>(ApplicationContext.getContext(),
+        //        android.R.layout.simple_list_item_1, mDeviceList));
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        lstBluetooth = ((ListView)findViewById(R.id.lstBluetooth));
 
         if (!mBluetoothAdapter.isEnabled()) {
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
@@ -781,6 +791,13 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
         }
         else
             mBluetoothAdapter.startDiscovery();
+        lstBluetooth.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String bluetoothText = mDeviceList.get(position);
+                answers.set(currentIndex,bluetoothText);
+            }
+        });
 
     }
     private void launchQuestion(FirebaseQuestion question, String direction) {
@@ -980,7 +997,7 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
                 MarkerOptions opts = options.position(GoogleMap);
                 map.clear();
                 map.addMarker(opts);
-                answers.set(currentIndex, opts.getPosition().latitude + ";" + opts.getPosition().longitude);
+                answers.set(currentIndex, opts.getPosition().latitude + ":" + opts.getPosition().longitude);
                 Log.d("MAP", "just set it to " + answers.get(currentIndex));
                 map.moveCamera(CameraUpdateFactory.newLatLng(GoogleMap)); //This oughta put our camera at the current location
                 map.animateCamera(CameraUpdateFactory.zoomTo(16));

@@ -22,12 +22,12 @@ IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 package com.ubhave.sensormanager.classifier;
 
-import java.util.ArrayList;
-
 import com.ubhave.sensormanager.config.SensorConfig;
 import com.ubhave.sensormanager.data.SensorData;
 import com.ubhave.sensormanager.data.pull.BluetoothData;
 import com.ubhave.sensormanager.data.pull.ESBluetoothDevice;
+
+import java.util.ArrayList;
 
 public class BluetoothDataClassifier extends SocialClassifier implements SensorDataClassifier
 {
@@ -40,6 +40,12 @@ public class BluetoothDataClassifier extends SocialClassifier implements SensorD
 		String[] currDevices = getDeviceMacs(data);
 		String[] prevDevices = getDeviceMacs(prevData);
 
+		for(String deviceAddress : currDevices){
+			if(value.contains(deviceAddress))
+				return true;
+		}
+		return false;
+		/*
 		if (areSameDeviceAddrSets(prevDevices, currDevices))
 		{
 			return false;
@@ -47,7 +53,7 @@ public class BluetoothDataClassifier extends SocialClassifier implements SensorD
 		else
 		{
 			return true;
-		}
+		}*/
 	}
 
 	protected String[] getDeviceMacs(BluetoothData data)
@@ -62,6 +68,7 @@ public class BluetoothDataClassifier extends SocialClassifier implements SensorD
 				int i = 0;
 				for (ESBluetoothDevice btDevice : list)
 				{
+
 					deviceList[i++] = btDevice.getBluetoothDeviceAddress();
 				}
 			}

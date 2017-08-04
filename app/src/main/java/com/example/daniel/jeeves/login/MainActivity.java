@@ -24,10 +24,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import org.json.JSONException;
+import java.util.HashSet;
 
 import static com.example.daniel.jeeves.ApplicationContext.STUDY_NAME;
-import static com.example.daniel.jeeves.ApplicationContext.USERNAME;
 import static com.example.daniel.jeeves.firebase.FirebaseUtils.PROJECTS_KEY;
 import static com.example.daniel.jeeves.firebase.FirebaseUtils.PUBLIC_KEY;
 
@@ -72,6 +71,11 @@ public class MainActivity extends Activity{
                 final FirebaseDatabase database = FirebaseUtils.getDatabase();
                 SharedPreferences varPrefs = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getContext());
                 String studyname = varPrefs.getString(STUDY_NAME, "");
+                //If we've restarted the app we also want to reset the triggers
+                SharedPreferences.Editor prefseditor = varPrefs.edit();
+                prefseditor.putStringSet("triggerids",new HashSet<String>());
+                prefseditor.commit();
+
                 DatabaseReference projectRef = database.getReference(PUBLIC_KEY).child(PROJECTS_KEY).child(studyname);
 
                 projectRef.addListenerForSingleValueEvent(new ValueEventListener() {

@@ -22,12 +22,12 @@ IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 package com.ubhave.sensormanager.classifier;
 
-import java.util.ArrayList;
-
 import com.ubhave.sensormanager.config.SensorConfig;
 import com.ubhave.sensormanager.data.SensorData;
 import com.ubhave.sensormanager.data.pull.WifiData;
 import com.ubhave.sensormanager.data.pull.WifiScanResult;
+
+import java.util.ArrayList;
 
 public class WifiDataClassifier extends SocialClassifier implements SensorDataClassifier
 {
@@ -39,15 +39,19 @@ public class WifiDataClassifier extends SocialClassifier implements SensorDataCl
 
 		String[] currDevices = getDeviceMacs(data);
 		String[] prevDevices = getDeviceMacs(prevData);
-
-		if (areSameDeviceAddrSets(prevDevices, currDevices))
-		{
-			return false;
+		for(String deviceAddress : currDevices){
+			if(value.equals(deviceAddress))
+				return true;
 		}
-		else
-		{
-			return true;
-		}
+		return false;
+//		if (areSameDeviceAddrSets(prevDevices, currDevices))
+//		{
+//			return false;
+//		}
+//		else
+//		{
+//			return true;
+//		}
 
 	}
 

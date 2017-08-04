@@ -1,40 +1,29 @@
 package com.example.daniel.jeeves;
 
-import android.app.AlarmManager;
 import android.app.IntentService;
-import android.app.Notification;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
-import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.os.Binder;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
-import android.provider.Settings;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.example.daniel.jeeves.actions.FirebaseAction;
-import com.example.daniel.jeeves.actions.SurveyAction;
 import com.example.daniel.jeeves.firebase.FirebaseExpression;
 import com.example.daniel.jeeves.firebase.FirebaseProject;
 import com.example.daniel.jeeves.firebase.FirebaseTrigger;
 import com.example.daniel.jeeves.firebase.FirebaseUtils;
 import com.example.daniel.jeeves.firebase.UserVariable;
-
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -45,7 +34,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.ubhave.sensormanager.config.pull.LocationConfig;
 import com.ubhave.sensormanager.sensors.SensorUtils;
 import com.ubhave.triggermanager.TriggerException;
 import com.ubhave.triggermanager.config.GlobalState;
@@ -57,29 +45,20 @@ import org.json.JSONException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Executor;
+import java.util.Set;
 
-import static com.example.daniel.jeeves.ApplicationContext.DEADLINE;
 import static com.example.daniel.jeeves.ApplicationContext.FINISHED_INTRODUCTION;
-import static com.example.daniel.jeeves.ApplicationContext.INIT_TIME;
-import static com.example.daniel.jeeves.ApplicationContext.NOTIF_ID;
 import static com.example.daniel.jeeves.ApplicationContext.STUDY_NAME;
-import static com.example.daniel.jeeves.ApplicationContext.SURVEY_ID;
-import static com.example.daniel.jeeves.ApplicationContext.SURVEY_NAME;
-import static com.example.daniel.jeeves.ApplicationContext.TIME_SENT;
-import static com.example.daniel.jeeves.ApplicationContext.TRIG_TYPE;
-import static com.example.daniel.jeeves.ApplicationContext.WAS_INIT;
-import static com.example.daniel.jeeves.actions.SurveyAction.ACTION_1;
 import static com.example.daniel.jeeves.firebase.FirebaseUtils.BOOLEAN;
 import static com.example.daniel.jeeves.firebase.FirebaseUtils.DATE;
 import static com.example.daniel.jeeves.firebase.FirebaseUtils.LOCATION;
 import static com.example.daniel.jeeves.firebase.FirebaseUtils.NUMERIC;
 import static com.example.daniel.jeeves.firebase.FirebaseUtils.PROJECTS_KEY;
 import static com.example.daniel.jeeves.firebase.FirebaseUtils.PUBLIC_KEY;
-import static com.example.daniel.jeeves.firebase.FirebaseUtils.SURVEYS_KEY;
 import static com.example.daniel.jeeves.firebase.FirebaseUtils.TEXT;
 import static com.example.daniel.jeeves.firebase.FirebaseUtils.TIME;
 
@@ -264,6 +243,8 @@ public class SenseService extends Service{
         SharedPreferences varPrefs = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getContext());
         SharedPreferences.Editor prefseditor = varPrefs.edit();
 
+        //This reloads any existing set of triggerids we have
+        triggerids = new ArrayList<>(varPrefs.getStringSet("triggerids",new HashSet()));
         for(UserVariable var : variables){
             String type = var.getvartype();
             switch(type){
@@ -295,6 +276,10 @@ public class SenseService extends Service{
                 removeTrigger(toRemove);
         }
         triggerids = newIds;
+        //This saves our current set of triggerids
+        Set triggerset = new HashSet(triggerids);
+        prefseditor.putStringSet("triggerids",triggerset);
+        prefseditor.commit();
         try {
             GlobalState triggerState = GlobalState.getGlobalState(this);
             triggerState.setNotificationCap(199); //TODO: Figure out why it's 199, should it be? Should the user specify this?
@@ -342,7 +327,7 @@ public class SenseService extends Service{
                     times.add(Integer.parseInt(time.getvalue()));
                 }
                 else{
-                    times.add(Integer.parseInt(varPrefs.getString(time.getname(),"0")));
+                    times.add((int)(varPrefs.getLong(time.getname(),0)));
                 }
             }
             config.addParameter("times",times);
