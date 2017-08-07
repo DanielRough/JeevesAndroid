@@ -34,4 +34,11 @@ public class ScreenDataClassifier implements SensorDataClassifier
 		ScreenData screen = (ScreenData) sensorData;
 		return screen.isOn();
 	}
+	private String stringStatus;
+
+	@Override
+	public String getClassification(SensorData sensorData, SensorConfig sensorConfig) {
+		isInteresting(sensorData,sensorConfig,"",false);
+		return stringStatus;
+	}
 }

@@ -44,11 +44,14 @@ public class BluetoothDataClassifier extends SocialClassifier implements SensorD
 
 		boolean isInPrev = false;
 		boolean isInCurrent = false;
+		stringStatus = "[";
 		for(String deviceAddress : currDevices){
+			stringStatus+=deviceAddress + ";";
 			if(value.contains(deviceAddress)) {
 				isInCurrent = true;
 			}
 		}
+		stringStatus +="]";
 
 		if(isInCurrent && (isTrigger == false || lastStatus == false)){
 			lastStatus = isInCurrent;
@@ -87,5 +90,11 @@ public class BluetoothDataClassifier extends SocialClassifier implements SensorD
 		}
 		return deviceList;
 	}
+	private String stringStatus;
 
+	@Override
+	public String getClassification(SensorData sensorData, SensorConfig sensorConfig) {
+		isInteresting(sensorData,sensorConfig,"",false);
+		return stringStatus;
+	}
 }

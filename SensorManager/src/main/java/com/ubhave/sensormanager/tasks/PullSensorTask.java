@@ -35,7 +35,7 @@ import com.ubhave.sensormanager.sensors.pull.PullSensor;
 
 public class PullSensorTask extends AbstractSensorTask
 {
-
+	public SensorData recentlySensed;
 	public PullSensorTask(SensorInterface sensor)
 	{
 		super(sensor);
@@ -93,6 +93,7 @@ public class PullSensorTask extends AbstractSensorTask
 						}
 
 						SensorData sensorData = getCurrentSensorData(false);
+						recentlySensed = sensorData;
 						// publish sensed data
 						publishData(sensorData);
 

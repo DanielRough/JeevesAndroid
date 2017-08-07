@@ -34,6 +34,8 @@ import java.util.ArrayList;
 public class AccelerometerDataClassifier implements SensorDataClassifier
 {
 	private static int lastStatus = -1;
+
+
 	@Override
 	public boolean isInteresting(final SensorData sensorData, final SensorConfig sensorConfig, String value, boolean isTrigger)
 	{
@@ -160,6 +162,10 @@ public class AccelerometerDataClassifier implements SensorDataClassifier
 //		}
 //		else
 //
+		if(status >=0)
+			stringStatus = "Moving";
+		else
+			stringStatus = "Stationary";
 		//Only interested if they weren't moving before and now they are
 		if(value.equals("Moving")){
 			if (status >= 0 && (lastStatus <0 || isTrigger == false))
@@ -184,6 +190,13 @@ public class AccelerometerDataClassifier implements SensorDataClassifier
 		Log.d("NAAAH","Nah it was actually false how sad. Last status was " + lastStatus + " and this status was " + status);
 
 		return false;
+	}
+	private String stringStatus;
+
+	@Override
+	public String getClassification(SensorData sensorData, SensorConfig sensorConfig) {
+		isInteresting(sensorData,sensorConfig,"",false);
+		return stringStatus;
 	}
 
 }

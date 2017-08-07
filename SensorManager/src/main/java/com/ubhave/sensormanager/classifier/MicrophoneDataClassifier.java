@@ -37,7 +37,7 @@ public class MicrophoneDataClassifier implements SensorDataClassifier
 
 		if (isSilent(data.getAmplitudeArray(), (Integer) sensorConfig.getParameter(MicrophoneConfig.SOUND_THRESHOLD)))
 		{
-
+			stringStatus = "Quiet";
 
 			if(value.equals("Quiet") && (isTrigger == false || lastStatus == true)){
 					lastStatus = false;
@@ -51,6 +51,8 @@ public class MicrophoneDataClassifier implements SensorDataClassifier
 			}
 		else
 		{
+			stringStatus = "Noisy";
+
 			lastStatus = true;
 			if(value.equals("Quiet") && (isTrigger == false || lastStatus == false)) {
 					lastStatus = false;
@@ -81,5 +83,11 @@ public class MicrophoneDataClassifier implements SensorDataClassifier
 			return true;
 		}
 	}
+	private String stringStatus;
 
+	@Override
+	public String getClassification(SensorData sensorData, SensorConfig sensorConfig) {
+		isInteresting(sensorData,sensorConfig,"",false);
+		return stringStatus;
+	}
 }

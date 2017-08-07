@@ -87,5 +87,11 @@ public class LocationDataClassifier implements SensorDataClassifier
 		wasSameLastTime = false;
 		return false;
 	}
+	private String stringStatus;
 
+	@Override
+	public String getClassification(SensorData sensorData, SensorConfig sensorConfig) {
+		isInteresting(sensorData,sensorConfig,"",false);
+		return stringStatus;
+	}
 }

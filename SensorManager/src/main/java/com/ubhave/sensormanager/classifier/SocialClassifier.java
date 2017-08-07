@@ -22,10 +22,13 @@ IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 package com.ubhave.sensormanager.classifier;
 
+import android.annotation.SuppressLint;
+
+import com.ubhave.sensormanager.config.SensorConfig;
+import com.ubhave.sensormanager.data.SensorData;
+
 import java.util.HashSet;
 import java.util.Set;
-
-import android.annotation.SuppressLint;
 
 public abstract class SocialClassifier
 {
@@ -102,4 +105,5 @@ public abstract class SocialClassifier
 		}
 		return sameMacs;
 	}
+
 }

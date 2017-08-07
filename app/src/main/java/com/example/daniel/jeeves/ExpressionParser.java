@@ -120,6 +120,8 @@ public class ExpressionParser {
                     return FALSE;
                 } catch (Exception e){
                     e.printStackTrace();
+                    return FALSE;
+
                 }
             } else if (params.containsKey(TIME_DIFF)) { //a timediff expression
                 String beforeAfter = params.get(BEFORE_AFTER).toString();

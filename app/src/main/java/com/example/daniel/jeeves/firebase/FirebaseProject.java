@@ -16,6 +16,7 @@ public class FirebaseProject {
     List<FirebaseSurvey> surveys = new ArrayList<>();
     List<FirebaseTrigger> triggers = new ArrayList<>();
     List<FirebaseUI> uidesign = new ArrayList<>();
+    List<String> sensors = new ArrayList<>();
     String type;
     List<UserVariable> variables = new ArrayList<>();
     List<FirebaseExpression> expressions = new ArrayList<>();
@@ -78,5 +79,6 @@ public class FirebaseProject {
     public List<UserVariable> getvariables() { return variables; }
     public List<FirebaseUI> getuidesign(){ return uidesign; }
     public List<FirebaseExpression> getexpressions() { return expressions; }
+    public List<String> getsensors() { return sensors; }
     public long getmaxNotifications(){ return maxNotifications;}
 }

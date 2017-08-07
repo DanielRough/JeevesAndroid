@@ -32,6 +32,7 @@ public class FirebaseUtils {
     public static String PATIENTS_KEY = "patients";
     public static String SURVEYS_KEY = "surveys";
     public static String SURVEYDATA_KEY = "surveydata";
+    public static String SENSORDATA_KEY = "sensordata";
 
     //Variable types
     public static final String BOOLEAN = "Boolean";

@@ -48,11 +48,14 @@ public class WifiDataClassifier extends SocialClassifier implements SensorDataCl
 				return true;
 		}
 
+		stringStatus = "[";
 		boolean isInCurrent = false;
 		for(String deviceAddress : currDevices){
+			stringStatus += deviceAddress+ ";";
 			if(value.equals(deviceAddress))
 				isInCurrent = true;
 		}
+		stringStatus +="]";
 
 		if(isInCurrent && (isTrigger == false || lastStatus == false)) {
 				lastStatus = isInCurrent;
@@ -91,5 +94,11 @@ public class WifiDataClassifier extends SocialClassifier implements SensorDataCl
 		}
 		return deviceList;
 	}
+	private String stringStatus;
 
+	@Override
+	public String getClassification(SensorData sensorData, SensorConfig sensorConfig) {
+		isInteresting(sensorData, sensorConfig, "", false);
+		return stringStatus;
+	}
 }

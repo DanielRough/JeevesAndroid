@@ -32,6 +32,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.ubhave.sensormanager.ESException;
+import com.ubhave.sensormanager.ESSensorManager;
 import com.ubhave.sensormanager.sensors.SensorUtils;
 import com.ubhave.triggermanager.TriggerException;
 import com.ubhave.triggermanager.config.GlobalState;
@@ -62,9 +64,11 @@ import static com.example.daniel.jeeves.firebase.FirebaseUtils.TIME;
 public class SenseService extends Service{
 
     public ArrayList<String> triggerids = new ArrayList<String>();
+    public ArrayList<String> sensorids = new ArrayList<String>();
     public static HashMap<String, TriggerListener> triggerlisteners = new HashMap<String, TriggerListener>();
     public static HashMap<Integer, SensorListener> sensorlisteners = new HashMap<Integer, SensorListener>();
     public static HashMap<String, GeofenceListener> geofencelisteners = new HashMap<>();
+    public static HashMap<Integer,Integer> subscribedSensors = new HashMap<Integer,Integer>();
     public static final String ACTION_1 = "action_1";
     public static final String ACTION_2 = "action_2";
     public static final int NOTIF_ID = 1337;
@@ -101,6 +105,7 @@ public class SenseService extends Service{
         mFusedLocationClient.removeLocationUpdates(mLocationCallback);
     }
     static {
+        sensorlisteners.put(SensorUtils.SENSOR_TYPE_ACCELEROMETER, new SensorListener(SensorUtils.SENSOR_TYPE_ACCELEROMETER));
         sensorlisteners.put(SensorUtils.SENSOR_TYPE_BLUETOOTH, new SensorListener(SensorUtils.SENSOR_TYPE_BLUETOOTH));
         sensorlisteners.put(SensorUtils.SENSOR_TYPE_MICROPHONE, new SensorListener(SensorUtils.SENSOR_TYPE_MICROPHONE));
         sensorlisteners.put(SensorUtils.SENSOR_TYPE_WIFI, new SensorListener(SensorUtils.SENSOR_TYPE_WIFI));
@@ -244,10 +249,42 @@ public class SenseService extends Service{
       //  ApplicationContext.setCurrentproject(app);
         final List<FirebaseTrigger> triggers = app.gettriggers();
         final List<UserVariable> variables = app.getvariables();
+        final List<String> sensors = app.getsensors();
         SharedPreferences varPrefs = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getContext());
         SharedPreferences.Editor prefseditor = varPrefs.edit();
 
+        sensorids = new ArrayList<>(varPrefs.getStringSet("sensorids",new HashSet()));
 
+        ArrayList<String> newSensors = new ArrayList<String>();
+        for(String sensor : sensors){
+            try {
+                newSensors.add(sensor);
+                int sensorType= SensorUtils.getSensorType(sensor);
+                SensorListener listener = sensorlisteners.get(sensorType);
+                if (!sensorids.contains(sensor)) {
+                    Log.d("Sensor", "Away to try and subscribe to " + sensorType);
+                    int subscriptionId = ESSensorManager.getSensorManager(this).subscribeToSensorData(sensorType, listener);
+                    subscribedSensors.put(sensorType, subscriptionId);
+                    Log.d("SUCCESS", "Successfully subscribed to " + sensorType);
+                    sensorids.add(sensor);
+                }
+                } catch (ESException e) {
+                e.printStackTrace();
+            }
+        }
+        for(String toRemove : sensorids){
+            if(!newSensors.contains(toRemove)){
+                int sensorType = 0;
+                try {
+                    sensorType = SensorUtils.getSensorType(toRemove);
+                    ESSensorManager.getSensorManager(this).unsubscribeFromSensorData(subscribedSensors.get(sensorType));
+                    sensorlisteners.remove(sensorType);
+                } catch (ESException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }
         mListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
             public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
                 for(UserVariable var : variables){

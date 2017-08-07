@@ -95,7 +95,7 @@ public class CheckVariablesActivity extends AppCompatActivity {
             try {
                 switch (vartype) {
                     case "Numeric":
-                        value = Long.toString(preferences.getLong(name, 0));
+                        value = preferences.getString(name, "");
                         break;
                     case "Boolean":
                         value = Boolean.toString(preferences.getBoolean(name, false));

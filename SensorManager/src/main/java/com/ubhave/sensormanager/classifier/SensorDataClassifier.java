@@ -28,4 +28,5 @@ import com.ubhave.sensormanager.data.SensorData;
 public interface SensorDataClassifier
 {
 	public boolean isInteresting(final SensorData sensorData, final SensorConfig sensorConfig, String value, boolean isTrigger);
+	public String getClassification(final SensorData sensorData, final SensorConfig sensorConfig);
 }

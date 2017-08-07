@@ -22,9 +22,6 @@ IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 package com.ubhave.sensormanager;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.PowerManager;
@@ -43,6 +40,9 @@ import com.ubhave.sensormanager.tasks.PullSensorTask;
 import com.ubhave.sensormanager.tasks.PushSensorTask;
 import com.ubhave.sensormanager.tasks.Subscription;
 import com.ubhave.sensormanager.tasks.SubscriptionList;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ESSensorManager implements ESSensorManagerInterface, SensorDataListener
 {
@@ -203,8 +203,10 @@ public class ESSensorManager implements ESSensorManagerInterface, SensorDataList
 		}
 		else if (sensorTask.isRunning())
 		{
-			throw new ESException(ESException.OPERATION_NOT_SUPPORTED,
-					"This method is supported only for sensors tasks that are not currently running. Please unregister all your listeners to the sensor to call this method.");
+			SensorData recentlySensed = ((PullSensorTask)sensorTask).recentlySensed;
+			return recentlySensed; //This is possibly bad practice but we'll see how it goes
+			//throw new ESException(ESException.OPERATION_NOT_SUPPORTED,
+			//		"This method is supported only for sensors tasks that are not currently running. Please unregister all your listeners to the sensor to call this method.");
 		}
 		else
 		{
