@@ -29,7 +29,7 @@ import com.ubhave.sensormanager.data.push.ScreenData;
 public class SurveyDataClassifier implements SensorDataClassifier
 {
     @Override
-    public boolean isInteresting(final SensorData sensorData, final SensorConfig sensorConfig, String value)
+    public boolean isInteresting(final SensorData sensorData, final SensorConfig sensorConfig, String value, boolean isTrigger)
     {
         ScreenData screen = (ScreenData) sensorData;
         return screen.isOn();

@@ -22,10 +22,6 @@ IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 package com.ubhave.triggermanager.triggers.sensor;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -33,7 +29,6 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
-//import com.google.android.gms.location.Geofence;
 import com.ubhave.sensormanager.ESException;
 import com.ubhave.sensormanager.ESSensorManager;
 import com.ubhave.sensormanager.ESSensorManagerInterface;
@@ -48,6 +43,10 @@ import com.ubhave.triggermanager.config.TriggerConfig;
 import com.ubhave.triggermanager.config.TriggerManagerConstants;
 import com.ubhave.triggermanager.triggers.Trigger;
 import com.ubhave.triggermanager.triggers.TriggerUtils;
+
+import java.util.Random;
+
+//import com.google.android.gms.location.Geofence;
 
 public class ImmediateSensorTrigger extends Trigger implements SensorDataListener/*, GoogleApiClient.OnConnectionFailedListener, GoogleApiClient.ConnectionCallbacks, LocationListener */{
 	/*
@@ -120,8 +119,8 @@ public class ImmediateSensorTrigger extends Trigger implements SensorDataListene
 			//	setupParams(getSensorType(), true);
 
 			//Temporary fix while I figure out how location is going to work
-			if(sensorType == SensorUtils.SENSOR_TYPE_LOCATION)
-				return;
+//			if(sensorType == SensorUtils.SENSOR_TYPE_LOCATION)
+//				return;
 				Log.d("DOIGETHERE", "Do I get here?");
 				this.classifier = SensorClassifiers.getSensorClassifier(sensorType);
 				Log.d("HOWBOUTHERE", "And how bout here?");
@@ -158,15 +157,14 @@ public class ImmediateSensorTrigger extends Trigger implements SensorDataListene
 		if (params.containsKey(TriggerConfig.INTERESTING_VALUE)) {
 			value = params.getParameter(TriggerConfig.INTERESTING_VALUE).toString();
 
-			if (sensorData.getSensorType() == SensorUtils.SENSOR_TYPE_LOCATION) {
-				//SharedPreferences prefs =
+			if (sensorData.getSensorType() == SensorUtils.SENSOR_TYPE_BLUETOOTH || sensorData.getSensorType() == SensorUtils.SENSOR_TYPE_WIFI) {
 				SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
 
 				value = preferences.getString(value, ""); //If it's a location, we need to find the coordinates it corresponds to in userprefs
 				Log.d("VALUE", "VALUE IS " + value);
 			}
 		}
-		if (classifier.isInteresting(sensorData, sensorData.getSensorConfig(), value)) {
+		if (classifier.isInteresting(sensorData, sensorData.getSensorConfig(), value, true)) {
 			sendNotification();
 		} else {
 			Log.d("NAH", "Nah wasn't very interesting at all");

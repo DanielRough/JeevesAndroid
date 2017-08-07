@@ -1,6 +1,5 @@
 package com.example.daniel.jeeves.actions;
 
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -8,7 +7,6 @@ import android.util.Log;
 import com.example.daniel.jeeves.ApplicationContext;
 import com.example.daniel.jeeves.ExpressionParser;
 import com.example.daniel.jeeves.firebase.FirebaseExpression;
-import com.firebase.client.Firebase;
 
 import java.util.List;
 import java.util.Map;
@@ -47,7 +45,7 @@ public class UpdateAction extends FirebaseAction {
             if (varType.equals("Text")) {
                 editor.putString(varName, (String)valueresult);
             } else if (varType.equals("Numeric")) {
-                editor.putLong(varName, Long.parseLong(valueresult.toString()));
+                editor.putString(varName, (String)valueresult);
             } else if (varType.equals("Boolean")) {
                 editor.putBoolean(varName, ( Boolean.parseBoolean(valueresult.toString())));
             } else {

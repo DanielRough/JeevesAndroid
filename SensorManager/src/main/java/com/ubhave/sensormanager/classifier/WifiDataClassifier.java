@@ -22,6 +22,8 @@ IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 package com.ubhave.sensormanager.classifier;
 
+import android.util.Log;
+
 import com.ubhave.sensormanager.config.SensorConfig;
 import com.ubhave.sensormanager.data.SensorData;
 import com.ubhave.sensormanager.data.pull.WifiData;
@@ -31,18 +33,32 @@ import java.util.ArrayList;
 
 public class WifiDataClassifier extends SocialClassifier implements SensorDataClassifier
 {
+	public static boolean lastStatus = false;
+
 	@Override
-	public boolean isInteresting(final SensorData sensorData, final SensorConfig sensorConfig, String value)
+	public boolean isInteresting(final SensorData sensorData, final SensorConfig sensorConfig, String value, boolean isTrigger)
 	{
 		WifiData data = (WifiData) sensorData;
 		WifiData prevData = (WifiData) sensorData.getPrevSensorData();
-
+		Log.d("VALUE","Value is " + value);
 		String[] currDevices = getDeviceMacs(data);
 		String[] prevDevices = getDeviceMacs(prevData);
 		for(String deviceAddress : currDevices){
 			if(value.equals(deviceAddress))
 				return true;
 		}
+
+		boolean isInCurrent = false;
+		for(String deviceAddress : currDevices){
+			if(value.equals(deviceAddress))
+				isInCurrent = true;
+		}
+
+		if(isInCurrent && (isTrigger == false || lastStatus == false)) {
+				lastStatus = isInCurrent;
+				return true;
+		}
+		lastStatus = isInCurrent;
 		return false;
 //		if (areSameDeviceAddrSets(prevDevices, currDevices))
 //		{
@@ -68,7 +84,8 @@ public class WifiDataClassifier extends SocialClassifier implements SensorDataCl
 				int i = 0;
 				for (WifiScanResult sr : list)
 				{
-					deviceList[i++] = sr.getBssid();
+					deviceList[i++] = sr.getSsid();
+					Log.d("WIFI NAME","name is " + sr.getSsid());
 				}
 			}
 		}

@@ -188,15 +188,15 @@ public class DailyNotificationScheduler implements TriggerReceiver
 			}
 	}
 	private void scheduleSetTimes(){
-		ArrayList<Integer> times = new ArrayList<Integer>();
-		times = (ArrayList<Integer>)params.getParams().get("times");
+		ArrayList<Long> times = new ArrayList<Long>();
+		times = (ArrayList<Long>)params.getParams().get("times");
 
 		Calendar calendar = Calendar.getInstance();
 		if(times == null)return;
-		for (Integer minuteOfDay : times) {
+		for (Long minuteOfDay : times) {
 			minuteOfDay = minuteOfDay / 60000;
-			calendar.set(Calendar.HOUR_OF_DAY, (minuteOfDay / 60));
-			calendar.set(Calendar.MINUTE, (minuteOfDay % 60));
+			calendar.set(Calendar.HOUR_OF_DAY, (int)(minuteOfDay / 60));
+			calendar.set(Calendar.MINUTE, (int)(minuteOfDay % 60));
 			calendar.set(Calendar.SECOND,0);
 			//I've added this in the hope that it can schedule random triggers for the next day
 			if (calendar.getTimeInMillis() < System.currentTimeMillis())

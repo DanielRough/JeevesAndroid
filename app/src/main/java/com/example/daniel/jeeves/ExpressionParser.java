@@ -2,25 +2,21 @@ package com.example.daniel.jeeves;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.location.Location;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.example.daniel.jeeves.firebase.FirebaseExpression;
-import com.example.daniel.jeeves.firebase.UserVariable;
 import com.ubhave.sensormanager.ESException;
 import com.ubhave.sensormanager.ESSensorManager;
 import com.ubhave.sensormanager.classifier.SensorDataClassifier;
 import com.ubhave.sensormanager.config.SensorConfig;
-import com.ubhave.sensormanager.config.pull.LocationConfig;
 import com.ubhave.sensormanager.data.SensorData;
 import com.ubhave.sensormanager.sensors.SensorUtils;
 
 import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 
 import static com.example.daniel.jeeves.ApplicationContext.BOOLEAN;
 import static com.example.daniel.jeeves.ApplicationContext.DATE;
@@ -99,33 +95,27 @@ public class ExpressionParser {
                     //This gets the last known location from our user prefs
                     //It then gets the location required in the test expression
                     //If they are roughly equal, it returns true!
-                    if (sensortype == SensorUtils.SENSOR_TYPE_LOCATION) {
-                        returns = userPrefs.getString(returns, "");
-                        if (returns.isEmpty()) return FALSE;
-                        String[] testLatLong = returns.split(";");
-
-                        String lastLoc = userPrefs.getString("LastLocation", "");
-                        if (lastLoc.isEmpty()) return FALSE;
-                        String[] lastLatLong = lastLoc.split(";");
-
-                        Location testLocation = new Location("");
-                        testLocation.setLatitude(Double.parseDouble(testLatLong[0]));
-                        testLocation.setLongitude(Double.parseDouble(testLatLong[1]));
-
-                        Location lastLocation = new Location("");
-                        lastLocation.setLatitude(Double.parseDouble(lastLatLong[0]));
-                        lastLocation.setLongitude(Double.parseDouble(lastLatLong[1]));
-
-                        if (testLocation.distanceTo(lastLocation) <= LocationConfig.LOCATION_CHANGE_DISTANCE_THRESHOLD)
+                    if (sensortype == SensorUtils.SENSOR_TYPE_LOCATION){
+                        String lastLoc = userPrefs.getString("LastLocation", ""); //Stores the semantic 'last location'
+                        if (lastLoc.isEmpty()){Log.d("LOCATION","Last location was " + lastLoc + " so...no"); return FALSE;}
+                        if(lastLoc.equals(returns)) {
+                            Log.d("LOCATION","Last location was " + lastLoc + " so YAY");
                             return TRUE;
-                        else
+                        }
+                        else {
+                            Log.d("LOCATION","Last location was " + lastLoc + " so...no");
                             return FALSE;
+                        }
+                        }
+                    //This will get the WiFi or Bluetooth network name from our Shared Preferences
+                    if (sensortype == SensorUtils.SENSOR_TYPE_BLUETOOTH || sensortype == SensorUtils.SENSOR_TYPE_WIFI){
+                        returns = userPrefs.getString(returns,"");
+                        if(returns.isEmpty()) return FALSE;
                     }
-
                     //Otherwise we're looking at other sensor data (just accelerometer for now)
                     SensorData data = sampler.execute().get();
                     SensorDataClassifier classifier = SensorUtils.getSensorDataClassifier(sensortype);
-                    if (classifier.isInteresting(data, SensorConfig.getDefaultConfig(sensortype), returns))
+                    if (classifier.isInteresting(data, SensorConfig.getDefaultConfig(sensortype), returns, false))
                         return TRUE; //Return true if it returns the result we want!
                     return FALSE;
                 } catch (Exception e){

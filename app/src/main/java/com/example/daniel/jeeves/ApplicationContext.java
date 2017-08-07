@@ -2,15 +2,13 @@ package com.example.daniel.jeeves;
 
 import android.app.Application;
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.location.Location;
-import android.preference.PreferenceManager;
 
 import com.example.daniel.jeeves.actions.FirebaseAction;
 import com.example.daniel.jeeves.firebase.FirebaseProject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Application class to provide the global context.
@@ -81,11 +79,11 @@ public class ApplicationContext extends Application
     }
 
     //A rather terrible way of passing actions to execute when a location trigger is fired
-    public static HashMap<Integer,ArrayList<FirebaseAction>> locationActions;
+    public static HashMap<String,List<FirebaseAction>> locationActions;
 
-    public static HashMap<Integer,ArrayList<FirebaseAction>> getLocationActions(){
+    public static HashMap<String,List<FirebaseAction>> getLocationActions(){
         if(locationActions == null)
-            locationActions = new HashMap<Integer,ArrayList<FirebaseAction>>();
+            locationActions = new HashMap<String,List<FirebaseAction>>();
         return locationActions;
     }
 }

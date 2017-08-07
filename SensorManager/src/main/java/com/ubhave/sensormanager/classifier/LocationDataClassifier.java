@@ -34,7 +34,7 @@ public class LocationDataClassifier implements SensorDataClassifier
 {
 	private static boolean wasSameLastTime = false;
 	@Override
-	public boolean isInteresting(final SensorData sensorData, final SensorConfig sensorConfig, String value)
+	public boolean isInteresting(final SensorData sensorData, final SensorConfig sensorConfig, String value, boolean isTrigger)
 	{
 		//First, we need to find the lat/long that this location name corresponds to
 		String[] locationInfo = value.split(";");

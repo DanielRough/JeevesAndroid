@@ -40,7 +40,7 @@ public class PhoneStateDataClassifier implements SensorDataClassifier
 	}
 
 	@Override
-	public boolean isInteresting(final SensorData sensorData, final SensorConfig sensorConfig, String value)
+	public boolean isInteresting(final SensorData sensorData, final SensorConfig sensorConfig, String value, boolean isTrigger)
 	{
 		PhoneStateData phone = (PhoneStateData) sensorData;
 		if (phone.isOffHook())

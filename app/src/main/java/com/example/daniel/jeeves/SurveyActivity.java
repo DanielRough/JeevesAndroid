@@ -783,7 +783,7 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
        // lstBluetooth.setAdapter(new ArrayAdapter<String>(ApplicationContext.getContext(),
         //        android.R.layout.simple_list_item_1, mDeviceList));
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-
+        if(mBluetoothAdapter == null)return;
         if (!mBluetoothAdapter.isEnabled()) {
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);

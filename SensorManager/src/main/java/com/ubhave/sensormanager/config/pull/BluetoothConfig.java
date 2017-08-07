@@ -9,7 +9,7 @@ public class BluetoothConfig
 	/*
 	 * Default values
 	 */
-	public static final long DEFAULT_SLEEP_INTERVAL = 15 * 60 * 1000;
+	public static final long DEFAULT_SLEEP_INTERVAL = 1 * 60 * 1000;
 	public static final int DEFAULT_SAMPLING_WINDOW_SIZE_PER_CYCLE_MILLIS = 12000;
 	public static final int DEFAULT_SAMPLING_CYCLES = 1;
 	public static final boolean DEFAULT_FORCE_ENABLE = false;

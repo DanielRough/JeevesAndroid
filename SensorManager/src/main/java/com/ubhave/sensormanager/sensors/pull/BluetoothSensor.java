@@ -22,8 +22,6 @@ IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 package com.ubhave.sensormanager.sensors.pull;
 
-import java.util.ArrayList;
-
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
@@ -43,6 +41,8 @@ import com.ubhave.sensormanager.data.pull.BluetoothData;
 import com.ubhave.sensormanager.data.pull.ESBluetoothDevice;
 import com.ubhave.sensormanager.process.pull.BluetoothProcessor;
 import com.ubhave.sensormanager.sensors.SensorUtils;
+
+import java.util.ArrayList;
 
 public class BluetoothSensor extends AbstractPullSensor
 {
@@ -182,6 +182,7 @@ public class BluetoothSensor extends AbstractPullSensor
 	protected boolean startSensing()
 	{
 		btDevices.clear();
+		if(bluetooth == null)return false;
 		sensorStartState = bluetooth.getState();
 		if (!bluetooth.isEnabled() && shouldForceEnable())
 		{

@@ -6,11 +6,9 @@ import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
-import android.net.ConnectivityManager;
 import android.os.Binder;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
@@ -38,7 +36,6 @@ import com.ubhave.sensormanager.sensors.SensorUtils;
 import com.ubhave.triggermanager.TriggerException;
 import com.ubhave.triggermanager.config.GlobalState;
 import com.ubhave.triggermanager.config.TriggerConfig;
-import com.ubhave.triggermanager.config.TriggerManagerConstants;
 import com.ubhave.triggermanager.triggers.TriggerUtils;
 
 import org.json.JSONException;
@@ -67,6 +64,7 @@ public class SenseService extends Service{
     public ArrayList<String> triggerids = new ArrayList<String>();
     public static HashMap<String, TriggerListener> triggerlisteners = new HashMap<String, TriggerListener>();
     public static HashMap<Integer, SensorListener> sensorlisteners = new HashMap<Integer, SensorListener>();
+    public static HashMap<String, GeofenceListener> geofencelisteners = new HashMap<>();
     public static final String ACTION_1 = "action_1";
     public static final String ACTION_2 = "action_2";
     public static final int NOTIF_ID = 1337;
@@ -143,6 +141,8 @@ public class SenseService extends Service{
 
         }
     }
+    SharedPreferences.OnSharedPreferenceChangeListener mListener;
+
     public SenseService getInstance(){
         return this;
     }
@@ -187,47 +187,51 @@ public class SenseService extends Service{
 
 
 
+        //Amazingly we can have a shared preferences listener!!!
+
+
+
         //This is a broadcast receiver that is notified whenever the user's variables have changed in response to a survey
         //Because some triggers' configuration is dependent on these variables, we need to reset them when, for example,
         //the start or end date has changed
-         mReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                String action = intent.getAction();
-                if(action.equals(TriggerManagerConstants.ACTION_NAME_SURVEY_TRIGGER)){
-                    ArrayList<String> changedVariables = intent.getStringArrayListExtra("changedVariables");
-                    //Of course, it might be null if we didn't actually finish the survey on time
-                    if(changedVariables == null)return;
-                    Log.d("CHANGEDVARS","Changed variables are " + changedVariables);
-                    //action for sms received
-                    List<FirebaseTrigger> triggers = ApplicationContext.getProject().gettriggers();
-                    for (int i = 0; i < triggers.size(); i++) {
-                        FirebaseTrigger triggerconfig = triggers.get(i);
-                        List<String> configVariables = triggerconfig.getvariables();
-                        Log.d("CONFIGVARS","Config variables are " + configVariables);
-                        if(configVariables == null)continue;
-                        for(String var : configVariables){
-                            if(changedVariables.contains(var)){
-                                Log.d("UPDATEDVAR","This trigger has a variable that needs updating!");
-                                //Get rid of and relaunch!
-                                removeTrigger(triggerconfig.gettriggerId());
-                                launchTrigger(triggerconfig);
-                            }
-                        }
-
-                    }
-                }
-            }
-        };
-        IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
-        filter.addAction(TriggerManagerConstants.ACTION_NAME_SURVEY_TRIGGER);
-        this.registerReceiver(mReceiver, filter);
+//         mReceiver = new BroadcastReceiver() {
+//            @Override
+//            public void onReceive(Context context, Intent intent) {
+//                String action = intent.getAction();
+//                if(action.equals(TriggerManagerConstants.ACTION_NAME_SURVEY_TRIGGER)){
+//                    ArrayList<String> changedVariables = intent.getStringArrayListExtra("changedVariables");
+//                    //Of course, it might be null if we didn't actually finish the survey on time
+//                    if(changedVariables == null)return;
+//                    Log.d("CHANGEDVARS","Changed variables are " + changedVariables);
+//                    //action for sms received
+//                    List<FirebaseTrigger> triggers = ApplicationContext.getProject().gettriggers();
+//                    for (int i = 0; i < triggers.size(); i++) {
+//                        FirebaseTrigger triggerconfig = triggers.get(i);
+//                        List<String> configVariables = triggerconfig.getvariables();
+//                        Log.d("CONFIGVARS","Config variables are " + configVariables);
+//                        if(configVariables == null)continue;
+//                        for(String var : configVariables){
+//                            if(changedVariables.contains(var)){
+//                                Log.d("UPDATEDVAR","This trigger has a variable that needs updating!");
+//                                //Get rid of and relaunch!
+//                                removeTrigger(triggerconfig.gettriggerId());
+//                                launchTrigger(triggerconfig);
+//                            }
+//                        }
+//
+//                    }
+//                }
+//            }
+//        };
+    //    IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+     //   filter.addAction(TriggerManagerConstants.ACTION_NAME_SURVEY_TRIGGER);
+      //  this.registerReceiver(mReceiver, filter);
     }
-
-    @Override
-    public void onDestroy(){
-        unregisterReceiver(mReceiver);
-    }
+//
+//    @Override
+//    public void onDestroy(){
+//        unregisterReceiver(mReceiver);
+//    }
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
@@ -238,24 +242,68 @@ public class SenseService extends Service{
     public void updateConfig(FirebaseProject app) throws JSONException {
 
       //  ApplicationContext.setCurrentproject(app);
-        List<FirebaseTrigger> triggers = app.gettriggers();
-        List<UserVariable> variables = app.getvariables();
+        final List<FirebaseTrigger> triggers = app.gettriggers();
+        final List<UserVariable> variables = app.getvariables();
         SharedPreferences varPrefs = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getContext());
         SharedPreferences.Editor prefseditor = varPrefs.edit();
+
+
+        mListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
+            public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
+                for(UserVariable var : variables){
+                    if(var.getname().equals(key)){
+                        Log.d("ONE","One");
+                        switch(var.getvartype()){ //Okay we've updated a variable, now what exactly do we want to do about that?
+                            //If it's a location variable, we also want to add a geofence
+                            //If it's a time or a date variable, we want to re-evaluate the time triggers.
+                            //Any other variable gets evaluated on the fly when the trigger is executed
+                            case LOCATION:
+                                if(geofencelisteners.containsKey(var.getname())){
+                                    GeofenceListener locListener = geofencelisteners.get(var.getname());
+                                    locListener.updateLocation();
+                                }
+                                else {
+                                    GeofenceListener newListener = new GeofenceListener(getInstance(), var.getname(), new ArrayList<FirebaseAction>());
+                                    geofencelisteners.put(var.getname(), newListener);
+                                    newListener.addLocationTrigger();
+                                }
+                                break;
+                            case TIME:
+                            case DATE:
+                                for(FirebaseTrigger trig : triggers){
+                                    if(trig.getvariables() != null && trig.getvariables().contains(key)){
+                                        removeTrigger(trig.gettriggerId());
+                                        Log.d("RELAUNCH","Relaunching trigger " + trig.gettriggerId());
+                                        launchTrigger(trig);
+                                    }
+                                }
+                                break;
+
+                        }
+                    }
+                }
+
+            }
+        };
+        varPrefs.registerOnSharedPreferenceChangeListener(mListener);
 
         //This reloads any existing set of triggerids we have
         triggerids = new ArrayList<>(varPrefs.getStringSet("triggerids",new HashSet()));
         for(UserVariable var : variables){
             String type = var.getvartype();
+            if(varPrefs.contains(var.getname()))continue; //Don't reset any variables that already have values
             switch(type){
                 case TIME:
                 case DATE:
                 case NUMERIC:
-                    prefseditor.putLong(var.getname(),0); break;
+                   // if(varPrefs.getLong(var.getname(),0) != 0)break;
+                    prefseditor.putString(var.getname(),"0"); break;
                 case LOCATION:
+                    //We probably want to get their location in here
                 case TEXT:
                     prefseditor.putString(var.getname(),""); break;
-                case BOOLEAN : prefseditor.putBoolean(var.getname(),false); break;
+                case BOOLEAN :
+                    prefseditor.putBoolean(var.getname(),false); break;
             }
         }
         Log.d("UPDATING","Updating the config");
@@ -308,6 +356,26 @@ public class SenseService extends Service{
         if (trigger.getactions() != null)
             actions = trigger.getactions();
 
+        //Then this is a special Location Trigger and we handle things a bit differently
+        try {
+            if(TriggerUtils.getTriggerType(triggerType) == TriggerUtils.TYPE_SENSOR_TRIGGER_LOCATION){
+                GeofenceListener newListener = null;
+                String locationName = params.get("result").toString();
+                if(geofencelisteners.containsKey(locationName)){
+                    newListener = geofencelisteners.get(locationName);
+                    newListener.updateActions(actions);
+                }
+                else{
+                    newListener = new GeofenceListener(this,locationName,actions);
+                    geofencelisteners.put(locationName, newListener);
+                    newListener.addLocationTrigger();
+                }
+                return;
+            }
+        } catch (TriggerException e) {
+            e.printStackTrace();
+        }
+        //Otherwise carry on as normal
         TriggerListener newListener = null;
         try {
             newListener = new TriggerListener(TriggerUtils.getTriggerType(triggerType), this);
@@ -320,14 +388,15 @@ public class SenseService extends Service{
         TriggerConfig config = new TriggerConfig();
         SharedPreferences varPrefs = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getContext());
 
-        ArrayList<Integer> times = new ArrayList<>();
+        ArrayList<Long> times = new ArrayList<>();
         if(trigger.gettimes() != null){
             for(FirebaseExpression time : trigger.gettimes()){
                 if(time.getisValue()){
-                    times.add(Integer.parseInt(time.getvalue()));
+                    times.add(Long.parseLong(time.getvalue()));
                 }
                 else{
-                    times.add((int)(varPrefs.getLong(time.getname(),0)));
+               //     Log.d("IT IS",Long.parseLong(varPrefs.getString(time.getname(),"0"));
+                    times.add(Long.parseLong(varPrefs.getString(time.getname(),"0")));
                 }
             }
             config.addParameter("times",times);
@@ -337,11 +406,6 @@ public class SenseService extends Service{
             while (keys.hasNext()) {
                 String param = keys.next();
                 Object value = params.get(param);
-                if (param.equals("result")) { //This is a sensor trigger
-                    if (value instanceof Map) { //Then the result value is a map, meaning it's a user variable
-
-                    }
-                }
                 config.addParameter(param, value);
             }
         }
@@ -353,15 +417,15 @@ public class SenseService extends Service{
         }
         if(trigger.gettimeFrom() != null){
             String name = trigger.gettimeFrom().getname();
-            config.addParameter(TriggerConfig.LIMIT_BEFORE_HOUR,varPrefs.getString(name,"0"));
+           config.addParameter(TriggerConfig.LIMIT_BEFORE_HOUR,varPrefs.getString(name,"0"));
         }
         if(trigger.getdateTo() != null){
             String name = trigger.getdateTo().getname();
-            config.addParameter(TriggerConfig.TO_DATE,varPrefs.getString(name,"0"));
+           config.addParameter(TriggerConfig.TO_DATE,varPrefs.getString(name,"0"));
         }
         if(trigger.gettimeTo() != null){
             String name = trigger.gettimeTo().getname();
-            config.addParameter(TriggerConfig.LIMIT_AFTER_HOUR,varPrefs.getString(name,"0"));
+           config.addParameter(TriggerConfig.LIMIT_AFTER_HOUR,varPrefs.getString(name,"0"));
         }
 
         //Here we make the list of actions that this trigger executes when it's activated

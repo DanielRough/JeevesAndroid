@@ -32,7 +32,7 @@ import com.ubhave.sensormanager.data.push.SmsData;
 public class SMSDataClassifier implements SensorDataClassifier
 {
 	@Override
-	public boolean isInteresting(final SensorData sensorData, final SensorConfig sensorConfig, String value)
+	public boolean isInteresting(final SensorData sensorData, final SensorConfig sensorConfig, String value, boolean isTrigger)
 	{
 		SmsData sms = (SmsData) sensorData;
 		Log.d("WOO MESSAGE TYPE", sms.getMessageType());

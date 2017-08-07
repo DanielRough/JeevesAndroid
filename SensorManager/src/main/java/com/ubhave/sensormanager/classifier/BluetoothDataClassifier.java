@@ -31,8 +31,10 @@ import java.util.ArrayList;
 
 public class BluetoothDataClassifier extends SocialClassifier implements SensorDataClassifier
 {
+	public static boolean lastStatus = false;
+
 	@Override
-	public boolean isInteresting(final SensorData sensorData, final SensorConfig sensorConfig, String value)
+	public boolean isInteresting(final SensorData sensorData, final SensorConfig sensorConfig, String value, boolean isTrigger)
 	{
 		BluetoothData data = (BluetoothData) sensorData;
 		BluetoothData prevData = (BluetoothData) sensorData.getPrevSensorData();
@@ -40,10 +42,20 @@ public class BluetoothDataClassifier extends SocialClassifier implements SensorD
 		String[] currDevices = getDeviceMacs(data);
 		String[] prevDevices = getDeviceMacs(prevData);
 
+		boolean isInPrev = false;
+		boolean isInCurrent = false;
 		for(String deviceAddress : currDevices){
-			if(value.contains(deviceAddress))
-				return true;
+			if(value.contains(deviceAddress)) {
+				isInCurrent = true;
+			}
 		}
+
+		if(isInCurrent && (isTrigger == false || lastStatus == false)){
+			lastStatus = isInCurrent;
+			return true;
+
+		}
+		lastStatus = isInCurrent;
 		return false;
 		/*
 		if (areSameDeviceAddrSets(prevDevices, currDevices))

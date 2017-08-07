@@ -29,17 +29,37 @@ import com.ubhave.sensormanager.data.pull.MicrophoneData;
 
 public class MicrophoneDataClassifier implements SensorDataClassifier
 {
+	private static boolean lastStatus = false;
 	@Override
-	public boolean isInteresting(final SensorData sensorData, final SensorConfig sensorConfig, String value)
+	public boolean isInteresting(final SensorData sensorData, final SensorConfig sensorConfig, String value, boolean isTrigger)
 	{
 		MicrophoneData data = (MicrophoneData) sensorData;
+
 		if (isSilent(data.getAmplitudeArray(), (Integer) sensorConfig.getParameter(MicrophoneConfig.SOUND_THRESHOLD)))
 		{
-			return false;
-		}
+
+
+			if(value.equals("Quiet") && (isTrigger == false || lastStatus == true)){
+					lastStatus = false;
+					return true;
+
+			}
+			else {
+				lastStatus = true;
+				return false;
+			}
+			}
 		else
 		{
-			return true;
+			lastStatus = true;
+			if(value.equals("Quiet") && (isTrigger == false || lastStatus == false)) {
+					lastStatus = false;
+					return false;
+			}
+			else {
+				lastStatus = true;
+				return true;
+			}
 		}
 	}
 

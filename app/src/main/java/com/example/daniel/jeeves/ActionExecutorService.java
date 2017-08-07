@@ -2,7 +2,9 @@ package com.example.daniel.jeeves;
 
 import android.app.IntentService;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
@@ -29,7 +31,7 @@ import static com.example.daniel.jeeves.actions.ActionUtils.ACTIONSETID;
 public class ActionExecutorService extends IntentService {
     //Service binder code from https://developer.android.com/guide/components/bound-services.html#Binding
     ActionExecutorService mService;
-    private ArrayList<FirebaseAction> actions;
+    private List<FirebaseAction> actions;
     private int triggerType;
 
     public ActionExecutorService() {
@@ -72,11 +74,19 @@ public class ActionExecutorService extends IntentService {
 
         // Get the transition type.
 
-            ArrayList<FirebaseAction> remainingActions = (ArrayList<FirebaseAction>) intent.getExtras().get(ACTIONS);
-            if(remainingActions == null) { //Then try to get it from the global location action sets
-                int locTriggerId = intent.getIntExtra(ACTIONSETID,0);
-                Log.d("GETTING","Getting actions from locTriggerId " + locTriggerId);
-                remainingActions = ApplicationContext.locationActions.get(locTriggerId);
+            List<FirebaseAction> remainingActions = (ArrayList<FirebaseAction>) intent.getExtras().get(ACTIONS);
+
+        //If our actions are null, then this means it was a location trigger (which works differently using the Geofencing API)
+        if(remainingActions == null) { //Then try to get it from the global location action sets
+                String locationName = intent.getStringExtra(ACTIONSETID);
+                //We should store this location in our last location attribute
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getContext());
+            SharedPreferences.Editor prefseditor = prefs.edit();
+            prefseditor.putString("LastLocation",locationName);
+            prefseditor.commit();
+            Log.d("STORAGE","Stored last location as " + locationName);
+                Log.d("GETTING","Getting actions from locTriggerId " + locationName);
+                remainingActions = ApplicationContext.locationActions.get(locationName);
             }
             triggerType = intent.getIntExtra(TRIG_TYPE, 0);
             this.actions = remainingActions;

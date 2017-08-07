@@ -24,18 +24,18 @@ package com.ubhave.sensormanager.classifier;
 
 import android.util.Log;
 
-import java.util.ArrayList;
-
 import com.ubhave.sensormanager.config.SensorConfig;
 import com.ubhave.sensormanager.config.pull.MotionSensorConfig;
 import com.ubhave.sensormanager.data.SensorData;
 import com.ubhave.sensormanager.data.pull.AccelerometerData;
 
+import java.util.ArrayList;
+
 public class AccelerometerDataClassifier implements SensorDataClassifier
 {
 	private static int lastStatus = -1;
 	@Override
-	public boolean isInteresting(final SensorData sensorData, final SensorConfig sensorConfig, String value)
+	public boolean isInteresting(final SensorData sensorData, final SensorConfig sensorConfig, String value, boolean isTrigger)
 	{
 		Log.d("RESULT", "Our interesting result would be " + value);
 		AccelerometerData data = (AccelerometerData) sensorData;
@@ -162,7 +162,7 @@ public class AccelerometerDataClassifier implements SensorDataClassifier
 //
 		//Only interested if they weren't moving before and now they are
 		if(value.equals("Moving")){
-			if (status >= 0 && lastStatus <0)
+			if (status >= 0 && (lastStatus <0 || isTrigger == false))
 			{
 				lastStatus = status;
 				// stationary
@@ -171,7 +171,7 @@ public class AccelerometerDataClassifier implements SensorDataClassifier
 		}
 		//Only interested if they were moving before and now they're not
 		else if(value.equals("Stationary")){
-			if (status < 0 && lastStatus >= 0)
+			if (status < 0 && (lastStatus >= 0 || isTrigger == false))
 			{
 				lastStatus = status;
 				// stationary
