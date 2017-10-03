@@ -62,6 +62,8 @@ public class ExpressionParser {
     public String evaluate(FirebaseExpression expr) {
 
         SharedPreferences userPrefs = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getContext());
+        if(expr == null)
+            return "0";
         if (expr.getisValue()) {
             return (expr).getvalue().toString();
         }
@@ -71,11 +73,11 @@ public class ExpressionParser {
                 case LOCATION:
                     return userPrefs.getString(name, "");
                 case NUMERIC:
-                    return Long.toString(userPrefs.getLong(name, 0));
+                    return (userPrefs.getString(name,""));
                 case TIME:
-                    return Long.toString(userPrefs.getLong(name, 0));
+                    return (userPrefs.getString(name,""));
                 case DATE:
-                    return Long.toString(userPrefs.getLong(name, 0));
+                    return (userPrefs.getString(name,""));
                 case BOOLEAN:
                     return Boolean.toString(userPrefs.getBoolean(name, false));
             }

@@ -64,7 +64,11 @@ public class TriggerListener implements TriggerReceiver {
 
                 actionsToPerform.add(ActionUtils.create(action));
                 Log.d("Action is ", action.getname());
+
             }
+//            for(FirebaseAction a : actionsToPerform){
+//                Log.d("AND THIppppp","IS" + a.toString());
+//            }
             triggerSubscriptionId = triggerManager.addTrigger(triggerType, this, params);
 
 
@@ -87,7 +91,7 @@ public class TriggerListener implements TriggerReceiver {
     public void onNotificationTriggered(int triggerId) {
         actionIntent = new Intent(serviceContext, ActionExecutorService.class);
         actionIntent.putExtra(ACTIONS, actionsToPerform);
-
+        Log.d("NOTIFICATION","WAS TRIGGERED");
         actionIntent.putExtra(TRIG_TYPE, triggerType);
         serviceContext.startService(actionIntent);
     }

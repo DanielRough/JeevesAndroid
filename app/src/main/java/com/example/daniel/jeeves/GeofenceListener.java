@@ -10,6 +10,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 
+import com.example.daniel.jeeves.actions.ActionUtils;
 import com.example.daniel.jeeves.actions.FirebaseAction;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingClient;
@@ -37,11 +38,19 @@ public class GeofenceListener {
     List<FirebaseAction> actionsToPerform;
 
 
-    public GeofenceListener(Context c,String locationName, List<FirebaseAction> actionsToPerform){
+    public GeofenceListener(Context c,String locationName, List<FirebaseAction> actions){
         this.serviceContext = c;
         this.locationName = locationName;
-        this.actionsToPerform = actionsToPerform;
+        actionsToPerform = new ArrayList<>();
 
+        for (FirebaseAction action : actions) {
+
+            actionsToPerform.add(ActionUtils.create(action));
+         //   Log.d("IIIIIS",  actionsToPerform.get(0).getname());
+        }
+//        for(FirebaseAction a : actionsToPerform){
+//            Log.d("AND THIS HNNNNNNG","IS" + a.toString());
+//        }
     }
         private GeofencingRequest getGeofencingRequest() {
         GeofencingRequest.Builder builder = new GeofencingRequest.Builder();
@@ -56,6 +65,8 @@ public class GeofenceListener {
                     @Override
                     public void onSuccess(Void aVoid) {
                         Log.d("REMOVED","OH WOW I REMOVED SOMETHING");
+                        addLocationTrigger();
+
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -70,13 +81,18 @@ public class GeofenceListener {
 
     public void updateLocation(){
         removeLocationTrigger();
-        addLocationTrigger();
     }
-    public void updateActions(List<FirebaseAction> actionsToPerform){
-        this.actionsToPerform = actionsToPerform;
+    public void updateActions(List<FirebaseAction> actions){
+        actionsToPerform = new ArrayList<>();
+
+        for (FirebaseAction action : actions) {
+
+            actionsToPerform.add(ActionUtils.create(action));
+            Log.d("fAfffffction is ", action.getname());
+        }
+     //   this.actionsToPerform = actionsToPerform;
         mGeofencePendingIntent = null;
         removeLocationTrigger();
-        addLocationTrigger();
     }
     public void addLocationTrigger() {
         mGeofencingClient = LocationServices.getGeofencingClient(serviceContext);
@@ -86,6 +102,9 @@ public class GeofenceListener {
         String latlong = prefs.getString(locationName,"");
         Log.d("LATLONG","Latlong is " + latlong);
         if(latlong.isEmpty())return;
+        if(latlong.endsWith(";")){
+            latlong = latlong.substring(0,latlong.length()-1);
+        }
 
         String[] latlongarray = latlong.split(":");
         double latval = Double.parseDouble(latlongarray[0]);
@@ -102,7 +121,7 @@ public class GeofenceListener {
                         100
                 )
                 .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |
-                        Geofence.GEOFENCE_TRANSITION_EXIT)
+                        Geofence.GEOFENCE_TRANSITION_EXIT )
                 .setExpirationDuration(Geofence.NEVER_EXPIRE)
                 .build());
 
@@ -132,7 +151,9 @@ public class GeofenceListener {
         //FirebaseAction setAttrAction =
         Intent actionIntent = new Intent(serviceContext, ActionExecutorService.class);
         actionIntent.putExtra(ACTIONSETID, locationName); //each location name corresponds to a set of actions
-
+        for(FirebaseAction a : actionsToPerform){
+            Log.d("AND THIS ACTION","IS" + a.getname());
+        }
         //Although the ApplicationContext variable would get destroyed when the app resets, the Geofencing trigger will also reset itself...won't it?
         ApplicationContext.getLocationActions().put(locationName,actionsToPerform);
      //   actionIntent.putExtra(TRIG_TYPE, triggerType);

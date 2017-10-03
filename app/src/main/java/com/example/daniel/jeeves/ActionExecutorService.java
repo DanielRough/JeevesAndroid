@@ -7,7 +7,6 @@ import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.example.daniel.jeeves.actions.ActionUtils;
 import com.example.daniel.jeeves.actions.FirebaseAction;
@@ -66,7 +65,7 @@ public class ActionExecutorService extends IntentService {
                 // Get the transition details as a String.
                 String geofenceTransitionDetails = getGeofenceTransitionDetails(geofenceTransition,
                         triggeringGeofences);
-                Toast.makeText(ApplicationContext.getContext(), geofenceTransitionDetails, Toast.LENGTH_LONG).show();
+       //         Toast.makeText(ApplicationContext.getContext(), geofenceTransitionDetails, Toast.LENGTH_LONG).show();
 
 //                return;
             }
@@ -86,7 +85,7 @@ public class ActionExecutorService extends IntentService {
             prefseditor.commit();
             Log.d("STORAGE","Stored last location as " + locationName);
                 Log.d("GETTING","Getting actions from locTriggerId " + locationName);
-                remainingActions = ApplicationContext.locationActions.get(locationName);
+                remainingActions = ApplicationContext.getLocationActions().get(locationName);
             }
             triggerType = intent.getIntExtra(TRIG_TYPE, 0);
             this.actions = remainingActions;
@@ -133,7 +132,7 @@ public class ActionExecutorService extends IntentService {
         int count;
         for (int i = 0; i < actions.size(); i++) {
             FirebaseAction newaction = actions.get(i);
-
+            Log.d("ACTION","New action is " + newaction);
             if (newaction instanceof WaitingAction) {
                 String stimeToWait = newaction.getparams().get("time").toString();
                 int timeToWait = Integer.parseInt(stimeToWait) * 1000;
@@ -172,6 +171,8 @@ public class ActionExecutorService extends IntentService {
                 }
 
             }
+            Log.d("i appear","to be heeeeeeeere");
+
             //Some actions might not have parameters
             if (newaction.getparams() == null)
                 newaction.setparams(new HashMap<String, Object>());

@@ -42,9 +42,7 @@ import static com.example.daniel.jeeves.ApplicationContext.PHONE;
 import static com.example.daniel.jeeves.ApplicationContext.STUDY_NAME;
 import static com.example.daniel.jeeves.ApplicationContext.USERNAME;
 import static com.example.daniel.jeeves.firebase.FirebaseUtils.PROJECTS_KEY;
-import static com.example.daniel.jeeves.firebase.FirebaseUtils.PUBLIC_KEY;
 import static com.example.daniel.jeeves.firebase.FirebaseUtils.SURVEYDATA_KEY;
-import static com.example.daniel.jeeves.firebase.FirebaseUtils.SURVEYS_KEY;
 
 public class StudySignupActivity extends AppCompatActivity {
 
@@ -156,6 +154,7 @@ public class StudySignupActivity extends AppCompatActivity {
 
         //Set the reference we need to push our survey results to
         //FirebaseUtils.SURVEY_REF = database.getReference(FirebaseUtils.PRIVATE_KEY).child(developerid).child(SURVEYS_KEY);
+        Log.d("DEVID","developer id is " + developerid);
         FirebaseUtils.SURVEY_REF = database.getReference(FirebaseUtils.PRIVATE_KEY).child(developerid).child(PROJECTS_KEY).child(selectedStudy).child(SURVEYDATA_KEY);
         FirebaseUtils.PATIENT_REF = database.getReference(FirebaseUtils.PRIVATE_KEY).child(developerid).child(FirebaseUtils.PATIENTS_KEY).child(mFirebaseUser.getUid());
 
@@ -176,20 +175,22 @@ public class StudySignupActivity extends AppCompatActivity {
         final String sensitiveData = username+";"+email+";"+phoneno;
         //Okay, if the user ALREADY EXISTS but they've just cleared their data, then we don't need them to readd themselves
         //to the study
-        FirebaseUtils.PATIENT_REF.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot snapshot) {
-                FirebaseProject post = snapshot.getValue(FirebaseProject.class);
-                if(post != null){
-                    Toast.makeText(getInstance(),"You're already signed up to this study!",Toast.LENGTH_SHORT);
-                    startActivity(intent);
-                }
-                else{
-
-                }
-            }
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
+//        FirebaseUtils.PATIENT_REF.addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(DataSnapshot snapshot) {
+//                FirebaseProject post = snapshot.getValue(FirebaseProject.class);
+//                if(post != null){
+//                    Toast.makeText(getInstance(),"You're already signed up to this study!",Toast.LENGTH_SHORT);
+//                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+//                    startActivity(intent);
+//                    finish();
+//                }
+//                else{
+//
+//                }
+//            }
+//            @Override
+//            public void onCancelled(DatabaseError databaseError) {
                 Map<String,Object> childMap = new HashMap<String,Object>();
                 childMap.put("userinfo",FirebaseUtils.encodeAnswers(sensitiveData));
                 childMap.put("name",mFirebaseUser.getUid());
@@ -202,10 +203,12 @@ public class StudySignupActivity extends AppCompatActivity {
                 FirebaseUtils.PATIENT_REF.child("currentStudy").setValue(selectedStudy);
                 FirebaseUtils.PATIENT_REF.child("completed").setValue(0);
                 FirebaseUtils.PATIENT_REF.child("missed").setValue(0);*/
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
+                finish();
 
-            }
-        });
+   //         }
+ //       });
 
     }
 }

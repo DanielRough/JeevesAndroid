@@ -5,15 +5,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
-import com.ubhave.sensormanager.ESException;
-import com.ubhave.sensormanager.ESSensorManager;
-import com.ubhave.sensormanager.classifier.SensorClassifiers;
 import com.ubhave.triggermanager.TriggerException;
 import com.ubhave.triggermanager.TriggerReceiver;
 import com.ubhave.triggermanager.config.TriggerConfig;
 import com.ubhave.triggermanager.config.TriggerManagerConstants;
 import com.ubhave.triggermanager.triggers.Trigger;
-import com.ubhave.triggermanager.triggers.TriggerUtils;
 
 /**
  * Created by Daniel on 12/05/2016.
@@ -81,6 +77,8 @@ public class ButtonTrigger extends Trigger {
     {
         if(listener != null){
             String btn = intent.getStringExtra("buttonName");
+            Log.d("RECEIVED","RECEIVED BUTTON but mine is " + buttonName);
+
             if(btn.equals(buttonName))
                 sendNotification();
         }

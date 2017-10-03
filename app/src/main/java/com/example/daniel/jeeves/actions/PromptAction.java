@@ -21,6 +21,7 @@ public class PromptAction extends FirebaseAction {
     static int count = 0;
     @Override
     public boolean execute(){
+        Log.d("GET HERE","DID I GET TO EXECUTE");
         int notificationId = Integer.parseInt("8" + count++);
         Context app = ApplicationContext.getContext();
         String text = getparams().get("msgtext").toString();

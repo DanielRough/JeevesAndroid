@@ -5,15 +5,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
-import com.ubhave.sensormanager.ESException;
-import com.ubhave.sensormanager.ESSensorManager;
-import com.ubhave.sensormanager.classifier.SensorClassifiers;
 import com.ubhave.triggermanager.TriggerException;
 import com.ubhave.triggermanager.TriggerReceiver;
 import com.ubhave.triggermanager.config.TriggerConfig;
 import com.ubhave.triggermanager.config.TriggerManagerConstants;
 import com.ubhave.triggermanager.triggers.Trigger;
-import com.ubhave.triggermanager.triggers.TriggerUtils;
+
+import static com.ubhave.triggermanager.config.TriggerConfig.SURVEY_NAME;
 
 /**
  * Created by Daniel on 12/05/2016.
@@ -76,9 +74,9 @@ public class SurveyTrigger extends Trigger {
 
     protected String getSurveyName() throws TriggerException
     {
-        if (params.containsKey(TriggerConfig.SURVEY_NAME))
+        if (params.containsKey(SURVEY_NAME))
         {
-            return params.getParameter(TriggerConfig.SURVEY_NAME).toString();
+            return params.getParameter(SURVEY_NAME).toString();
         }
 
         else
@@ -120,9 +118,11 @@ public class SurveyTrigger extends Trigger {
         Log.d("HELLO","DID I HAPPEN");
         if(listener != null){
             Log.d("ANOTHERHELLO","WHAT ABOUT BOW");
-            String survey = intent.getStringExtra("surveyName");
+            String survey = intent.getStringExtra("surveyname");
+            Log.d("NAme","Survey name is " + survey);
             if(survey.equals(surveyName)) { //first check it's the right survey
                 boolean result = intent.getBooleanExtra("result", true);
+                Log.d("THISRESULT","This result is " + this.result);
                 if (result == this.result) { //then check it's the right result
                     if (result == true) {
                         long completedTimes = intent.getLongExtra("completed", 0);

@@ -253,6 +253,10 @@ public class SenseService extends Service{
         SharedPreferences varPrefs = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getContext());
         SharedPreferences.Editor prefseditor = varPrefs.edit();
 
+        Log.d("HELLO IS",varPrefs.getString("hello","nope"));
+
+
+        prefseditor.commit();
         sensorids = new ArrayList<>(varPrefs.getStringSet("sensorids",new HashSet()));
 
         ArrayList<String> newSensors = new ArrayList<String>();
@@ -298,6 +302,7 @@ public class SenseService extends Service{
                                 if(geofencelisteners.containsKey(var.getname())){
                                     GeofenceListener locListener = geofencelisteners.get(var.getname());
                                     locListener.updateLocation();
+                                    Log.d("UPDATELOC","UPDATING LOCATION");
                                 }
                                 else {
                                     GeofenceListener newListener = new GeofenceListener(getInstance(), var.getname(), new ArrayList<FirebaseAction>());
@@ -324,8 +329,12 @@ public class SenseService extends Service{
         };
         varPrefs.registerOnSharedPreferenceChangeListener(mListener);
 
+
         //This reloads any existing set of triggerids we have
-        triggerids = new ArrayList<>(varPrefs.getStringSet("triggerids",new HashSet()));
+        Set<String> newset = (varPrefs.getStringSet("triggerids",new HashSet()));
+        Log.d("NEWSET","New set size is " + newset.size());
+        HashSet<String> mynewset = new HashSet<String>(newset);
+        triggerids = new ArrayList<>(mynewset);
         for(UserVariable var : variables){
             String type = var.getvartype();
             if(varPrefs.contains(var.getname()))continue; //Don't reset any variables that already have values
@@ -346,12 +355,15 @@ public class SenseService extends Service{
         Log.d("UPDATING","Updating the config");
         Toast.makeText(ApplicationContext.getContext(),"Updated app configuration",Toast.LENGTH_SHORT).show();
         ArrayList<String> newIds = new ArrayList<>();
-
+        for(int i = 0; i < triggerids.size(); i++){
+            Log.d("TRIGID","TRIG ID IS " + triggerids.get(i));
+        }
         for (int i = 0; i < triggers.size(); i++) {
             FirebaseTrigger triggerconfig = triggers.get(i);
             String triggerId = triggerconfig.gettriggerId();
             newIds.add(triggerId);
             if (!triggerids.contains(triggerId)) { //Don't relaunch an already-existing trigger
+                Log.d("TriggerIDS","Does not contain " + triggerId);
                 launchTrigger(triggerconfig);
             }
         }
@@ -362,7 +374,8 @@ public class SenseService extends Service{
         }
         triggerids = newIds;
         //This saves our current set of triggerids
-        Set triggerset = new HashSet(triggerids);
+        Set<String> triggerset = new HashSet<String>(triggerids);
+        Log.d("COMMITTED","Commited size is " + triggerset.size());
         prefseditor.putStringSet("triggerids",triggerset);
         prefseditor.commit();
         try {
@@ -396,17 +409,23 @@ public class SenseService extends Service{
         //Then this is a special Location Trigger and we handle things a bit differently
         try {
             if(TriggerUtils.getTriggerType(triggerType) == TriggerUtils.TYPE_SENSOR_TRIGGER_LOCATION){
+                ArrayList<FirebaseAction> toExecute = new ArrayList<>();
+                for (int i = 0; i < actions.size(); i++) {
+                    Log.d("AND HNNNNNNNG","IS" + actions.get(i).toString());
+
+                    toExecute.add( actions.get(i));
+                }
                 GeofenceListener newListener = null;
                 String locationName = params.get("result").toString();
-                if(geofencelisteners.containsKey(locationName)){
-                    newListener = geofencelisteners.get(locationName);
-                    newListener.updateActions(actions);
-                }
-                else{
-                    newListener = new GeofenceListener(this,locationName,actions);
-                    geofencelisteners.put(locationName, newListener);
+        //        if(geofencelisteners.containsKey(locationName)){
+     //               newListener = geofencelisteners.get(locationName);
+         //           newListener.updateActions(toExecute);
+         //       }
+         //       else{
+                    newListener = new GeofenceListener(this,locationName,toExecute);
+                    geofencelisteners.put(triggerId, newListener);
                     newListener.addLocationTrigger();
-                }
+           //     }
                 return;
             }
         } catch (TriggerException e) {
@@ -469,6 +488,8 @@ public class SenseService extends Service{
         ArrayList<FirebaseAction> toExecute = new ArrayList<>();
         for (int i = 0; i < actions.size(); i++) {
             toExecute.add( actions.get(i));
+            Log.d("AND OO","IS" + actions.get(i).toString());
+
         }
         newListener.subscribeToTrigger(config, toExecute, triggerId);
     }
@@ -480,6 +501,9 @@ public class SenseService extends Service{
         if(toRemove != null) {
             toRemove.unsubscribeFromTrigger("this");
             triggerlisteners.remove(triggerId);
+        }
+        else{
+            geofencelisteners.remove(triggerId);
         }
     }
 

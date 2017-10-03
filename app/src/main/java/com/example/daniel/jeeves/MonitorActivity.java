@@ -2,9 +2,10 @@ package com.example.daniel.jeeves;
 
 import android.content.Intent;
 import android.graphics.Color;
+import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
@@ -14,6 +15,7 @@ import android.widget.TextView;
 import com.example.daniel.jeeves.firebase.FirebaseProject;
 import com.example.daniel.jeeves.firebase.FirebaseUI;
 import com.ubhave.triggermanager.config.TriggerManagerConstants;
+
 import java.util.List;
 
 import static com.example.daniel.jeeves.ApplicationContext.BUTTON;
@@ -55,6 +57,7 @@ public class MonitorActivity extends AppCompatActivity {
                                 intent.setAction(TriggerManagerConstants.ACTION_NAME_BUTTON_TRIGGER);
                                 intent.putExtra("buttonName",button.getText());
                                 sendBroadcast(intent);
+                                Log.d("BRIOADCASE","Sent a broadcase with " + button.getText());
                             }
                         });
                         customlayout.addView(button,params);
