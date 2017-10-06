@@ -35,18 +35,21 @@ public class GeofenceListener {
     private ArrayList<Geofence> mGeofenceList;
     private Context serviceContext;
     String locationName;
+    String changes;
     List<FirebaseAction> actionsToPerform;
 
 
-    public GeofenceListener(Context c,String locationName, List<FirebaseAction> actions){
+    public GeofenceListener(Context c,String locationName, String changes, List<FirebaseAction> actions){
         this.serviceContext = c;
         this.locationName = locationName;
+        this.changes = changes;
         actionsToPerform = new ArrayList<>();
 
         for (FirebaseAction action : actions) {
+            Log.d("IIIIIS",  action.getname());
 
             actionsToPerform.add(ActionUtils.create(action));
-         //   Log.d("IIIIIS",  actionsToPerform.get(0).getname());
+            Log.d("oooh", "its" +  actionsToPerform.get(0).getname());
         }
 //        for(FirebaseAction a : actionsToPerform){
 //            Log.d("AND THIS HNNNNNNG","IS" + a.toString());
@@ -54,8 +57,13 @@ public class GeofenceListener {
     }
         private GeofencingRequest getGeofencingRequest() {
         GeofencingRequest.Builder builder = new GeofencingRequest.Builder();
-        builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER);
-        builder.addGeofences(mGeofenceList);
+        if(changes.equals("enters"))
+            builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER);
+        else if(changes.equals("leaves"))
+            builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_EXIT);
+        else
+            builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_DWELL);
+            builder.addGeofences(mGeofenceList);
         return builder.build();
     }
 
@@ -121,8 +129,9 @@ public class GeofenceListener {
                         100
                 )
                 .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |
-                        Geofence.GEOFENCE_TRANSITION_EXIT )
+                        Geofence.GEOFENCE_TRANSITION_EXIT | Geofence.GEOFENCE_TRANSITION_DWELL)
                 .setExpirationDuration(Geofence.NEVER_EXPIRE)
+                .setLoiteringDelay(300000)
                 .build());
 
         if (ActivityCompat.checkSelfPermission(serviceContext, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {

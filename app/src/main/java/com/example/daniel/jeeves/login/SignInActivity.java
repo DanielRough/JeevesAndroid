@@ -43,6 +43,7 @@ import com.google.firebase.auth.UserProfileChangeRequest;
 
 import static com.example.daniel.jeeves.ApplicationContext.STUDY_NAME;
 import static com.example.daniel.jeeves.ApplicationContext.UID;
+import static com.example.daniel.jeeves.ApplicationContext.USERNAME;
 
 public class SignInActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -113,6 +114,8 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
         if (!validateForm()) {
             return;
         }
+        final String fEmail = email;
+        final String fPass = password;
         showProgressDialog();
 
         mFirebaseAuth.signInWithEmailAndPassword(email, password)
@@ -136,7 +139,18 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
                             SharedPreferences.Editor prefsEditor = preferences.edit();
                             prefsEditor.putString(UID,uid);
                             prefsEditor.commit();
-                            if (preferences.contains(STUDY_NAME)) {
+                            Log.d("USERNAME","Username is " + preferences.getString(USERNAME,"nothing"));
+                            //Here, this is where the user has logged in previously, cleared their data and tried to sign in again.
+                            //Storing their credentials independent of the study they signed up to would require restructuring the database,
+                            //so for now this forces them to delete their account and start again.
+                            if(!preferences.contains(USERNAME)) {
+                                Intent intent = new Intent(getInstance(), DeletedActivity.class);
+                                intent.putExtra("email",fEmail);
+                                intent.putExtra("password",fPass);
+                                startActivity(intent);
+                                finish();
+                            }
+                            else if (preferences.contains(STUDY_NAME)) {
                                 Intent intent = new Intent(getInstance(), WelcomeActivity.class);
                                 startActivity(intent);
                                 finish();

@@ -27,4 +27,5 @@
     <string name="no_account"><u>No account yet? Create one</u></string>
     <string name="already_member"><u>Already a member? Log in</u></string>
     <string name="forgot_password"><u>Forgot your password?</u></string>
+    <string name="title_activity_deleted">DeletedActivity</string>
 </resources>

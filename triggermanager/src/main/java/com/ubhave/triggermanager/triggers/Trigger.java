@@ -29,6 +29,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.ubhave.triggermanager.TriggerException;
 import com.ubhave.triggermanager.TriggerReceiver;
@@ -87,6 +88,9 @@ public abstract class Trigger extends BroadcastReceiver
 		}
 		else
 		{
+			//do it anyway
+			listener.onNotificationTriggered(triggerId);
+/*
 			if (globalState.areNotificationsAllowed())
 			{
 				int notificationsSent = globalState.getNotificationsSent();
@@ -112,7 +116,7 @@ public abstract class Trigger extends BroadcastReceiver
 			else if (TriggerManagerConstants.LOG_MESSAGES)
 			{
 				Log.i(getTriggerTag(), "Notifications not allowed: not calling onNotificationTriggered()");
-			}
+			}*/
 		}
 	}
 
@@ -165,6 +169,10 @@ public abstract class Trigger extends BroadcastReceiver
 			{
 				sendNotification();
 			}
+		}
+		else{
+			Log.d("OH NO","OH NO ITS NULL " + triggerId);
+			Toast.makeText(context,"OH NO IT'S NULL " + triggerId,Toast.LENGTH_LONG).show();
 		}
 	}
 }

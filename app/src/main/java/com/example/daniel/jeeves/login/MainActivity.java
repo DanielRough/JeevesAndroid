@@ -25,6 +25,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import static com.example.daniel.jeeves.ApplicationContext.STUDY_NAME;
+import static com.example.daniel.jeeves.ApplicationContext.USERNAME;
 import static com.example.daniel.jeeves.firebase.FirebaseUtils.PROJECTS_KEY;
 import static com.example.daniel.jeeves.firebase.FirebaseUtils.PUBLIC_KEY;
 
@@ -95,7 +96,16 @@ public class MainActivity extends Activity{
                     public void onCancelled(DatabaseError databaseError) {}
                 });
 
-            } else
+            }
+            //Here, this is where the user has logged in previously, cleared their data and tried to sign in again.
+            //Storing their credentials independent of the study they signed up to would require restructuring the database,
+            //so for now this forces them to delete their account and start again.
+            else if(!preferences.contains(USERNAME)) {
+                Intent intent = new Intent(getInstance(), DeletedActivity.class);
+                startActivity(intent);
+                finish();
+            }
+            else
                 startStudySignUp();
         }
     }

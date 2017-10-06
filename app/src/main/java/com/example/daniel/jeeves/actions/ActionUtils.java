@@ -1,5 +1,7 @@
 package com.example.daniel.jeeves.actions;
 
+import android.util.Log;
+
 /**
  * Created by Daniel on 27/05/15.
  */
@@ -18,7 +20,7 @@ public class ActionUtils {
 
     public static FirebaseAction create(FirebaseAction baseAction){
         switch(baseAction.getname()){
-            case NAME_PROMPT_ACTION: return new PromptAction(baseAction.getparams());// new PromptAction(baseAction);
+            case NAME_PROMPT_ACTION: Log.d("WAHEY","Returning a prompt!");return new PromptAction(baseAction.getparams());// new PromptAction(baseAction);
             case NAME_MESSAGE_ACTION: return new SendTextAction(baseAction.getparams());
             case NAME_SEND_SURVEY_ACTION: return new SurveyAction(baseAction.getparams());
             case NAME_CAPTURE_DATA_ACTION: return new CaptureDataAction(baseAction.getparams());

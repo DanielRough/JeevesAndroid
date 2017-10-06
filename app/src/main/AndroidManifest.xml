@@ -43,6 +43,7 @@
             android:permission="android.permission.RECEIVE_BOOT_COMPLETED">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
+
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </receiver>
@@ -84,26 +85,26 @@
             android:parentActivityName=".WelcomeActivity" />
         <activity
             android:name=".login.SignUpActivity"
-            android:label="@string/title_activity_sign_up"
-            android:parentActivityName=".login.SignInActivity"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:windowSoftInputMode="stateAlwaysHidden">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.daniel.jeeves.login.SignInActivity" />
-        </activity>
+            android:label="Jeeves"
+            android:windowSoftInputMode="stateAlwaysHidden"></activity>
         <activity android:name=".login.ResetPasswordActivity" />
         <activity
             android:name=".login.StudySignupActivity"
+            android:label="Jeeves"
             android:windowSoftInputMode="adjustNothing" />
-        <service android:name=".SenseService$NotificationActionService" />
 
+        <service android:name=".SenseService$NotificationActionService" />
         <service
             android:name=".SenseService"
             android:enabled="true"
             android:exported="true" />
 
-        <activity android:name=".CheckVariablesActivity"></activity>
+        <activity android:name=".CheckVariablesActivity" />
+        <activity
+            android:name=".login.DeletedActivity"
+            android:label="Jeeves"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
+        <activity android:name=".CheckScheduleActivity"></activity>
     </application>
 
 </manifest>

@@ -40,6 +40,11 @@ public class SignUpActivity extends AppCompatActivity {
     private FirebaseAuth.AuthStateListener mAuthListener;
 
     @Override
+    protected void onStop(){
+        super.onStop();
+        mFirebaseAuth.removeAuthStateListener(mAuthListener);
+    }
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up);
@@ -65,6 +70,13 @@ public class SignUpActivity extends AppCompatActivity {
                 finish();
             }
         });
+
+    }
+
+
+    @Override
+    public void onResume(){
+        super.onResume();
         mFirebaseAuth = FirebaseAuth.getInstance();
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
@@ -125,6 +137,7 @@ public class SignUpActivity extends AppCompatActivity {
 
 
     public void onSignupSuccess(String userId, String name, String email) {
+        Log.d("IS THIS","HAPPENING");
         signUpButton.setEnabled(true);
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getContext());
         SharedPreferences.Editor prefsEditor = prefs.edit();

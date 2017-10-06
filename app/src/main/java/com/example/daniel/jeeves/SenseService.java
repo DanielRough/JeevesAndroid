@@ -1,6 +1,7 @@
 package com.example.daniel.jeeves;
 
 import android.app.IntentService;
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.Service;
 import android.content.BroadcastReceiver;
@@ -9,10 +10,10 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
-import android.os.Binder;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -72,7 +73,8 @@ public class SenseService extends Service{
     public static final String ACTION_1 = "action_1";
     public static final String ACTION_2 = "action_2";
     public static final int NOTIF_ID = 1337;
-    private final IBinder mBinder = new LocalBinder();
+    public static final int ACTIVE = 1234;
+  //  private final IBinder mBinder = new LocalBinder();
     private LocationCallback mLocationCallback;
     private FusedLocationProviderClient mFusedLocationClient;
     private BroadcastReceiver mReceiver;
@@ -80,18 +82,19 @@ public class SenseService extends Service{
      * Class used for the client Binder.  Because we know this service always
      * runs in the same process as its clients, we don't need to deal with IPC.
      */
-    public class LocalBinder extends Binder {
-        SenseService getService() {
-            // Return this instance of LocalService so clients can call public methods
-            return SenseService.this;
-        }
-    }
+//    public class LocalBinder extends Binder {
+//        SenseService getService() {
+//            // Return this instance of LocalService so clients can call public methods
+//            return SenseService.this;
+//        }
+//    }
     @Override
     public IBinder onBind(Intent intent) {
-        return mBinder;
+        return null;
     }
     public void startLocationUpdates(LocationRequest mLocationRequest) {
         //START THE (NOW SEPARATE) LOCATION SERVICE
+        Log.d("STARTING","WOOHOO start location updates!");
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -154,6 +157,7 @@ public class SenseService extends Service{
 
     @Override
     public void onCreate(){
+        startForeground(ACTIVE, buildForegroundNotification("JEEVES"));
         final FirebaseDatabase database = FirebaseUtils.getDatabase();
         SharedPreferences varPrefs = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getContext());
         String studyname = varPrefs.getString(STUDY_NAME, "");
@@ -237,9 +241,27 @@ public class SenseService extends Service{
 //    public void onDestroy(){
 //        unregisterReceiver(mReceiver);
 //    }
+
+    private Notification buildForegroundNotification(String filename) {
+        NotificationCompat.Builder b=new NotificationCompat.Builder(this);
+
+        b.setOngoing(true)
+                .setContentTitle("Jeeves - Running")
+            //    .setContentText(filename)
+                .setSmallIcon(R.drawable.jeeves)
+                .setTicker("Jeeves - Running");
+
+        return(b.build());
+    }
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-
+        if(intent != null) {
+            LocationRequest mRequest = intent.getParcelableExtra("locationRequest");
+            if (mRequest != null)
+                startLocationUpdates(mRequest);
+            else
+                Log.d("NOTSTARTING", "Can't start location updates!");
+        }
         return START_STICKY;
     }
 
@@ -305,7 +327,7 @@ public class SenseService extends Service{
                                     Log.d("UPDATELOC","UPDATING LOCATION");
                                 }
                                 else {
-                                    GeofenceListener newListener = new GeofenceListener(getInstance(), var.getname(), new ArrayList<FirebaseAction>());
+                                    GeofenceListener newListener = new GeofenceListener(getInstance(), var.getname(), "enters",new ArrayList<FirebaseAction>());
                                     geofencelisteners.put(var.getname(), newListener);
                                     newListener.addLocationTrigger();
                                 }
@@ -358,12 +380,20 @@ public class SenseService extends Service{
         for(int i = 0; i < triggerids.size(); i++){
             Log.d("TRIGID","TRIG ID IS " + triggerids.get(i));
         }
+        for(int i = 0; i < triggers.size(); i++){
+            Log.d("TRIGGERID","trigger id is " + triggers.get(i).gettriggerId());
+        }
         for (int i = 0; i < triggers.size(); i++) {
             FirebaseTrigger triggerconfig = triggers.get(i);
             String triggerId = triggerconfig.gettriggerId();
+            //A compromise that will refresh a trigger if its listener is null
             newIds.add(triggerId);
             if (!triggerids.contains(triggerId)) { //Don't relaunch an already-existing trigger
                 Log.d("TriggerIDS","Does not contain " + triggerId);
+                launchTrigger(triggerconfig);
+            }
+            else if(triggerids.contains(triggerId) && triggerlisteners.get(triggerId) == null && sensorlisteners.get(triggerId) == null){
+                Log.d("TWAS NULL", "It's fine relaunching because listener was null");
                 launchTrigger(triggerconfig);
             }
         }
@@ -411,18 +441,19 @@ public class SenseService extends Service{
             if(TriggerUtils.getTriggerType(triggerType) == TriggerUtils.TYPE_SENSOR_TRIGGER_LOCATION){
                 ArrayList<FirebaseAction> toExecute = new ArrayList<>();
                 for (int i = 0; i < actions.size(); i++) {
-                    Log.d("AND HNNNNNNNG","IS" + actions.get(i).toString());
+                    Log.d("AND HNNNNNNNG","IS" + actions.get(i).getname());
 
                     toExecute.add( actions.get(i));
                 }
                 GeofenceListener newListener = null;
+                String changes = params.get("change").toString();
                 String locationName = params.get("result").toString();
         //        if(geofencelisteners.containsKey(locationName)){
      //               newListener = geofencelisteners.get(locationName);
          //           newListener.updateActions(toExecute);
          //       }
          //       else{
-                    newListener = new GeofenceListener(this,locationName,toExecute);
+                    newListener = new GeofenceListener(this,locationName,changes,toExecute);
                     geofencelisteners.put(triggerId, newListener);
                     newListener.addLocationTrigger();
            //     }
