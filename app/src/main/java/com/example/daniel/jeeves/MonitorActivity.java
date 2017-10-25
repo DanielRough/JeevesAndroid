@@ -5,7 +5,6 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
@@ -57,7 +56,6 @@ public class MonitorActivity extends AppCompatActivity {
                                 intent.setAction(TriggerManagerConstants.ACTION_NAME_BUTTON_TRIGGER);
                                 intent.putExtra("buttonName",button.getText());
                                 sendBroadcast(intent);
-                                Log.d("BRIOADCASE","Sent a broadcase with " + button.getText());
                             }
                         });
                         customlayout.addView(button,params);

@@ -6,9 +6,9 @@ import android.content.Context;
 import com.example.daniel.jeeves.actions.FirebaseAction;
 import com.example.daniel.jeeves.firebase.FirebaseProject;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.TreeMap;
 
 /**
  * Application class to provide the global context.
@@ -76,6 +76,14 @@ public class ApplicationContext extends Application
     public static Context getContext()
     {
         return instance;
+    }
+
+    public static TreeMap<String,String> feedback;
+
+    public static TreeMap<String,String> getFeedback(){
+        if(feedback == null)
+            feedback = new TreeMap<String,String>();
+        return feedback;
     }
 
     //A rather terrible way of passing actions to execute when a location trigger is fired

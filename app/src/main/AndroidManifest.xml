@@ -73,6 +73,7 @@
 
         <activity
             android:name=".ContactActivity"
+            android:windowSoftInputMode="stateHidden"
             android:parentActivityName=".WelcomeActivity" />
         <activity
             android:name=".MissedSurveyActivity"

@@ -44,15 +44,18 @@ import com.ubhave.triggermanager.triggers.TriggerUtils;
 import org.json.JSONException;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import static com.example.daniel.jeeves.ApplicationContext.FINISHED_INTRODUCTION;
 import static com.example.daniel.jeeves.ApplicationContext.STUDY_NAME;
+import static com.example.daniel.jeeves.ApplicationContext.UID;
 import static com.example.daniel.jeeves.firebase.FirebaseUtils.BOOLEAN;
 import static com.example.daniel.jeeves.firebase.FirebaseUtils.DATE;
 import static com.example.daniel.jeeves.firebase.FirebaseUtils.LOCATION;
@@ -162,6 +165,9 @@ public class SenseService extends Service{
         SharedPreferences varPrefs = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getContext());
         String studyname = varPrefs.getString(STUDY_NAME, "");
         DatabaseReference projectRef = database.getReference(PUBLIC_KEY).child(PROJECTS_KEY).child(studyname);
+        String uid = varPrefs.getString(UID,"");
+        Log.d("Uid","uid is " + uid);
+        DatabaseReference patientRef = FirebaseUtils.PATIENT_REF.child("feedback");
         mLocationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(LocationResult locationResult) {
@@ -171,6 +177,27 @@ public class SenseService extends Service{
                 }
             };
         };
+        patientRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                TreeMap<String,String> sortedFeedback = new TreeMap<String,String>(Collections.reverseOrder());
+                HashMap<String,String> feedback = (HashMap<String,String>)dataSnapshot.getValue();
+                sortedFeedback.putAll(feedback);
+                ApplicationContext.feedback = sortedFeedback; //What a bloody awful line
+                Toast.makeText(getInstance(),"WOOHOONEWMESAGE",Toast.LENGTH_LONG).show();
+                Log.d("OH NO","IT WAS NULL");
+                NotificationManager notificationManager =
+                        (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+                NotificationCompat.Builder mBuilder = (NotificationCompat.Builder) new NotificationCompat.Builder(getInstance())
+                        .setVibrate(new long[]{0, 1000})
+                        .setSmallIcon(R.drawable.ic_action_search)
+                        .setContentTitle("Jeeves")
+                        .setContentText("You have a new message");
+                notificationManager.notify(123,mBuilder.build());
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {}
+        });
         //We also listen on the project ref in here (this is a constant listener as opposed to
         //the one in the MainActivity
         projectRef.addValueEventListener(new ValueEventListener() {
@@ -241,6 +268,7 @@ public class SenseService extends Service{
 //    public void onDestroy(){
 //        unregisterReceiver(mReceiver);
 //    }
+
 
     private Notification buildForegroundNotification(String filename) {
         NotificationCompat.Builder b=new NotificationCompat.Builder(this);
@@ -418,7 +446,6 @@ public class SenseService extends Service{
 
     //Here we actually 'launch' the trigger, i.e. activate it so that it performs its actions when the necessary conditions are met
     private void launchTrigger(FirebaseTrigger trigger) {
-        Log.d("TRIGLAUNCH","Launching trigger " + trigger.getname() + trigger.gettriggerId());
         String triggerType = trigger.getname();
         String triggerId = trigger.gettriggerId();
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getContext());
@@ -441,18 +468,11 @@ public class SenseService extends Service{
             if(TriggerUtils.getTriggerType(triggerType) == TriggerUtils.TYPE_SENSOR_TRIGGER_LOCATION){
                 ArrayList<FirebaseAction> toExecute = new ArrayList<>();
                 for (int i = 0; i < actions.size(); i++) {
-                    Log.d("AND HNNNNNNNG","IS" + actions.get(i).getname());
-
                     toExecute.add( actions.get(i));
                 }
                 GeofenceListener newListener = null;
                 String changes = params.get("change").toString();
                 String locationName = params.get("result").toString();
-        //        if(geofencelisteners.containsKey(locationName)){
-     //               newListener = geofencelisteners.get(locationName);
-         //           newListener.updateActions(toExecute);
-         //       }
-         //       else{
                     newListener = new GeofenceListener(this,locationName,changes,toExecute);
                     geofencelisteners.put(triggerId, newListener);
                     newListener.addLocationTrigger();

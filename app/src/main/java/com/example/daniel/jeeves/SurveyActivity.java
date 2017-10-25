@@ -349,11 +349,11 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
                 if(triggerType != TriggerUtils.TYPE_SENSOR_TRIGGER_BUTTON) //Then this was a button trigger and the init time doesn't count
                     surveymap.put(INIT_TIME,initTime-timeSent);
                 Toast.makeText(getInstance(),"Init time" + initTime + ". timesent " + timeSent,Toast.LENGTH_SHORT).show();
-                surveymap.put(COMPLETE,System.currentTimeMillis()-initTime);
+                surveymap.put(COMPLETE,System.currentTimeMillis());
                 surveymap.put(TRIG_TYPE,triggerType);
                 surveymap.put(UID,prefs.getString(UID,""));
                 surveymap.put("encodedAnswers",currentsurvey.getencodedAnswers());
-                FirebaseUtils.SURVEY_REF.child(currentsurvey.gettitle()).child("completed").push().setValue(surveymap);
+                FirebaseUtils.SURVEY_REF.child(currentsurvey.gettitle()).push().setValue(surveymap);
                 //Update the various Survey-relevant variables
 
                 SharedPreferences.Editor editor = prefs.edit();

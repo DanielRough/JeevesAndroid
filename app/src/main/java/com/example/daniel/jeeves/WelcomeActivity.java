@@ -103,8 +103,8 @@ public class WelcomeActivity extends Activity implements GoogleApiClient.Connect
         Button btnContact = (Button) findViewById(R.id.btnContact);
         Button btnSurveys = (Button) findViewById(R.id.btnSurvey);
         Button btnMonitor = (Button) findViewById(R.id.btnMonitor);
-        Button btnLogout = (Button) findViewById(R.id.buttonLogout);
-        Button btnVars = (Button) findViewById(R.id.buttonVars);
+//        Button btnLogout = (Button) findViewById(R.id.buttonLogout);
+//        Button btnVars = (Button) findViewById(R.id.buttonVars);
         btnContact.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -130,24 +130,24 @@ public class WelcomeActivity extends Activity implements GoogleApiClient.Connect
                 startActivity(intent);
             }
         });
-        btnLogout.setOnClickListener(new View.OnClickListener(){
-
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(instance,CheckScheduleActivity.class);
-                startActivity(intent);
-                //       mFirebaseAuth = FirebaseAuth.getInstance();
-          //      mFirebaseAuth.signOut();
-          //      finish();
-            }
-        });
-        btnVars.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(instance,CheckVariablesActivity.class);
-                startActivity(intent);
-            }
-        });
+//        btnLogout.setOnClickListener(new View.OnClickListener(){
+//
+//            @Override
+//            public void onClick(View v) {
+//                Intent intent = new Intent(instance,CheckScheduleActivity.class);
+//                startActivity(intent);
+//                //       mFirebaseAuth = FirebaseAuth.getInstance();
+//          //      mFirebaseAuth.signOut();
+//          //      finish();
+//            }
+//        });
+//        btnVars.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Intent intent = new Intent(instance,CheckVariablesActivity.class);
+//                startActivity(intent);
+//            }
+//        });
 
     }
     @Override

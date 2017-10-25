@@ -18,19 +18,34 @@
         android:layout_alignParentStart="true">
 
         <TextView
+            android:id="@+id/textView8"
+            android:layout_width="311dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentStart="true"
+            android:text="Messages"
+            android:textAppearance="@style/TextAppearance.AppCompat.Headline" />
+
+        <ListView
+            android:id="@+id/lstMessages"
+            android:layout_width="match_parent"
+            android:layout_height="259dp"
+            android:layout_weight="0.71" />
+
+        <TextView
+            android:id="@+id/textView7"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="Please enter a message to send to your researcher in the box below and press &quot;Send&quot;"
-            android:id="@+id/textView7" />
+            android:text="Please enter a message to send in the box below and press &quot;Send&quot;"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
 
         <EditText
+            android:id="@+id/txtContactResearcher"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="textMultiLine"
             android:ems="10"
-            android:id="@+id/txtContactResearcher"
-            android:hint="Enter your message here" />
+            android:hint="Enter your message here"
+            android:inputType="text" />
 
         <Button
             android:layout_width="wrap_content"
@@ -38,4 +53,5 @@
             android:text="Send"
             android:id="@+id/btnContactResearcher" />
     </LinearLayout>
+
 </RelativeLayout>

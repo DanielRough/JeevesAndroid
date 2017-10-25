@@ -22,6 +22,8 @@ IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 package com.ubhave.sensormanager.classifier;
 
+import android.util.Log;
+
 import com.ubhave.sensormanager.config.SensorConfig;
 import com.ubhave.sensormanager.data.SensorData;
 import com.ubhave.sensormanager.data.pull.BluetoothData;
@@ -37,6 +39,10 @@ public class BluetoothDataClassifier extends SocialClassifier implements SensorD
 	public boolean isInteresting(final SensorData sensorData, final SensorConfig sensorConfig, String value, boolean isTrigger)
 	{
 		BluetoothData data = (BluetoothData) sensorData;
+		if(data == null){
+			Log.d("Nope","data was null");
+			return false;
+		}
 		BluetoothData prevData = (BluetoothData) sensorData.getPrevSensorData();
 
 		String[] currDevices = getDeviceMacs(data);
