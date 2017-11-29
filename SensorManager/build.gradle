@@ -5,15 +5,16 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.3.3'
+        classpath 'com.android.tools.build:gradle:3.0.0'
     }
 }
 apply plugin: 'com.android.library'
 android {
     compileSdkVersion 25
-    buildToolsVersion '25.0.0'
+    buildToolsVersion "26.0.2"
+
     defaultConfig {
-        minSdkVersion 19
+        minSdkVersion 21
         targetSdkVersion 25
     }
     buildTypes {
@@ -28,11 +29,11 @@ android {
 }
 
 dependencies {
-    compile 'com.android.support:appcompat-v7:25.3.1'
-//    compile 'com.google.android.gms:play-services-location:11.0.4'
-//    compile 'com.google.android.gms:play-services-maps:11.0.4'
-//    compile 'com.google.android.gms:play-services-places:11.0.4'
+    compile 'com.android.support:appcompat-v7:25.4.0'
+    //    compile 'com.google.android.gms:play-services-location:11.0.4'
+    //    compile 'com.google.android.gms:play-services-maps:11.0.4'
+    //    compile 'com.google.android.gms:play-services-places:11.0.4'
     //We needs this in here for geofencing
- //   compile 'com.google.android.gms:play-services-location:10.2.6'
+    //   compile 'com.google.android.gms:play-services-location:10.2.6'
     // compile 'com.android.support:appcompat-v7:23.3.0'
 }

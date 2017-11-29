@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:paddingBottom="@dimen/activity_vertical_margin"
-    tools:context="com.example.daniel.jeeves.SurveyActivity"
+    tools:context="com.example.daniel.jeeves.com.jeeves.SurveyActivity"
     android:clickable="true"
     android:focusableInTouchMode="true"
     android:weightSum="1"
@@ -107,12 +107,46 @@
             android:id="@+id/viewScale"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:visibility="visible">
 
-            <RadioGroup
-                android:id="@+id/grpScale"
+            <SeekBar
+                android:id="@+id/seekBar"
+                android:theme = "@style/MySeekBar"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"></RadioGroup>
+                android:layout_height="wrap_content"
+                android:max="10"
+                android:progress="3" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/txtBegin"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="20dp"
+                    android:layout_weight="1" />
+
+                <TextView
+                    android:id="@+id/txtMiddle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:layout_weight="1"
+                    android:textAlignment="center" />
+
+                <TextView
+                    android:id="@+id/txtEnd"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    android:layout_weight="1"
+                    android:textAlignment="textEnd" />
+            </LinearLayout>
 
         </LinearLayout>
 
@@ -216,10 +250,10 @@
 
             <ListView
                 android:id="@+id/lstWifi"
-                android:choiceMode="singleChoice"
-                android:listSelector="@android:color/holo_purple"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="match_parent"
+                android:choiceMode="singleChoice"
+                android:listSelector="@android:color/holo_purple" />
         </LinearLayout>
 
         <LinearLayout
@@ -230,10 +264,10 @@
 
             <ListView
                 android:id="@+id/lstBluetooth"
-                android:choiceMode="singleChoice"
-                android:listSelector="@android:color/darker_gray"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="match_parent"
+                android:choiceMode="singleChoice"
+                android:listSelector="@android:color/darker_gray" />
 
         </LinearLayout>
     </ViewFlipper>

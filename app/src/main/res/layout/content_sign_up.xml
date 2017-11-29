@@ -6,7 +6,7 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:fitsSystemWindows="true"
-    tools:context="com.example.daniel.jeeves.login.SignUpActivity"
+    tools:context="com.example.daniel.jeeves.com.jeeves.login.SignUpActivity"
     tools:showIn="@layout/activity_sign_up">
     >
 

@@ -128,7 +128,7 @@ public class SurveyTrigger extends Trigger {
                         long completedTimes = intent.getLongExtra("completed", 0);
                         Log.d("COMPLETED","And you've completed it " + completedTimes + " times");
 
-                        if (completedTimes == this.numTimes)
+                        if (completedTimes%this.numTimes == 0)
                             sendNotification();
                     }
                     if (result == false) {
@@ -136,7 +136,7 @@ public class SurveyTrigger extends Trigger {
                         long missedTimes = intent.getLongExtra("missed", 0);
                         Log.d("MISSED","And you've missed it " + missedTimes + " times");
 
-                        if (missedTimes == this.numTimes)
+                        if (missedTimes%this.numTimes == 0)
                             sendNotification();
                     }
                 }

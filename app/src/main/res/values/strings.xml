@@ -28,4 +28,5 @@
     <string name="already_member"><u>Already a member? Log in</u></string>
     <string name="forgot_password"><u>Forgot your password?</u></string>
     <string name="title_activity_deleted">DeletedActivity</string>
+    <string name="title_activity_view_data">ViewDataActivity</string>
 </resources>

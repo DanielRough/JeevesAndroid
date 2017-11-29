@@ -1,0 +1,10 @@
+bin/*
+
+.DS_Store
+
+gen/*
+
+build/*
+
+.settings/
+
