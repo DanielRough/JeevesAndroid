@@ -29,9 +29,10 @@ public class SendTextAction extends FirebaseAction {
             recipient = ((Map<String,Object>)getparams().get("recipient")).get("name").toString();
                 number = preferences.getString(recipient,"");
         }
-        else
+        else if(getparams().get("recipient") != null)
             number = (getparams().get("recipient").toString());
-
+        else
+            number = "1234";
         String message = getparams().get("msgtext").toString();
         SmsManager sms = SmsManager.getDefault();
         sms.sendTextMessage("0" +number, null, message, null, null);
