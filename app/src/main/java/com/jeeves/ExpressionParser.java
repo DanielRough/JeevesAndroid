@@ -53,6 +53,10 @@ public class ExpressionParser {
     private static final String WEEK = "1 week";
     private static final String DAY = "1 day";
 
+    private static final String TIME_BOUNDS = "timeBoundEarly";
+    private static final String TIME_BOUNDS_LATE = "timeBoundLate";
+    private static final String DATE_BOUNDS = "dateBoundEarly";
+    private static final String DATE_BOUNDS_LATE = "dateBoundLate";
     protected Context appContext;
 
     public ExpressionParser(Context appContext) {
@@ -125,7 +129,30 @@ public class ExpressionParser {
                     return FALSE;
 
                 }
-            } else if (params.containsKey(TIME_DIFF)) { //a timediff expression
+            }
+            else if (params.containsKey(TIME_BOUNDS)){
+                String timeEarly = params.get(TIME_BOUNDS).toString();
+                String timeLate = params.get(TIME_BOUNDS_LATE).toString();
+                long lTimeEarly = Long.parseLong(timeEarly);
+                long lTimeLate = Long.parseLong(timeLate);
+                long millis = System.currentTimeMillis();
+
+                if(millis > lTimeEarly && millis < lTimeLate)
+                    return TRUE;
+                return FALSE;
+            }
+            else if (params.containsKey(DATE_BOUNDS)){
+                String dateEarly = params.get(DATE_BOUNDS).toString();
+                String dateLate = params.get(DATE_BOUNDS_LATE).toString();
+                long lDateEarly = Long.parseLong(dateEarly);
+                long lDateLong = Long.parseLong(dateLate);
+
+                long millis = System.currentTimeMillis();
+                if(millis > lDateEarly && millis < lDateLong)
+                    return TRUE;
+                return FALSE;
+            }
+            else if (params.containsKey(TIME_DIFF)) { //a timediff expression
                 String beforeAfter = params.get(BEFORE_AFTER).toString();
                 String timeDiff = params.get(TIME_DIFF).toString();
                 String dateStr = params.get(TIME_VAR).toString();

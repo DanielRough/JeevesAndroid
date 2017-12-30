@@ -51,22 +51,22 @@ import static com.jeeves.ApplicationContext.UID;
 import static com.jeeves.ApplicationContext.USERNAME;
 
 //03/08 I'm now doing location stuff in here as it's easier than sticking it in the Sensor Manager module.
-public class WelcomeActivity extends Activity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+public class WelcomeActivity extends Activity {
     private static WelcomeActivity instance;
-    private LocationCallback mLocationCallback;
+   // private LocationCallback mLocationCallback;
 
     FirebaseAuth mFirebaseAuth;
     TextView txtWelcome;
-    private LocationRequest mLocationRequest;
+  //  private LocationRequest mLocationRequest;
     SenseService mService;
-    boolean mBound = false;
+   // boolean mBound = false;
     GoogleApiClient mGoogleApiClient;
     private static final int REQUEST_CHECK_SETTINGS = 101;
     private boolean mRequestingLocationUpdates = true;
     private FusedLocationProviderClient mFusedLocationClient;
   //  private ActivityRecognitionClient activityRecognitionClient;
     private SettingsClient mSettingsClient;
-    private LocationSettingsRequest mLocationSettingsRequest;
+  //  private LocationSettingsRequest mLocationSettingsRequest;
     @Override
     protected void onResume() {
         super.onResume();
@@ -100,18 +100,18 @@ public class WelcomeActivity extends Activity implements GoogleApiClient.Connect
     protected void onCreate(Bundle savedInstanceState) {
         instance = this;
         mFirebaseAuth = FirebaseAuth.getInstance();
-        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-        mSettingsClient = LocationServices.getSettingsClient(this);
-        createLocationCallback();
+      //  mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+       // mSettingsClient = LocationServices.getSettingsClient(this);
+       // createLocationCallback();
 
-        createLocationRequest();
+        //createLocationRequest();
 
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .addApi(ActivityRecognition.API)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .build();
-        mGoogleApiClient.connect();
+//        mGoogleApiClient = new GoogleApiClient.Builder(this)
+//                .addApi(ActivityRecognition.API)
+//                .addConnectionCallbacks(this)
+//                .addOnConnectionFailedListener(this)
+//                .build();
+//        mGoogleApiClient.connect();
         //activityRecognition = new ActivityRecognitionClient(this, this, this);
        // activityRecognition.connect();
 //        activityRecognitionClient = ActivityRecognition.getClient(this);
@@ -234,159 +234,159 @@ public class WelcomeActivity extends Activity implements GoogleApiClient.Connect
     public void forceCrash(View view) {
         throw new RuntimeException("This is a crash");
     }
+//
+//    private void createLocationCallback() {
+//
+//        mLocationCallback = new LocationCallback() {
+//
+//            @Override
+//
+//            public void onLocationResult(LocationResult locationResult) {
+//
+//                super.onLocationResult(locationResult);
+//                HashMap<String, Object> locData = new HashMap<String, Object>();
+//                String mLastUpdateTime = new Date().toString();
+//                locData.put("senseStartTimeMillis", mLastUpdateTime);
+//                locData.put("latitude", locationResult.getLastLocation().getLatitude());
+//                locData.put("longitude", locationResult.getLastLocation().getLongitude());
+//                Log.d("OOOH","Locaiton changed");
+//                DatabaseReference patientRef = FirebaseUtils.PATIENT_REF.child("sensordata").child("Location").push();
+//                patientRef.setValue(locData);
+//            }
+//
+//        };
+//
+//    }
+//
+//    private void buildLocationSettingsRequest() {
+//
+//        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder();
+//
+//        builder.addLocationRequest(mLocationRequest);
+//
+//        mLocationSettingsRequest = builder.build();
+//
+//    }
 
-    private void createLocationCallback() {
+//    public void createLocationRequest() {
+//        mLocationRequest = new LocationRequest();
+//        mLocationRequest.setInterval(20000);
+//        mLocationRequest.setFastestInterval(5000);
+//        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+//
+//        buildLocationSettingsRequest();
+//                mSettingsClient.checkLocationSettings(mLocationSettingsRequest)
+//
+//                        .addOnSuccessListener(this, new OnSuccessListener<LocationSettingsResponse>() {
+//
+//                            @Override
+//
+//                            public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
+//
+//                                Log.i(TAG, "All location settings are satisfied.");
+//
+//
+//                                //noinspection MissingPermission
+//
+//                                if (ActivityCompat.checkSelfPermission(WelcomeActivity.this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(WelcomeActivity.this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+//                                    return;
+//                                }
+//                                mFusedLocationClient.requestLocationUpdates(mLocationRequest,
+//
+//                                        mLocationCallback, Looper.myLooper());
+//                            }
+//
+//                        })
+//
+//                        .addOnFailureListener(this, new OnFailureListener() {
+//
+//                            @Override
+//
+//                            public void onFailure(@NonNull Exception e) {
+//
+//                                int statusCode = ((ApiException) e).getStatusCode();
+//
+//                                switch (statusCode) {
+//
+//                                    case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
+//
+//                                        Log.i(TAG, "Location settings are not satisfied. Attempting to upgrade " +
+//
+//                                                "location settings ");
+//
+//                                        try {
+//
+//                                            // Show the dialog by calling startResolutionForResult(), and check the
+//
+//                                            // result in onActivityResult().
+//
+//                                            ResolvableApiException rae = (ResolvableApiException) e;
+//
+//                                            rae.startResolutionForResult(WelcomeActivity.this, REQUEST_CHECK_SETTINGS);
+//
+//                                        } catch (IntentSender.SendIntentException sie) {
+//
+//                                            Log.i(TAG, "PendingIntent unable to execute request.");
+//
+//                                        }
+//
+//                                        break;
+//
+//                                    case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
+//
+//                                        String errorMessage = "Location settings are inadequate, and cannot be " +
+//
+//                                                "fixed here. Fix in Settings.";
+//
+//                                        Log.e(TAG, errorMessage);
+//                                        mRequestingLocationUpdates = false;
+//
+//                                }
+//                            }
+//
+//                        });
+//
+//    }
+//    @Override
+//    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+//        Log.d(TAG, "onActivityResult() called with: " + "requestCode = [" + requestCode + "], resultCode = [" + resultCode + "], data = [" + data + "]");
+//        switch (requestCode) {
+//            case REQUEST_CHECK_SETTINGS:
+//                if (resultCode == Activity.RESULT_OK) {
+//                    mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+//                    if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+//                        return;
+//                    }
+//
+//                    mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
+////                    Intent intent = new Intent(WelcomeActivity.this, SenseService.class);
+////                    intent.putExtra("locationRequest", mLocationRequest);
+////                    Log.d("STARTING","Away to start service with a location request!");
+////                    startService(intent);
+//                }
+//                break;
+//            default:
+//                super.onActivityResult(requestCode, resultCode, data);
+//                break;
+//        }
+//    }
 
-        mLocationCallback = new LocationCallback() {
-
-            @Override
-
-            public void onLocationResult(LocationResult locationResult) {
-
-                super.onLocationResult(locationResult);
-                HashMap<String, Object> locData = new HashMap<String, Object>();
-                String mLastUpdateTime = new Date().toString();
-                locData.put("senseStartTimeMillis", mLastUpdateTime);
-                locData.put("latitude", locationResult.getLastLocation().getLatitude());
-                locData.put("longitude", locationResult.getLastLocation().getLongitude());
-                Log.d("OOOH","Locaiton changed");
-                DatabaseReference patientRef = FirebaseUtils.PATIENT_REF.child("sensordata").child("Location").push();
-                patientRef.setValue(locData);
-            }
-
-        };
-
-    }
-
-    private void buildLocationSettingsRequest() {
-
-        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder();
-
-        builder.addLocationRequest(mLocationRequest);
-
-        mLocationSettingsRequest = builder.build();
-
-    }
-
-    public void createLocationRequest() {
-        mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(20000);
-        mLocationRequest.setFastestInterval(5000);
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-
-        buildLocationSettingsRequest();
-                mSettingsClient.checkLocationSettings(mLocationSettingsRequest)
-
-                        .addOnSuccessListener(this, new OnSuccessListener<LocationSettingsResponse>() {
-
-                            @Override
-
-                            public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
-
-                                Log.i(TAG, "All location settings are satisfied.");
-
-
-                                //noinspection MissingPermission
-
-                                if (ActivityCompat.checkSelfPermission(WelcomeActivity.this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(WelcomeActivity.this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                                    return;
-                                }
-                                mFusedLocationClient.requestLocationUpdates(mLocationRequest,
-
-                                        mLocationCallback, Looper.myLooper());
-                            }
-
-                        })
-
-                        .addOnFailureListener(this, new OnFailureListener() {
-
-                            @Override
-
-                            public void onFailure(@NonNull Exception e) {
-
-                                int statusCode = ((ApiException) e).getStatusCode();
-
-                                switch (statusCode) {
-
-                                    case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
-
-                                        Log.i(TAG, "Location settings are not satisfied. Attempting to upgrade " +
-
-                                                "location settings ");
-
-                                        try {
-
-                                            // Show the dialog by calling startResolutionForResult(), and check the
-
-                                            // result in onActivityResult().
-
-                                            ResolvableApiException rae = (ResolvableApiException) e;
-
-                                            rae.startResolutionForResult(WelcomeActivity.this, REQUEST_CHECK_SETTINGS);
-
-                                        } catch (IntentSender.SendIntentException sie) {
-
-                                            Log.i(TAG, "PendingIntent unable to execute request.");
-
-                                        }
-
-                                        break;
-
-                                    case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
-
-                                        String errorMessage = "Location settings are inadequate, and cannot be " +
-
-                                                "fixed here. Fix in Settings.";
-
-                                        Log.e(TAG, errorMessage);
-                                        mRequestingLocationUpdates = false;
-
-                                }
-                            }
-
-                        });
-
-    }
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Log.d(TAG, "onActivityResult() called with: " + "requestCode = [" + requestCode + "], resultCode = [" + resultCode + "], data = [" + data + "]");
-        switch (requestCode) {
-            case REQUEST_CHECK_SETTINGS:
-                if (resultCode == Activity.RESULT_OK) {
-                    mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-                    if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                        return;
-                    }
-
-                    mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
-//                    Intent intent = new Intent(WelcomeActivity.this, SenseService.class);
-//                    intent.putExtra("locationRequest", mLocationRequest);
-//                    Log.d("STARTING","Away to start service with a location request!");
-//                    startService(intent);
-                }
-                break;
-            default:
-                super.onActivityResult(requestCode, resultCode, data);
-                break;
-        }
-    }
-
-    @Override
-    public void onConnected(@Nullable Bundle bundle) {
-    Intent intent = new Intent( this, ActivityService.class );
-    Log.d("CONNECTED","I am connected");
-    PendingIntent pendingIntent = PendingIntent.getService( this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT );
-    ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates( mGoogleApiClient, 60000, pendingIntent );
-    }
-
-    @Override
-    public void onConnectionSuspended(int i) {
-
-    }
-
-    @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-        Log.d("NOPEFAIL","I am NOT CONNECTED");
-
-    }
+//    @Override
+//    public void onConnected(@Nullable Bundle bundle) {
+//    Intent intent = new Intent( this, ActivityService.class );
+//    Log.d("CONNECTED","I am connected");
+//    PendingIntent pendingIntent = PendingIntent.getService( this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT );
+//    ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates( mGoogleApiClient, 60000, pendingIntent );
+//    }
+//
+//    @Override
+//    public void onConnectionSuspended(int i) {
+//
+//    }
+//
+//    @Override
+//    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+//        Log.d("NOPEFAIL","I am NOT CONNECTED");
+//
+//    }
 }

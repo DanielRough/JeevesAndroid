@@ -57,12 +57,13 @@ public class GeofenceListener {
     }
         private GeofencingRequest getGeofencingRequest() {
         GeofencingRequest.Builder builder = new GeofencingRequest.Builder();
-        if(changes.equals("enters"))
-            builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER);
-        else if(changes.equals("leaves"))
-            builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_EXIT);
-        else
-            builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_DWELL);
+
+//        if(changes.equals("enters"))
+//            builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER);
+//        else if(changes.equals("leaves"))
+//            builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_EXIT);
+//        else
+//            builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_DWELL);
             builder.addGeofences(mGeofenceList);
         return builder.build();
     }
@@ -89,19 +90,20 @@ public class GeofenceListener {
 
     public void updateLocation(){
         removeLocationTrigger();
+       // addLocationTrigger(); //I think we must need to add this again!
     }
-    public void updateActions(List<FirebaseAction> actions){
-        actionsToPerform = new ArrayList<>();
-
-        for (FirebaseAction action : actions) {
-
-            actionsToPerform.add(ActionUtils.create(action));
-            Log.d("fAfffffction is ", action.getname());
-        }
-     //   this.actionsToPerform = actionsToPerform;
-        mGeofencePendingIntent = null;
-        removeLocationTrigger();
-    }
+//    public void updateActions(List<FirebaseAction> actions){
+//        actionsToPerform = new ArrayList<>();
+//
+//        for (FirebaseAction action : actions) {
+//
+//            actionsToPerform.add(ActionUtils.create(action));
+//            Log.d("fAfffffction is ", action.getname());
+//        }
+//     //   this.actionsToPerform = actionsToPerform;
+//        mGeofencePendingIntent = null;
+//        removeLocationTrigger();
+//    }
     public void addLocationTrigger() {
         mGeofencingClient = LocationServices.getGeofencingClient(serviceContext);
      //   String locationName = params.getParameter("result").toString();
@@ -117,6 +119,12 @@ public class GeofenceListener {
         String[] latlongarray = latlong.split(":");
         double latval = Double.parseDouble(latlongarray[0]);
         double longval = Double.parseDouble(latlongarray[1]);
+        int transition = 0;
+        switch(changes){
+            case "enters":transition = Geofence.GEOFENCE_TRANSITION_ENTER; break;
+            case "leaves":transition = Geofence.GEOFENCE_TRANSITION_EXIT; break;
+            default: transition = Geofence.GEOFENCE_TRANSITION_DWELL; break;
+        }
         mGeofenceList = new ArrayList<>();
         mGeofenceList.add(new Geofence.Builder()
                 // Set the request ID of the geofence. This is a string to identify this
@@ -128,8 +136,7 @@ public class GeofenceListener {
                         longval,
                         100
                 )
-                .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |
-                        Geofence.GEOFENCE_TRANSITION_EXIT | Geofence.GEOFENCE_TRANSITION_DWELL)
+                .setTransitionTypes(transition)
                 .setExpirationDuration(Geofence.NEVER_EXPIRE)
                 .setLoiteringDelay(300000)
                 .build());
@@ -155,11 +162,12 @@ public class GeofenceListener {
 
     private PendingIntent getActionsPendingIntent(){
         if (mGeofencePendingIntent != null) {
-            return mGeofencePendingIntent;
+       //     return mGeofencePendingIntent;
         }
         //FirebaseAction setAttrAction =
         Intent actionIntent = new Intent(serviceContext, ActionExecutorService.class);
         actionIntent.putExtra(ACTIONSETID, locationName); //each location name corresponds to a set of actions
+        Log.d("I'M AWAY","To list some actions");
         for(FirebaseAction a : actionsToPerform){
             Log.d("AND THIS ACTION","IS" + a.getname());
         }

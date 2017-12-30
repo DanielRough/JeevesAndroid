@@ -101,6 +101,8 @@ public class ActivityService extends IntentService {
         locData.put("result", activityResult);
 
         Log.d("OOOH", "Locaiton changed");
+        if(FirebaseUtils.PATIENT_REF == null)
+            return;
         DatabaseReference patientRef = FirebaseUtils.PATIENT_REF.child("sensordata").child("Activity").push();
         patientRef.setValue(locData);
 

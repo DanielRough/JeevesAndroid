@@ -3,21 +3,30 @@ package com.jeeves;
 import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Looper;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.ActivityRecognition;
+import com.google.android.gms.location.LocationResult;
 import com.jeeves.R;
 import com.jeeves.actions.FirebaseAction;
 import com.jeeves.firebase.FirebaseExpression;
@@ -35,6 +44,9 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.jeeves.login.MainActivity;
+import com.ubhave.sensormanager.ESException;
+import com.ubhave.sensormanager.ESSensorManager;
 import com.ubhave.sensormanager.sensors.SensorUtils;
 import com.ubhave.triggermanager.TriggerException;
 import com.ubhave.triggermanager.config.GlobalState;
@@ -53,6 +65,11 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.jeeves.ApplicationContext.FINISHED_INTRODUCTION;
+import static com.jeeves.ApplicationContext.STARTACTIVITY;
+import static com.jeeves.ApplicationContext.STARTLOC;
+import static com.jeeves.ApplicationContext.STOPACTIVITY;
+import static com.jeeves.ApplicationContext.STOPLOC;
+import static com.jeeves.ApplicationContext.STOPSENSOR;
 import static com.jeeves.ApplicationContext.STUDY_NAME;
 import static com.jeeves.ApplicationContext.UID;
 import static com.jeeves.firebase.FirebaseUtils.BOOLEAN;
@@ -64,7 +81,7 @@ import static com.jeeves.firebase.FirebaseUtils.PUBLIC_KEY;
 import static com.jeeves.firebase.FirebaseUtils.TEXT;
 import static com.jeeves.firebase.FirebaseUtils.TIME;
 
-public class SenseService extends Service implements LocationListener{
+public class SenseService extends Service implements LocationListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener{
 
     public ArrayList<String> triggerids = new ArrayList<String>();
     public ArrayList<String> sensorids = new ArrayList<String>();
@@ -79,7 +96,11 @@ public class SenseService extends Service implements LocationListener{
   //  private final IBinder mBinder = new LocalBinder();
     private LocationCallback mLocationCallback;
     private FusedLocationProviderClient mFusedLocationClient;
-    private BroadcastReceiver mReceiver;
+    private IntentFilter mIntentFilter;
+    private IntentFilter sensIntentFilter;
+    private IntentFilter activityIntentFilter;
+    MyReceiver mReceiver;
+    GoogleApiClient mGoogleApiClient;
 
     /**
      * Class used for the client Binder.  Because we know this service always
@@ -92,11 +113,37 @@ public class SenseService extends Service implements LocationListener{
 //        }
 //    }
 
+    protected void createLocationRequest() {
+        LocationRequest mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(10000);
+        mLocationRequest.setFastestInterval(5000);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        mLocationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                for (Location location : locationResult.getLocations()) {
+                    Log.d("LOCATION","Location is " + location.getLongitude() + "," + location.getLatitude());
+                    HashMap<String, Object> locData = new HashMap<String, Object>();
+                    String mLastUpdateTime = new Date().toString();
+                    locData.put("senseStartTimeMillis", mLastUpdateTime);
+                    locData.put("latitude", location.getLatitude());
+                    locData.put("longitude", location.getLongitude());
+                    DatabaseReference patientRef = FirebaseUtils.PATIENT_REF.child("sensordata").child("Location").push();
+                    patientRef.setValue(locData);
+                }
+
+            };
+
+
+        };
+        startLocationUpdates(mLocationRequest);
+
+    }
     @Override
     public IBinder onBind(Intent intent) {
         return null;
     }
-    public void startLocationUpdates(LocationRequest mLocationRequest, Intent intent) {
+    public void startLocationUpdates(LocationRequest mLocationRequest) {
         //START THE (NOW SEPARATE) LOCATION SERVICE
         Log.d("STARTING","WOOHOO start location updates!");
 
@@ -119,9 +166,59 @@ public class SenseService extends Service implements LocationListener{
         DatabaseReference patientRef = FirebaseUtils.PATIENT_REF.child("sensordata").child("Location").push();
         patientRef.setValue(locData);
     }
+
+    private void startActivitySensing(){
+        mGoogleApiClient = new GoogleApiClient.Builder(ApplicationContext.getContext())
+                .addApi(ActivityRecognition.API)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .build();
+        mGoogleApiClient.connect();
+    }
+
+    private void stopActivitySensing(){
+        mGoogleApiClient.disconnect();
+    }
     private void stopLocationUpdates() {
         mFusedLocationClient.removeLocationUpdates(mLocationCallback);
     }
+
+    private final BroadcastReceiver activityReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if(intent.getAction().equals(STARTACTIVITY))
+                startActivitySensing();
+            else
+                stopActivitySensing();
+        }
+    };
+    private final BroadcastReceiver sensorReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            try {
+                Log.d("HELLO","Stopped the run");
+                int sensorType = intent.getIntExtra("sensortype",0);
+                int subid = intent.getIntExtra("subid",0);
+                ESSensorManager.getSensorManager(ApplicationContext.getContext()).unsubscribeFromSensorData(SenseService.subscribedSensors.get(sensorType));
+                SenseService.sensorlisteners.remove(subid);
+            } catch (ESException e) {
+                e.printStackTrace();
+            }
+        }
+    };
+    private final BroadcastReceiver locationReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction().equals(STARTLOC)) {
+                createLocationRequest();
+                Log.d("LOCATION","Starting location updates");
+            }
+            else{
+                stopLocationUpdates();
+                Log.d("LOCATIONSTOP","Stopping location updates");
+            }
+        }
+    };
     static {
         sensorlisteners.put(SensorUtils.SENSOR_TYPE_ACCELEROMETER, new SensorListener(SensorUtils.SENSOR_TYPE_ACCELEROMETER));
         sensorlisteners.put(SensorUtils.SENSOR_TYPE_BLUETOOTH, new SensorListener(SensorUtils.SENSOR_TYPE_BLUETOOTH));
@@ -135,6 +232,25 @@ public class SenseService extends Service implements LocationListener{
         sensorlisteners.put(SensorUtils.SENSOR_TYPE_INTERACTION, new SensorListener(SensorUtils.SENSOR_TYPE_INTERACTION));
         sensorlisteners.put(SensorUtils.SENSOR_TYPE_STEP_COUNTER, new SensorListener(SensorUtils.SENSOR_TYPE_STEP_COUNTER));
     }
+
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+        Intent intent = new Intent( this, ActivityService.class );
+        Log.d("CONNECTED","I am connected");
+        PendingIntent pendingIntent = PendingIntent.getService( this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT );
+        ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates( mGoogleApiClient, 60000, pendingIntent );
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+    }
+
     public static class NotificationActionService extends IntentService {
         public NotificationActionService() {
             super(SenseService.NotificationActionService.class.getSimpleName());
@@ -192,6 +308,16 @@ public class SenseService extends Service implements LocationListener{
 //            ;
 //        };
 
+
+        mIntentFilter = new IntentFilter(STARTLOC);
+        mIntentFilter.addAction(STOPLOC);
+        sensIntentFilter = new IntentFilter(STOPSENSOR);
+        activityIntentFilter = new IntentFilter(STARTACTIVITY);
+        activityIntentFilter.addAction(STOPACTIVITY);
+        ApplicationContext.getContext().registerReceiver(sensorReceiver,sensIntentFilter);
+        ApplicationContext.getContext().registerReceiver(locationReceiver, mIntentFilter);
+        ApplicationContext.getContext().registerReceiver(activityReceiver, activityIntentFilter);
+
         //We also listen on the project ref in here (this is a constant listener as opposed to
         //the one in the MainActivity
         projectRef.addValueEventListener(new ValueEventListener() {
@@ -236,6 +362,7 @@ public class SenseService extends Service implements LocationListener{
 //            else
 //                Log.d("NOTSTARTING", "Can't start location updates!");
 //        }
+
         return START_STICKY;
     }
 
@@ -300,11 +427,14 @@ public class SenseService extends Service implements LocationListener{
                                     locListener.updateLocation();
                                     Log.d("UPDATELOC","UPDATING LOCATION");
                                 }
-                                else {
-                                    GeofenceListener newListener = new GeofenceListener(getInstance(), var.getname(), "enters",new ArrayList<FirebaseAction>());
-                                    geofencelisteners.put(var.getname(), newListener);
-                                    newListener.addLocationTrigger();
-                                }
+                                else
+                                    Log.d("NOPOE","Nopt ehtis one didn't exist");
+                                //I don't think this bit makes sense because why would we make a geofence for a trigger that doesn't exist?
+//                                else {
+//                                    GeofenceListener newListener = new GeofenceListener(getInstance(), var.getname(), "enters",new ArrayList<FirebaseAction>());
+//                                    geofencelisteners.put(var.getname(), newListener);
+//                                    newListener.addLocationTrigger();
+//                                }
                                 break;
                             case TIME:
                             case DATE:
@@ -418,9 +548,13 @@ public class SenseService extends Service implements LocationListener{
                 }
                 GeofenceListener newListener = null;
                 String changes = params.get("change").toString();
-                String locationName = params.get("result").toString();
+                FirebaseExpression locexpr = trigger.getlocation();
+                String locationName = "";
+                if(locexpr != null)
+                    locationName = locexpr.getname();
+                ////  String locationName = params.get("result").toString();
                     newListener = new GeofenceListener(this,locationName,changes,toExecute);
-                    geofencelisteners.put(triggerId, newListener);
+                    geofencelisteners.put(locationName, newListener);
                     newListener.addLocationTrigger();
            //     }
                 return;
@@ -501,6 +635,19 @@ public class SenseService extends Service implements LocationListener{
         }
         else{
             geofencelisteners.remove(triggerId);
+        }
+    }
+    public class MyReceiver extends BroadcastReceiver{
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            if (intent.getAction().equals(STARTLOC)) {
+
+                Log.d("LOCATION","Starting location updates");
+            }
+            else{
+                Log.d("LOCATIONSTOP","Stopping location updates");
+            }
         }
     }
 

@@ -25,6 +25,7 @@ public class FirebaseTrigger {
     private FirebaseExpression dateTo;
     private FirebaseExpression timeFrom;
     private FirebaseExpression timeTo;
+    private FirebaseExpression location;
 
     public long getclocktype() {
         return clocktype;
@@ -94,6 +95,8 @@ public class FirebaseTrigger {
         return timeTo;
     }
 
+    public FirebaseExpression getlocation() { return location; }
+
     public void setdateFrom(FirebaseExpression dateFrom) {
         this.dateFrom = dateFrom;
     }
@@ -110,4 +113,6 @@ public class FirebaseTrigger {
     public void settimeTo(FirebaseExpression timeTo) {
         this.timeTo = timeTo;
     }
+
+    public void setlocation(FirebaseExpression location) { this.location = location; }
 }

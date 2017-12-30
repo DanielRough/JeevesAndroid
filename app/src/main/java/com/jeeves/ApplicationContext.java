@@ -16,6 +16,12 @@ import java.util.TreeMap;
 public class ApplicationContext extends Application
 {
 
+    //STart stop location
+    public static final String STARTLOC = "startloc";
+    public static final String STOPLOC = "stoploc";
+    public static final String STOPSENSOR = "stopsensor";
+    public static final String STARTACTIVITY = "startactivity";
+    public static final String STOPACTIVITY = "stopactivity";
     //UIDesign constants
     public static final String BUTTON = "button";
     public static final String LABEL = "label";

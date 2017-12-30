@@ -86,6 +86,7 @@ public class ActionExecutorService extends IntentService {
             Log.d("STORAGE","Stored last location as " + locationName);
                 Log.d("GETTING","Getting actions from locTriggerId " + locationName);
                 remainingActions = ApplicationContext.getLocationActions().get(locationName);
+                Log.d("ACTIONS SIZE","Size is " + remainingActions.size());
             }
             triggerType = intent.getIntExtra(TRIG_TYPE, 0);
             this.actions = remainingActions;
