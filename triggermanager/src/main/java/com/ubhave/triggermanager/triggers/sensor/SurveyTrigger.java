@@ -20,7 +20,7 @@ public class SurveyTrigger extends Trigger {
     private final static String TRIGGER_NAME = "SurveyTrigger";
     private String surveyName;
     private boolean result;
-    private int numTimes;
+  //  private int numTimes;
 
     public SurveyTrigger(Context context, int id, TriggerReceiver listener, TriggerConfig params) throws TriggerException {
         super(context, id, listener, params);
@@ -42,7 +42,7 @@ public class SurveyTrigger extends Trigger {
             result = false;
         }
  //       result = Boolean.parseBoolean(getSurveyResult());
-        numTimes = Integer.parseInt(getNumTimes());
+      //  numTimes = Integer.parseInt(getNumTimes());
 
 
     }
@@ -128,7 +128,7 @@ public class SurveyTrigger extends Trigger {
                         long completedTimes = intent.getLongExtra("completed", 0);
                         Log.d("COMPLETED","And you've completed it " + completedTimes + " times");
 
-                        if (completedTimes%this.numTimes == 0)
+                       // if (completedTimes%this.numTimes == 0)
                             sendNotification();
                     }
                     if (result == false) {
@@ -136,7 +136,7 @@ public class SurveyTrigger extends Trigger {
                         long missedTimes = intent.getLongExtra("missed", 0);
                         Log.d("MISSED","And you've missed it " + missedTimes + " times");
 
-                        if (missedTimes%this.numTimes == 0)
+                        //if (missedTimes%this.numTimes == 0)
                             sendNotification();
                     }
                 }

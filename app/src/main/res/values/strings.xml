@@ -29,4 +29,6 @@
     <string name="forgot_password"><u>Forgot your password?</u></string>
     <string name="title_activity_deleted">DeletedActivity</string>
     <string name="title_activity_view_data">ViewDataActivity</string>
+    <string name="title_activity_privacy_policy">PrivacyPolicy</string>
+    <string name="title_activity_webview">WebviewActivity</string>
 </resources>

@@ -46,230 +46,282 @@
             android:backgroundTint="@android:color/black" />
     </RelativeLayout>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Large Text"
-        android:id="@+id/txtQuestion"
-        android:paddingTop="20dp"
-        android:paddingBottom="20dp"
-        android:paddingLeft="20dp" />
-
-    <ViewFlipper
-        android:id="@+id/viewFlipper"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent">
 
         <LinearLayout
-            android:id="@+id/viewOpenEnded"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical">
-
-            <EditText
-                android:id="@+id/txtOpenEnded"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_alignParentStart="true"
-                android:layout_below="@+id/txtQuestion"
-                android:hint="Enter answer here"
-                android:paddingLeft="20dp" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/viewMultSingle"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
-
-            <RadioGroup
-                android:id="@+id/grpMultSingle"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"></RadioGroup>
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/viewMultMany"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
-
-            <LinearLayout
-                android:id="@+id/grpMultMany"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical"></LinearLayout>
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/viewScale"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:visibility="visible">
-
-            <SeekBar
-                android:id="@+id/seekBar"
-                android:theme = "@style/MySeekBar"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:max="10"
-                android:progress="3" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/txtBegin"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginRight="20dp"
-                    android:layout_weight="1" />
-
-                <TextView
-                    android:id="@+id/txtMiddle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginRight="10dp"
-                    android:layout_weight="1"
-                    android:textAlignment="center" />
-
-                <TextView
-                    android:id="@+id/txtEnd"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="20dp"
-                    android:layout_weight="1"
-                    android:textAlignment="textEnd" />
-            </LinearLayout>
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/viewDate"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:weightSum="1">
-
-            <DatePicker
-                android:id="@+id/datePicker2"
-                android:layout_width="match_parent"
-                android:layout_height="186dp"
-                android:calendarViewShown="false"
-                android:datePickerMode="spinner" />
-
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/viewGeo"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
-
-            <Button
-                android:id="@+id/btnPlacePicker"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:text="Open Location Picker" />
 
             <TextView
-                android:id="@+id/txtPlaceName"
-                android:layout_width="wrap_content"
+                android:id="@+id/txtQuestion"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:textAlignment="center"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
+                android:paddingBottom="20dp"
+                android:paddingLeft="20dp"
+                android:paddingTop="20dp"
+                android:text="Large Text"
+                android:textAppearance="?android:attr/textAppearanceLarge" />
 
-            <fragment xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:tools="http://schemas.android.com/tools"
-                android:id="@+id/map"
-                android:name="com.google.android.gms.maps.SupportMapFragment"
+            <ScrollView
                 android:layout_width="match_parent"
-                android:layout_height="275dp"
-                tools:context=".MapsActivity"></fragment>
+                android:layout_height="match_parent">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" >
+
+                    <ViewFlipper
+                        android:id="@+id/viewFlipper"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+
+                        <LinearLayout
+                            android:id="@+id/viewOpenEnded"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:orientation="vertical">
+
+                            <EditText
+                                android:id="@+id/txtOpenEnded"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_alignParentStart="true"
+                                android:layout_below="@+id/txtQuestion"
+                                android:hint="Enter answer here"
+                                android:paddingLeft="20dp" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/viewMultSingle"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:orientation="vertical">
+
+                            <RadioGroup
+                                android:id="@+id/grpMultSingle"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"></RadioGroup>
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/viewMultMany"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:orientation="vertical">
+
+                            <LinearLayout
+                                android:id="@+id/grpMultMany"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:orientation="vertical"></LinearLayout>
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/viewScale"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:orientation="vertical"
+                            android:visibility="visible">
+
+                            <SeekBar
+                                android:id="@+id/seekBar"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:max="10"
+                                android:progress="3"
+                                android:thumb="@drawable/thumb_image"
+                                android:progressBackgroundTint="@android:color/holo_green_dark"
+                                android:progressTint="@android:color/holo_red_dark"
+                                android:theme="@style/MySeekBar" />
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:orientation="horizontal">
+
+                                <TextView
+                                    android:id="@+id/txtBegin"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginRight="20dp"
+                                    android:layout_weight="1" />
+
+                                <TextView
+                                    android:id="@+id/txtMiddle"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginLeft="10dp"
+                                    android:layout_marginRight="10dp"
+                                    android:layout_weight="1"
+                                    android:textAlignment="center" />
+
+                                <TextView
+                                    android:id="@+id/txtEnd"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginLeft="20dp"
+                                    android:layout_weight="1"
+                                    android:textAlignment="textEnd" />
+                            </LinearLayout>
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/viewDate"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:orientation="vertical"
+                            android:weightSum="1">
+
+                            <DatePicker
+                                android:id="@+id/datePicker2"
+                                android:layout_width="match_parent"
+                                android:layout_height="186dp"
+                                android:calendarViewShown="false"
+                                android:datePickerMode="spinner" />
+
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/viewGeo"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:orientation="vertical">
+
+                            <Button
+                                android:id="@+id/btnPlacePicker"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center_horizontal"
+                                android:text="Open Location Picker" />
+
+                            <TextView
+                                android:id="@+id/txtPlaceName"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center_horizontal"
+                                android:textAlignment="center"
+                                android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                            <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+                                xmlns:tools="http://schemas.android.com/tools"
+                                android:id="@+id/map"
+                                android:name="com.google.android.gms.maps.SupportMapFragment"
+                                android:layout_width="match_parent"
+                                android:layout_height="275dp"
+                                tools:context=".MapsActivity"></fragment>
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/viewBoolean"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:orientation="vertical">
+
+                            <RadioGroup
+                                android:id="@+id/grpBool"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"></RadioGroup>
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/viewNumeric"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:orientation="vertical">
+
+                            <EditText
+                                android:id="@+id/txtNumeric"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:ems="10"
+                                android:hint="Enter a number here"
+                                android:inputType="number" />
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/viewTime"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:orientation="vertical"
+                            android:weightSum="1">
+
+                            <TimePicker
+                                android:id="@+id/timePicker2"
+                                android:layout_width="match_parent"
+                                android:layout_height="165dp"
+                                android:timePickerMode="spinner" />
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/viewWifi"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:orientation="vertical">
+
+                            <ListView
+                                android:id="@+id/lstWifi"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:choiceMode="singleChoice"
+                                android:listSelector="@android:color/holo_purple" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/viewBluetooth"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:orientation="vertical">
+
+                            <ListView
+                                android:id="@+id/lstBluetooth"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:choiceMode="singleChoice"
+                                android:listSelector="@android:color/darker_gray" />
+
+                        </LinearLayout>
+
+                    </ViewFlipper>
+                </LinearLayout>
+            </ScrollView>
 
         </LinearLayout>
 
-        <LinearLayout
-            android:id="@+id/viewBoolean"
+        <ScrollView
+            android:id="@+id/scroll"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
+            android:layout_height="match_parent">
 
-            <RadioGroup
-                android:id="@+id/grpBool"
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"></RadioGroup>
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/viewNumeric"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
-
-            <EditText
-                android:id="@+id/txtNumeric"
-                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:ems="10"
-                android:hint="Enter a number here"
-                android:inputType="number" />
+                android:orientation="vertical">
 
-        </LinearLayout>
+                <TextView
+                    android:id="@+id/txtPresent"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="TextView"
+                    android:textAppearance="@android:style/TextAppearance.DeviceDefault.Large" />
+            </LinearLayout>
+        </ScrollView>
 
-        <LinearLayout
-            android:id="@+id/viewTime"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:weightSum="1">
+        <com.github.chrisbanes.photoview.PhotoView
+            android:id="@+id/photo_view2"
+            android:layout_width="349dp"
+            android:layout_height="match_parent" />
 
-            <TimePicker
-                android:id="@+id/timePicker2"
-                android:layout_width="match_parent"
-                android:layout_height="165dp"
-                android:timePickerMode="spinner" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/viewWifi"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
-
-            <ListView
-                android:id="@+id/lstWifi"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:choiceMode="singleChoice"
-                android:listSelector="@android:color/holo_purple" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/viewBluetooth"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
-
-            <ListView
-                android:id="@+id/lstBluetooth"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:choiceMode="singleChoice"
-                android:listSelector="@android:color/darker_gray" />
-
-        </LinearLayout>
-    </ViewFlipper>
+    </RelativeLayout>
 
 </LinearLayout>

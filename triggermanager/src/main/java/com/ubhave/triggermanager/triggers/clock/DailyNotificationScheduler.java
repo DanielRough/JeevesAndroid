@@ -73,6 +73,24 @@ public class DailyNotificationScheduler implements TriggerReceiver
 		//if fromDay and toDay are both 0, then we have no date constraints and this is triggered every day
 		if ((fromDay != 0 || toDay != 0) && (daysSinceEpoch < fromDay || daysSinceEpoch > toDay)){
 			Log.i("TOO EARLY OR TOO LATE", "to day is " + toDay + " and from day is " + fromDay + " and this very day is " + daysSinceEpoch);
+			try {
+				triggerManager.removeTrigger(dailySchedulerId);
+			} catch (TriggerException e) {
+				e.printStackTrace();
+			}
+			TriggerConfig params = new TriggerConfig();
+			params.addParameter(TriggerConfig.LIMIT_BEFORE_HOUR, 0);
+			params.addParameter(TriggerConfig.INTERVAL_TRIGGER_TIME, schedulerInterval());
+			params.addParameter(TriggerConfig.IGNORE_USER_PREFERENCES, true);
+
+			try {
+				dailySchedulerId = triggerManager.addTrigger(TriggerUtils.TYPE_CLOCK_TRIGGER_ON_INTERVAL, this, params);
+				Log.d("Gonna rescheule","For midnight");
+			} catch (TriggerException e) {
+				e.printStackTrace();
+			}
+			Log.i("SCHEUDLER ID","Scheduler ID is " + dailySchedulerId);
+
 			return;
 		}
 

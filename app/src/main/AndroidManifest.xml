@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.jeeves">
+    package="com.jeevesandroid">
 
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -23,9 +23,13 @@
     <uses-permission android:name="android.permission.READ_CONTACTS" />
     <uses-permission android:name="com.google.android.gms.permission.ACTIVITY_RECOGNITION" />
     <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
 
     <application
-        android:name="com.jeeves.ApplicationContext"
+        android:name=".ApplicationContext"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -39,7 +43,7 @@
 
         <!-- Start the Main Activity again on reboot -->
         <receiver
-            android:name="com.jeeves.login.StartUpReceiver"
+            android:name=".login.StartUpReceiver"
             android:enabled="true"
             android:permission="android.permission.RECEIVE_BOOT_COMPLETED">
             <intent-filter>
@@ -49,7 +53,7 @@
             </intent-filter>
         </receiver>
 
-        <activity android:name="com.jeeves.login.MainActivity">
+        <activity android:name=".login.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -57,70 +61,71 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.jeeves.login.SignInActivity"
-            android:parentActivityName="com.jeeves.login.MainActivity"
+            android:name=".login.SignInActivity"
+            android:parentActivityName=".login.MainActivity"
             android:windowSoftInputMode="stateAlwaysHidden" />
         <activity
-            android:name="com.jeeves.WelcomeActivity"
+            android:name=".WelcomeActivity"
             android:launchMode="singleTop" />
 
         <service
-            android:name="com.jeeves.ActivityService"
+            android:name=".ActivityService"
             android:enabled="true"
             android:exported="true" />
         <!-- Stops it restarting -->
-        <receiver android:name="com.jeeves.actions.SurveyAction$MissedSurveyReceiver" />
+        <receiver android:name=".actions.SurveyAction$MissedSurveyReceiver" />
 
-        <service android:name="com.jeeves.actions.SurveyAction$NotificationActionService" />
+        <service android:name=".actions.SurveyAction$NotificationActionService" />
         <service
-            android:name="com.jeeves.ActionExecutorService"
+            android:name=".ActionExecutorService"
             android:enabled="true"
             android:exported="true" />
 
         <activity
-            android:name="com.jeeves.ContactActivity"
-            android:parentActivityName="com.jeeves.WelcomeActivity"
+            android:name=".ContactActivity"
+            android:parentActivityName=".WelcomeActivity"
             android:windowSoftInputMode="stateHidden" />
         <activity
-            android:name="com.jeeves.MissedSurveyActivity"
-            android:parentActivityName="com.jeeves.WelcomeActivity" />
+            android:name=".MissedSurveyActivity"
+            android:parentActivityName=".WelcomeActivity" />
         <activity
-            android:name="com.jeeves.SurveyActivity"
-            android:parentActivityName="com.jeeves.MissedSurveyActivity" />
+            android:name=".SurveyActivity"
+            android:parentActivityName=".MissedSurveyActivity" />
         <activity
-            android:name="com.jeeves.MonitorActivity"
-            android:parentActivityName="com.jeeves.WelcomeActivity" />
+            android:name=".MonitorActivity"
+            android:parentActivityName=".WelcomeActivity" />
         <activity
-            android:name="com.jeeves.login.SignUpActivity"
+            android:name=".login.SignUpActivity"
             android:label="Jeeves"
             android:windowSoftInputMode="stateAlwaysHidden" />
-        <activity android:name="com.jeeves.login.ResetPasswordActivity" />
         <activity
-            android:name="com.jeeves.login.StudySignupActivity"
+            android:name=".login.StudySignupActivity"
             android:label="Jeeves"
             android:windowSoftInputMode="adjustNothing" />
 
-        <service android:name="com.jeeves.SenseService$NotificationActionService" />
+        <service android:name=".SenseService$NotificationActionService" />
         <service
-            android:name="com.jeeves.SenseService"
+            android:name=".SenseService"
             android:enabled="true"
             android:exported="true" />
 
-        <activity android:name="com.jeeves.CheckVariablesActivity" />
         <activity
-            android:name="com.jeeves.login.DeletedActivity"
+            android:name=".login.DeletedActivity"
             android:label="Jeeves"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name="com.jeeves.CheckScheduleActivity" />
-        <activity
-            android:name="com.jeeves.ViewDataActivity"
-            android:label="@string/title_activity_view_data"
-            android:parentActivityName="com.jeeves.WelcomeActivity"
-    />
+
         <meta-data
             android:name="io.fabric.ApiKey"
-            android:value="f63d6f8855ad665342d5a90a1a16efb13da9cf5c"
-            />
+            android:value="f63d6f8855ad665342d5a90a1a16efb13da9cf5c" />
+
+        <activity
+            android:name=".PrivacyPolicy"
+            android:label="@string/title_activity_privacy_policy"
+            android:parentActivityName=".WelcomeActivity" />
+        <activity
+            android:name=".WebviewActivity"
+            android:label="@string/title_activity_webview"
+            android:theme="@style/AppTheme.NoActionBar" />
     </application>
 
 </manifest>

@@ -41,7 +41,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:3014814393:android:bb17c510e7cd95a4",
         "android_client_info": {
-          "package_name": "com.jeeves"
+          "package_name": "com.jeevesandroid"
         }
       },
       "oauth_client": [
@@ -49,7 +49,7 @@
           "client_id": "3014814393-bl80hn09u7cjr6ol8cca9khpvmktnfa8.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.jeeves",
+            "package_name": "com.jeevesandroid",
             "certificate_hash": "B1DA7FA17CE64F3E4F3C0A606DB3963EABAF1443"
           }
         },

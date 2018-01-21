@@ -1,4 +1,5 @@
 <resources>
+
     <style name="MySeekBar" parent="Widget.AppCompat.SeekBar.Discrete">
         <item name="android:progressBackgroundTint">#f4511e</item>
         <item name="android:progressTint">#388e3c</item>

@@ -87,21 +87,16 @@
             android:textColor="@color/colorPrimary"
             android:textStyle="bold" />
 
-        <TextView
-            android:id="@+id/textView9"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.04"
-            android:text="Your Data"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
-
         <Button
             android:id="@+id/btnViewData"
+            style="@style/Widget.AppCompat.Button.Borderless"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="0.04"
-            android:text="View your data"
-            tools:text="View your data" />
+            android:layout_marginTop="75dp"
+            android:layout_weight="0.1"
+            android:text="View the Jeeves Privacy Policy"
+            android:textAppearance="@style/TextAppearance.AppCompat.Small"
+            tools:text="View the Jeeves Privacy Policy" />
 
     </LinearLayout>
 

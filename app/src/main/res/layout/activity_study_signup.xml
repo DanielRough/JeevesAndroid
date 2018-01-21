@@ -9,33 +9,34 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
 
+    android:visibility="visible"
     tools:context="com.example.daniel.jeeves.com.jeeves.login.StudySignupActivity">
 
     <LinearLayout
-        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:weightSum="1"
-        android:textAlignment="center"
-        android:layout_alignParentTop="true"
         android:layout_alignParentStart="true"
-        android:padding="10dp">
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:id="@+id/txtWelcome"
-        android:layout_weight="0.04" />
+        android:layout_alignParentTop="true"
+        android:orientation="vertical"
+        android:padding="10dp"
+        android:textAlignment="center"
+        android:weightSum="1">
 
         <TextView
-            android:text="You are not currently signed up to any studies. If you have a Study ID, please enter it here and your study will begin."
+            android:id="@+id/txtWelcome"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.04"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+        <TextView
+            android:id="@+id/textView10"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/textView10"
+            android:layout_weight="0.04"
             android:paddingBottom="10dp"
             android:paddingTop="10dp"
-            android:layout_weight="0.04" />
+            android:text="You are not currently signed up to any studies. If you have a Study ID, please enter it here and your study will begin." />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -61,18 +62,20 @@
         </LinearLayout>
 
         <TextView
-            android:text="If you are just trying out the application, please select one of the open studies below!"
+            android:id="@+id/textView13"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/textView13"
             android:layout_weight="0.04"
             android:paddingBottom="10dp"
-            android:paddingTop="10dp" />
+            android:paddingTop="10dp"
+            android:text="If you are just trying out the application, please select one of the open studies below!"
+            android:visibility="invisible" />
 
         <ListView
-            android:layout_width="match_parent"
             android:id="@+id/lstStudies"
-            android:layout_height="276dp" />
+            android:layout_width="match_parent"
+            android:layout_height="276dp"
+            android:visibility="invisible" />
 
     </LinearLayout>
 </RelativeLayout>
