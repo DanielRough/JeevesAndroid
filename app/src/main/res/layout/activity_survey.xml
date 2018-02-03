@@ -46,6 +46,10 @@
             android:backgroundTint="@android:color/black" />
     </RelativeLayout>
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -78,6 +82,9 @@
                         android:id="@+id/viewFlipper"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent">
+
+
+
 
                         <LinearLayout
                             android:id="@+id/viewOpenEnded"
@@ -292,6 +299,37 @@
 
                         </LinearLayout>
 
+                        <LinearLayout
+                            android:id="@+id/viewHeart"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:orientation="vertical">
+
+
+                            <TextView
+                                android:id="@+id/textView"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="Place your index finger lightly over the camera lens as shown. Hold your phone steady and press 'Start sensing' when ready"
+                                android:textAlignment="center"
+                                android:textSize="14sp" />
+
+                            <com.github.chrisbanes.photoview.PhotoView
+                                android:id="@+id/heartview"
+                                android:layout_width="match_parent"
+                                android:layout_height="240dp"
+                                android:layout_alignParentStart="true"
+                                android:layout_alignParentTop="true"
+                                android:layout_marginTop="0dp"
+                                android:src="@drawable/finger"
+                                tools:layout_width="match_parent" />
+
+                            <Button
+                                android:id="@+id/btnStart"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="Start sensing" />
+                        </LinearLayout>
                     </ViewFlipper>
                 </LinearLayout>
             </ScrollView>

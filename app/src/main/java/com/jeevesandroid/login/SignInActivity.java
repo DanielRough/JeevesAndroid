@@ -93,6 +93,8 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
                 Manifest.permission.ACCESS_COARSE_LOCATION,
                 Manifest.permission.ACCESS_FINE_LOCATION,
                 Manifest.permission.RECORD_AUDIO,
+                Manifest.permission.CAMERA,
+                Manifest.permission.BODY_SENSORS,
                 Manifest.permission.PROCESS_OUTGOING_CALLS,
                 Manifest.permission.ACCESS_COARSE_LOCATION,
                 Manifest.permission.READ_PHONE_STATE,

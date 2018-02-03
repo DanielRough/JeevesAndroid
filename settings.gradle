@@ -1,1 +1,2 @@
 include ':app', ':SensorManager', ':triggermanager', ':SensorDataManager'
+include ':androidHeartRate'

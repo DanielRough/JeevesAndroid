@@ -82,6 +82,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
+import com.jwetherell.heart_rate_monitor.HeartRateMonitor;
 import com.ubhave.triggermanager.config.TriggerManagerConstants;
 import com.ubhave.triggermanager.triggers.TriggerUtils;
 
@@ -105,6 +106,7 @@ import static com.jeevesandroid.ApplicationContext.SURVEY_SCORE_DIFF;
 import static com.jeevesandroid.ApplicationContext.TIME_SENT;
 import static com.jeevesandroid.ApplicationContext.TRIG_TYPE;
 import static com.jeevesandroid.ApplicationContext.UID;
+import static com.jeevesandroid.ApplicationContext.getContext;
 
 public class SurveyActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener, OnMapReadyCallback {
     public static final int OPEN_ENDED = 1;
@@ -120,6 +122,7 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
     public static final int BLUETOOTH = 11;
     public static final int IMAGE = 12;
     public static final int TEXTPRESENT = 13;
+    public static final int HEART = 14;
     final Handler handler = new Handler();
     List<FirebaseQuestion> questions;
     int currentIndex = 0;
@@ -766,6 +769,16 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
         }
         if(requestCode == REQUEST_ENABLE_BT)
             mBluetoothAdapter.startDiscovery();
+        if(requestCode == 1234){ //code i've defined for heart but cba making a constant
+            Button btnStart = (Button)findViewById(R.id.btnStart);
+            btnStart.setText("Heart rate acquired");
+            btnStart.setEnabled(false);
+            PhotoView heartview = (PhotoView)findViewById(R.id.heartview);
+            heartview.setImageResource(R.drawable.fingerdone);
+            int result = data.getIntExtra("result",0);
+            answers.set(currentIndex,Integer.toString(result));
+
+        }
 
     }
 
@@ -901,6 +914,31 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
         });
 
     }
+    private void handleHeart(){
+        if(answers.get(currentIndex).isEmpty()){
+            Button btnStart = (Button)findViewById(R.id.btnStart);
+            btnStart.setText("Start sensing");
+            btnStart.setEnabled(true);
+            PhotoView heartview = (PhotoView)findViewById(R.id.heartview);
+            heartview.setImageResource(R.drawable.finger);
+        }
+        else{
+            Button btnStart = (Button)findViewById(R.id.btnStart);
+            btnStart.setText("Heart rate acquired");
+            btnStart.setEnabled(false);
+            PhotoView heartview = (PhotoView)findViewById(R.id.heartview);
+            heartview.setImageResource(R.drawable.fingerdone);
+        }
+        Button btnStart = (Button)findViewById(R.id.btnStart);
+        btnStart.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getInstance(),HeartRateMonitor.class);
+                startActivityForResult(intent, 1234);
+            }
+        });
+    }
+
     private void launchQuestion(FirebaseQuestion question, String direction) {
 
         String questionText = question.getquestionText();
@@ -1015,7 +1053,11 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
         photoView.setVisibility(View.INVISIBLE);
         ScrollView scroller = (ScrollView)findViewById(R.id.scroll);
         scroller.setVisibility(View.INVISIBLE);
-        viewFlipper.setDisplayedChild(questionType - 1);
+    //Cheap hack for now
+        if(questionType != HEART)
+            viewFlipper.setDisplayedChild(questionType - 1);
+        else
+            viewFlipper.setDisplayedChild(11);
         switch (questionType) {
             case OPEN_ENDED:
                 handleOpenEnded();
@@ -1055,6 +1097,9 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
                 break;
             case BLUETOOTH:
                 handleBluetooth();
+                break;
+            case HEART:
+                handleHeart();
                 break;
         }
         questionView.setText(questionText);

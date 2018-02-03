@@ -11,6 +11,7 @@
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/SensorDataManager" />
             <option value="$PROJECT_DIR$/SensorManager" />
+            <option value="$PROJECT_DIR$/androidHeartRate" />
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/triggermanager" />
           </set>

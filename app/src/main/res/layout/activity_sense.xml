@@ -88,6 +88,13 @@
             android:textStyle="bold" />
 
         <Button
+            android:id="@+id/btnHeart"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.04"
+            android:text="Heart rate" />
+
+        <Button
             android:id="@+id/btnViewData"
             style="@style/Widget.AppCompat.Button.Borderless"
             android:layout_width="wrap_content"

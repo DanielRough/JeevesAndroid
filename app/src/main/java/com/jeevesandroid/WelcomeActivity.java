@@ -3,6 +3,8 @@ package com.jeevesandroid;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.hardware.Sensor;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.Menu;
@@ -17,6 +19,7 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.SettingsClient;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
+import com.jwetherell.heart_rate_monitor.HeartRateMonitor;
 
 import static com.jeevesandroid.ApplicationContext.DEVELOPER_ID;
 import static com.jeevesandroid.ApplicationContext.STUDY_NAME;
@@ -152,7 +155,6 @@ public class WelcomeActivity extends Activity {
         startService(intent);
         //     bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
 
-
         txtWelcome = (TextView) findViewById(R.id.txtWelcome);
         txtWelcome.setText("Welcome, " + prefs.getString(USERNAME, ""));
 
@@ -161,6 +163,7 @@ public class WelcomeActivity extends Activity {
         Button btnSurveys = (Button) findViewById(R.id.btnSurvey);
         Button btnMonitor = (Button) findViewById(R.id.btnMonitor);
         Button btnViewData = (Button) findViewById(R.id.btnViewData);
+        Button btnHeart = (Button) findViewById(R.id.btnHeart);
 //        Button btnLogout = (Button) findViewById(R.id.buttonLogout);
 //        Button btnVars = (Button) findViewById(R.id.buttonVars);
 
@@ -186,7 +189,13 @@ public class WelcomeActivity extends Activity {
                 startActivity(intent);
             }
         });
-
+        btnHeart.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(instance, HeartRateMonitor.class);
+                startActivity(intent);
+            }
+        });
 
         btnMonitor.setOnClickListener(new View.OnClickListener() {
 

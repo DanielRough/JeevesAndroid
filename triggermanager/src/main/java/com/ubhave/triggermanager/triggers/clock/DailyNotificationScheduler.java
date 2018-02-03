@@ -75,11 +75,12 @@ public class DailyNotificationScheduler implements TriggerReceiver
 			Log.i("TOO EARLY OR TOO LATE", "to day is " + toDay + " and from day is " + fromDay + " and this very day is " + daysSinceEpoch);
 			try {
 				triggerManager.removeTrigger(dailySchedulerId);
+				return;
 			} catch (TriggerException e) {
 				e.printStackTrace();
 			}
 			TriggerConfig params = new TriggerConfig();
-			params.addParameter(TriggerConfig.LIMIT_BEFORE_HOUR, 0);
+			params.addParameter(TriggerConfig.LIMIT_BEFORE_HOUR, startDelay());
 			params.addParameter(TriggerConfig.INTERVAL_TRIGGER_TIME, schedulerInterval());
 			params.addParameter(TriggerConfig.IGNORE_USER_PREFERENCES, true);
 
