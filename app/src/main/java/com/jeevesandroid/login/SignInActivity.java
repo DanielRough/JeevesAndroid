@@ -105,7 +105,7 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
                 Manifest.permission.READ_PHONE_STATE
         };
 
-        ActivityCompat.requestPermissions(this,allpermissions, MY_PERMISSIONS);
+    //    ActivityCompat.requestPermissions(this,allpermissions, MY_PERMISSIONS);
     }
 
     public Activity getInstance(){

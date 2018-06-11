@@ -67,7 +67,7 @@ public class SurveyAction extends FirebaseAction {
             long timeSent = intent.getLongExtra(TIME_SENT,0);
 
             intended.setAction(TriggerManagerConstants.ACTION_NAME_SURVEY_TRIGGER);
-            intended.putExtra(SURVEY_NAME, intent.getStringExtra(SURVEY_NAME));
+            intended.putExtra(SURVEY_ID, intent.getStringExtra(SURVEY_ID));
             intended.putExtra("result", false);
 
             SharedPreferences.Editor editor = preferences.edit();
@@ -77,7 +77,7 @@ public class SurveyAction extends FirebaseAction {
 
             long thisMissedSurveyCount = preferences.getLong(intent.getStringExtra("name") + "-Missed", 0);
             thisMissedSurveyCount++;
-            editor.putLong(intent.getStringExtra("name") + "-Missed", thisMissedSurveyCount);
+            editor.putLong(intent.getStringExtra(SURVEY_ID) + "-Missed", thisMissedSurveyCount);
             editor.commit();
 
             intended.putExtra("missed", thisMissedSurveyCount);
@@ -92,7 +92,7 @@ public class SurveyAction extends FirebaseAction {
             surveymap.put(STATUS,0);
             surveymap.put(INIT_TIME,initTime-timeSent);
             surveymap.put(TRIG_TYPE,intent.getIntExtra(TRIG_TYPE,0));
-            FirebaseUtils.SURVEY_REF.child(intent.getStringExtra(SURVEY_NAME)).child("missed").push().setValue(surveymap);
+            FirebaseUtils.SURVEY_REF.child(intent.getStringExtra(SURVEY_ID)).child("missed").push().setValue(surveymap);
         }
     }
 
@@ -103,16 +103,17 @@ public class SurveyAction extends FirebaseAction {
     public SurveyAction(Map<String, Object> params) {
         setparams(params);
     }
+    FirebaseSurvey currentsurvey = null;
 
     @Override
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     public boolean execute() {
         final Context app = ApplicationContext.getContext();
+        if(getparams().get("survey") == null)return false;
         final String surveyname = getparams().get("survey").toString();
 
 
         int triggerType = (int)getparams().get(TRIG_TYPE);
-        FirebaseSurvey currentsurvey = null;
 
         List<FirebaseSurvey> surveys = ApplicationContext.getProject().getsurveys();
         for (FirebaseSurvey survey : surveys) {
@@ -134,9 +135,6 @@ public class SurveyAction extends FirebaseAction {
         //We need to keep the notification alive for as long as the survey isn't completed
         //Whenever this receiver gets a notification that our survey was completed, it cancels
         //the timeout alarm previously set
-
-
-
         DatabaseReference myRef = FirebaseUtils.PATIENT_REF.child(INCOMPLETE);
         DatabaseReference newPostRef = myRef.push();
         currentsurvey.settimeSent(timeSent);
@@ -176,8 +174,8 @@ public class SurveyAction extends FirebaseAction {
                 //This gets rid of the notification icon without actually cancelling the alarm
                 else {
                     String surveyid = intent.getStringExtra(SURVEY_ID);
-                    Log.d("surveyid","surveyid is " + surveyid + " and newpostrefid is " + newPostRefId);
-                    if (surveyid != null && surveyid.equals(newPostRefId)) {
+                    Log.d("surveyid","surveyid is " + surveyid);
+                    if (surveyid != null && surveyid.equals(currentsurvey.getsurveyId())) {
                         NotificationManager manager = (NotificationManager) app.getSystemService(app.NOTIFICATION_SERVICE);
                         manager.cancel(thisActionsId);
                     }
@@ -285,8 +283,9 @@ public class SurveyAction extends FirebaseAction {
 
             if (ACTION_1.equals(action)) {
                 int triggertype = intent.getIntExtra(TRIG_TYPE,0);
-                String surveyname = intent.getStringExtra(SURVEY_NAME);
+                String surveyid = intent.getStringExtra(SURVEY_ID);
                 long timeSent = intent.getLongExtra(TIME_SENT, 0);
+
                 long initTime = System.currentTimeMillis();
                 int notificationId = intent.getIntExtra(NOTIF_ID,0);
                 long deadline = intent.getLongExtra(DEADLINE,0);
@@ -296,15 +295,15 @@ public class SurveyAction extends FirebaseAction {
                 if (timeToGo > 0) {
                     Log.d("YUP","STILL GO TTIME TO GO");
                     Intent resetIntent = new Intent(app, MissedSurveyReceiver.class);
-                    resetIntent.putExtra(SURVEY_NAME, surveyname);
+                 //   resetIntent.putExtra(SURVEY_NAME, surveyname);
                     resetIntent.putExtra(NOTIF_ID, notificationId);
                     //Because we've just initiated the survey!
                       resetIntent.putExtra(WAS_INIT,true);
                     resetIntent.putExtra(TIME_SENT,timeSent);
                     resetIntent.putExtra(INIT_TIME,initTime);
                     resetIntent.putExtra(TRIG_TYPE,triggertype);
-                    resetIntent.setType(timeSent + surveyname); //Unique type to distinguish intents
-                    Log.d("NEW TYPE","New type is " + timeSent + surveyname);
+                    resetIntent.setType(timeSent + surveyid); //Unique type to distinguish intents
+              //      Log.d("NEW TYPE","New type is " + timeSent + surveyname);
                     Log.d("ALARM TYPE ", resetIntent.getType());
                     PendingIntent pi = PendingIntent.getBroadcast(app, 0, resetIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 //                    PendingIntent.F
@@ -316,7 +315,7 @@ public class SurveyAction extends FirebaseAction {
                 manager.cancel(id);
                 Intent resultIntent = new Intent(app, SurveyActivity.class);
                 resultIntent.putExtra(SURVEY_ID, intent.getStringExtra(SURVEY_ID));
-                resultIntent.putExtra(SURVEY_NAME, surveyname);
+             //   resultIntent.putExtra(SURVEY_NAME, surveyname);
                 resultIntent.putExtra(TIME_SENT, timeSent);
                 resultIntent.putExtra(INIT_TIME, initTime);
                 resultIntent.putExtra(TRIG_TYPE,triggertype);

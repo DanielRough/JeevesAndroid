@@ -83,7 +83,7 @@ public class ExpressionParser {
                 case DATE:
                     return (userPrefs.getString(name,""));
                 case BOOLEAN:
-                    return Boolean.toString(userPrefs.getBoolean(name, false));
+                    return userPrefs.getString(name, "false");
             }
         }
         else if (expr.getvariables() == null) {

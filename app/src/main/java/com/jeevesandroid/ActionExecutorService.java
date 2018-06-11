@@ -134,7 +134,7 @@ public class ActionExecutorService extends IntentService {
         for (int i = 0; i < actions.size(); i++) {
             FirebaseAction newaction = actions.get(i);
             Log.d("ACTION","New action is " + newaction);
-            if (newaction instanceof WaitingAction) {
+            if (newaction instanceof WaitingAction && newaction.getparams() != null && newaction.getparams().containsKey("time")) {
                 String stimeToWait = newaction.getparams().get("time").toString();
                 int timeToWait = Integer.parseInt(stimeToWait) * 1000;
                 try {

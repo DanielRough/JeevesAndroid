@@ -18,6 +18,9 @@ import android.graphics.BitmapFactory;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
+import android.net.Uri;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.os.Build;
@@ -87,6 +90,7 @@ import com.ubhave.triggermanager.config.TriggerManagerConstants;
 import com.ubhave.triggermanager.triggers.TriggerUtils;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -108,7 +112,7 @@ import static com.jeevesandroid.ApplicationContext.TRIG_TYPE;
 import static com.jeevesandroid.ApplicationContext.UID;
 import static com.jeevesandroid.ApplicationContext.getContext;
 
-public class SurveyActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener, OnMapReadyCallback {
+public class SurveyActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener, OnMapReadyCallback,MediaPlayer.OnPreparedListener {
     public static final int OPEN_ENDED = 1;
     public static final int MULT_SINGLE = 2;
     public static final int MULT_MANY = 3;
@@ -123,6 +127,7 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
     public static final int IMAGE = 12;
     public static final int TEXTPRESENT = 13;
     public static final int HEART = 14;
+    public static final int AUDIO = 15;
     final Handler handler = new Handler();
     List<FirebaseQuestion> questions;
     int currentIndex = 0;
@@ -192,53 +197,53 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
             }
         });
     }
-    WifiManager mWifiManager;
-    private ArrayList<String> mNetworkList = new ArrayList<String>();
-    private final BroadcastReceiver mWifiScanReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context c, Intent intent) {
-            if (intent.getAction().equals(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)) {
-                Log.d("HELLO","IT@S MEEEEEEE");
-                List<ScanResult> mScanResults = mWifiManager.getScanResults();
-                mNetworkList.clear();
-                for (ScanResult mScanResult : mScanResults) {
-                    Log.d("RESULT","ound " + mScanResult.SSID);
-                    if(!mNetworkList.contains(mScanResult.SSID))
-                        mNetworkList.add(mScanResult.SSID);
-                }
-                lstWifi.setAdapter(new ArrayAdapter<String>(c,android.R.layout.simple_list_item_1,mNetworkList));
-                // add your logic here
-            }
-        }
-    };
-
-
-    private BluetoothAdapter mBluetoothAdapter;
-    private ArrayList<String> mDeviceList = new ArrayList<String>();
-    private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-
-            if (BluetoothDevice.ACTION_FOUND.equals(action)) {
-                BluetoothDevice device = intent
-                        .getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                if(device.getName() == null)
-                    mDeviceList.add("Unknown device" + "\n" + device.getAddress());
-                else
-                    mDeviceList.add(device.getName() + "\n" + device.getAddress());
-
-                Log.i("BT", device.getName() + "\n" + device.getAddress());
-                lstBluetooth.setAdapter(new ArrayAdapter<String>(context,
-                        android.R.layout.simple_list_item_1, mDeviceList));
-            }
-        }
-    };
+//    WifiManager mWifiManager;
+//    private ArrayList<String> mNetworkList = new ArrayList<String>();
+//    private final BroadcastReceiver mWifiScanReceiver = new BroadcastReceiver() {
+//        @Override
+//        public void onReceive(Context c, Intent intent) {
+//            if (intent.getAction().equals(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)) {
+//                Log.d("HELLO","IT@S MEEEEEEE");
+//                List<ScanResult> mScanResults = mWifiManager.getScanResults();
+//                mNetworkList.clear();
+//                for (ScanResult mScanResult : mScanResults) {
+//                    Log.d("RESULT","ound " + mScanResult.SSID);
+//                    if(!mNetworkList.contains(mScanResult.SSID))
+//                        mNetworkList.add(mScanResult.SSID);
+//                }
+//                lstWifi.setAdapter(new ArrayAdapter<String>(c,android.R.layout.simple_list_item_1,mNetworkList));
+//                // add your logic here
+//            }
+//        }
+//    };
+//
+//
+//    private BluetoothAdapter mBluetoothAdapter;
+//    private ArrayList<String> mDeviceList = new ArrayList<String>();
+//    private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
+//        public void onReceive(Context context, Intent intent) {
+//            String action = intent.getAction();
+//
+//            if (BluetoothDevice.ACTION_FOUND.equals(action)) {
+//                BluetoothDevice device = intent
+//                        .getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+//                if(device.getName() == null)
+//                    mDeviceList.add("Unknown device" + "\n" + device.getAddress());
+//                else
+//                    mDeviceList.add(device.getName() + "\n" + device.getAddress());
+//
+//                Log.i("BT", device.getName() + "\n" + device.getAddress());
+//                lstBluetooth.setAdapter(new ArrayAdapter<String>(context,
+//                        android.R.layout.simple_list_item_1, mDeviceList));
+//            }
+//        }
+//    };
 
     @Override
     public void onDestroy(){
         super.onDestroy();
-        unregisterReceiver(mReceiver);
-        unregisterReceiver(mWifiScanReceiver);
+     //   unregisterReceiver(mReceiver);
+     //   unregisterReceiver(mWifiScanReceiver);
     }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -284,14 +289,14 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
         lstWifi = ((ListView)findViewById(R.id.lstWifi));
         photoView = (PhotoView) findViewById(R.id.photo_view2);
         txtPresent = (TextView)findViewById(R.id.txtPresent);
+//
+//        mWifiManager = (WifiManager) ApplicationContext.getContext().getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+//        registerReceiver(mWifiScanReceiver,
+//                new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
+//        mWifiManager.startScan();
 
-        mWifiManager = (WifiManager) ApplicationContext.getContext().getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-        registerReceiver(mWifiScanReceiver,
-                new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
-        mWifiManager.startScan();
-
-        IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
-        registerReceiver(mReceiver, filter);
+//        IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
+//        registerReceiver(mReceiver, filter);
         txtQNo = ((TextView) findViewById(R.id.txtQno));
         txtQNo.setText("Question 1");
         mGoogleApiClient = new GoogleApiClient
@@ -382,7 +387,7 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
                 surveymap.put(UID,prefs.getString(UID,""));
                 surveymap.put("encodedAnswers",currentsurvey.getencodedAnswers());
                 surveymap.put("encodedKey",currentsurvey.getencodedKey());
-                FirebaseUtils.SURVEY_REF.child(currentsurvey.gettitle()).push().setValue(surveymap);
+                FirebaseUtils.SURVEY_REF.child(currentsurvey.getsurveyId()).push().setValue(surveymap);
                 //Update the various Survey-relevant variables
 
                 SharedPreferences.Editor editor = prefs.edit();
@@ -528,6 +533,7 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
 
     private void handleImageView(){
         photoView.setVisibility(View.VISIBLE);
+        if(myparams == null)return;
         Map<String, Object> options = (Map<String, Object>) myparams.get("options");
         String imageName = (String)options.get("image");
         FirebaseStorage storage = FirebaseStorage.getInstance();
@@ -566,6 +572,7 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
     }
     private void handleTextView(){
         txtPresent.setVisibility(View.VISIBLE);
+        if(myparams == null)return;
         Map<String, Object> options = (Map<String, Object>) myparams.get("options");
         String textToShow = (String)options.get("text");
         txtPresent.setText(textToShow);
@@ -767,8 +774,8 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
                 answers.set(currentIndex, answer);
             }
         }
-        if(requestCode == REQUEST_ENABLE_BT)
-            mBluetoothAdapter.startDiscovery();
+//        if(requestCode == REQUEST_ENABLE_BT)
+//            mBluetoothAdapter.startDiscovery();
         if(requestCode == 1234){ //code i've defined for heart but cba making a constant
             Button btnStart = (Button)findViewById(R.id.btnStart);
             btnStart.setText("Heart rate acquired");
@@ -880,39 +887,185 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
             answers.set(currentIndex, "");
     }
 
-    private void handleWifi(){
-        lstWifi.setAdapter(new ArrayAdapter<String>(ApplicationContext.getContext(),android.R.layout.simple_list_item_1,mNetworkList));
-        lstWifi.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//    private void handleWifi(){
+//        lstWifi.setAdapter(new ArrayAdapter<String>(ApplicationContext.getContext(),android.R.layout.simple_list_item_1,mNetworkList));
+//        lstWifi.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//            @Override
+//            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+//                String wifiText = mNetworkList.get(position);
+//                answers.set(currentIndex,wifiText);
+//            }
+//        });
+//
+//    }
+//    int REQUEST_ENABLE_BT = 99;
+//
+//    private void handleBluetooth(){
+//       // lstBluetooth.setAdapter(new ArrayAdapter<String>(ApplicationContext.getContext(),
+//        //        android.R.layout.simple_list_item_1, mDeviceList));
+//        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+//        if(mBluetoothAdapter == null)return;
+//        if (!mBluetoothAdapter.isEnabled()) {
+//            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+//            startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+//
+//        }
+//        else
+//            mBluetoothAdapter.startDiscovery();
+//        lstBluetooth.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//            @Override
+//            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+//                String bluetoothText = mDeviceList.get(position);
+//                answers.set(currentIndex,bluetoothText);
+//            }
+//        });
+//
+//    }
+
+    private void handleAudio(){
+        if(myparams == null)return;
+        Map<String, Object> options = (Map<String, Object>) myparams.get("options");
+        final String audioName = (String)options.get("audio");
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        StorageReference storageRef = storage.getReference();
+        StorageReference gsReference = storage.getReferenceFromUrl("gs://jeeves-27914.appspot.com/" + audioName);
+        Log.d("REFERENC","ref is " + gsReference.getPath());
+        // File localFile = null;
+        final File localFile;
+        // String root = Environment.getExternalStorageDirectory().toString();
+        final File externalDir = getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS);
+//        File myDir = new File(Environment.getExternalStorageDirectory(), "jeeves");
+//        Log.d("IT IS ",myDir.getAbsolutePath());
+        if(!externalDir.exists())
+            externalDir.mkdirs();
+        final View.OnClickListener pauseListenr = new View.OnClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String wifiText = mNetworkList.get(position);
-                answers.set(currentIndex,wifiText);
+            public void onClick(View view) {
+                Toast.makeText(getInstance(),"Please listen to the whole clip!",Toast.LENGTH_SHORT).show();
+            }
+        };
+        final Button btnStart = (Button)findViewById(R.id.audioBtnStart);
+        final Button btnPause = (Button)findViewById(R.id.audioBtnPause);
+
+        btnNext.setOnClickListener(pauseListenr);
+        btnBack.setOnClickListener(pauseListenr);
+        final MediaPlayer mediaPlayer = new MediaPlayer();
+        mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+        mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mediaPlayer) {
+                btnNext.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        nextQ();
+                    }
+                });
+                btnBack.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        backQ();
+                    }
+                });
+                btnStart.setEnabled(true);
+                btnPause.setEnabled(false);
+                btnStart.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        btnStart.setEnabled(false);
+                        btnPause.setEnabled(true);
+                        btnNext.setOnClickListener(pauseListenr);
+                        btnBack.setOnClickListener(pauseListenr);
+
+                        //      mediaPlayer.start();
+                    }
+                });
+                btnPause.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        btnStart.setEnabled(true);
+                        btnPause.setEnabled(false);
+                        //     mediaPlayer.pause();
+                    }
+                });
+                //     mediaPlayer.reset();
+                mediaPlayer.stop();
+                mediaPlayer.reset();
+                try {
+                    File f = new File(externalDir,audioName);
+                    final Uri myUri = Uri.fromFile(new File(f.getAbsolutePath()));
+                    mediaPlayer.setDataSource(getApplicationContext(), myUri);
+                    mediaPlayer.setOnPreparedListener(getInstance());
+                    mediaPlayer.prepareAsync(); // prepare async to not block main thread
+
+                }
+                catch(IOException e){
+                    e.printStackTrace();
+                }
             }
         });
+        localFile = new File(externalDir,audioName);
+        final Uri myUri = Uri.fromFile(new File(localFile.getAbsolutePath()));
+        if(localFile.exists()){
+            Log.d("SUCCESS","Successful load!");
+            // initialize Uri here
+            try {
+                mediaPlayer.setDataSource(getApplicationContext(), myUri);
+                mediaPlayer.setOnPreparedListener(getInstance());
+                mediaPlayer.prepareAsync(); // prepare async to not block main thread
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return;
+        }
+        gsReference.getFile(localFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                Log.d("SUCCSS","Success load");
+                Log.d("Path","path is " + localFile);
+                // initialize Uri here
+                try {
+                    mediaPlayer.setDataSource(getApplicationContext(), myUri);
+                    mediaPlayer.setOnPreparedListener(getInstance());
+                    mediaPlayer.prepareAsync(); // prepare async to not block main thread
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }                }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+                Log.d("FAIL","Failed to load");
+                exception.printStackTrace();
+            }
+        });
+
+        PhotoView audio = (PhotoView)findViewById(R.id.audioPhotoview);
+        audio.setImageResource(R.drawable.finger);
+
 
     }
-    int REQUEST_ENABLE_BT = 99;
-
-    private void handleBluetooth(){
-       // lstBluetooth.setAdapter(new ArrayAdapter<String>(ApplicationContext.getContext(),
-        //        android.R.layout.simple_list_item_1, mDeviceList));
-        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        if(mBluetoothAdapter == null)return;
-        if (!mBluetoothAdapter.isEnabled()) {
-            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
-
-        }
-        else
-            mBluetoothAdapter.startDiscovery();
-        lstBluetooth.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+    /** Called when MediaPlayer is ready */
+    public void onPrepared(final MediaPlayer player) {
+        final Button btnStart = (Button)findViewById(R.id.audioBtnStart);
+        final Button btnPause = (Button)findViewById(R.id.audioBtnPause);
+        PhotoView audioview = (PhotoView)findViewById(R.id.audioPhotoview);
+        audioview.setImageResource(R.drawable.audio);
+        btnStart.setEnabled(true);
+        btnStart.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String bluetoothText = mDeviceList.get(position);
-                answers.set(currentIndex,bluetoothText);
+            public void onClick(View view) {
+                btnStart.setEnabled(false);
+                btnPause.setEnabled(true);
+                player.start();
             }
         });
-
+        btnPause.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                btnStart.setEnabled(true);
+                btnPause.setEnabled(false);
+                player.pause();
+            }
+        });
     }
     private void handleHeart(){
         if(answers.get(currentIndex).isEmpty()){
@@ -1047,6 +1200,7 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
             return;
 
         }
+
         questionView.setVisibility(View.VISIBLE);
         viewFlipper.setVisibility(View.VISIBLE);
         txtPresent.setVisibility(View.INVISIBLE);
@@ -1054,10 +1208,12 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
         ScrollView scroller = (ScrollView)findViewById(R.id.scroll);
         scroller.setVisibility(View.INVISIBLE);
     //Cheap hack for now
-        if(questionType != HEART)
-            viewFlipper.setDisplayedChild(questionType - 1);
-        else
+        if(questionType == HEART)
             viewFlipper.setDisplayedChild(11);
+        else if(questionType == AUDIO)
+            viewFlipper.setDisplayedChild(12);
+        else
+            viewFlipper.setDisplayedChild(questionType -1);
         switch (questionType) {
             case OPEN_ENDED:
                 handleOpenEnded();
@@ -1092,14 +1248,17 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
             case NUMERIC:
                 handleNumeric();
                 break;
-            case WIFI:
-                handleWifi();
-                break;
-            case BLUETOOTH:
-                handleBluetooth();
-                break;
+//            case WIFI:
+//                handleWifi();
+//                break;
+//            case BLUETOOTH:
+//                handleBluetooth();
+//                break;
             case HEART:
                 handleHeart();
+                break;
+            case AUDIO:
+                handleAudio();
                 break;
         }
         questionView.setText(questionText);

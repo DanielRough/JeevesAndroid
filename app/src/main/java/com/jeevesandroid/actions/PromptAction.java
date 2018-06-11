@@ -25,6 +25,7 @@ public class PromptAction extends FirebaseAction {
         Log.d("GET HERE","DID I GET TO EXECUTE");
         int notificationId = Integer.parseInt("8" + count++);
         Context app = ApplicationContext.getContext();
+        if(!getparams().containsKey("msgtext"))return false;
         String text = getparams().get("msgtext").toString();
         NotificationManager notificationManager =
                 (NotificationManager) app.getSystemService(app.NOTIFICATION_SERVICE);

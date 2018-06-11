@@ -13,7 +13,7 @@ public class ActionUtils {
     public static final String NAME_SEND_SURVEY_ACTION			= "Send Survey";
     public static final String NAME_CAPTURE_DATA_ACTION 		= "Sense Data";
     public static final String NAME_UPDATE_USER_ACTION = "Update patient attribute";
-    public static final String NAME_WAIT_ACTION = "Wait";
+    public static final String NAME_WAIT_ACTION = "Snooze";
     public static final String NAME_IF_CONTROL = "If Condition";
 
 

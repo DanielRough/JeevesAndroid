@@ -95,6 +95,7 @@ public class CaptureDataAction extends FirebaseAction {
 
         //    int notificationId = Integer.parseInt("8" + count++);
         Context app = ApplicationContext.getContext();
+        if(!getparams().containsKey("selectedSensor") || !getparams().containsKey("time"))return false;
         String sensor = getparams().get("selectedSensor").toString();
         String startstop = getparams().get("time").toString();
 
