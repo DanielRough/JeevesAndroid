@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.util.Log;
 import android.view.View;
@@ -32,13 +33,9 @@ import com.crashlytics.android.Crashlytics;
 import io.fabric.sdk.android.Fabric;
 
 public class MainActivity extends Activity{
-    private FirebaseAuth mFirebaseAuth;
-    private FirebaseUser mFirebaseUser;
-    private LinearLayoutManager mLinearLayoutManager;
-    private ProgressBar mProgressBar;
 
 
-    public Activity getInstance() {
+    private Activity getInstance() {
         return this;
     }
 
@@ -48,54 +45,46 @@ public class MainActivity extends Activity{
         Fabric.with(this, new Crashlytics());
         setContentView(R.layout.activity_main);
 
-        mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
+        ProgressBar mProgressBar = findViewById(R.id.progressBar);
         mProgressBar.setVisibility(View.VISIBLE);
 
-        mLinearLayoutManager = new LinearLayoutManager(this);
+        LinearLayoutManager mLinearLayoutManager = new LinearLayoutManager(this);
         mLinearLayoutManager.setStackFromEnd(true);
 
-        mFirebaseAuth = FirebaseAuth.getInstance();
-        mFirebaseUser = mFirebaseAuth.getCurrentUser();
+        FirebaseAuth mFirebaseAuth = FirebaseAuth.getInstance();
+        FirebaseUser mFirebaseUser = mFirebaseAuth.getCurrentUser();
 
         //If we're not signed in, launch the sign-in activity
         if (mFirebaseUser == null) {
             startActivity(new Intent(this, SignInActivity.class));
             finish();
-            return;
         } else {
-            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getContext());
-            //Maybe we can get the project HERE, so that when the app is destroyed and recreated, we're only allowed to carry
-            //on once our project has been loaded.
-            //This would even work if we restart while offline, because I think persistence is now enabled...?
-
+            SharedPreferences preferences = PreferenceManager
+                    .getDefaultSharedPreferences(ApplicationContext.getContext());
             if (preferences.contains(STUDY_NAME)) {
                 final FirebaseDatabase database = FirebaseUtils.getDatabase();
-                SharedPreferences varPrefs = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getContext());
+                SharedPreferences varPrefs = PreferenceManager
+                        .getDefaultSharedPreferences(ApplicationContext.getContext());
                 String studyname = varPrefs.getString(STUDY_NAME, "");
-                //If we've restarted the app we also want to reset the triggers NO WE BLOODY WELL DO NOT, this happens in SenseService!
-//                SharedPreferences.Editor prefseditor = varPrefs.edit();
-//                prefseditor.putStringSet("triggerids",new HashSet<String>());
-//                prefseditor.commit();
-
-                DatabaseReference projectRef = database.getReference(FirebaseUtils.PUBLIC_KEY).child(FirebaseUtils.PROJECTS_KEY).child(studyname);
+                DatabaseReference projectRef = database
+                        .getReference(FirebaseUtils.PUBLIC_KEY)
+                        .child(FirebaseUtils.PROJECTS_KEY)
+                        .child(studyname);
 
                 projectRef.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
-                    public void onDataChange(DataSnapshot snapshot) {
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
                         FirebaseProject post = snapshot.getValue(FirebaseProject.class);
                         ApplicationContext.setCurrentproject(post);
                         if(post == null){
-                            Toast.makeText(getInstance(),"OH NO IT WAS NULL",Toast.LENGTH_SHORT).show();
-                            Log.d("OH NO","IT WAS NULL");
                             return;
                         }
-                        //Okay, NOW we're safe to start the welcome activity, maybe...
                         Intent intent = new Intent(getInstance(), WelcomeActivity.class);
                         startActivity(intent);
                         finish();
                     }
                     @Override
-                    public void onCancelled(DatabaseError databaseError) {}
+                    public void onCancelled(@NonNull DatabaseError databaseError) {}
                 });
 
             }

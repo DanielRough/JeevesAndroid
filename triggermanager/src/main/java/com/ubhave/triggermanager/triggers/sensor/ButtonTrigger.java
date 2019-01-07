@@ -33,7 +33,7 @@ public class ButtonTrigger extends Trigger {
 
 
     }
-    protected String getButtonName() throws TriggerException
+    private String getButtonName() throws TriggerException
     {
         if (params.containsKey(TriggerConfig.BUTTON_NAME))
         {
@@ -49,7 +49,7 @@ public class ButtonTrigger extends Trigger {
         return TRIGGER_NAME;
     }
 
-    protected int getRequestCode()
+    private int getRequestCode()
     {
         //return TriggerUtils.TYPE_CLOCK_TRIGGER_ON_INTERVAL;
         return this.triggerId;

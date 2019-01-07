@@ -82,7 +82,7 @@ public class ConnectionStateSensor extends AbstractPushSensor
 				ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
 				NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
 
-				WifiManager wifiMgr = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+				WifiManager wifiMgr = (WifiManager) context.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
 				WifiInfo wifiInfo = wifiMgr.getConnectionInfo();
 
 				ConnectionStateProcessor processor = (ConnectionStateProcessor) getProcessor();

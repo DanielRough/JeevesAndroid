@@ -44,7 +44,7 @@ public class PushSensorTask extends AbstractSensorTask implements SensorDataList
 			{
 				if (state == RUNNING)
 				{
-					if (!(((PushSensor) sensor).isSensing()))
+					if (!(sensor.isSensing()))
 					{
 						try
 						{
@@ -65,7 +65,7 @@ public class PushSensorTask extends AbstractSensorTask implements SensorDataList
 				}
 				else if ((state == PAUSED) || (state == STOPPED))
 				{
-					if (((PushSensor) sensor).isSensing())
+					if (sensor.isSensing())
 					{
 						try
 						{

@@ -11,8 +11,8 @@ import java.util.List;
 //@JsonTypeInfo(use=JsonTypeInfo.Id.MINIMAL_CLASS, include= JsonTypeInfo.As.PROPERTY, property="@class")
 public abstract class FirebaseControl extends FirebaseAction implements Serializable{
 
-    public List<FirebaseAction> actions;
-    public FirebaseExpression condition;
+    private List<FirebaseAction> actions;
+    private FirebaseExpression condition;
 
     public FirebaseExpression getcondition(){
         return condition;

@@ -72,15 +72,8 @@ public class AmbientTemperatureSensor extends AbstractEnvironmentSensor
 	@Override
 	protected Sensor getSensor()
 	{
-		if (android.os.Build.VERSION.SDK_INT >= 14)
-		{
-			return sensorManager.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE);
-		}
-		else
-		{
-			return null;
-		}
-	}
+        return sensorManager.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE);
+    }
 
 	@Override
 	protected SensorData processEvent(SensorEvent event)

@@ -37,7 +37,7 @@ import com.ubhave.triggermanager.triggers.Trigger;
 import java.util.HashSet;
 
 public class BeginTrigger extends Trigger
-{	private final ESTriggerManager triggerManager;
+{
 
     private final static String TRIGGER_NAME = "BeginTrigger";
     private HashSet<Integer> randomlySelectedTriggerIds;
@@ -45,7 +45,7 @@ public class BeginTrigger extends Trigger
     public BeginTrigger(Context context, int id, final TriggerReceiver listener, final TriggerConfig parameters) throws TriggerException
     {
         super(context, id, listener, parameters);
-        this.triggerManager = ESTriggerManager.getTriggerManager(context);
+        ESTriggerManager triggerManager = ESTriggerManager.getTriggerManager(context);
 
     }
 

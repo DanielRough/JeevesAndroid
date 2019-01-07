@@ -115,14 +115,7 @@ public class AdaptiveSensing implements SensorDataListener
 
 	public boolean isSensorRegistered(SensorInterface sensor)
 	{
-		if (sensorMap.get(sensor.getSensorType()) == null)
-		{
-			return false;
-		}
-		else
-		{
-			return true;
-		}
+        return sensorMap.get(sensor.getSensorType()) != null;
 	}
 
 	private void updateSamplingInterval(final SensorData data) throws ESException

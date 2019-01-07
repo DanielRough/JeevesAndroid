@@ -116,7 +116,7 @@ public class SmsSensor extends AbstractPushSensor
 									SharedPreferences prefs = context.getSharedPreferences("userprefs",Context.MODE_PRIVATE);
 									SharedPreferences.Editor editor = prefs.edit();
 									editor.putString("lastSender",sentTo);
-									editor.commit();
+									editor.apply();
 									Log.d("LAST SENDER","Last sender is now " + sentTo);
 
 									String messageId = cursor.getString(cursor.getColumnIndex("_id"));
@@ -149,6 +149,7 @@ public class SmsSensor extends AbstractPushSensor
 												SmsData.SMS_CONTENT_CHANGED);
 									}
 								}
+								cursor.close();
 							}
 						}
 					}
@@ -167,7 +168,7 @@ public class SmsSensor extends AbstractPushSensor
 		SMSProcessor processor = (SMSProcessor) getProcessor();
 		if (processor != null)
 		{
-			SmsData data = (SmsData) processor.process(timestamp, sensorConfig.clone(), content, addr, messageType, eventType);
+			SmsData data = processor.process(timestamp, sensorConfig.clone(), content, addr, messageType, eventType);
 			onDataSensed(data);
 		}
 	}

@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:text="This is a template"
     style="@android:style/Widget.Button"
     android:elevation="0dp"
     android:padding="20dp"
-    tools:textSize="24sp" />
+    tools:textSize="24sp"
+    tools:targetApi="lollipop" />

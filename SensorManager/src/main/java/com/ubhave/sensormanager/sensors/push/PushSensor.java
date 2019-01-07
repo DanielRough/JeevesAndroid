@@ -28,7 +28,7 @@ import com.ubhave.sensormanager.sensors.SensorInterface;
 
 public interface PushSensor extends SensorInterface
 {
-	public void startSensing(final SensorDataListener listener) throws ESException;
+	void startSensing(final SensorDataListener listener) throws ESException;
 	
-	public void stopSensing(final SensorDataListener listener) throws ESException;
+	void stopSensing(final SensorDataListener listener) throws ESException;
 }

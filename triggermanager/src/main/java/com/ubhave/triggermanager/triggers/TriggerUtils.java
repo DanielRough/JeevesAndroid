@@ -12,50 +12,50 @@ public class TriggerUtils
 	public static final int TYPE_CLOCK_TRIGGER_ON_INTERVAL 		= 10001;
 	public static final int TYPE_CLOCK_TRIGGER_DAILY_RANDOM 	= 10002;
 	public static final int TYPE_SENSOR_TRIGGER_IMMEDIATE 		= 10003;
-	public static final int TYPE_SENSOR_TRIGGER_DELAYED 		= 10004;
-	public static final int TYPE_CLOCK_TRIGGER_DAY_INTERVAL		= 10005;
+	private static final int TYPE_SENSOR_TRIGGER_DELAYED 		= 10004;
+	private static final int TYPE_CLOCK_TRIGGER_DAY_INTERVAL		= 10005;
 	public static final int TYPE_CLOCK_TRIGGER_SETTIMES			= 10006;
 	public static final int TYPE_SENSOR_TRIGGER_BUTTON			= 10007;
 	public static final int TYPE_JEEVES_TRIGGER_ON_INTERVAL		= 10008;
 	public static final int TYPE_SENSOR_TRIGGER_SURVEY			= 10009;
 	public static final int TYPE_SENSOR_TRIGGER_LOCATION		= 10011;
 
-	public static final int SENSOR_TRIGGER_ACCELEROMETER 	= SensorUtils.SENSOR_TYPE_ACCELEROMETER;
-	public static final int SENSOR_TRIGGER_BLUETOOTH		= SensorUtils.SENSOR_TYPE_BLUETOOTH;
-	public static final int SENSOR_TRIGGER_MICROPHONE 		= SensorUtils.SENSOR_TYPE_MICROPHONE;
-	public static final int SENSOR_TRIGGER_CALLS 			= SensorUtils.SENSOR_TYPE_PHONE_STATE;
-	public static final int SENSOR_TRIGGER_SMS 				= SensorUtils.SENSOR_TYPE_SMS;
-	public static final int SENSOR_TRIGGER_SCREEN 			= SensorUtils.SENSOR_TYPE_SCREEN;
+	private static final int SENSOR_TRIGGER_ACCELEROMETER 	= SensorUtils.SENSOR_TYPE_ACCELEROMETER;
+	private static final int SENSOR_TRIGGER_BLUETOOTH		= SensorUtils.SENSOR_TYPE_BLUETOOTH;
+	private static final int SENSOR_TRIGGER_MICROPHONE 		= SensorUtils.SENSOR_TYPE_MICROPHONE;
+	private static final int SENSOR_TRIGGER_CALLS 			= SensorUtils.SENSOR_TYPE_PHONE_STATE;
+	private static final int SENSOR_TRIGGER_SMS 				= SensorUtils.SENSOR_TYPE_SMS;
+	private static final int SENSOR_TRIGGER_SCREEN 			= SensorUtils.SENSOR_TYPE_SCREEN;
 //	public static final int SENSOR_TRIGGER_LOCATION			= SensorUtils.SENSOR_TYPE_LOCATION;
-	public static final int SENSOR_TRIGGER_WIFI				= SensorUtils.SENSOR_TYPE_WIFI;
-	public static final int SENSOR_TRIGGER_BUTTON			= SensorUtils.SENSOR_TYPE_BUTTON;
-	public static final int SENSOR_TRIGGER_SURVEY			= SensorUtils.SENSOR_TYPE_SURVEY;
+	private static final int SENSOR_TRIGGER_WIFI				= SensorUtils.SENSOR_TYPE_WIFI;
+	private static final int SENSOR_TRIGGER_BUTTON			= SensorUtils.SENSOR_TYPE_BUTTON;
+	private static final int SENSOR_TRIGGER_SURVEY			= SensorUtils.SENSOR_TYPE_SURVEY;
 
 
-	public static final String NAME_ACCELEROMETER 				= "Accelerometer";
-	public static final String NAME_BLUETOOTH					= "Bluetooth";
-	public static final String NAME_MICROPHONE					= "Microphone";
-	public static final String NAME_CALLS		 				= "Phone";
-	public static final String NAME_SMS			 				= "SMS";
-	public static final String NAME_SCREEN		 				= "Screen";
+	private static final String NAME_ACCELEROMETER 				= "Accelerometer";
+	private static final String NAME_BLUETOOTH					= "Bluetooth";
+	private static final String NAME_MICROPHONE					= "Microphone";
+	private static final String NAME_CALLS		 				= "Phone";
+	private static final String NAME_SMS			 				= "SMS";
+	private static final String NAME_SCREEN		 				= "Screen";
 //	public static final String NAME_LOCATION					= "Location";
-	public static final String NAME_WIFI						= "WiFi";
-	public static final String NAME_BUTTON						= "Button";
-	public static final String NAME_SURVEY						= "Survey";
+	private static final String NAME_WIFI						= "WiFi";
+	private static final String NAME_BUTTON						= "Button";
+	private static final String NAME_SURVEY						= "Survey";
 
 
-	public static final String NAME_JEEVES_TRIGGER_BEGIN		= "Begin Trigger";
-	public static final String NAME_CLOCK_TRIGGER_ONCE 			= "type_clock_once";
-	public static final String NAME_CLOCK_TRIGGER_ON_INTERVAL 	= "type_clock_interval";
-	public static final String NAME_CLOCK_TRIGGER_DAILY			= "type_clock_daily";
-	public static final String NAME_CLOCK_TRIGGER_DAILY_RANDOM 	= "Signal Contingent";
-	public static final String NAME_SENSOR_TRIGGER_IMMEDIATE 	= "Sensor Trigger";
-	public static final String NAME_SENSOR_TRIGGER_BUTTON		= "Button Trigger";
-	public static final String NAME_CLOCK_TRIGGER_SETTIMES		= "Set Times Trigger";
-	public static final String NAME_SENSOR_TRIGGER_DELAYED 		= "type_sensor_delayed";
-	public static final String NAME_JEEVES_TRIGGER_ON_INTERVAL 	= "Repeated Time Trigger";
-	public static final String NAME_SENSOR_TRIGGER_SURVEY		= "Survey Trigger";
-	public static final String NAME_SENSOR_TRIGGER_LOCATION		= "Location Trigger";
+	private static final String NAME_JEEVES_TRIGGER_BEGIN		= "Begin Trigger";
+	private static final String NAME_CLOCK_TRIGGER_ONCE 			= "type_clock_once";
+	private static final String NAME_CLOCK_TRIGGER_ON_INTERVAL 	= "type_clock_interval";
+	private static final String NAME_CLOCK_TRIGGER_DAILY			= "type_clock_daily";
+	private static final String NAME_CLOCK_TRIGGER_DAILY_RANDOM 	= "Signal Contingent";
+	private static final String NAME_SENSOR_TRIGGER_IMMEDIATE 	= "Sensor Trigger";
+	private static final String NAME_SENSOR_TRIGGER_BUTTON		= "Button Trigger";
+	private static final String NAME_CLOCK_TRIGGER_SETTIMES		= "Set Times Trigger";
+	private static final String NAME_SENSOR_TRIGGER_DELAYED 		= "type_sensor_delayed";
+	private static final String NAME_JEEVES_TRIGGER_ON_INTERVAL 	= "Repeated Time Trigger";
+	private static final String NAME_SENSOR_TRIGGER_SURVEY		= "Survey Trigger";
+	private static final String NAME_SENSOR_TRIGGER_LOCATION		= "Location Trigger";
 
 
 

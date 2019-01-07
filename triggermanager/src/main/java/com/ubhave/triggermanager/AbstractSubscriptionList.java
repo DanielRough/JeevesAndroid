@@ -31,7 +31,7 @@ public abstract class AbstractSubscriptionList<H>
 	private final Random keyGenerator;
 	protected final SparseArray<H> map;
 
-	public AbstractSubscriptionList()
+	protected AbstractSubscriptionList()
 	{
 		keyGenerator = new Random();
 		map = new SparseArray<H>();
@@ -51,7 +51,7 @@ public abstract class AbstractSubscriptionList<H>
 		}
 	}
 
-	public H get(int id)
+	private H get(int id)
 	{
 		return map.get(id);
 	}

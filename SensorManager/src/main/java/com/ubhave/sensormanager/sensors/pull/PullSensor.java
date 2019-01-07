@@ -30,5 +30,5 @@ public interface PullSensor extends SensorInterface
 {
 	// performs one cycle of sensing, and returns the sensed data
 	// window size, sampling cycles are defined in the sensorconfig
-	public SensorData sense() throws ESException;
+    SensorData sense() throws ESException;
 }

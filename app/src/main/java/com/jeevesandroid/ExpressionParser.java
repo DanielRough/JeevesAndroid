@@ -1,6 +1,5 @@
 package com.jeevesandroid;
 
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
@@ -29,12 +28,12 @@ import static com.jeevesandroid.ApplicationContext.TIME;
  */
 public class ExpressionParser {
 
-    public static final String AND = "Both True";
-    public static final String OR = "Either True";
-    public static final String LESS_THAN = "Less Than";
-    public static final String GREATER_THAN = "Greater Than";
-    public static final String EQUALS = "Equality";
-    public static final String NOT_EQUALS = "Not True";
+    private static final String AND = "Both True";
+    private static final String OR = "Either True";
+    private static final String LESS_THAN = "Less Than";
+    private static final String GREATER_THAN = "Greater Than";
+    private static final String EQUALS = "Equality";
+    private static final String NOT_EQUALS = "Not True";
 
     private static final String TRUE = "true";
     private static final String FALSE = "false";
@@ -57,11 +56,9 @@ public class ExpressionParser {
     private static final String TIME_BOUNDS_LATE = "timeBoundLate";
     private static final String DATE_BOUNDS = "dateBoundEarly";
     private static final String DATE_BOUNDS_LATE = "dateBoundLate";
-    protected Context appContext;
+    // --Commented out by Inspection (1/1/2019 6:21 PM):private final Context appContext;
 
-    public ExpressionParser(Context appContext) {
-        this.appContext = appContext;
-    }
+    public ExpressionParser() { }
 
     public String evaluate(FirebaseExpression expr) {
 
@@ -69,7 +66,7 @@ public class ExpressionParser {
         if(expr == null)
             return "0";
         if (expr.getisValue()) {
-            return (expr).getvalue().toString();
+            return (expr).getvalue();
         }
         else if(expr.getisCustom()){
             String name = (expr).getname();
@@ -102,26 +99,25 @@ public class ExpressionParser {
                     //It then gets the location required in the test expression
                     //If they are roughly equal, it returns true!
                     if (sensortype == SensorUtils.SENSOR_TYPE_LOCATION){
-                        String lastLoc = userPrefs.getString("LastLocation", ""); //Stores the semantic 'last location'
-                        if (lastLoc.isEmpty()){Log.d("LOCATION","Last location was " + lastLoc + " so...no"); return FALSE;}
+                        String lastLoc = userPrefs.getString("LastLocation", "");
+                        //Stores the semantic 'last location'
+                        if (lastLoc.isEmpty()){
+                            return FALSE;
+                        }
                         if(lastLoc.equals(returns)) {
-                            Log.d("LOCATION","Last location was " + lastLoc + " so YAY");
+                            Log.d("LOCATION","Last location was " + lastLoc);
                             return TRUE;
                         }
                         else {
-                            Log.d("LOCATION","Last location was " + lastLoc + " so...no");
+                            Log.d("LOCATION","Last location was " + lastLoc);
                             return FALSE;
                         }
                         }
-                    //This will get the WiFi or Bluetooth network name from our Shared Preferences
-                    if (sensortype == SensorUtils.SENSOR_TYPE_BLUETOOTH || sensortype == SensorUtils.SENSOR_TYPE_WIFI){
-                        returns = userPrefs.getString(returns,"");
-                        if(returns.isEmpty()) return FALSE;
-                    }
                     //Otherwise we're looking at other sensor data (just accelerometer for now)
                     SensorData data = sampler.execute().get();
                     SensorDataClassifier classifier = SensorUtils.getSensorDataClassifier(sensortype);
-                    if (classifier.isInteresting(data, SensorConfig.getDefaultConfig(sensortype), returns, false))
+                    if (classifier.isInteresting(data,
+                        SensorConfig.getDefaultConfig(sensortype), returns, false))
                         return TRUE; //Return true if it returns the result we want!
                     return FALSE;
                 } catch (Exception e){
@@ -160,7 +156,10 @@ public class ExpressionParser {
                 Calendar c = Calendar.getInstance();
                 c.setTimeInMillis(timevar);
                 //     SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
-                Log.d("DAY/MONTH/YEAR", c.get(Calendar.DAY_OF_MONTH) + "/" + c.get(Calendar.MONTH) + "/" + c.get(Calendar.YEAR));
+                Log.d("DAY/MONTH/YEAR",
+                    c.get(Calendar.DAY_OF_MONTH)
+                    + "/" + c.get(Calendar.MONTH)
+                    + "/" + c.get(Calendar.YEAR));
                 long differenceInMillis = 0;
                 long marginOfError = 0;
                 switch (timeDiff) {
@@ -176,7 +175,6 @@ public class ExpressionParser {
                         differenceInMillis = 24L * 3600L * 1000L;
                         marginOfError = 24 * 3600 * 1000;
                         break; //Margin of error of a day
-                    //       case "1 hour": differenceInMillis = 3600 * 1000; marginOfError = 3600*1000; break; //Margin of error of an hour
                 }
                 long currentTime = System.currentTimeMillis();
                 c.setTimeInMillis(currentTime);
@@ -210,35 +208,39 @@ public class ExpressionParser {
         }
 
         List<FirebaseExpression> vars = expr.getvariables();
+        if(vars == null){
+            return FALSE;
+        }
         FirebaseExpression lhs = vars.get(0);
         FirebaseExpression rhs = null;
         if (vars.size() > 1) //Sometimes expressions will only have one variable, i.e. NOT(var)
             rhs = vars.get(1);
         String operation = expr.getname();
-        Log.d("OPERATION", "Operation is " + operation);
-        if (operation.equals(AND))
-            return Boolean.toString(Boolean.parseBoolean(evaluate(lhs)) && Boolean.parseBoolean(evaluate(rhs)));
-        else if (operation.equals(OR))
-            return Boolean.toString(Boolean.parseBoolean(evaluate(lhs)) || Boolean.parseBoolean(evaluate(rhs)));
-        else if (operation.equals(EQUALS)) {
-            return Boolean.toString((evaluate(lhs)).equals(evaluate(rhs)));
-        } else if (operation.equals(NOT_EQUALS))
-            return Boolean.toString(!(Boolean.parseBoolean(evaluate(lhs))));
-        else if (operation.equals(LESS_THAN))
-            return Boolean.toString(Long.parseLong(evaluate(lhs)) < Long.parseLong(evaluate(rhs)));
-        else if (operation.equals(GREATER_THAN))
-            return Boolean.toString(Long.parseLong(evaluate(lhs)) > Long.parseLong(evaluate(rhs)));
+        switch (operation) {
+            case AND:
+                return Boolean.toString(Boolean.parseBoolean(evaluate(lhs)) && Boolean.parseBoolean(evaluate(rhs)));
+            case OR:
+                return Boolean.toString(Boolean.parseBoolean(evaluate(lhs)) || Boolean.parseBoolean(evaluate(rhs)));
+            case EQUALS:
+                return Boolean.toString((evaluate(lhs)).equals(evaluate(rhs)));
+            case NOT_EQUALS:
+                return Boolean.toString(!(Boolean.parseBoolean(evaluate(lhs))));
+            case LESS_THAN:
+                return Boolean.toString(Long.parseLong(evaluate(lhs)) < Long.parseLong(evaluate(rhs)));
+            case GREATER_THAN:
+                return Boolean.toString(Long.parseLong(evaluate(lhs)) > Long.parseLong(evaluate(rhs)));
+        }
         return FALSE;
     }
 
 
     //Need this to sample once in our sensor expression
-    public static class SampleOnceTask extends AsyncTask<Void, Void, SensorData> {
+    static class SampleOnceTask extends AsyncTask<Void, Void, SensorData> {
         private final ESSensorManager sensorManager;
         private final int sensorType;
-        protected String errorMessage;
+        // --Commented out by Inspection (1/1/2019 6:30 PM):String errorMessage;
 
-        public SampleOnceTask(int sensorType) throws ESException {
+        SampleOnceTask(int sensorType) throws ESException {
             this.sensorType = sensorType;
             sensorManager = ESSensorManager.getSensorManager(ApplicationContext.getContext());
         }
@@ -249,7 +251,6 @@ public class ExpressionParser {
                 return sensorManager.getDataFromSensor(sensorType);
             } catch (ESException e) {
                 e.printStackTrace();
-                errorMessage = e.getMessage();
                 return null;
             }
         }

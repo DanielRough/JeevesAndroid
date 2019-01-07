@@ -31,7 +31,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="textEmailAddress"
-                android:hint="Email" />
+                android:hint="@string/sign_email"
+                android:autofillHints="" />
         </android.support.design.widget.TextInputLayout>
 
         <!-- Password Label -->
@@ -44,7 +45,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="textPassword"
-                android:hint="Password"/>
+                android:hint="@string/sign_password"
+                android:autofillHints="" />
 
         </android.support.design.widget.TextInputLayout>
 
@@ -63,7 +65,7 @@
             android:layout_marginTop="24dp"
             android:layout_marginBottom="24dp"
             android:padding="12dp"
-            android:text="Login"/>
+            android:text="@string/sign_login"/>
 
         <TextView
             android:id="@+id/link_signup"

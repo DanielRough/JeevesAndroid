@@ -50,18 +50,11 @@ public class AbstractConfig
 
 	public boolean containsParameter(final String parameterName)
 	{
-		if (configParams.containsKey(parameterName))
-		{
-			return true;
-		}
-		return false;
-	}
+        return configParams.containsKey(parameterName);
+    }
 
 	public void removeParameter(final String parameterName)
 	{
-		if (configParams.containsKey(parameterName))
-		{
-			configParams.remove(parameterName);
-		}
+        configParams.remove(parameterName);
 	}
 }

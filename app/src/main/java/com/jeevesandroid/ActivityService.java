@@ -2,8 +2,10 @@ package com.jeevesandroid;
 
 import android.app.IntentService;
 import android.content.Intent;
+import android.os.Build;
 import android.support.annotation.Nullable;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.jeevesandroid.firebase.FirebaseUtils;
 import com.google.android.gms.location.ActivityRecognitionResult;
@@ -27,35 +29,21 @@ public class ActivityService extends IntentService {
     public ActivityService(){
         super("Service");
     }
-    // public ActivityService(String name) {
-    //     super(name);
-    // }
-    int activityCode;
-    int activityConfidence;
-    ActivityRecognitionResult result;
+
+    private int activityCode;
+    private ActivityRecognitionResult result;
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
         if (ActivityRecognitionResult.hasResult(intent)) {
-             result = ActivityRecognitionResult.extractResult(intent);
-            Log.i(TAG, getType(result.getMostProbableActivity().getType()) + "t" + result.getMostProbableActivity().getConfidence());
-            Log.d("o3nWatcherLog", "ActivityRecognitionService onHandleIntent called...");
-
-            activityConfidence = result.getMostProbableActivity().getConfidence();
+            result = ActivityRecognitionResult.extractResult(intent);
+            int activityConfidence = result.getMostProbableActivity().getConfidence();
             activityCode = result.getMostProbableActivity().getType();
-
-            Log.d("o3nWatcherLog", " ACTIVITY CODE : " + activityCode + " ACTIVITY CONFIDENCE : " + activityConfidence);
-
-            // Evaluate the avtivity recognition result
+            Toast.makeText(ApplicationContext.getContext()," ACTIVITY CODE : " + activityCode + " ACTIVITY CONFIDENCE : " + activityConfidence,Toast.LENGTH_LONG);
+            Log.d("ACTIVITY"," ACTIVITY CODE : " + activityCode + " ACTIVITY CONFIDENCE : " + activityConfidence);
             evaluateActivityResult();
-
-
-        }
-        else
-        {
-            Log.d("NO RESULT", "DIDnt get a result");
         }
     }
-    public void evaluateActivityResult() {
+    private void evaluateActivityResult() {
         String activityResult = "";
         switch (activityCode) {
             case DetectedActivity.IN_VEHICLE:
@@ -84,11 +72,10 @@ public class ActivityService extends IntentService {
                 break;
 
             default:
-                Log.d("Oh for", "fuck sake");
                 break;
 
         }
-        HashMap<String, Object> locData = new HashMap<String, Object>();
+        HashMap<String, Object> locData = new HashMap<>();
         String mLastUpdateTime = new Date().toString();
         locData.put("senseStartTimeMillis", mLastUpdateTime);
         if (activityCode == DetectedActivity.ON_FOOT) {
@@ -100,7 +87,6 @@ public class ActivityService extends IntentService {
         }
         locData.put("result", activityResult);
 
-        Log.d("OOOH", "Locaiton changed");
         if(FirebaseUtils.PATIENT_REF == null)
             return;
         DatabaseReference patientRef = FirebaseUtils.PATIENT_REF.child("sensordata").child("Activity").push();

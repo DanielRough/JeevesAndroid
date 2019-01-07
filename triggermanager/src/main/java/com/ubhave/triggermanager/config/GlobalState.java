@@ -62,7 +62,7 @@ public class GlobalState
 	
 	private final SharedPreferences preferences;
 	
-	public GlobalState(final Context context) throws TriggerException
+	private GlobalState(final Context context) throws TriggerException
 	{
 		preferences = context.getSharedPreferences(TriggerManagerConstants.GLOBAL_STATE, Context.MODE_PRIVATE);
 	}
@@ -72,7 +72,7 @@ public class GlobalState
 		int notifications = getNotificationsSent() + 1;
 		SharedPreferences.Editor editor = preferences.edit();
 		editor.putInt(NOTIFICATIONS_SENT, notifications);
-		editor.commit();
+		editor.apply();
 	}
 	
 	@SuppressLint("SimpleDateFormat")
@@ -88,11 +88,11 @@ public class GlobalState
 		SharedPreferences.Editor editor = preferences.edit();
 		editor.putString(CURRENT_DAY, dateKey);
 		editor.putInt(NOTIFICATIONS_SENT, 0);
-		editor.commit();
+		editor.apply();
 	}
 	
 	@SuppressLint("SimpleDateFormat")
-	public int getNotificationsSent()
+    private int getNotificationsSent()
 	{
 		DateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
 		String dateKey = formatter.format(System.currentTimeMillis());
@@ -113,7 +113,7 @@ public class GlobalState
 	{
 		SharedPreferences.Editor editor = preferences.edit();
 		editor.putBoolean(TRIGGERS_ENABLED, value);
-		editor.commit();
+		editor.apply();
 	}
 	
 	public int getNotificationCap()
@@ -125,6 +125,6 @@ public class GlobalState
 	{
 		SharedPreferences.Editor editor = preferences.edit();
 		editor.putInt(NOTIFICATION_CAP, value);
-		editor.commit();
+		editor.apply();
 	}
 }

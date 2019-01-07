@@ -42,7 +42,7 @@ public class CallContentReaderSensor extends AbstractContentReaderSensor
 			{
 				if (callContentReaderSensor == null)
 				{
-					if ((android.os.Build.VERSION.SDK_INT <= 15 && permissionGranted(context, Manifest.permission.READ_CONTACTS))
+					if ((permissionGranted(context, Manifest.permission.READ_CONTACTS))
 							|| permissionGranted(context, Manifest.permission.READ_CALL_LOG))
 					{
 						callContentReaderSensor = new CallContentReaderSensor(context);

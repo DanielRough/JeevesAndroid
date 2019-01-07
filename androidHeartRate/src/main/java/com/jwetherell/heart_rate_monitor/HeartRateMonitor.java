@@ -122,7 +122,7 @@ public class HeartRateMonitor extends Activity {
         }).start();
 
         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-        wakeLock = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK, "DoNotDimScreen");
+        wakeLock = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK, "app:donotdimscreen");
     }
 
     /**

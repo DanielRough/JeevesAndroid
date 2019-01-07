@@ -26,32 +26,36 @@ public class UpdateAction extends FirebaseAction {
         setvars(vars);
     }
     @Override
-    public boolean execute() {
+    public void execute() {
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getContext());
         if(getvars()==null){
-            return true;
+            return;
         } //got an empty action!!
         FirebaseExpression variable = getvars().get(0);
             String varName = variable.getname();
             String varType = variable.getvartype();
             SharedPreferences.Editor editor = preferences.edit();
-            Object valueresult = null;
-            ExpressionParser parser = new ExpressionParser(ApplicationContext.getContext());
+            Object valueresult;
+            ExpressionParser parser = new ExpressionParser();
             FirebaseExpression expr = getvars().get(1);
             valueresult = parser.evaluate(expr);
 
             Log.d("PUTTING","Put " + varName + " as value " + valueresult.toString());
-            if (varType.equals("Text")) {
-                editor.putString(varName, (String)valueresult);
-            } else if (varType.equals("Numeric")) {
-                editor.putString(varName, (String)valueresult);
-            } else if (varType.equals("Boolean")) {
-                editor.putBoolean(varName, ( Boolean.parseBoolean(valueresult.toString())));
-            } else {
-                editor.putString(varName, (String)valueresult);
-            }
-            editor.commit();
-        return true;
+        switch (varType) {
+            case "Text":
+                editor.putString(varName, (String) valueresult);
+                break;
+            case "Numeric":
+                editor.putString(varName, (String) valueresult);
+                break;
+            case "Boolean":
+                editor.putBoolean(varName, (Boolean.parseBoolean(valueresult.toString())));
+                break;
+            default:
+                editor.putString(varName, (String) valueresult);
+                break;
+        }
+            editor.apply();
     }
 }

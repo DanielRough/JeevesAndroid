@@ -17,7 +17,7 @@ import java.util.Random;
 public class DailyNotificationScheduler implements TriggerReceiver
 {
 	private final static long DAILY_INTERVAL = 1000 * 60 * 60 * 24;
-	public final static int ERROR = -1;
+	private final static int ERROR = -1;
 	private final static int MAX_SCHEDULING_ATTEMPTS = 1000;
 
 	private final ESTriggerManager triggerManager;
@@ -62,11 +62,11 @@ public class DailyNotificationScheduler implements TriggerReceiver
 
 		if (params.containsKey(TriggerConfig.FROM_DATE)) {
 			//if(params.getParameter(TriggerConfig.FROM_DATE) instanceof Long)
-				fromDay = new Long(params.getParameter(TriggerConfig.FROM_DATE).toString()) / (1000 * 60 * 60 * 24);
+				fromDay = Long.valueOf(params.getParameter(TriggerConfig.FROM_DATE).toString()) / (1000 * 60 * 60 * 24);
 		}
 		if (params.containsKey(TriggerConfig.TO_DATE)) {
 		//	if(params.getParameter(TriggerConfig.TO_DATE) instanceof Long)
-				toDay = new Long(params.getParameter(TriggerConfig.TO_DATE).toString()) / (1000 * 60 * 60 * 24);
+				toDay = Long.valueOf(params.getParameter(TriggerConfig.TO_DATE).toString()) / (1000 * 60 * 60 * 24);
 		}
 		long daysSinceEpoch = System.currentTimeMillis() / (24 * 3600 * 1000);
 
@@ -129,10 +129,9 @@ public class DailyNotificationScheduler implements TriggerReceiver
 		midnight.set(Calendar.HOUR_OF_DAY,0);
 		midnight.set(Calendar.MINUTE,0);
 		midnight.set(Calendar.SECOND,0);
-		long startDelay = (calendar.getTimeInMillis()-midnight.getTimeInMillis())/(1000*60);
 
 //		Log.d("Start delay", "My current starting time is " + startDelay);
-		return startDelay; //This ought to be the number of minutes since midnight. i.e.: NOW
+		return (calendar.getTimeInMillis()-midnight.getTimeInMillis())/(1000*60); //This ought to be the number of minutes since midnight. i.e.: NOW
 //		}
 	}
 
@@ -160,10 +159,10 @@ public class DailyNotificationScheduler implements TriggerReceiver
 
 		long startTime = 0;
 		if (params.containsKey(TriggerConfig.LIMIT_BEFORE_HOUR))
-			startTime = new Long(params.getParameter(TriggerConfig.LIMIT_BEFORE_HOUR).toString())/60000;
+			startTime = Long.valueOf(params.getParameter(TriggerConfig.LIMIT_BEFORE_HOUR).toString())/60000;
 		long endTime = 0;
 		if (params.containsKey(TriggerConfig.LIMIT_AFTER_HOUR))
-			endTime = new Long(params.getParameter(TriggerConfig.LIMIT_AFTER_HOUR).toString())/60000;
+			endTime = Long.valueOf(params.getParameter(TriggerConfig.LIMIT_AFTER_HOUR).toString())/60000;
 		long intervalTime = 0;
 //		if (params.containsKey(TriggerConfig.INTERVAL_TRIGGER_TIME))
 //			intervalTime =  new Long(params.getParameter(TriggerConfig.INTERVAL_TRIGGER_TIME).toString());

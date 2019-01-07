@@ -75,8 +75,7 @@ public class IntervalTrigger extends AbstractClockTrigger
 //			{
 //				calendar.add(Calendar.DATE, 1);
 //			}
-        long actualStartDelay = calendar.getTimeInMillis();
-        long firstAlarmTime = actualStartDelay;
+        long firstAlarmTime = calendar.getTimeInMillis();
        // long intervalLengthInMillis = getIntervalLength()*6000;
         Log.d("DATINTERVALLENGTH","interval lenght is " + getIntervalLength());
         alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, firstAlarmTime, getIntervalLength(), pendingIntent);
@@ -88,7 +87,7 @@ public class IntervalTrigger extends AbstractClockTrigger
         return TRIGGER_NAME;
     }
 
-    protected long getStartDelay() throws TriggerException
+    private long getStartDelay() throws TriggerException
     {
         //I THINK TECHNICALLY THE START DELAY IS GOING TO BE THE 'FROM' TIME IN OUR INTERVAL TRIGGER. THIS IS WHEN IT FIRST STARTS
         //if (params.containsKey(TriggerConfig.INTERVAL_TRIGGER_START_DELAY))
@@ -97,7 +96,7 @@ public class IntervalTrigger extends AbstractClockTrigger
             if(params.getParameter(TriggerConfig.LIMIT_BEFORE_HOUR) instanceof Long)
                 return (long)params.getParameter(TriggerConfig.LIMIT_BEFORE_HOUR);
             else
-                return new Long(params.getParameter(TriggerConfig.LIMIT_BEFORE_HOUR).toString());
+                return Long.valueOf(params.getParameter(TriggerConfig.LIMIT_BEFORE_HOUR).toString());
         }
         else
         {
@@ -107,14 +106,14 @@ public class IntervalTrigger extends AbstractClockTrigger
     }
 
     //DR Added a bit of type safety
-    protected long getIntervalLength() throws TriggerException
+    private long getIntervalLength() throws TriggerException
     {
         if (params.containsKey(TriggerConfig.INTERVAL_TRIGGER_TIME))
         {
             if(params.getParameter(TriggerConfig.INTERVAL_TRIGGER_TIME) instanceof Long)
                 return (long)params.getParameter(TriggerConfig.INTERVAL_TRIGGER_TIME);
             else
-                return new Long(params.getParameter(TriggerConfig.INTERVAL_TRIGGER_TIME).toString());
+                return Long.valueOf(params.getParameter(TriggerConfig.INTERVAL_TRIGGER_TIME).toString());
         }
         else
         {

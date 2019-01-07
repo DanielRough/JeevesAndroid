@@ -7,23 +7,23 @@ import java.util.Map;
  */
 public class FirebaseQuestion {
 
-    public String questionId;
-    public FirebaseQuestion conditionQuestion;
-    public String conditionConstraints;
-    public String type;
-    public long questionType;
-    public String questionText;
-    public String assignedVar;
-    public boolean isMandatory;
-    public Map<String,Object> params;
-    long xPos;
-    long yPos;
+    private String questionId;
+    private FirebaseQuestion conditionQuestion;
+    private String conditionConstraints;
+    private String type;
+    private String questionType;
+    private String questionText;
+    private String assignedVar;
+    private boolean isMandatory;
+    private Map<String,Object> params;
+    private long xPos;
+    private long yPos;
 
     public boolean getisMandatory() {return isMandatory; }
 
     public void setisMandatory(boolean isMandatory){ this.isMandatory = isMandatory; }
 
-    public long getquestionType(){
+    public String getquestionType(){
         return questionType;
     }
 

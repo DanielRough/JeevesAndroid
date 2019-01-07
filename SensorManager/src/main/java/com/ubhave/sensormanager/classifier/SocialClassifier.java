@@ -69,22 +69,15 @@ public abstract class SocialClassifier
 		}
 
 		// both are empty
-		if (((prevDevices == null) || (prevDevices.length == 0)) && ((currDevices == null) || (currDevices.length == 0)))
-		{
-			return true;
-		}
+        return ((prevDevices == null) || (prevDevices.length == 0)) && ((currDevices == null) || (currDevices.length == 0));
 
-		return false;
-	}
+    }
 
 	private static void addAllToSet(Set<String> set, String[] strArray)
 	{
 		for (String element : strArray)
 		{
-			if (!set.contains(element))
-			{
-				set.add(element);
-			}
+            set.add(element);
 		}
 	}
 

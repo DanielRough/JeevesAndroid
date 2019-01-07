@@ -144,14 +144,7 @@ public class BatteryData extends SensorData
 
 	public boolean isCharging()
 	{
-		if (status == BatteryManager.BATTERY_STATUS_CHARGING)
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
+        return status == BatteryManager.BATTERY_STATUS_CHARGING;
 	}
 
 	public int getSensorType()

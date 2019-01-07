@@ -2,12 +2,10 @@ package com.jeevesandroid.firebase;
 
 import android.util.Base64;
 import android.util.Log;
-import android.widget.TextView;
 
 import com.jeevesandroid.ApplicationContext;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.jeevesandroid.R;
 
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
@@ -34,13 +32,13 @@ import static com.ubhave.datastore.db.DatabaseStorage.TAG;
 public class FirebaseUtils {
 
     //Database keys
-    public static String PUBLIC_KEY = "public";
-    public static String PRIVATE_KEY = "private";
-    public static String PROJECTS_KEY = "projects";
-    public static String PATIENTS_KEY = "patients";
-    public static String SURVEYS_KEY = "surveys";
-    public static String SURVEYDATA_KEY = "surveydata";
-    public static String SENSORDATA_KEY = "sensordata";
+    public static final String PUBLIC_KEY = "public";
+    public static final String PRIVATE_KEY = "private";
+    public static final String PROJECTS_KEY = "projects";
+    public static final String PATIENTS_KEY = "patients";
+    public static final String SURVEYDATA_KEY = "surveydata";
+    public static final String SENSORS_KEY = "sensors";
+    // --Commented out by Inspection (1/1/2019 6:31 PM):public static String SENSORDATA_KEY = "sensordata";
 
     //Variable types
     public static final String BOOLEAN = "Boolean";
@@ -52,8 +50,9 @@ public class FirebaseUtils {
 
     public static DatabaseReference PATIENT_REF;
     public static DatabaseReference SURVEY_REF;
+    public static DatabaseReference SENSORS_REF;
 
-    public static String SYMMETRICKEY;
+    private static String SYMMETRICKEY;
 
     public static String getSymmetricKey(){
         return encodeKey(SYMMETRICKEY);
@@ -73,14 +72,14 @@ public class FirebaseUtils {
         }
 
         // Encode the original data with AES
-        byte[] encodedBytes = null;
+        byte[] encodedBytes;
         try {
             Cipher c = Cipher.getInstance("AES");
             c.init(Cipher.ENCRYPT_MODE, sks);
             encodedBytes = c.doFinal(answers.getBytes());
             String base64 = Base64.encodeToString(encodedBytes,Base64.NO_WRAP);
 
-            byte[] decodedBytes = null;
+            byte[] decodedBytes;
             try {
                 Cipher c2 = Cipher.getInstance("AES");
                 c2.init(Cipher.DECRYPT_MODE, sks);
@@ -108,35 +107,22 @@ public class FirebaseUtils {
         try {
             KeyFactory kf = KeyFactory.getInstance("RSA");
             return encryptText(symmetricKey,kf.generatePublic(X509publicKey));
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (NoSuchPaddingException e) {
-            e.printStackTrace();
-        } catch (InvalidKeyException e) {
-            e.printStackTrace();
-        } catch (IllegalBlockSizeException e) {
-            e.printStackTrace();
-        } catch (BadPaddingException e) {
-            e.printStackTrace();
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        } catch (InvalidKeySpecException e) {
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException | UnsupportedEncodingException | BadPaddingException | IllegalBlockSizeException | InvalidKeyException | NoSuchPaddingException e) {
             e.printStackTrace();
         }
         return "";
     }
-    public static String encryptText(String msg, PublicKey key)
+    private static String encryptText(String msg, PublicKey key)
             throws NoSuchAlgorithmException, NoSuchPaddingException,
             UnsupportedEncodingException, IllegalBlockSizeException,
             BadPaddingException, InvalidKeyException {
-        cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+        Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
 
         cipher.init(Cipher.ENCRYPT_MODE, key);
-        String base64 = Base64.encodeToString(cipher.doFinal(msg.getBytes("UTF-8")),Base64.NO_WRAP);
-        return base64;
+        return Base64.encodeToString(cipher.doFinal(msg.getBytes("UTF-8")),Base64.NO_WRAP);
     }
-    public static Cipher cipher;
-        private static FirebaseDatabase mDatabase;
+
+    private static FirebaseDatabase mDatabase;
 
         public static FirebaseDatabase getDatabase() {
             if (mDatabase == null) {

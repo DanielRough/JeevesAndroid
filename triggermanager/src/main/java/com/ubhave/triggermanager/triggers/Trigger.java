@@ -49,7 +49,7 @@ public abstract class Trigger extends BroadcastReceiver
 	protected final int triggerId;
 	protected final Context context;
 	protected final TriggerReceiver listener;
-	protected final GlobalState globalState;
+	private final GlobalState globalState;
 
 	protected TriggerConfig params;
 	protected boolean isRunning;
@@ -72,7 +72,7 @@ public abstract class Trigger extends BroadcastReceiver
 
 	protected abstract String getTriggerTag();
 	
-	public abstract String getActionName();
+	protected abstract String getActionName();
 
 	protected abstract void startAlarm() throws TriggerException;
 

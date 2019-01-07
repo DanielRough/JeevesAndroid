@@ -1,9 +1,9 @@
 package com.jeevesandroid;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
@@ -28,16 +28,16 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 
 import static com.jeevesandroid.ApplicationContext.FEEDBACK;
 
 public class ContactActivity extends AppCompatActivity {
-    AlertDialog.Builder finishalert;
-    EditText txtContactResearcher;
-    ListView lstMessages;
+    // --Commented out by Inspection (1/1/2019 6:21 PM):AlertDialog.Builder finishalert;
+    private EditText txtContactResearcher;
+    private ListView lstMessages;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,8 +47,8 @@ public class ContactActivity extends AppCompatActivity {
         patientRef.addValueEventListener(new ValueEventListener() {
 
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                TreeMap<String,String> sortedFeedback = new TreeMap<String,String>(Collections.reverseOrder());
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                TreeMap<String,String> sortedFeedback = new TreeMap<>(Collections.reverseOrder());
                 HashMap<String,String> feedback = (HashMap<String,String>)dataSnapshot.getValue();
                 if(feedback == null)return;
                 sortedFeedback.putAll(feedback);
@@ -56,23 +56,23 @@ public class ContactActivity extends AppCompatActivity {
                 refreshList();
             }
             @Override
-            public void onCancelled(DatabaseError databaseError) {}
+            public void onCancelled(@NonNull DatabaseError databaseError) {}
         });
         getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
         setContentView(R.layout.activity_contact);
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
 
-        Button btnContactResearcher = (Button) findViewById(R.id.btnContactResearcher);
-        txtContactResearcher = (EditText) findViewById(R.id.txtContactResearcher);
-        lstMessages = (ListView) findViewById(R.id.lstMessages);
+        Button btnContactResearcher = findViewById(R.id.btnContactResearcher);
+        txtContactResearcher = findViewById(R.id.txtContactResearcher);
+        lstMessages = findViewById(R.id.lstMessages);
 
 
 
         btnContactResearcher.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String message = txtContactResearcher.getText().toString();
+        //        String message = txtContactResearcher.getText().toString();
 //                    if(researcherno != null && !researcherno.equals("")) {
 //                        SmsManager sms = SmsManager.getDefault();
 //                        sms.sendTextMessage(researcherno, null, message, null, null);
@@ -80,26 +80,22 @@ public class ContactActivity extends AppCompatActivity {
                 final DatabaseReference firebaseFeedback = FirebaseUtils.PATIENT_REF.child(FEEDBACK).child(Long.toString(System.currentTimeMillis()));
                 firebaseFeedback.setValue("Patient: " + txtContactResearcher.getText().toString());
 
-                return;
             }
         });
         refreshList();
     }
 
-    public void refreshList(){
-        ArrayList<String> varsList = new ArrayList<String>();
+    private void refreshList(){
+        ArrayList<String> varsList = new ArrayList<>();
         Map<String,String> feedback = ApplicationContext.getFeedback();
-        Iterator<Map.Entry<String,String>> messageIter = feedback.entrySet().iterator();
-        while(messageIter.hasNext()){
+        for (Map.Entry<String, String> message : feedback.entrySet()) {
 
-            Map.Entry<String,String> message = messageIter.next();
             String date = message.getKey();
             String sender = message.getValue().split(":")[0];
             String messageText = message.getValue().split(":")[1];
-            if(sender.equals("Patient")){
+            if (sender.equals("Patient")) {
                 sender = "You";
-            }
-            else{
+            } else {
                 sender = "Clinician";
             }
             varsList.add(date + ":" + sender + ":" + messageText);
@@ -108,18 +104,18 @@ public class ContactActivity extends AppCompatActivity {
         MessageItem adapter = new MessageItem(ContactActivity.this, varsList);
         lstMessages.setAdapter(adapter);
     }
-    public static class MessageItem extends BaseAdapter {
-        ArrayList<String> result;
+    static class MessageItem extends BaseAdapter {
+        final ArrayList<String> result;
 
-        Activity context;
-        private static LayoutInflater inflater = null;
+        final Activity context;
+        // --Commented out by Inspection (1/1/2019 6:30 PM):private static LayoutInflater inflater = null;
 
-        public MessageItem(Activity mainActivity, ArrayList<String> varsList) {
+        MessageItem(Activity mainActivity, ArrayList<String> varsList) {
             // TODO Auto-generated constructor stub
             result = varsList;
             context = mainActivity;
-            inflater = (LayoutInflater) context.
-                    getSystemService(LAYOUT_INFLATER_SERVICE);
+           // inflater = (LayoutInflater) context.
+             //       getSystemService(LAYOUT_INFLATER_SERVICE);
         }
 
         @Override
@@ -146,16 +142,16 @@ public class ContactActivity extends AppCompatActivity {
             View rowView = inflater.inflate(R.layout.message_list, parent, false);
 
             // 3. Get the two text view from the rowView
-            TextView txtSender = (TextView) rowView.findViewById(R.id.txtSender);
-            TextView txtMessage = (TextView) rowView.findViewById(R.id.txtMessage);
-            TextView txtDate = (TextView) rowView.findViewById(R.id.txtDate);
+            TextView txtSender = rowView.findViewById(R.id.txtSender);
+            TextView txtMessage = rowView.findViewById(R.id.txtMessage);
+            TextView txtDate = rowView.findViewById(R.id.txtDate);
             // 4. Set the text for textView
             String sendermessage = result.get(position);
             String date = sendermessage.split(":")[0];
-            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.UK);
             String dateStr = sdf.format(new Date(Long.parseLong(date)));
             String sender = sendermessage.split(":")[1];
-            LinearLayout layout = (LinearLayout)rowView.findViewById(R.id.listLayout);
+            LinearLayout layout = rowView.findViewById(R.id.listLayout);
             if(sender.equals("You"))
                 layout.setBackgroundColor(Color.WHITE);
             else

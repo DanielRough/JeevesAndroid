@@ -5,8 +5,9 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:paddingBottom="@dimen/activity_vertical_margin"
-    tools:context="com.example.daniel.jeeves.com.jeeves.SurveyActivity"
+    tools:context="com.jeevesandroid.SurveyActivity"
     android:clickable="true"
+    android:focusable="true"
     android:focusableInTouchMode="true"
     android:weightSum="1"
     android:paddingLeft="@dimen/activity_horizontal_margin"
@@ -24,7 +25,8 @@
             android:background="@android:drawable/ic_media_rew"
             android:layout_alignParentTop="true"
             android:layout_alignParentStart="true"
-            android:backgroundTint="@android:color/black" />
+            android:backgroundTint="@android:color/black"
+            tools:targetApi="lollipop" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -32,9 +34,10 @@
             android:text=""
             android:id="@+id/txtQno"
             android:textColor="@android:color/black"
-            android:textSize="24dp"
+            android:textSize="24sp"
             android:layout_centerVertical="true"
-            android:layout_centerHorizontal="true" />
+            android:layout_centerHorizontal="true"
+            tools:ignore="RelativeOverlap" />
 
         <Button
             android:layout_width="56dp"
@@ -43,7 +46,8 @@
             android:background="@android:drawable/ic_media_ff"
             android:layout_alignParentTop="true"
             android:layout_alignParentEnd="true"
-            android:backgroundTint="@android:color/black" />
+            android:backgroundTint="@android:color/black"
+            tools:targetApi="lollipop" />
     </RelativeLayout>
 
     <TextView
@@ -64,7 +68,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingBottom="20dp"
-                android:paddingLeft="20dp"
+                android:paddingStart="20dp"
+                android:paddingEnd="20dp"
                 android:paddingTop="20dp"
                 android:text="Large Text"
                 android:textAppearance="?android:attr/textAppearanceLarge" />
@@ -84,50 +89,48 @@
                     android:layout_height="match_parent">
 
 
-            <LinearLayout
-                android:id="@+id/viewOpenEnded"
-                android:layout_width="match_parent"
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical">
+
+                        <EditText
+                            android:id="@+id/txtOpenEnded"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="@string/survey_enter"
+                            android:paddingStart="20dp"
+                            android:paddingEnd="20dp"
+                            android:autofillHints="Enter answer here"
+                            tools:targetApi="o"
+                            android:inputType="text" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical">
+
+                        <RadioGroup
+                            android:id="@+id/grpMultSingle"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical">
 
-                <EditText
-                    android:id="@+id/txtOpenEnded"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentStart="true"
-                    android:layout_below="@+id/txtQuestion"
-                    android:hint="Enter answer here"
-                    android:paddingLeft="20dp" />
+                        <LinearLayout
+                            android:id="@+id/grpMultMany"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:orientation="vertical" />
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/viewMultSingle"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical">
-
-                <RadioGroup
-                    android:id="@+id/grpMultSingle"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"></RadioGroup>
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/viewMultMany"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical">
-
-                <LinearLayout
-                    android:id="@+id/grpMultMany"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical"></LinearLayout>
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/viewScale"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical"
@@ -142,7 +145,8 @@
                     android:thumb="@drawable/thumb_image"
                     android:progressBackgroundTint="@android:color/holo_green_dark"
                     android:progressTint="@android:color/holo_red_dark"
-                    android:theme="@style/MySeekBar" />
+                    android:theme="@style/MySeekBar"
+                    tools:targetApi="lollipop" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -153,15 +157,15 @@
                         android:id="@+id/txtBegin"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginRight="20dp"
+                        android:layout_marginEnd="20dp"
                         android:layout_weight="1" />
 
                     <TextView
                         android:id="@+id/txtMiddle"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginLeft="10dp"
-                        android:layout_marginRight="10dp"
+                        android:layout_marginStart="10dp"
+                        android:layout_marginEnd="10dp"
                         android:layout_weight="1"
                         android:textAlignment="center" />
 
@@ -169,7 +173,7 @@
                         android:id="@+id/txtEnd"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginLeft="20dp"
+                        android:layout_marginStart="20dp"
                         android:layout_weight="1"
                         android:textAlignment="textEnd" />
                 </LinearLayout>
@@ -177,7 +181,6 @@
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/viewDate"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical"
@@ -188,13 +191,13 @@
                     android:layout_width="match_parent"
                     android:layout_height="186dp"
                     android:calendarViewShown="false"
-                    android:datePickerMode="spinner" />
+                    android:datePickerMode="spinner"
+                    tools:targetApi="lollipop" />
 
 
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/viewGeo"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical">
@@ -204,7 +207,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
-                    android:text="Open Location Picker" />
+                    android:text="@string/survey_open" />
 
                 <TextView
                     android:id="@+id/txtPlaceName"
@@ -220,12 +223,11 @@
                     android:name="com.google.android.gms.maps.SupportMapFragment"
                     android:layout_width="match_parent"
                     android:layout_height="275dp"
-                    tools:context=".MapsActivity"></fragment>
+                    tools:context=".MapsActivity" />
 
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/viewBoolean"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical">
@@ -233,12 +235,11 @@
                 <RadioGroup
                     android:id="@+id/grpBool"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"></RadioGroup>
+                    android:layout_height="match_parent" />
 
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/viewNumeric"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical">
@@ -248,13 +249,13 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:ems="10"
-                    android:hint="Enter a number here"
-                    android:inputType="number" />
+                    android:hint="@string/survey_enter"
+                    android:inputType="number"
+                    android:autofillHints="" />
 
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/viewTime"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical"
@@ -264,51 +265,21 @@
                     android:id="@+id/timePicker2"
                     android:layout_width="match_parent"
                     android:layout_height="165dp"
-                    android:timePickerMode="spinner" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/viewWifi"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical">
-
-                <ListView
-                    android:id="@+id/lstWifi"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:choiceMode="singleChoice"
-                    android:listSelector="@android:color/holo_purple" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/viewBluetooth"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical">
-
-                <ListView
-                    android:id="@+id/lstBluetooth"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:choiceMode="singleChoice"
-                    android:listSelector="@android:color/darker_gray" />
+                    android:timePickerMode="spinner"
+                    tools:targetApi="lollipop" />
 
             </LinearLayout>
 
                     <LinearLayout
-                        android:id="@+id/viewHeart"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:orientation="vertical">
 
 
                         <TextView
-                            android:id="@+id/textView"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="Place your index finger lightly over the camera lens as shown. Hold your phone steady and press 'Start sensing' when ready"
+                            android:text="@string/survey_place"
                             android:textAlignment="center"
                             android:textSize="14sp" />
 
@@ -316,8 +287,6 @@
                             android:id="@+id/heartview"
                             android:layout_width="match_parent"
                             android:layout_height="240dp"
-                            android:layout_alignParentStart="true"
-                            android:layout_alignParentTop="true"
                             android:layout_marginTop="0dp"
                             android:src="@drawable/finger"
                             tools:layout_width="match_parent" />
@@ -326,20 +295,18 @@
                             android:id="@+id/btnStart"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="Start sensing" />
+                            android:text="@string/survey_start" />
                     </LinearLayout>
 
                     <LinearLayout
-                android:id="@+id/viewAudio"
-                android:layout_width="match_parent"
+                        android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/audioTextView"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Press the button below to begin playing the audio file"
+                    android:text="@string/survey_press"
                     android:textAlignment="center"
                     android:textSize="14sp" />
 
@@ -347,8 +314,6 @@
                     android:id="@+id/audioPhotoview"
                     android:layout_width="match_parent"
                     android:layout_height="240dp"
-                    android:layout_alignParentStart="true"
-                    android:layout_alignParentTop="true"
                     android:layout_marginTop="0dp"
                     android:src="@drawable/finger"
                     tools:layout_width="match_parent" />
@@ -358,14 +323,14 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:enabled="false"
-                            android:text="Play audio" />
+                            android:text="@string/survey_play" />
 
                         <Button
                             android:id="@+id/audioBtnPause"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:enabled="false"
-                            android:text="Pause audio" />
+                            android:text="@string/survey_pause" />
                     </LinearLayout>
             </ViewFlipper>
         </LinearLayout>
@@ -387,7 +352,6 @@ android:layout_height="match_parent">
         android:id="@+id/txtPresent"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="TextView"
         android:textAppearance="@android:style/TextAppearance.DeviceDefault.Large" />
 </LinearLayout>
 </ScrollView>

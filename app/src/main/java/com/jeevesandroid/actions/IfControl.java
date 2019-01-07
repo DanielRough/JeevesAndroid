@@ -11,7 +11,7 @@ import java.util.Map;
  * Created by Daniel on 08/06/15.
  */
 public class IfControl extends FirebaseAction {
-    public ArrayList<FirebaseAction> controlactions = new ArrayList<FirebaseAction>();
+    private final ArrayList<FirebaseAction> controlactions = new ArrayList<>();
     ActionExecutorService mService;
     boolean mBound = false;
 

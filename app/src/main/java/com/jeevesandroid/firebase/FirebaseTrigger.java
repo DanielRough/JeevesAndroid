@@ -10,17 +10,17 @@ import java.util.Map;
  */
 public class FirebaseTrigger {
 
-    public long clocktype;
-    public String description;
-    public String triggerId;
-    public String name;
-    public Map<String,Object> params;
-    public List<FirebaseAction> actions;
-    public List<FirebaseExpression> times;
-    public List<String> variables;
-    public String type;
-    public long xPos;
-    public long yPos;
+    private long clocktype;
+    private String description;
+    private String triggerId;
+    private String name;
+    private Map<String,Object> params;
+    private List<FirebaseAction> actions;
+    private List<FirebaseExpression> times;
+    private List<String> variables;
+    private String type;
+    private long xPos;
+    private long yPos;
     private FirebaseExpression dateFrom;
     private FirebaseExpression dateTo;
     private FirebaseExpression timeFrom;

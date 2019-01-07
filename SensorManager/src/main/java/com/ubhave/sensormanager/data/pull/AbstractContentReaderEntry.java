@@ -72,8 +72,7 @@ public abstract class AbstractContentReaderEntry
 		this.contentMap = map;
 	}
 
-	public long getTimestamp() throws Exception
-	{
+	public long getTimestamp() {
 		return Long.valueOf(contentMap.get(getTimestampKey()));
 	}
 	

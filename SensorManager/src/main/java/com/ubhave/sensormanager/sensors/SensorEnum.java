@@ -53,7 +53,7 @@ public enum SensorEnum
 	private final int type;
 	private final int group;
 
-	private SensorEnum(String name, final int type, final int group)
+	SensorEnum(String name, final int type, final int group)
 	{
 		this.name = name;
 		this.type = type;

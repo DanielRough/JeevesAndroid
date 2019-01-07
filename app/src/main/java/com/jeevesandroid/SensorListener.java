@@ -31,18 +31,15 @@ import java.util.Iterator;
  */
 public class SensorListener implements SensorDataListener {
 
-    private final int sensorType;
-    private ESSensorManagerInterface sensorManager;
-    private Context context;
+    private final Context context;
     public SensorListener(int sensorType)
     {
-        this.sensorType = sensorType;
 
         this.context = ApplicationContext.getContext();
 
         try
         {
-            sensorManager = ESSensorManager.getSensorManager(context);
+            ESSensorManagerInterface sensorManager = ESSensorManager.getSensorManager(context);
             sensorManager.setGlobalConfig(GlobalConfig.LOW_BATTERY_THRESHOLD, 25);
 
             if (sensorType == SensorUtils.SENSOR_TYPE_LOCATION)
@@ -62,12 +59,12 @@ public class SensorListener implements SensorDataListener {
             String s = f.toString(data);
             JSONObject sensorobject = new JSONObject(s);
             Iterator<String> keys = sensorobject.keys();
-            HashMap<String, Object> sensordata = new HashMap<String, Object>();
+            HashMap<String, Object> sensordata = new HashMap<>();
             while (keys.hasNext()) {
                 String key = keys.next();
                 Object value = sensorobject.get(key);
                 if(value instanceof JSONArray){
-                    value = ((JSONArray)sensorobject.get(key)).toString();
+                    value = sensorobject.get(key).toString();
                 }
                 sensordata.put(key, value);
             }
@@ -77,11 +74,7 @@ public class SensorListener implements SensorDataListener {
             sensordata.put("classification",classifiedResult);
             DatabaseReference patientRef = FirebaseUtils.PATIENT_REF.child("sensordata").child(sensorobject.getString("dataType")).push();
             patientRef.setValue(sensordata);
-        } catch (DataHandlerException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        } catch (ESException e) {
+        } catch (DataHandlerException | ESException | JSONException e) {
             e.printStackTrace();
         }
     }

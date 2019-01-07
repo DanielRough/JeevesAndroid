@@ -33,25 +33,16 @@ import com.ubhave.sensormanager.classifier.MicrophoneDataClassifier;
 import com.ubhave.sensormanager.classifier.SensorDataClassifier;
 import com.ubhave.sensormanager.classifier.WifiDataClassifier;
 import com.ubhave.sensormanager.config.GlobalConfig;
-import com.ubhave.sensormanager.sensors.env.AmbientTemperatureSensor;
-import com.ubhave.sensormanager.sensors.env.HumiditySensor;
-import com.ubhave.sensormanager.sensors.env.LightSensor;
-import com.ubhave.sensormanager.sensors.env.PressureSensor;
 import com.ubhave.sensormanager.sensors.pull.AccelerometerSensor;
 import com.ubhave.sensormanager.sensors.pull.BluetoothSensor;
-import com.ubhave.sensormanager.sensors.pull.CallContentReaderSensor;
-import com.ubhave.sensormanager.sensors.pull.GyroscopeSensor;
 import com.ubhave.sensormanager.sensors.pull.LocationSensor;
-import com.ubhave.sensormanager.sensors.pull.MagneticFieldSensor;
 import com.ubhave.sensormanager.sensors.pull.MicrophoneSensor;
-import com.ubhave.sensormanager.sensors.pull.PhoneRadioSensor;
 import com.ubhave.sensormanager.sensors.pull.SMSContentReaderSensor;
 import com.ubhave.sensormanager.sensors.pull.StepCounterSensor;
 import com.ubhave.sensormanager.sensors.pull.WifiSensor;
 import com.ubhave.sensormanager.sensors.push.BatterySensor;
 import com.ubhave.sensormanager.sensors.push.ConnectionStateSensor;
 import com.ubhave.sensormanager.sensors.push.ConnectionStrengthSensor;
-import com.ubhave.sensormanager.sensors.push.PassiveLocationSensor;
 import com.ubhave.sensormanager.sensors.push.PhoneStateSensor;
 import com.ubhave.sensormanager.sensors.push.ProximitySensor;
 import com.ubhave.sensormanager.sensors.push.ScreenSensor;
@@ -206,26 +197,8 @@ public class SensorUtils
 			return ConnectionStateSensor.getSensor(context);
 		case SENSOR_TYPE_SMS_CONTENT_READER:
 			return SMSContentReaderSensor.getSensor(context);
-//		case SENSOR_TYPE_CALL_CONTENT_READER:
-//			return CallContentReaderSensor.getSensor(context);
-//		case SENSOR_TYPE_GYROSCOPE:
-//			return GyroscopeSensor.getSensor(context);
-//		case SENSOR_TYPE_LIGHT:
-//			return LightSensor.getSensor(context);
-//		case SENSOR_TYPE_PHONE_RADIO:
-//			return PhoneRadioSensor.getPhoneRadioSensor(context);
 		case SENSOR_TYPE_CONNECTION_STRENGTH:
 			return ConnectionStrengthSensor.getSensor(context);
-		case SENSOR_TYPE_PASSIVE_LOCATION:
-			return PassiveLocationSensor.getSensor(context);
-//		case SENSOR_TYPE_AMBIENT_TEMPERATURE:
-//			return AmbientTemperatureSensor.getSensor(context);
-//		case SENSOR_TYPE_PRESSURE:
-//			return PressureSensor.getSensor(context);
-//		case SENSOR_TYPE_HUMIDITY:
-//			return HumiditySensor.getSensor(context);
-//		case SENSOR_TYPE_MAGNETIC_FIELD:
-//			return MagneticFieldSensor.getSensor(context);
 		case SENSOR_TYPE_STEP_COUNTER:
 			return StepCounterSensor.getSensor(context);
 		default:

@@ -32,19 +32,16 @@ import java.util.ArrayList;
 import static com.jeevesandroid.ApplicationContext.TRIG_TYPE;
 import static com.jeevesandroid.actions.ActionUtils.ACTIONS;
 
-public class TriggerListener implements TriggerReceiver {
+class TriggerListener implements TriggerReceiver {
 
 
 // ...
 
     private final ESTriggerManager triggerManager;
-    private String triggerId;
-    private int triggerType, triggerSubscriptionId;
-    private Context serviceContext;
+    private final int triggerType;
+    private int triggerSubscriptionId;
+    private final Context serviceContext;
     private ArrayList<FirebaseAction> actionsToPerform;
-    private TriggerConfig params;
-    Intent actionIntent;
-   // private static int locTriggerId = 0;
 
     public TriggerListener(int triggerType, Context c) throws TriggerException {
         this.triggerType = triggerType;
@@ -54,21 +51,12 @@ public class TriggerListener implements TriggerReceiver {
     }
 
 
-    public void subscribeToTrigger(final TriggerConfig params, ArrayList<FirebaseAction> actions, String triggerId) {
-        //     this.actions = actions;
+    public void subscribeToTrigger(final TriggerConfig params, ArrayList<FirebaseAction> actions) {
         try {
-            this.triggerId = triggerId;
-            this.params = params;
             actionsToPerform = new ArrayList<>();
             for (FirebaseAction action : actions) {
-
                 actionsToPerform.add(ActionUtils.create(action));
-                Log.d("Action is ", action.getname());
-
             }
-//            for(FirebaseAction a : actionsToPerform){
-//                Log.d("AND THIppppp","IS" + a.toString());
-//            }
             triggerSubscriptionId = triggerManager.addTrigger(triggerType, this, params);
 
 
@@ -77,7 +65,7 @@ public class TriggerListener implements TriggerReceiver {
         }
     }
 
-    public void unsubscribeFromTrigger(String caller) {
+    public void unsubscribeFromTrigger() {
         try {
             triggerManager.removeTrigger(triggerSubscriptionId);
        ///     SubscriptionIds.removeSubscription(triggerId);
@@ -89,9 +77,8 @@ public class TriggerListener implements TriggerReceiver {
     //Here's the method that gets called when the conditions are fulfilled. It starts the 'ActionExecutorService' to begin going through dem actions
     @Override
     public void onNotificationTriggered(int triggerId) {
-        actionIntent = new Intent(serviceContext, ActionExecutorService.class);
+        Intent actionIntent = new Intent(serviceContext, ActionExecutorService.class);
         actionIntent.putExtra(ACTIONS, actionsToPerform);
-        Log.d("NOTIFICATION","WAS TRIGGERED");
         actionIntent.putExtra(TRIG_TYPE, triggerType);
         serviceContext.startService(actionIntent);
     }

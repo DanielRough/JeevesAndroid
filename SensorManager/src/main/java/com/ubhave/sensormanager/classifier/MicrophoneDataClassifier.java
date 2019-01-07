@@ -74,14 +74,7 @@ public class MicrophoneDataClassifier implements SensorDataClassifier
 			avgAmplitude += aValue;
 		}
 		avgAmplitude = avgAmplitude / (double)amplitudeData.length;
-		if (avgAmplitude > soundThreshold)
-		{
-			return false;
-		}
-		else
-		{
-			return true;
-		}
+        return !(avgAmplitude > soundThreshold);
 	}
 	private String stringStatus;
 

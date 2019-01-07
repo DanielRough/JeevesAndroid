@@ -1,9 +1,11 @@
 package com.jeevesandroid.actions;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.AlarmManager;
 import android.app.IntentService;
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -11,6 +13,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.media.AudioAttributes;
+import android.media.RingtoneManager;
 import android.os.Build;
 import android.os.PowerManager;
 import android.preference.PreferenceManager;
@@ -48,8 +53,8 @@ import static com.jeevesandroid.ApplicationContext.WAS_INIT;
  */
 public class SurveyAction extends FirebaseAction {
 
-    public static final String ACTION_1 = "action_1";
-    public static final String ACTION_2 = "action_2";
+    private static final String ACTION_1 = "action_1";
+    private static final String ACTION_2 = "action_2";
     public static int NOTIFICATION_ID = 0;
 
     //This receives the notification that the user missed the survey WITHOUT EVEN TRIGGERING THE NOTIFICATION
@@ -78,17 +83,17 @@ public class SurveyAction extends FirebaseAction {
             long thisMissedSurveyCount = preferences.getLong(intent.getStringExtra("name") + "-Missed", 0);
             thisMissedSurveyCount++;
             editor.putLong(intent.getStringExtra(SURVEY_ID) + "-Missed", thisMissedSurveyCount);
-            editor.commit();
+            editor.apply();
 
             intended.putExtra("missed", thisMissedSurveyCount);
             context.sendBroadcast(intended);
             Context app = ApplicationContext.getContext();
-            NotificationManager manager = (NotificationManager) app.getSystemService(app.NOTIFICATION_SERVICE);
+            NotificationManager manager = (NotificationManager) app.getSystemService(Context.NOTIFICATION_SERVICE);
             manager.cancel(id);
 
 
             //Now we push the missed result to the database.
-            Map<String,Object> surveymap = new HashMap<String,Object>();
+            Map<String,Object> surveymap = new HashMap<>();
             surveymap.put(STATUS,0);
             surveymap.put(INIT_TIME,initTime-timeSent);
             surveymap.put(TRIG_TYPE,intent.getIntExtra(TRIG_TYPE,0));
@@ -97,19 +102,18 @@ public class SurveyAction extends FirebaseAction {
     }
 
     //We need to have a way to uniquely identify each survey
-    public int thisActionsId = 0;
+    private int thisActionsId = 0;
 
-    private BroadcastReceiver mReceiver; //Receives notifications from SurveyActivity that we finished
     public SurveyAction(Map<String, Object> params) {
         setparams(params);
     }
-    FirebaseSurvey currentsurvey = null;
+    private FirebaseSurvey currentsurvey = null;
 
     @Override
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-    public boolean execute() {
+    public void execute() {
         final Context app = ApplicationContext.getContext();
-        if(getparams().get("survey") == null)return false;
+        if(getparams().get("survey") == null)return;
         final String surveyname = getparams().get("survey").toString();
 
 
@@ -129,7 +133,7 @@ public class SurveyAction extends FirebaseAction {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(app);
         SharedPreferences.Editor editor = prefs.edit();
         editor.putBoolean(currentsurvey.getsurveyId(),true);
-        editor.commit();
+        editor.apply();
         final long timeSent = System.currentTimeMillis();
 
         //We need to keep the notification alive for as long as the survey isn't completed
@@ -148,35 +152,36 @@ public class SurveyAction extends FirebaseAction {
         long timeToGo = deadline - System.currentTimeMillis();
 
         IntentFilter intentFilter = new IntentFilter(TriggerManagerConstants.ACTION_NAME_SURVEY_TRIGGER);
-        mReceiver = new BroadcastReceiver() {
+        //Receives notifications from SurveyActivity that we finished
+        BroadcastReceiver mReceiver = new BroadcastReceiver() {
 
             @Override
             public void onReceive(Context context, Intent intent) {
-                Log.d("HELLO","DID I PICK THIS UP");
+                Log.d("HELLO", "DID I PICK THIS UP");
                 //This gets rid of the notification icon and cancels the alarm because the survey is completed
                 long completedtimesent = intent.getLongExtra(TIME_SENT, 0);
                 if (completedtimesent == timeSent) { //Then this survey was completed woohoo!
                     AlarmManager am = (AlarmManager) app.getSystemService(Context.ALARM_SERVICE);
                     Intent cancelIntent = new Intent(app, MissedSurveyReceiver.class);
-                    cancelIntent.setType(timeSent+surveyname);
+                    cancelIntent.setType(timeSent + surveyname);
                     PendingIntent pi = PendingIntent.getBroadcast(app, 0, cancelIntent, 0);
                     am.cancel(pi);
-                    NotificationManager manager = (NotificationManager) app.getSystemService(app.NOTIFICATION_SERVICE);
+                    NotificationManager manager = (NotificationManager) app.getSystemService(Context.NOTIFICATION_SERVICE);
                     manager.cancel(thisActionsId);
 
                     //We need to store that the last survey with this name to be sent out has been completed. This will help keep
                     //track in the Missed Surveys screen of which surveys to display
                     SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(app);
                     SharedPreferences.Editor editor = prefs.edit();
-                    editor.putBoolean(surveyId,false);
-                    editor.commit();
+                    editor.putBoolean(surveyId, false);
+                    editor.apply();
                 }
                 //This gets rid of the notification icon without actually cancelling the alarm
                 else {
                     String surveyid = intent.getStringExtra(SURVEY_ID);
-                    Log.d("surveyid","surveyid is " + surveyid);
+                    Log.d("surveyid", "surveyid is " + surveyid);
                     if (surveyid != null && surveyid.equals(currentsurvey.getsurveyId())) {
-                        NotificationManager manager = (NotificationManager) app.getSystemService(app.NOTIFICATION_SERVICE);
+                        NotificationManager manager = (NotificationManager) app.getSystemService(Context.NOTIFICATION_SERVICE);
                         manager.cancel(thisActionsId);
                     }
                 }
@@ -199,13 +204,37 @@ public class SurveyAction extends FirebaseAction {
         action2Intent.putExtra(NOTIF_ID, thisActionsId);
         PendingIntent action2PendingIntent = PendingIntent.getService(app, 0, action2Intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        final NotificationManager notificationManager = (NotificationManager) app.getSystemService(app.NOTIFICATION_SERVICE);
+        final NotificationManager notificationManager = (NotificationManager) app.getSystemService(Context.NOTIFICATION_SERVICE);
+
+        String channelId = "default_channel_id";
+        String channelDescription = "Default Channel";
+        AudioAttributes attributes = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+             attributes = new AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+                    .build();
+        }
+        //Check if notification channel exists and if not create one
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            NotificationChannel notificationChannel = notificationManager.getNotificationChannel(channelId);
+            if (notificationChannel == null) {
+                int importance = NotificationManager.IMPORTANCE_HIGH;
+                notificationChannel = new NotificationChannel(channelId, channelDescription, importance);
+                notificationChannel.setLightColor(Color.GREEN);
+                notificationChannel.enableVibration(true);
+                notificationChannel.setSound(RingtoneManager
+                        .getDefaultUri(RingtoneManager.TYPE_NOTIFICATION),attributes);
+                notificationManager.createNotificationChannel(notificationChannel);
+            }
+        }
 
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(app)
                 .setContentTitle("You have a new survey available")
                 .setVibrate(new long[]{0, 1000})
                 .setSmallIcon(R.drawable.ic_action_search)
+                .setContentText(ApplicationContext.getContext().getString(R.string.app_name))
                 .setPriority(Notification.PRIORITY_HIGH)
+                .setChannelId(channelId)
                 .setWhen(0);
         NotificationCompat.InboxStyle inboxStyle =
                 new NotificationCompat.InboxStyle();
@@ -224,8 +253,10 @@ public class SurveyAction extends FirebaseAction {
             intent.putExtra(SURVEY_NAME, surveyname);
             intent.putExtra(NOTIF_ID, thisActionsId);
             //because we never actually initiated the survey
+            intent.putExtra(SURVEY_ID, newPostRefId);
+
             intent.putExtra(WAS_INIT,false);
-            intent.putExtra(INIT_TIME,new Long(0));
+            intent.putExtra(INIT_TIME,Long.valueOf(0));
             intent.putExtra(TRIG_TYPE,triggerType);
             intent.setType(timeSent + surveyname); //Unique type to distinguish intents
             PendingIntent pi = PendingIntent.getBroadcast(app, 0, intent, 0);
@@ -251,30 +282,30 @@ public class SurveyAction extends FirebaseAction {
             app.startActivity(resultIntent);
       //      notificationManager.notify(thisActionsId, mBuilder.build());
 
-            return true;
-
         } else {
+
             notificationManager.notify(thisActionsId, mBuilder.build());
             PowerManager pm = (PowerManager)ApplicationContext.getContext().getSystemService(Context.POWER_SERVICE);
             boolean isScreenOn = pm.isScreenOn();
             Log.e("screen on....", ""+isScreenOn);
-            if(isScreenOn==false)
+            if(!isScreenOn)
             {
-                PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK |PowerManager.ACQUIRE_CAUSES_WAKEUP |PowerManager.ON_AFTER_RELEASE,"MyLock");
+                @SuppressLint("InvalidWakeLockTag") PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK |PowerManager.ACQUIRE_CAUSES_WAKEUP |PowerManager.ON_AFTER_RELEASE,"MyLock");
                 wl.acquire(10000);
-                PowerManager.WakeLock wl_cpu = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,"MyCpuLock");
+                @SuppressLint("InvalidWakeLockTag") PowerManager.WakeLock wl_cpu = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,"MyCpuLock");
 
                 wl_cpu.acquire(10000);
             }
         }
-        return true;
     }
 
+    public SurveyAction getInstance(){
+        return this;
+    }
     public static class NotificationActionService extends IntentService {
         public NotificationActionService() {
             super(NotificationActionService.class.getSimpleName());
         }
-
         @Override
         protected void onHandleIntent(Intent intent) {
             Context app = ApplicationContext.getContext();
@@ -311,7 +342,7 @@ public class SurveyAction extends FirebaseAction {
                 }
 
                 //Followed by an intent to actually start our survey!
-                NotificationManager manager = (NotificationManager) app.getSystemService(app.NOTIFICATION_SERVICE);
+                NotificationManager manager = (NotificationManager) app.getSystemService(NOTIFICATION_SERVICE);
                 manager.cancel(id);
                 Intent resultIntent = new Intent(app, SurveyActivity.class);
                 resultIntent.putExtra(SURVEY_ID, intent.getStringExtra(SURVEY_ID));
@@ -325,7 +356,7 @@ public class SurveyAction extends FirebaseAction {
 
             }
             if (ACTION_2.equals(action)) {
-                NotificationManager manager = (NotificationManager) app.getSystemService(app.NOTIFICATION_SERVICE);
+                NotificationManager manager = (NotificationManager) app.getSystemService(NOTIFICATION_SERVICE);
                 manager.cancel(id);
             }
         }

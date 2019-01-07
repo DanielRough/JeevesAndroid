@@ -25,19 +25,19 @@ package com.ubhave.triggermanager;
 import com.ubhave.sensormanager.ESException;
 import com.ubhave.triggermanager.config.TriggerConfig;
 
-public interface TriggerManagerInterface
+interface TriggerManagerInterface
 {
-	public int addTrigger(int triggerType, final TriggerReceiver listener, final TriggerConfig parameters) throws ESException, TriggerException;
+	int addTrigger(int triggerType, final TriggerReceiver listener, final TriggerConfig parameters) throws ESException, TriggerException;
 
-	public void removeTrigger(int triggerId) throws TriggerException;
+	void removeTrigger(int triggerId) throws TriggerException;
 	
-	public void removeAllTriggers() throws TriggerException;
+	void removeAllTriggers() throws TriggerException;
 	
-	public void resetCap();
+	void resetCap();
 	
-	public void setNotificationCap(int value);
+	void setNotificationCap(int value);
 	
-	public boolean isTriggerAlive(int triggerType, int triggerId) throws TriggerException;
+	boolean isTriggerAlive(int triggerType, int triggerId) throws TriggerException;
 	
 }
 

@@ -4,6 +4,8 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.Build;
+import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -18,13 +20,14 @@ public class HeartActivity extends AppCompatActivity implements SensorEventListe
     private TextView txtHeart;
     private TextView txtAcc;
 
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT_WATCH)
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_heart);
         mSensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
         mHeartRate = mSensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE);
-        txtHeart = (TextView)findViewById(R.id.txtHeart);
-        txtAcc = (TextView)findViewById(R.id.txtAcc);
+        txtHeart = findViewById(R.id.txtHeart);
+        txtAcc = findViewById(R.id.txtAcc);
     }
     protected void onResume() {
         super.onResume();
@@ -38,17 +41,14 @@ public class HeartActivity extends AppCompatActivity implements SensorEventListe
 
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
         Log.d("ACCURACY","Accuracy is " + accuracy);
-        txtAcc.setText(Integer.toString(accuracy));
+        txtAcc.setText(String.format("%d",accuracy));
     }
 
     public void onSensorChanged(SensorEvent event) {
-      //  String msg = "" + (int)event.values[0];
-        String message = "";
+        StringBuilder message = new StringBuilder();
         for(int i = 0; i < event.values.length; i++){
-            message += event.values[i] + ",";
+            message.append(event.values[i]).append(",");
         }
-       // Log.d("HEART RATE","Heart rate is " + msg);
-
-        txtHeart.setText(message);
+        txtHeart.setText(message.toString());
     }
 }

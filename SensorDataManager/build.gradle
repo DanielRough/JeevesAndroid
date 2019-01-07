@@ -8,12 +8,11 @@ buildscript {
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 26
-    buildToolsVersion "26.0.2"
+    compileSdkVersion 27
 
     defaultConfig {
-        minSdkVersion 21
-        targetSdkVersion 26
+        minSdkVersion 19
+        targetSdkVersion 27
         versionCode 1
         versionName "1.0"
     }
@@ -26,8 +25,8 @@ android {
 }
 
 dependencies {
-    compile project(':SensorManager')
-    compile files('libs/httpmime-4.1.2.jar')
-    compile files('libs/sqlcipher.jar')
-    compile files('libs/ziputils-1.1.jar')
+    implementation project(':SensorManager')
+    implementation files('libs/httpmime-4.1.2.jar')
+    implementation files('libs/sqlcipher.jar')
+    implementation files('libs/ziputils-1.1.jar')
 }

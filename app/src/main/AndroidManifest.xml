@@ -1,25 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.jeevesandroid">
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.jeevesandroid"
+    tools:ignore="GoogleAppIndexingWarning">
 
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-    <uses-permission android:name="android.permission.BATTERY_STATS" />
     <uses-permission android:name="android.permission.BODY_SENSORS" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.PROCESS_OUTGOING_CALLS" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
-    <uses-permission android:name="android.permission.RECEIVE_SMS" />
-    <uses-permission android:name="android.permission.READ_SMS" />
-    <uses-permission android:name="android.permission.SEND_SMS" />
-    <uses-permission android:name="android.permission.READ_CALL_LOG" />
     <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
     <uses-permission android:name="com.google.android.gms.permission.ACTIVITY_RECOGNITION" />
@@ -71,7 +67,8 @@
         <service
             android:name=".ActivityService"
             android:enabled="true"
-            android:exported="true" />
+            android:exported="true"
+            android:permission="" />
         <!-- Stops it restarting -->
         <receiver android:name=".actions.SurveyAction$MissedSurveyReceiver" />
 
@@ -79,7 +76,8 @@
         <service
             android:name=".ActionExecutorService"
             android:enabled="true"
-            android:exported="true" />
+            android:exported="true"
+            android:permission="" />
 
         <activity
             android:name=".ContactActivity"
@@ -107,7 +105,8 @@
         <service
             android:name=".SenseService"
             android:enabled="true"
-            android:exported="true" />
+            android:exported="true"
+            android:permission="" />
 
         <activity
             android:name=".login.DeletedActivity"
@@ -122,11 +121,8 @@
             android:name=".PrivacyPolicy"
             android:label="@string/title_activity_privacy_policy"
             android:parentActivityName=".WelcomeActivity" />
-        <activity
-            android:name=".WebviewActivity"
-            android:label="@string/title_activity_webview"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".HeartActivity"></activity>
+
+        <activity android:name=".HeartActivity" />
     </application>
 
 </manifest>

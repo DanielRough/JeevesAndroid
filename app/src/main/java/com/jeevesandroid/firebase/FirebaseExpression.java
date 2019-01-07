@@ -12,19 +12,19 @@ import java.util.Map;
 @JsonTypeInfo(use=JsonTypeInfo.Id.MINIMAL_CLASS, include= JsonTypeInfo.As.PROPERTY, property="@class",defaultImpl = FirebaseExpression.class)
 public class FirebaseExpression implements Serializable{
 
-    protected String description;
-    protected long id;
-    protected String name;
-    protected String type;
-    protected List<FirebaseExpression> variables;
-    protected String vartype;
-    protected long xPos;
-    protected long yPos;
-    protected String value;
-    protected Map<String,Object> params;
-    protected long index;
-    protected boolean isValue;
-    protected boolean isCustom;
+    private String description;
+    private long id;
+    private String name;
+    private String type;
+    private List<FirebaseExpression> variables;
+    private String vartype;
+    private long xPos;
+    private long yPos;
+    private String value;
+    private Map<String,Object> params;
+    private long index;
+    private boolean isValue;
+    private boolean isCustom;
 
     public String getdescription() { return description; }
 

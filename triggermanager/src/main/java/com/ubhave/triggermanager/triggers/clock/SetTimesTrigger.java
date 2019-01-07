@@ -44,7 +44,7 @@ public class SetTimesTrigger extends RandomFrequencyTrigger
 
     private final static String TRIGGER_NAME = "TimeOfDayTrigger";
     private HashSet<Integer> randomlySelectedTriggerIds;
-    protected final DailyNotificationScheduler dailySchedulerAlarm;
+    private final DailyNotificationScheduler dailySchedulerAlarm;
 
     public SetTimesTrigger(Context context, int id, final TriggerReceiver listener, final TriggerConfig parameters) throws TriggerException
     {

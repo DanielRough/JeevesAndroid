@@ -1,11 +1,6 @@
 com.jwetherell.heart_rate_monitor
-int drawable green_icon 0x7f090001
-int drawable icon 0x7f090002
-int drawable red_icon 0x7f090003
-int id layout 0x7f0c0001
-int id mTextField 0x7f0c0002
-int id surfaceView 0x7f0c0003
-int id text 0x7f0c0004
-int layout main 0x7f0f0001
-int string app_name 0x7f150001
-int string default_text 0x7f150002
+id mTextField
+id surfaceView
+id text
+layout main
+string app_name

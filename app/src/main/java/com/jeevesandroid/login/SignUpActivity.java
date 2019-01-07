@@ -33,9 +33,7 @@ public class SignUpActivity extends AppCompatActivity {
     private EditText nameText;
     private EditText emailText;
     private EditText passwordText;
-   // private EditText phoneText;
     private Button signUpButton;
-    private TextView loginLink;
     private FirebaseAuth mFirebaseAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
 
@@ -49,12 +47,11 @@ public class SignUpActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up);
 
-        nameText = (EditText)findViewById(R.id.input_name);
-        emailText = (EditText)findViewById(R.id.input_email);
-        passwordText = (EditText)findViewById(R.id.input_password);
-     //   phoneText = (EditText)findViewById(R.id.input_phone);
-        signUpButton = (Button)findViewById(R.id.btn_signup);
-        loginLink = (TextView)findViewById(R.id.link_login);
+        nameText = findViewById(R.id.input_name);
+        emailText = findViewById(R.id.input_email);
+        passwordText = findViewById(R.id.input_password);
+        signUpButton = findViewById(R.id.btn_signup);
+        TextView loginLink = findViewById(R.id.link_login);
 
         signUpButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -66,7 +63,6 @@ public class SignUpActivity extends AppCompatActivity {
         loginLink.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Finish the registration screen and return to the Login activity
                 finish();
             }
         });
@@ -81,21 +77,21 @@ public class SignUpActivity extends AppCompatActivity {
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser user = firebaseAuth.getCurrentUser();
-                if (user != null) {
-                    final String name = nameText.getText().toString();
-                    final String email = emailText.getText().toString();
-                    onSignupSuccess(user.getUid(),name,email);
-                }
+            FirebaseUser user = firebaseAuth.getCurrentUser();
+            if (user != null) {
+                final String name = nameText.getText().toString();
+                final String email = emailText.getText().toString();
+                onSignupSuccess(user.getUid(),name,email);
+            }
             }
         };
         mFirebaseAuth.addAuthStateListener(mAuthListener);
     }
-    public Activity getInstance(){
+    private Activity getInstance(){
         return this;
     }
 
-    public void signup() {
+    private void signup() {
 
         if (!validate()) {
             onSignupFailed();
@@ -113,59 +109,50 @@ public class SignUpActivity extends AppCompatActivity {
         final String email = emailText.getText().toString();
         String password = passwordText.getText().toString();
 
-        // TODO: Implement your own signup logic here.
-
-       // showProgressDialog();
-
         mFirebaseAuth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (!task.isSuccessful()) {
-                            Log.d("NOPE",task.getException().getMessage());
-                            progressDialog.dismiss();
-                            onSignupFailed();
-                            Toast.makeText(getInstance(),task.getException().getMessage(),Toast.LENGTH_SHORT).show();
-                        }
-                        else {
-                            progressDialog.dismiss();
-                        }
-                        }
+            .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                @Override
+                public void onComplete(@NonNull Task<AuthResult> task) {
+                if (!task.isSuccessful()) {
+                    progressDialog.dismiss();
+                    onSignupFailed();
+                    Toast.makeText(getInstance(),task.getException().getMessage(),
+                            Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    progressDialog.dismiss();
+                }
+                    }
 
-                });
+            });
     }
 
 
-    public void onSignupSuccess(String userId, String name, String email) {
-        Log.d("IS THIS","HAPPENING");
+    private void onSignupSuccess(String userId, String name, String email) {
         signUpButton.setEnabled(true);
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getContext());
+        SharedPreferences prefs = PreferenceManager
+                .getDefaultSharedPreferences(ApplicationContext.getContext());
         SharedPreferences.Editor prefsEditor = prefs.edit();
-       // String phoneNo = phoneText.getText().toString();
         Intent resultIntent = new Intent();
-        //Add the user's personal/confidential information to SharedPreferences
         prefsEditor.putString(UID,userId);
         prefsEditor.putString(USERNAME,name);
         prefsEditor.putString(EMAIL,email);
-     //   prefsEditor.putString(PHONE,phoneNo);
-        prefsEditor.commit();
+        prefsEditor.apply();
         setResult(RESULT_OK, resultIntent);
-       // startStudySignup();
         finish();
     }
 
-    public void onSignupFailed() {
+    private void onSignupFailed() {
 
         signUpButton.setEnabled(true);
     }
 
-    public boolean validate() {
+    private boolean validate() {
         boolean valid = true;
 
         String name = nameText.getText().toString();
         String email = emailText.getText().toString();
         String password = passwordText.getText().toString();
-    //    String phone = phoneText.getText().toString();
 
         if (name.isEmpty() || name.length() < 3) {
             nameText.setError("at least 3 characters");
@@ -187,14 +174,6 @@ public class SignUpActivity extends AppCompatActivity {
         } else {
             passwordText.setError(null);
         }
-//        if(!android.util.Patterns.PHONE.matcher(phone).matches()){
-//            phoneText.setError("enter a valid phone number");
-//            valid = false;
-//        } else {
-//            phoneText.setError(null);
-//        }
-
-
         return valid;
     }
 

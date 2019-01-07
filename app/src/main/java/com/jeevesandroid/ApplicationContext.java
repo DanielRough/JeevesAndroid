@@ -6,6 +6,7 @@ import android.content.Context;
 import com.jeevesandroid.actions.FirebaseAction;
 import com.jeevesandroid.firebase.FirebaseProject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.TreeMap;
@@ -48,7 +49,7 @@ public class ApplicationContext extends Application
     public static final String SURVEY_NAME = "surveyname";
     public static final String WAS_INIT = "initialised";
     public static final String TRIG_TYPE = "triggerType";
-    public static final String SURVEY_ID = "surveyid";
+    public static final String SURVEY_ID = "surveyId";
     public static final String DEADLINE = "deadline";
     public static final String STATUS = "status";
 
@@ -68,16 +69,19 @@ public class ApplicationContext extends Application
     private static ApplicationContext instance;
     private static FirebaseProject currentproject;
 
+// --Commented out by Inspection START (1/1/2019 6:21 PM):
     public ApplicationContext()
     {
         instance = this;
     }
+// --Commented out by Inspection STOP (1/1/2019 6:21 PM)
 
     public static FirebaseProject getProject(){ return currentproject;}
 
     public static void setCurrentproject(FirebaseProject proj){
         currentproject = proj;
     }
+
 
     public static Context getContext()
     {
@@ -88,16 +92,30 @@ public class ApplicationContext extends Application
 
     public static TreeMap<String,String> getFeedback(){
         if(feedback == null)
-            feedback = new TreeMap<String,String>();
+            feedback = new TreeMap<>();
         return feedback;
     }
 
     //A rather terrible way of passing actions to execute when a location trigger is fired
-    public static HashMap<String,List<FirebaseAction>> locationActions;
+    //(or an activity trigger)
+    private static HashMap<String,List<FirebaseAction>> locationActions;
+    private static HashMap<String,List<FirebaseAction>> activityActions;
+    private static ArrayList<String> requiredSensors;
 
+    public static ArrayList<String> getRequiredSensors(){
+        if(requiredSensors == null)
+            requiredSensors = new ArrayList<>();
+        return requiredSensors;
+    }
+    public static HashMap<String,List<FirebaseAction>> getActivityActions(){
+        if(activityActions == null)
+            activityActions = new HashMap<>();
+        return activityActions;
+    }
     public static HashMap<String,List<FirebaseAction>> getLocationActions(){
         if(locationActions == null)
-            locationActions = new HashMap<String,List<FirebaseAction>>();
+            locationActions = new HashMap<>();
         return locationActions;
     }
+
 }

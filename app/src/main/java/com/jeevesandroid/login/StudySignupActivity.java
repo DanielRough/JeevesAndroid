@@ -7,14 +7,12 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,9 +29,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import static com.jeevesandroid.ApplicationContext.DEVELOPER_ID;
@@ -43,34 +39,31 @@ import static com.jeevesandroid.ApplicationContext.USERNAME;
 
 public class StudySignupActivity extends AppCompatActivity {
 
-    private FirebaseAuth mFirebaseAuth;
     private FirebaseUser mFirebaseUser;
-    String username = "";
-    Map<String,FirebaseProject> projectMap;
-    ArrayAdapter<String> adapter;
-    ArrayList<String> listItems=new ArrayList<String>();
-    String selectedStudy;
-    FirebaseDatabase database;
-    public Activity getInstance(){
+    private Map<String,FirebaseProject> projectMap;
+    private String selectedStudy;
+    private FirebaseDatabase database;
+    private Activity getInstance(){
         return this;
     }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mFirebaseAuth = FirebaseAuth.getInstance();
+        FirebaseAuth mFirebaseAuth = FirebaseAuth.getInstance();
         mFirebaseUser = mFirebaseAuth.getCurrentUser();
-        projectMap = new HashMap<String,FirebaseProject>();
+        projectMap = new HashMap<>();
         database = FirebaseUtils.getDatabase();
         setContentView(R.layout.activity_study_signup);
-        final EditText txtStudyId = (EditText) findViewById(R.id.textStudyId);
-        TextView txtWelcome = (TextView) findViewById(R.id.txtWelcome);
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getContext());
-        username = prefs.getString(USERNAME,"");
-        txtWelcome.setText("Welcome, " + username);
+        final EditText txtStudyId = findViewById(R.id.textStudyId);
+        TextView txtWelcome = findViewById(R.id.txtWelcome);
+        SharedPreferences prefs = PreferenceManager
+                .getDefaultSharedPreferences(ApplicationContext.getContext());
+        String username = prefs.getString(USERNAME, "");
+        txtWelcome.setText(String.format(getResources().getString(R.string.welcome), username));
 
 
 
-        final Button beginStudy = (Button) findViewById(R.id.btnBeginStudy);
+        final Button beginStudy = findViewById(R.id.btnBeginStudy);
         beginStudy.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -83,11 +76,11 @@ public class StudySignupActivity extends AppCompatActivity {
                         beginStudy();
                     }
                 }
-                if(found == false)
+                if(!found)
                     Toast.makeText(getInstance(),"No study found with this ID",Toast.LENGTH_SHORT).show();
             }
         });
-      //  final ListView lstStudies = (ListView)findViewById(R.id.lstStudies);
+        //  final ListView lstStudies = (ListView)findViewById(R.id.lstStudies);
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
         builder.setTitle("Start study");
@@ -103,109 +96,71 @@ public class StudySignupActivity extends AppCompatActivity {
             }
         });
 
-//        adapter=new ArrayAdapter<String>(this,
-//                android.R.layout.simple_list_item_1,
-//                listItems);
-//        lstStudies.setAdapter(adapter);
-//        lstStudies.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//
-//            public void onItemClick(AdapterView<?> adapter, View v, int position, long id) {
-//                selectedStudy= lstStudies.getItemAtPosition(position).toString();
-//                builder.setMessage("Are you sure you want to start study " + selectedStudy + "?");
-//                AlertDialog dialog = builder.create();
-//                dialog.show();
-//            }
-//        });
-        DatabaseReference projectsRef = database.getReference(FirebaseUtils.PUBLIC_KEY).child(FirebaseUtils.PROJECTS_KEY);
+        DatabaseReference projectsRef = database
+                .getReference(FirebaseUtils.PUBLIC_KEY)
+                .child(FirebaseUtils.PROJECTS_KEY);
         ValueEventListener postListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 // Get Post object and use the values to update the UI
-                listItems.clear();
                 Iterable<DataSnapshot> post = dataSnapshot.getChildren();
-                Iterator<DataSnapshot> iter = post.iterator();
-                while(iter.hasNext()){
-                    FirebaseProject proj = iter.next().getValue(FirebaseProject.class);
+                for (DataSnapshot aPost : post) {
+                    FirebaseProject proj = aPost.getValue(FirebaseProject.class);
                     String name = proj.getname();
                     projectMap.put(name, proj);
-                    //Don't let them select it from the list if it's not public
-//                    if(proj.getisPublic()) {
-//                        listItems.add(name);
-//                        adapter.notifyDataSetChanged();
-//                    }
                 }
             }
 
             @Override
-            public void onCancelled(DatabaseError databaseError) {
+            public void onCancelled(@NonNull DatabaseError databaseError) {
             }
         };
         projectsRef.addValueEventListener(postListener);
     }
 
-    public void beginStudy(){
+    private void beginStudy(){
         FirebaseProject selectedProject = projectMap.get(selectedStudy);
         ApplicationContext.setCurrentproject(selectedProject);
 
         String developerid = selectedProject.getresearcherno();
-
-        //Set the reference we need to push our survey results to
-        //FirebaseUtils.SURVEY_REF = database.getReference(FirebaseUtils.PRIVATE_KEY).child(developerid).child(SURVEYS_KEY);
-        Log.d("DEVID","developer id is " + developerid);
-        FirebaseUtils.SURVEY_REF = database.getReference(FirebaseUtils.PRIVATE_KEY).child(developerid).child(FirebaseUtils.PROJECTS_KEY).child(selectedStudy).child(FirebaseUtils.SURVEYDATA_KEY);
-        FirebaseUtils.PATIENT_REF = database.getReference(FirebaseUtils.PRIVATE_KEY).child(developerid).child(FirebaseUtils.PATIENTS_KEY).child(mFirebaseUser.getUid());
+        FirebaseUtils.SURVEY_REF = database
+                .getReference(FirebaseUtils.PRIVATE_KEY)
+                .child(developerid)
+                .child(FirebaseUtils.PROJECTS_KEY)
+                .child(selectedStudy)
+                .child(FirebaseUtils.SURVEYDATA_KEY);
+        FirebaseUtils.PATIENT_REF = database
+                .getReference(FirebaseUtils.PRIVATE_KEY)
+                .child(developerid)
+                .child(FirebaseUtils.PATIENTS_KEY)
+                .child(mFirebaseUser.getUid());
 
 
         final Intent intent = new Intent(getInstance(),WelcomeActivity.class);
-        SharedPreferences varPrefs = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getContext());
+        SharedPreferences varPrefs = PreferenceManager
+                .getDefaultSharedPreferences(ApplicationContext.getContext());
         //Add the user's selected study to SharedPreferences
         SharedPreferences.Editor prefsEditor = varPrefs.edit();
         prefsEditor.putString(STUDY_NAME,selectedStudy);
         prefsEditor.putString(DEVELOPER_ID,developerid);
-        prefsEditor.commit();
+        prefsEditor.apply();
 
         //Add in the initial values
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getContext());
         String username = prefs.getString(USERNAME,"");
         String email = prefs.getString(EMAIL,"");
-     //   String phoneno = prefs.getString(PHONE,"");
         final String sensitiveData = username+";"+email;
-        //Okay, if the user ALREADY EXISTS but they've just cleared their data, then we don't need them to readd themselves
-        //to the study
-//        FirebaseUtils.PATIENT_REF.addListenerForSingleValueEvent(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(DataSnapshot snapshot) {
-//                FirebaseProject post = snapshot.getValue(FirebaseProject.class);
-//                if(post != null){
-//                    Toast.makeText(getInstance(),"You're already signed up to this study!",Toast.LENGTH_SHORT);
-//                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-//                    startActivity(intent);
-//                    finish();
-//                }
-//                else{
-//
-//                }
-//            }
-//            @Override
-//            public void onCancelled(DatabaseError databaseError) {
-                Map<String,Object> childMap = new HashMap<String,Object>();
-                childMap.put("userinfo",FirebaseUtils.encodeKey(sensitiveData));
-                childMap.put("name",mFirebaseUser.getUid());
-                childMap.put("currentStudy",selectedStudy);
-                childMap.put("completed",0);
-                childMap.put("missed",0);
-                FirebaseUtils.PATIENT_REF.setValue(childMap);
-/*                FirebaseUtils.PATIENT_REF.child("userinfo").setValue(FirebaseUtils.encodeAnswers(sensitiveData));
-                FirebaseUtils.PATIENT_REF.child("name").setValue(mFirebaseUser.getUid());
-                FirebaseUtils.PATIENT_REF.child("currentStudy").setValue(selectedStudy);
-                FirebaseUtils.PATIENT_REF.child("completed").setValue(0);
-                FirebaseUtils.PATIENT_REF.child("missed").setValue(0);*/
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(intent);
-                finish();
 
-   //         }
- //       });
+        Map<String,Object> childMap = new HashMap<>();
+        childMap.put("userinfo",FirebaseUtils.encodeKey(sensitiveData));
+        childMap.put("name",mFirebaseUser.getUid());
+        childMap.put("currentStudy",selectedStudy);
+        childMap.put("completed",0);
+        childMap.put("missed",0);
+        FirebaseUtils.PATIENT_REF.setValue(childMap);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
+        finish();
 
     }
 }

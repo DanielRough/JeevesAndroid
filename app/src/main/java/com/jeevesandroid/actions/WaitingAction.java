@@ -10,8 +10,4 @@ public class WaitingAction extends FirebaseAction {
         setparams(params);
 
     }
-    @Override
-    public boolean execute() {
-        return true;
-    }
 }

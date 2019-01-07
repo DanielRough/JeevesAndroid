@@ -24,7 +24,7 @@ public class JeevesIntervalTrigger extends RandomFrequencyTrigger{
 
     private final static String TRIGGER_NAME = "JeevesIntervalTrigger";
     private HashSet<Integer> randomlySelectedTriggerIds;
-    protected final DailyNotificationScheduler dailySchedulerAlarm;
+    private final DailyNotificationScheduler dailySchedulerAlarm;
 
     public JeevesIntervalTrigger(Context context, int id, final TriggerReceiver listener, final TriggerConfig parameters) throws TriggerException
     {

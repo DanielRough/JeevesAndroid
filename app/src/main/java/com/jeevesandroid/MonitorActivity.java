@@ -25,7 +25,6 @@ import static com.jeevesandroid.ApplicationContext.LABEL;
  * Buttons fire off an intent that gets picked up by Broadcast Receivers in the Button trigger.
  */
 public class MonitorActivity extends AppCompatActivity {
-    List<FirebaseUI> uielements;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,8 +37,8 @@ public class MonitorActivity extends AppCompatActivity {
         actionBar.setDisplayHomeAsUpEnabled(true);
 
                 FirebaseProject currentProject = ApplicationContext.getProject();
-                uielements = currentProject.getuidesign();
-                LinearLayout customlayout = (LinearLayout)findViewById(R.id.customLayout);
+        List<FirebaseUI> uielements = currentProject.getuidesign();
+                LinearLayout customlayout = findViewById(R.id.customLayout);
                 customlayout.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
                 customlayout.removeAllViews();
                 LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
@@ -47,7 +46,7 @@ public class MonitorActivity extends AppCompatActivity {
                 params.setMargins(0,50,0,50);
                 for (FirebaseUI uielement : uielements) {
                     if(uielement.getname().equals(BUTTON)){
-                        final Button button = (Button)getLayoutInflater().inflate(R.layout.buttontemplate, null);
+                        final Button button = (Button)getLayoutInflater().inflate(R.layout.buttontemplate,null);
                         button.setText(uielement.gettext());
                         button.setOnClickListener(new View.OnClickListener() {
                             @Override

@@ -265,8 +265,7 @@ public class ESSensorManager implements ESSensorManagerInterface, SensorDataList
 	}
 
 	@Override
-	public Object getGlobalConfig(String configKey) throws ESException
-	{
+	public Object getGlobalConfig(String configKey) {
 		return config.getParameter(configKey);
 	}
 
@@ -280,7 +279,7 @@ public class ESSensorManager implements ESSensorManagerInterface, SensorDataList
 		{
 			PowerManager pm = (PowerManager) applicationContext.getSystemService(Context.POWER_SERVICE);
 			wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Wakelock_" + System.currentTimeMillis());
-			wakeLock.acquire();
+			wakeLock.acquire(10*60*1000L /*10 minutes*/);
 		}
 	}
 
@@ -346,14 +345,12 @@ public class ESSensorManager implements ESSensorManagerInterface, SensorDataList
 		}
 	}
 
-	public void pauseSubscription(int subscriptionId) throws ESException
-	{
+	public void pauseSubscription(int subscriptionId) {
 		Subscription s = subscriptionList.getSubscription(subscriptionId);
 		s.pause();
 	}
 
-	public void unPauseSubscription(int subscriptionId) throws ESException
-	{
+	public void unPauseSubscription(int subscriptionId) {
 		Subscription s = subscriptionList.getSubscription(subscriptionId);
 		s.unpause();
 	}

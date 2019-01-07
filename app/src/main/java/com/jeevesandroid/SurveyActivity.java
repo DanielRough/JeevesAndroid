@@ -4,13 +4,9 @@ import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -21,8 +17,6 @@ import android.location.LocationManager;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
-import android.net.wifi.ScanResult;
-import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -40,15 +34,12 @@ import android.view.Window;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.ScrollView;
@@ -72,7 +63,6 @@ import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.places.Place;
-import com.google.android.gms.location.places.Places;
 import com.google.android.gms.location.places.ui.PlacePicker;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -80,7 +70,6 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -91,12 +80,17 @@ import com.ubhave.triggermanager.triggers.TriggerUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 
 import static com.jeevesandroid.ApplicationContext.COMPLETE;
 import static com.jeevesandroid.ApplicationContext.COMPLETED_SURVEYS;
@@ -110,145 +104,212 @@ import static com.jeevesandroid.ApplicationContext.SURVEY_SCORE_DIFF;
 import static com.jeevesandroid.ApplicationContext.TIME_SENT;
 import static com.jeevesandroid.ApplicationContext.TRIG_TYPE;
 import static com.jeevesandroid.ApplicationContext.UID;
-import static com.jeevesandroid.ApplicationContext.getContext;
 
 public class SurveyActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener, OnMapReadyCallback,MediaPlayer.OnPreparedListener {
-    public static final int OPEN_ENDED = 1;
-    public static final int MULT_SINGLE = 2;
-    public static final int MULT_MANY = 3;
-    public static final int SCALE = 4;
-    public static final int DATE = 5;
-    public static final int GEO = 6;
-    public static final int BOOLEAN = 7;
-    public static final int NUMERIC = 8;
-    public static final int TIME = 9;
-    public static final int WIFI = 10;
-    public static final int BLUETOOTH = 11;
-    public static final int IMAGE = 12;
-    public static final int TEXTPRESENT = 13;
-    public static final int HEART = 14;
-    public static final int AUDIO = 15;
-    final Handler handler = new Handler();
-    List<FirebaseQuestion> questions;
-    int currentIndex = 0;
-    List<String> answers; //For storing user's question data as we flip through
-    AlertDialog.Builder finishalert;
-    AlertDialog.Builder warningalert;
-    Button btnNext;
-    Button btnBack;
-    ViewFlipper viewFlipper;
-    EditText txtOpenEnded;
-    EditText txtNumeric;
-    RadioGroup grpBool;
-    RadioGroup grpMultSingle;
-    SeekBar seekBar;
- //   RadioGroup grpScale;
-    LinearLayout grpMultMany;
-    ListView lstWifi;
-    ListView lstBluetooth;
-    PhotoView photoView;
-    TextView txtPresent;
-    long finalscore = 0;
-    TextView txtQNo;
-    int currentQuestionCount = 0;
-    String latlong;
-    Animation slide_in_left, slide_out_right;
-    GoogleMap map;
-    int PLACE_PICKER_REQUEST = 1;
-    DatabaseReference surveyRef;
-    DatabaseReference completedSurveysRef;
-    FirebaseAuth mFirebaseAuth;
-    SharedPreferences prefs;
-    boolean finished = false;
-    long timeSent = 0;
-    long initTime = 0;
-    int triggerType = 0;
-    FirebaseSurvey currentsurvey = null;
-    ArrayList<CheckBox> allBoxes = new ArrayList<CheckBox>();
+    private static final String OPEN_ENDED = "OPEN_ENDED";
+    private static final String MULT_SINGLE = "MULT_SINGLE";
+    private static final String MULT_MANY = "MULT_MANY";
+    private static final String SCALE = "SCALE";
+    private static final String DATE = "DATE";
+    private static final String GEO = "GEO";
+    private static final String BOOLEAN = "BOOLEAN";
+    private static final String NUMERIC = "NUMERIC";
+    private static final String TIME = "TIME";
+    private static final String IMAGEPRESENT = "IMAGEPRESENT";
+    private static final String TEXTPRESENT = "TEXTPRESENT";
+    private static final String HEART = "HEART";
+    private static final String AUDIO = "AUDIO";
+    private static final ArrayList<String> viewFlipperOrdering = new ArrayList<>();
+    static {viewFlipperOrdering.addAll(Arrays.asList(
+        OPEN_ENDED,
+        MULT_SINGLE,
+        MULT_MANY,
+        SCALE,
+        DATE,
+        GEO,
+        BOOLEAN,
+        NUMERIC,
+        TIME,
+        IMAGEPRESENT,
+        TEXTPRESENT,
+        HEART,
+        AUDIO));}
+    private final Handler handler = new Handler();
+    private List<FirebaseQuestion> questions;
+    private int currentIndex = 0;
+    private List<String> answers; //For storing user's question data as we flip through
+    private AlertDialog.Builder finishalert;
+    private AlertDialog.Builder warningalert;
+    private Button btnNext;
+    private Button btnBack;
+    private ViewFlipper viewFlipper;
+    private EditText txtOpenEnded;
+    private EditText txtNumeric;
+    private RadioGroup grpBool;
+    private RadioGroup grpMultSingle;
+    private SeekBar seekBar;
+ private LinearLayout grpMultMany;
+    private PhotoView photoView;
+    private TextView txtPresent;
+    private long finalscore = 0;
+    private TextView txtQNo;
+    private int currentQuestionCount = 0;
+    private GoogleMap map;
+    private final int PLACE_PICKER_REQUEST = 1;
+    private DatabaseReference surveyRef;
+    private DatabaseReference completedSurveysRef;
+    private SharedPreferences prefs;
+    private boolean finished = false;
+    private long timeSent = 0;
+    private long initTime = 0;
+    private int triggerType = 0;
+    private FirebaseSurvey currentsurvey = null;
+    private final ArrayList<CheckBox> allBoxes = new ArrayList<>();
 
-    private String surveyid;
     private Map<String, Object> myparams; //The parameters of the current question
-    private GoogleApiClient mGoogleApiClient;
 
-    public void hideKeyboard(View view) {
+    private void hideKeyboard(View view) {
         InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
         inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
-    @Override
-    public void onBackPressed() {
 
-        return;
-    }
     protected void onStop() {
         super.onStop();
         if(currentsurvey != null) //Sometimes it's null if the activity is accessed from the lock screen
             currentsurvey.setanswers(answers); //Save the partially completed stuff
         surveyRef.addValueEventListener(new ValueEventListener() {
             @Override
-            public void onDataChange(DataSnapshot snapshot) {
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
                 surveyRef.removeEventListener(this);
-                if (finished == false)
+                if (!finished)
                     surveyRef.setValue(currentsurvey);
             }
-
             @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Log.d("Error", "we have an error here");
+            public void onCancelled(@NonNull DatabaseError databaseError) {
             }
         });
     }
-//    WifiManager mWifiManager;
-//    private ArrayList<String> mNetworkList = new ArrayList<String>();
-//    private final BroadcastReceiver mWifiScanReceiver = new BroadcastReceiver() {
-//        @Override
-//        public void onReceive(Context c, Intent intent) {
-//            if (intent.getAction().equals(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)) {
-//                Log.d("HELLO","IT@S MEEEEEEE");
-//                List<ScanResult> mScanResults = mWifiManager.getScanResults();
-//                mNetworkList.clear();
-//                for (ScanResult mScanResult : mScanResults) {
-//                    Log.d("RESULT","ound " + mScanResult.SSID);
-//                    if(!mNetworkList.contains(mScanResult.SSID))
-//                        mNetworkList.add(mScanResult.SSID);
-//                }
-//                lstWifi.setAdapter(new ArrayAdapter<String>(c,android.R.layout.simple_list_item_1,mNetworkList));
-//                // add your logic here
-//            }
-//        }
-//    };
-//
-//
-//    private BluetoothAdapter mBluetoothAdapter;
-//    private ArrayList<String> mDeviceList = new ArrayList<String>();
-//    private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
-//        public void onReceive(Context context, Intent intent) {
-//            String action = intent.getAction();
-//
-//            if (BluetoothDevice.ACTION_FOUND.equals(action)) {
-//                BluetoothDevice device = intent
-//                        .getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-//                if(device.getName() == null)
-//                    mDeviceList.add("Unknown device" + "\n" + device.getAddress());
-//                else
-//                    mDeviceList.add(device.getName() + "\n" + device.getAddress());
-//
-//                Log.i("BT", device.getName() + "\n" + device.getAddress());
-//                lstBluetooth.setAdapter(new ArrayAdapter<String>(context,
-//                        android.R.layout.simple_list_item_1, mDeviceList));
-//            }
-//        }
-//    };
 
     @Override
     public void onDestroy(){
         super.onDestroy();
-     //   unregisterReceiver(mReceiver);
-     //   unregisterReceiver(mWifiScanReceiver);
+    }
+    private void finishSurvey(){
+        currentsurvey.setanswers(null); //remove the unencoded answers
+        currentsurvey.settimeFinished(System.currentTimeMillis());
+        ArrayList<String> changedVariables = new ArrayList<>();
+        StringBuilder concatAnswers = new StringBuilder();
+        for (int i = 0; i < answers.size(); i++) {
+            String answer = answers.get(i);
+            FirebaseQuestion correspondingQuestion = questions.get(i);
+            //Let's format the dates and times nicely
+            switch (correspondingQuestion.getquestionType()) {
+                case DATE: {
+                    DateFormat formatter = new SimpleDateFormat("dd/MM/yyyy", Locale.UK);
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.setTimeInMillis(Long.parseLong(answer));
+                    concatAnswers.append(formatter.format(calendar.getTime())).append(";");
+                    break;
+                }
+                case TIME: {
+                    final Calendar midnight = Calendar.getInstance();
+                    midnight.set(Calendar.HOUR_OF_DAY, 0);
+                    midnight.set(Calendar.MINUTE, 0);
+
+                    DateFormat formatter = new SimpleDateFormat("hh:mm:ss", Locale.UK);
+                    Calendar calendar = Calendar.getInstance();
+
+                    Long millitime = Long.parseLong(answer) + midnight.getTimeInMillis();
+                    calendar.setTimeInMillis(millitime);
+                    concatAnswers.append(formatter.format(calendar.getTime())).append(";");
+                    break;
+                }
+                default:
+                    concatAnswers.append(answer).append(";");
+                    break;
+            }
+            if (correspondingQuestion.getassignedVar() != null) { //If we need to assign this answer to a variable
+                String varname = currentsurvey.getquestions().get(i).getassignedVar();
+                changedVariables.add(varname);
+                SharedPreferences.Editor editor = prefs.edit();
+                if (!answer.isEmpty()) {
+                    editor.putString(varname, answer); //Put the variable into the var
+                }
+                editor.apply();
+            }
+            if (correspondingQuestion.getparams() != null && correspondingQuestion.getparams().containsKey("assignToScore"))
+                if (!answer.isEmpty())
+                    finalscore += Long.parseLong(answer);
+        }
+        //Encode answers with a symmetric key
+        currentsurvey.setencodedAnswers(FirebaseUtils.symmetricEncryption(concatAnswers.toString()));
+        currentsurvey.setencodedKey(FirebaseUtils.getSymmetricKey());
+        currentsurvey.setscore(finalscore);
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getContext());
+
+        Map<String,Object> surveymap = new HashMap<>();
+        surveymap.put(STATUS,1);
+        if(triggerType != TriggerUtils.TYPE_SENSOR_TRIGGER_BUTTON && initTime > timeSent) //Then this was a button trigger and the init time doesn't count
+            surveymap.put(INIT_TIME,initTime-timeSent);
+        surveymap.put(COMPLETE,System.currentTimeMillis());
+        surveymap.put(TRIG_TYPE,triggerType);
+        surveymap.put(UID,prefs.getString(UID,""));
+        surveymap.put("encodedAnswers",currentsurvey.getencodedAnswers());
+        surveymap.put("encodedKey",currentsurvey.getencodedKey());
+        FirebaseUtils.SURVEY_REF.child(currentsurvey.getsurveyId()).push().setValue(surveymap);
+        //Update the various Survey-relevant variables
+
+        SharedPreferences.Editor editor = prefs.edit();
+        long oldscore = prefs.getLong(LAST_SURVEY_SCORE, 0);
+        long difference = finalscore - oldscore;
+        editor.putLong(LAST_SURVEY_SCORE, finalscore);
+        editor.putLong(SURVEY_SCORE_DIFF, difference);
+        long totalCompletedSurveyCount = prefs.getLong(COMPLETED_SURVEYS, 0);
+        totalCompletedSurveyCount++;
+        editor.putLong(COMPLETED_SURVEYS, totalCompletedSurveyCount);
+        long thisCompletedSurveyCount = prefs.getLong(currentsurvey.gettitle() + "-Completed", 0);
+        thisCompletedSurveyCount++;
+        editor.putLong(currentsurvey.gettitle() + "-Completed", thisCompletedSurveyCount);
+        editor.apply();
+
+        //SEND A BROADCAST TO LISTENING SURVEY TRIGGERS
+        Intent intended = new Intent();
+        intended.setAction(TriggerManagerConstants.ACTION_NAME_SURVEY_TRIGGER);
+        intended.putExtra(SURVEY_NAME, currentsurvey.gettitle());
+        intended.putExtra("completed", thisCompletedSurveyCount);
+        intended.putExtra("result", true);
+        intended.putExtra(TIME_SENT, currentsurvey.gettimeSent());
+        intended.putExtra("changedVariables", changedVariables);
+        sendBroadcast(intended);
+        surveyRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                DatabaseReference newPostRef = completedSurveysRef.push();
+                newPostRef.setValue(currentsurvey); //Maybe this needs tobe made explicit?
+                surveyRef.removeEventListener(this);
+                surveyRef.removeValue();
+                handler.removeCallbacksAndMessages(null);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Log.d("Error", "we have an error THERE");
+
+            }
+        });
+        finished = true;
+
+        //We should write this to Shared Preferences so that,
+        // if the app closes, we know we've already
+        //finished the introductory survey
+        editor.putBoolean(FINISHED_INTRODUCTION,finished);
+        editor.commit();
+        finish();
     }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d("STARTED","Started the thing");
         getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
 
         setContentView(R.layout.activity_missed_survey);
@@ -256,14 +317,12 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
 
         setContentView(R.layout.activity_survey);
 
-        surveyid = getIntent().getStringExtra(SURVEY_ID);
+        String surveyid = getIntent().getStringExtra(SURVEY_ID);
         initTime = getIntent().getLongExtra(INIT_TIME,0);
         timeSent = getIntent().getLongExtra(TIME_SENT,0);
         triggerType = getIntent().getIntExtra(TRIG_TYPE,0);
-        mFirebaseAuth = FirebaseAuth.getInstance();
+        //FirebaseAuth mFirebaseAuth = FirebaseAuth.getInstance();
 
-        //Here's a fiddly wee bit of code that makes our starting survey MANDATORY (i.e. the user can't do anything before
-        //they complete it)
         if(triggerType == TriggerUtils.TYPE_CLOCK_TRIGGER_BEGIN){
             actionBar.setDisplayHomeAsUpEnabled(false);
             actionBar.setHomeButtonEnabled(false);
@@ -277,47 +336,29 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
         surveyRef = FirebaseUtils.PATIENT_REF.child("incomplete").child(surveyid);
         completedSurveysRef = FirebaseUtils.PATIENT_REF.child("complete");
 
-        txtOpenEnded = ((EditText) findViewById(R.id.txtOpenEnded));
-        txtNumeric = ((EditText) findViewById(R.id.txtNumeric));
-        grpBool = ((RadioGroup) findViewById(R.id.grpBool));
-        grpMultMany = ((LinearLayout) findViewById(R.id.grpMultMany));
-        grpMultSingle = ((RadioGroup) findViewById(R.id.grpMultSingle));
+        txtOpenEnded = findViewById(R.id.txtOpenEnded);
+        txtNumeric = findViewById(R.id.txtNumeric);
+        grpBool = findViewById(R.id.grpBool);
+        grpMultMany = findViewById(R.id.grpMultMany);
+        grpMultSingle = findViewById(R.id.grpMultSingle);
        // grpScale = ((RadioGroup) findViewById(R.id.grpScale));
-        seekBar = ((SeekBar) findViewById(R.id.seekBar));
-        lstBluetooth = ((ListView)findViewById(R.id.lstBluetooth));
-
-        lstWifi = ((ListView)findViewById(R.id.lstWifi));
-        photoView = (PhotoView) findViewById(R.id.photo_view2);
-        txtPresent = (TextView)findViewById(R.id.txtPresent);
-//
-//        mWifiManager = (WifiManager) ApplicationContext.getContext().getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-//        registerReceiver(mWifiScanReceiver,
-//                new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
-//        mWifiManager.startScan();
-
-//        IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
-//        registerReceiver(mReceiver, filter);
-        txtQNo = ((TextView) findViewById(R.id.txtQno));
-        txtQNo.setText("Question 1");
-        mGoogleApiClient = new GoogleApiClient
-                .Builder(this)
-                .addApi(Places.GEO_DATA_API)
-                .addApi(Places.PLACE_DETECTION_API)
-                .enableAutoManage(this, this)
-                .build();
+        seekBar = findViewById(R.id.seekBar);
+        photoView = findViewById(R.id.photo_view2);
+        txtPresent = findViewById(R.id.txtPresent);
+        txtQNo = findViewById(R.id.txtQno);
+        txtQNo.setText(String.format(getResources().getString(R.string.question),currentQuestionCount));
 
         finishalert = new AlertDialog.Builder(this);
-        finishalert.setTitle("Thank you!");
 
-        btnNext = ((Button) findViewById(R.id.btnNext));
-        btnBack = ((Button) findViewById(R.id.btnBack));
+        btnNext = findViewById(R.id.btnNext);
+        btnBack = findViewById(R.id.btnBack);
         btnBack.setEnabled(false);
 
-        viewFlipper = (ViewFlipper) findViewById(R.id.viewFlipper);
+        viewFlipper = findViewById(R.id.viewFlipper);
 
-        slide_in_left = AnimationUtils.loadAnimation(this,
+        Animation slide_in_left = AnimationUtils.loadAnimation(this,
                 android.R.anim.slide_in_left);
-        slide_out_right = AnimationUtils.loadAnimation(this,
+        Animation slide_out_right = AnimationUtils.loadAnimation(this,
                 android.R.anim.slide_out_right);
         viewFlipper.setInAnimation(slide_in_left);
         viewFlipper.setOutAnimation(slide_out_right);
@@ -342,105 +383,13 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
         //Patient finished the survey!
         finishalert.setPositiveButton("Return", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
-                currentsurvey.setanswers(null); //remove the unencoded answers
-                currentsurvey.settimeFinished(System.currentTimeMillis());
-                ArrayList<String> changedVariables = new ArrayList<String>();
-                String concatAnswers = "";
-                for (int i = 0; i < answers.size(); i++) {
-                    String answer = answers.get(i);
-                    FirebaseQuestion correspondingQuestion = questions.get(i);
-                    concatAnswers += answer + ";";
-                    if (correspondingQuestion.getassignedVar() != null) { //If we need to assign this answer to a variable
-                        String varname = currentsurvey.getquestions().get(i).getassignedVar();
-                        changedVariables.add(varname);
-                        SharedPreferences.Editor editor = prefs.edit();
-                        if (!answer.isEmpty()) {
-                            editor.putString(varname, answer); //Put the variable into the var
-                            Log.d("PUTTING","Putting variable " + varname + " AS " + answer);
-                        }
-                        editor.commit();
-                    }
-                    if (correspondingQuestion.getparams() != null && correspondingQuestion.getparams().containsKey("assignToScore"))
-                        if (!answer.isEmpty())
-                            finalscore += Long.parseLong(answer);
-                }
-                //Encode answers with a symmetric key
-                currentsurvey.setencodedAnswers(FirebaseUtils.symmetricEncryption(concatAnswers));
-                //Encode the symmetric key with public/private, send this along with the survey too
-                currentsurvey.setencodedKey(FirebaseUtils.getSymmetricKey());
-                currentsurvey.setscore(finalscore);
-
-                //Add the relevant information to the survey ref of this project
-                //We need to know that it was completed, the time it took for the patient to begin, and the time it took them to finish.
-                //WE ALSO NEED TO KNOW WHO THE PATIENT WAS
-                //We also need to know what it was that triggered the survey (i.e. button press, sensor trigger, etc).
-                //Actually we need the full shebang, including the patient's encoded answers
-                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getContext());
-
-                Map<String,Object> surveymap = new HashMap<String,Object>();
-                surveymap.put(STATUS,1);
-                if(triggerType != TriggerUtils.TYPE_SENSOR_TRIGGER_BUTTON && initTime > timeSent) //Then this was a button trigger and the init time doesn't count
-                    surveymap.put(INIT_TIME,initTime-timeSent);
-             //   Toast.makeText(getInstance(),"Init time" + initTime + ". timesent " + timeSent,Toast.LENGTH_SHORT).show();
-                surveymap.put(COMPLETE,System.currentTimeMillis());
-                surveymap.put(TRIG_TYPE,triggerType);
-                surveymap.put(UID,prefs.getString(UID,""));
-                surveymap.put("encodedAnswers",currentsurvey.getencodedAnswers());
-                surveymap.put("encodedKey",currentsurvey.getencodedKey());
-                FirebaseUtils.SURVEY_REF.child(currentsurvey.getsurveyId()).push().setValue(surveymap);
-                //Update the various Survey-relevant variables
-
-                SharedPreferences.Editor editor = prefs.edit();
-                long oldscore = prefs.getLong(LAST_SURVEY_SCORE, 0);
-                long difference = finalscore - oldscore;
-                editor.putLong(LAST_SURVEY_SCORE, finalscore);
-                editor.putLong(SURVEY_SCORE_DIFF, difference);
-                long totalCompletedSurveyCount = prefs.getLong(COMPLETED_SURVEYS, 0);
-                totalCompletedSurveyCount++;
-                editor.putLong(COMPLETED_SURVEYS, totalCompletedSurveyCount);
-                long thisCompletedSurveyCount = prefs.getLong(currentsurvey.gettitle() + "-Completed", 0);
-                thisCompletedSurveyCount++;
-                editor.putLong(currentsurvey.gettitle() + "-Completed", thisCompletedSurveyCount);
-                editor.commit();
-
-                //SEND A BROADCAST TO LISTENING SURVEY TRIGGERS
-                Intent intended = new Intent();
-                intended.setAction(TriggerManagerConstants.ACTION_NAME_SURVEY_TRIGGER);
-                intended.putExtra(SURVEY_NAME, currentsurvey.gettitle());
-                intended.putExtra("completed", thisCompletedSurveyCount);
-                intended.putExtra("result", true);
-                intended.putExtra(TIME_SENT, currentsurvey.gettimeSent()); //need this for removing SurveyAction notifications
-                intended.putExtra("changedVariables", changedVariables);
-                sendBroadcast(intended);
-                surveyRef.addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot snapshot) {
-                        DatabaseReference newPostRef = completedSurveysRef.push();
-                        newPostRef.setValue(currentsurvey); //Maybe this needs tobe made explicit?
-                        surveyRef.removeEventListener(this);
-                        surveyRef.removeValue();
-                        handler.removeCallbacksAndMessages(null);
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                        Log.d("Error", "we have an error THERE");
-
-                    }
-                });
-                finished = true;
-
-                //We should write this to Shared Preferences so that, if the app closes, we know we've already
-                //finished the introductory survey
-                editor.putBoolean(FINISHED_INTRODUCTION,finished);
-                editor.commit();
-                finish();
+                finishSurvey();
             }
         });
 
         surveyRef.addValueEventListener(new ValueEventListener() {
             @Override
-            public void onDataChange(DataSnapshot snapshot) {
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
                 currentsurvey = snapshot.getValue(FirebaseSurvey.class);
                 if (currentsurvey != null) {
                     surveyRef.removeEventListener(this);
@@ -490,11 +439,11 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
             }
 
             @Override
-            public void onCancelled(DatabaseError databaseError) {}
+            public void onCancelled(@NonNull DatabaseError databaseError) {}
         });
     }
 
-    public SurveyActivity getInstance() {
+    private SurveyActivity getInstance() {
         return this;
     }
 
@@ -537,15 +486,10 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
         Map<String, Object> options = (Map<String, Object>) myparams.get("options");
         String imageName = (String)options.get("image");
         FirebaseStorage storage = FirebaseStorage.getInstance();
-        StorageReference storageRef = storage.getReference();
-        StorageReference gsReference = storage.getReferenceFromUrl("gs://jeeves-27914.appspot.com/" + imageName);
-        Log.d("REFERENC","ref is " + gsReference.getPath());
-        // File localFile = null;
+        StorageReference gsReference = storage
+            .getReferenceFromUrl("gs://jeeves-27914.appspot.com/" + imageName);
         final File localFile;
-        // String root = Environment.getExternalStorageDirectory().toString();
         File externalDir = getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS);
-//        File myDir = new File(Environment.getExternalStorageDirectory(), "jeeves");
-//        Log.d("IT IS ",myDir.getAbsolutePath());
         if(!externalDir.exists())
             externalDir.mkdirs();
 
@@ -558,15 +502,13 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
         gsReference.getFile(localFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
-                Log.d("SUCCSS","Success load");
-                Log.d("Path","path is " + localFile);
-                Bitmap myBitmap = BitmapFactory.decodeFile(localFile.getAbsolutePath());
-                photoView.setImageBitmap(myBitmap);                }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception exception) {
-                Log.d("FAIL","Failed to load");
-                exception.printStackTrace();
+            Bitmap myBitmap = BitmapFactory.decodeFile(localFile.getAbsolutePath());
+            photoView.setImageBitmap(myBitmap);
+            }
+    }).addOnFailureListener(new OnFailureListener() {
+        @Override
+        public void onFailure(@NonNull Exception exception) {
+            exception.printStackTrace();
             }
         });
     }
@@ -581,25 +523,28 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
         grpMultSingle.removeAllViews();
         Map<String, Object> options = (Map<String, Object>) myparams.get("options");
         Iterator<Object> opts = options.values().iterator();
-        ArrayList<RadioButton> allButtons = new ArrayList<RadioButton>();
+        ArrayList<RadioButton> allButtons = new ArrayList<>();
         while (opts.hasNext()) {
             String option = opts.next().toString();
             final RadioButton button = new RadioButton(this);
             button.setText(option);
-            button.setTextSize(20);
+            button.setTextSize(40);
             grpMultSingle.addView(button);
             allButtons.add(button);
             button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     answers.set(currentIndex, button.getText().toString());
+                    //If we're rapidly transitioning, skip right away
+                    if(currentsurvey.getfastTransition())
+                        nextQ();
                 }
             });
         }
         String answer = answers.get(currentIndex);
         if (!answer.isEmpty())
             for (RadioButton but : allButtons) {
-                if (but.getText().equals(answer.toString()))
+                if (but.getText().equals(answer))
                     but.setChecked(true);
             }
         else
@@ -610,23 +555,22 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
         grpMultMany.removeAllViews();
         allBoxes.clear();
         Map<String, Object> options = (Map<String, Object>) myparams.get("options");
-        Iterator<Object> opts = options.values().iterator();
-        while (opts.hasNext()) {
-            String option = opts.next().toString();
+        for (Object o : options.values()) {
+            String option = o.toString();
             CheckBox box = new CheckBox(this);
             box.setText(option);
-            box.setTextSize(20);
+            box.setTextSize(40);
             grpMultMany.addView(box);
             allBoxes.add(box);
             box.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    String newanswers = "";
+                    StringBuilder newanswers = new StringBuilder();
                     for (CheckBox allBox : allBoxes) {
                         if (allBox.isChecked())
-                            newanswers += allBox.getText().toString() + ",";
+                            newanswers.append(allBox.getText().toString()).append(",");
                     }
-                    answers.set(currentIndex, newanswers);
+                    answers.set(currentIndex, newanswers.toString());
                 }
             });
         }
@@ -646,14 +590,12 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
     }
 
     private void handleScale() {
-//        grpScale.removeAllViews();
-//        grpScale.clearCheck();
         Map<String, Object> options = (Map<String, Object>) myparams.get("options");
         int entries = Integer.parseInt(options.get("number").toString());
         ArrayList<String> labels = (ArrayList<String>) options.get("labels");
-        TextView txtBegin = ((TextView)findViewById(R.id.txtBegin));
-        TextView txtMiddle = ((TextView)findViewById(R.id.txtMiddle));
-        TextView txtEnd = ((TextView)findViewById(R.id.txtEnd));
+        TextView txtBegin = findViewById(R.id.txtBegin);
+        TextView txtMiddle = findViewById(R.id.txtMiddle);
+        TextView txtEnd = findViewById(R.id.txtEnd);
         TextView[] views = new TextView[]{txtBegin,txtMiddle,txtEnd};
         for(int i = 0; i < views.length; i++){
             if(labels.get(i) != null)
@@ -674,7 +616,9 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {}
             @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {}
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                if(currentsurvey.getfastTransition())
+                    nextQ();            }
         });
         //Do this here so that it gets filled with a default value if the user doesn't touch it
         if (!answer.isEmpty())
@@ -683,31 +627,18 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
             seekBar.setProgress(entries / 2);
             answers.set(currentIndex, Integer.toString(entries/2));
         }
-            //        for (int i = 0; i < entries; i++) {
-//            final RadioButton button = new RadioButton(this);
-//            button.setId(i + 1);
-//            button.setText((i + 1) + "   " + labels.get(i));
-//            button.setTextSize(20);
-//        //    grpScale.addView(button);
-//            if (!answer.isEmpty() && Integer.parseInt(answer) == (i + 1)) {
-//                button.setChecked(true);
-//            }
-//            button.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    answers.set(currentIndex, Integer.toString(button.getId()));
-//                }
-//            });
-//        }
 
     }
 
     @TargetApi(Build.VERSION_CODES.M)
     private void handleDate() {
         final Calendar calendar = Calendar.getInstance();
-        final DatePicker picker = (DatePicker) findViewById(R.id.datePicker2);
+        final DatePicker picker = findViewById(R.id.datePicker2);
         String answer = answers.get(currentIndex);
-        picker.init(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH), new DatePicker.OnDateChangedListener() {
+        picker.init(calendar.get(Calendar.YEAR),
+            calendar.get(Calendar.MONTH),
+            calendar.get(Calendar.DAY_OF_MONTH),
+            new DatePicker.OnDateChangedListener() {
 
             @Override
             public void onDateChanged(DatePicker datePicker, int year, int month, int dayOfMonth) {
@@ -717,9 +648,10 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
         });
 
         if (!answer.isEmpty()) {
-            String time = answer.toString();
-            calendar.setTimeInMillis(Long.parseLong(time));
-            picker.updateDate(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
+            calendar.setTimeInMillis(Long.parseLong(answer));
+            picker.updateDate(calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH));
         } else {
             answers.set(currentIndex, Long.toString(calendar.getTimeInMillis()));
         }
@@ -731,22 +663,20 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
         final Calendar midnight = Calendar.getInstance();
         midnight.set(Calendar.HOUR_OF_DAY, 0);
         midnight.set(Calendar.MINUTE, 0);
-        TimePicker tpicker = (TimePicker) findViewById(R.id.timePicker2);
+        TimePicker tpicker = findViewById(R.id.timePicker2);
         String answer = answers.get(currentIndex);
         tpicker.setOnTimeChangedListener(new TimePicker.OnTimeChangedListener() {
             @Override
             public void onTimeChanged(TimePicker timePicker, int i, int i1) {
-                calendar.set(Calendar.HOUR_OF_DAY, i);
-                calendar.set(Calendar.MINUTE, i1);
-                long msFromMidnight = calendar.getTimeInMillis() - midnight.getTimeInMillis();
-                answers.set(currentIndex, Long.toString(msFromMidnight));
-
+            calendar.set(Calendar.HOUR_OF_DAY, i);
+            calendar.set(Calendar.MINUTE, i1);
+            long msFromMidnight = calendar.getTimeInMillis() - midnight.getTimeInMillis();
+            answers.set(currentIndex, Long.toString(msFromMidnight));
             }
         });
 
         if (!answer.isEmpty()) {
-            String time = answer.toString();
-            calendar.setTimeInMillis(midnight.getTimeInMillis() + Long.parseLong(time));
+            calendar.setTimeInMillis(midnight.getTimeInMillis() + Long.parseLong(answer));
             tpicker.setHour(calendar.get(Calendar.HOUR_OF_DAY));
             tpicker.setMinute(calendar.get(Calendar.MINUTE));
         } else {
@@ -763,10 +693,10 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
                 String toastMsg = place.getName().toString();
 
                 Toast.makeText(this, toastMsg, Toast.LENGTH_LONG).show();
-                TextView txtPlaceName = (TextView) findViewById(R.id.txtPlaceName);
+                TextView txtPlaceName = findViewById(R.id.txtPlaceName);
                 txtPlaceName.setText(toastMsg);
                 LatLng coords = place.getLatLng();
-                map.moveCamera(CameraUpdateFactory.newLatLng(coords)); //This oughta put our camera at the current location
+                map.moveCamera(CameraUpdateFactory.newLatLng(coords));
                 map.addMarker(new MarkerOptions()
                         .position(coords)
                         .title(place.getName().toString()));
@@ -774,13 +704,11 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
                 answers.set(currentIndex, answer);
             }
         }
-//        if(requestCode == REQUEST_ENABLE_BT)
-//            mBluetoothAdapter.startDiscovery();
         if(requestCode == 1234){ //code i've defined for heart but cba making a constant
-            Button btnStart = (Button)findViewById(R.id.btnStart);
-            btnStart.setText("Heart rate acquired");
+            Button btnStart = findViewById(R.id.btnStart);
+            btnStart.setText(getResources().getString(R.string.heartrate));
             btnStart.setEnabled(false);
-            PhotoView heartview = (PhotoView)findViewById(R.id.heartview);
+            PhotoView heartview = findViewById(R.id.heartview);
             heartview.setImageResource(R.drawable.fingerdone);
             int result = data.getIntExtra("result",0);
             answers.set(currentIndex,Integer.toString(result));
@@ -789,19 +717,18 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
 
     }
 
-    private void handleGeo() throws GooglePlayServicesNotAvailableException, GooglePlayServicesRepairableException {
-        final TextView txtPlaceName = (TextView) findViewById(R.id.txtPlaceName);
+    private void handleGeo() {
+        final TextView txtPlaceName = findViewById(R.id.txtPlaceName);
 
         String answer = answers.get(currentIndex);
         if (!answer.isEmpty()) {
-            String location = answer.toString();
-            String[] locationbits = location.split(":");
+            String[] locationbits = answer.split(":");
             double latitude = Double.parseDouble(locationbits[0]);
             double longitude = Double.parseDouble(locationbits[1]);
             LatLng coords = new LatLng(latitude, longitude);
             String placename = locationbits[2];
             txtPlaceName.setText(placename);
-            map.moveCamera(CameraUpdateFactory.newLatLng(coords)); //This oughta put our camera at the current location
+            map.moveCamera(CameraUpdateFactory.newLatLng(coords));
             map.addMarker(new MarkerOptions()
                     .position(coords)
                     .title(placename));
@@ -810,7 +737,7 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
 
         }
 
-        Button btnPlacePicker = (Button) findViewById(R.id.btnPlacePicker);
+        Button btnPlacePicker = findViewById(R.id.btnPlacePicker);
 
         btnPlacePicker.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -819,9 +746,7 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
 
                 try {
                     startActivityForResult(builder.build(getInstance()), PLACE_PICKER_REQUEST);
-                } catch (GooglePlayServicesRepairableException e) {
-                    e.printStackTrace();
-                } catch (GooglePlayServicesNotAvailableException e) {
+                } catch (GooglePlayServicesRepairableException | GooglePlayServicesNotAvailableException e) {
                     e.printStackTrace();
                 }
             }
@@ -857,29 +782,33 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
     private void handleBoolean() {
         grpBool.removeAllViews();
         RadioButton trueButton = new RadioButton(this);
-        trueButton.setText("Yes");
-        trueButton.setTextSize(24);
+        trueButton.setText(getResources().getString(R.string.yes));
+        trueButton.setTextSize(40);
         RadioButton falseButton = new RadioButton(this);
-        falseButton.setText("No");
-        falseButton.setTextSize(24);
+        falseButton.setText(getResources().getString(R.string.no));
+        falseButton.setTextSize(40);
         grpBool.addView(trueButton);
         grpBool.addView(falseButton);
         trueButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 answers.set(currentIndex, "true");
+                if(currentsurvey.getfastTransition())
+                    nextQ();
             }
         });
         falseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 answers.set(currentIndex, "false");
+                if(currentsurvey.getfastTransition())
+                    nextQ();
             }
         });
 
         String answer = answers.get(currentIndex);
         if (answer != null && !answer.equals(""))
-            if (answer.toString().equals("true"))
+            if (answer.equals("true"))
                 trueButton.setChecked(true);
             else
                 falseButton.setChecked(true);
@@ -887,65 +816,26 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
             answers.set(currentIndex, "");
     }
 
-//    private void handleWifi(){
-//        lstWifi.setAdapter(new ArrayAdapter<String>(ApplicationContext.getContext(),android.R.layout.simple_list_item_1,mNetworkList));
-//        lstWifi.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//            @Override
-//            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//                String wifiText = mNetworkList.get(position);
-//                answers.set(currentIndex,wifiText);
-//            }
-//        });
-//
-//    }
-//    int REQUEST_ENABLE_BT = 99;
-//
-//    private void handleBluetooth(){
-//       // lstBluetooth.setAdapter(new ArrayAdapter<String>(ApplicationContext.getContext(),
-//        //        android.R.layout.simple_list_item_1, mDeviceList));
-//        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-//        if(mBluetoothAdapter == null)return;
-//        if (!mBluetoothAdapter.isEnabled()) {
-//            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-//            startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
-//
-//        }
-//        else
-//            mBluetoothAdapter.startDiscovery();
-//        lstBluetooth.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//            @Override
-//            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//                String bluetoothText = mDeviceList.get(position);
-//                answers.set(currentIndex,bluetoothText);
-//            }
-//        });
-//
-//    }
-
     private void handleAudio(){
         if(myparams == null)return;
         Map<String, Object> options = (Map<String, Object>) myparams.get("options");
         final String audioName = (String)options.get("audio");
         FirebaseStorage storage = FirebaseStorage.getInstance();
-        StorageReference storageRef = storage.getReference();
-        StorageReference gsReference = storage.getReferenceFromUrl("gs://jeeves-27914.appspot.com/" + audioName);
-        Log.d("REFERENC","ref is " + gsReference.getPath());
-        // File localFile = null;
+        StorageReference gsReference = storage
+            .getReferenceFromUrl("gs://jeeves-27914.appspot.com/" + audioName);
         final File localFile;
-        // String root = Environment.getExternalStorageDirectory().toString();
         final File externalDir = getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS);
-//        File myDir = new File(Environment.getExternalStorageDirectory(), "jeeves");
-//        Log.d("IT IS ",myDir.getAbsolutePath());
         if(!externalDir.exists())
             externalDir.mkdirs();
         final View.OnClickListener pauseListenr = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(getInstance(),"Please listen to the whole clip!",Toast.LENGTH_SHORT).show();
+                Toast.makeText(getInstance(),
+                    "Please listen to the whole clip!",Toast.LENGTH_SHORT).show();
             }
         };
-        final Button btnStart = (Button)findViewById(R.id.audioBtnStart);
-        final Button btnPause = (Button)findViewById(R.id.audioBtnPause);
+        final Button btnStart = findViewById(R.id.audioBtnStart);
+        final Button btnPause = findViewById(R.id.audioBtnPause);
 
         btnNext.setOnClickListener(pauseListenr);
         btnBack.setOnClickListener(pauseListenr);
@@ -975,19 +865,15 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
                         btnPause.setEnabled(true);
                         btnNext.setOnClickListener(pauseListenr);
                         btnBack.setOnClickListener(pauseListenr);
-
-                        //      mediaPlayer.start();
-                    }
+                        }
                 });
                 btnPause.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         btnStart.setEnabled(true);
                         btnPause.setEnabled(false);
-                        //     mediaPlayer.pause();
                     }
                 });
-                //     mediaPlayer.reset();
                 mediaPlayer.stop();
                 mediaPlayer.reset();
                 try {
@@ -1006,8 +892,6 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
         localFile = new File(externalDir,audioName);
         final Uri myUri = Uri.fromFile(new File(localFile.getAbsolutePath()));
         if(localFile.exists()){
-            Log.d("SUCCESS","Successful load!");
-            // initialize Uri here
             try {
                 mediaPlayer.setDataSource(getApplicationContext(), myUri);
                 mediaPlayer.setOnPreparedListener(getInstance());
@@ -1020,34 +904,30 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
         gsReference.getFile(localFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
-                Log.d("SUCCSS","Success load");
-                Log.d("Path","path is " + localFile);
-                // initialize Uri here
-                try {
-                    mediaPlayer.setDataSource(getApplicationContext(), myUri);
-                    mediaPlayer.setOnPreparedListener(getInstance());
-                    mediaPlayer.prepareAsync(); // prepare async to not block main thread
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }                }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception exception) {
-                Log.d("FAIL","Failed to load");
-                exception.printStackTrace();
+            try {
+                mediaPlayer.setDataSource(getApplicationContext(), myUri);
+                mediaPlayer.setOnPreparedListener(getInstance());
+                mediaPlayer.prepareAsync(); // prepare async to not block main thread
+            } catch (IOException e) {
+                e.printStackTrace();
+            }                }
+    }).addOnFailureListener(new OnFailureListener() {
+        @Override
+        public void onFailure(@NonNull Exception exception) {
+            exception.printStackTrace();
             }
         });
 
-        PhotoView audio = (PhotoView)findViewById(R.id.audioPhotoview);
+        PhotoView audio = findViewById(R.id.audioPhotoview);
         audio.setImageResource(R.drawable.finger);
 
 
     }
     /** Called when MediaPlayer is ready */
     public void onPrepared(final MediaPlayer player) {
-        final Button btnStart = (Button)findViewById(R.id.audioBtnStart);
-        final Button btnPause = (Button)findViewById(R.id.audioBtnPause);
-        PhotoView audioview = (PhotoView)findViewById(R.id.audioPhotoview);
+        final Button btnStart = findViewById(R.id.audioBtnStart);
+        final Button btnPause = findViewById(R.id.audioBtnPause);
+        PhotoView audioview = findViewById(R.id.audioPhotoview);
         audioview.setImageResource(R.drawable.audio);
         btnStart.setEnabled(true);
         btnStart.setOnClickListener(new View.OnClickListener() {
@@ -1069,20 +949,20 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
     }
     private void handleHeart(){
         if(answers.get(currentIndex).isEmpty()){
-            Button btnStart = (Button)findViewById(R.id.btnStart);
-            btnStart.setText("Start sensing");
+            Button btnStart = findViewById(R.id.btnStart);
+            btnStart.setText(getResources().getString(R.string.startsensing));
             btnStart.setEnabled(true);
-            PhotoView heartview = (PhotoView)findViewById(R.id.heartview);
+            PhotoView heartview = findViewById(R.id.heartview);
             heartview.setImageResource(R.drawable.finger);
         }
         else{
-            Button btnStart = (Button)findViewById(R.id.btnStart);
-            btnStart.setText("Heart rate acquired");
+            Button btnStart = findViewById(R.id.btnStart);
+            btnStart.setText(getResources().getString(R.string.heartrate));
             btnStart.setEnabled(false);
-            PhotoView heartview = (PhotoView)findViewById(R.id.heartview);
+            PhotoView heartview = findViewById(R.id.heartview);
             heartview.setImageResource(R.drawable.fingerdone);
         }
-        Button btnStart = (Button)findViewById(R.id.btnStart);
+        Button btnStart = findViewById(R.id.btnStart);
         btnStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -1095,7 +975,7 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
     private void launchQuestion(FirebaseQuestion question, String direction) {
 
         String questionText = question.getquestionText();
-        int questionType = (int) question.getquestionType();
+        String questionType = question.getquestionType();
         myparams = question.getparams();
 
         //QUESTION SKIPPING
@@ -1107,7 +987,7 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
         if (conditionQuestion != null) {
             String questionid = conditionQuestion.getquestionId();
             int conditionQuestionIndex = 0;
-            long conditionQuestionType = 0;
+            String conditionQuestionType = "";
             for (int i = 0; i < questions.size(); i++) {
                 if (questions.get(i).getquestionId().equals(questionid)) {
                     conditionQuestionIndex = i;
@@ -1144,9 +1024,9 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
                             c.set(Calendar.MINUTE, 0);
                             c.set(Calendar.SECOND, 0);
                             long constraintMillis = 0;
-                            if (conditionQuestionType == DATE)
+                            if (conditionQuestionType.equals(DATE))
                                 constraintMillis = constraintDateTime;
-                            else if (conditionQuestionType == TIME)
+                            else if (Objects.equals(conditionQuestionType, TIME))
                                 constraintMillis = c.getTimeInMillis() + constraintDateTime;
 
                             if (constraints[0].equals("before") && actualDateTime < constraintMillis)
@@ -1162,35 +1042,32 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
                             satisfied = true;
                     }
                 }
-            if (satisfied) {
-
-            } else { //This should hopefully skip to the next question
+            if (!satisfied) {
                 if (direction.equals("forward"))
                     nextQ();
                 else if (direction.equals("back"))
                     backQ();
                 return;
             }
-
         }
         if (direction.equals("forward"))
             currentQuestionCount++;
         else if (direction.equals("back"))
             currentQuestionCount--;
 
-        TextView questionView = (TextView) findViewById(R.id.txtQuestion);
-        txtQNo.setText("Part " + (currentQuestionCount));
+        TextView questionView = findViewById(R.id.txtQuestion);
+        txtQNo.setText(String.format(getResources().getString(R.string.question),currentQuestionCount));
 
-        if(questionType == IMAGE){
+        if(questionType.equals(IMAGEPRESENT)){
             questionView.setVisibility(View.INVISIBLE);
             viewFlipper.setVisibility(View.INVISIBLE);
             txtPresent.setVisibility(View.INVISIBLE);
             handleImageView();
             return;
         }
-        else if(questionType == TEXTPRESENT){
+        else if(questionType.equals(TEXTPRESENT)){
 
-            ScrollView scroller = (ScrollView)findViewById(R.id.scroll);
+            ScrollView scroller = findViewById(R.id.scroll);
             scroller.setVisibility(View.VISIBLE);
             photoView.setVisibility(View.INVISIBLE);
             questionView.setVisibility(View.INVISIBLE);
@@ -1205,15 +1082,20 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
         viewFlipper.setVisibility(View.VISIBLE);
         txtPresent.setVisibility(View.INVISIBLE);
         photoView.setVisibility(View.INVISIBLE);
-        ScrollView scroller = (ScrollView)findViewById(R.id.scroll);
+        ScrollView scroller = findViewById(R.id.scroll);
         scroller.setVisibility(View.INVISIBLE);
     //Cheap hack for now
-        if(questionType == HEART)
-            viewFlipper.setDisplayedChild(11);
-        else if(questionType == AUDIO)
-            viewFlipper.setDisplayedChild(12);
-        else
-            viewFlipper.setDisplayedChild(questionType -1);
+        switch (questionType) {
+            case HEART:
+                viewFlipper.setDisplayedChild(11);
+                break;
+            case AUDIO:
+                viewFlipper.setDisplayedChild(12);
+                break;
+            default:
+                viewFlipper.setDisplayedChild(viewFlipperOrdering.indexOf(questionType));
+                break;
+        }
         switch (questionType) {
             case OPEN_ENDED:
                 handleOpenEnded();
@@ -1234,13 +1116,7 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
                 handleTime();
                 break;
             case GEO:
-                try {
-                    handleGeo();
-                } catch (GooglePlayServicesNotAvailableException e) {
-                    e.printStackTrace();
-                } catch (GooglePlayServicesRepairableException e) {
-                    e.printStackTrace();
-                }
+                handleGeo();
                 break;
             case BOOLEAN:
                 handleBoolean();
@@ -1248,12 +1124,6 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
             case NUMERIC:
                 handleNumeric();
                 break;
-//            case WIFI:
-//                handleWifi();
-//                break;
-//            case BLUETOOTH:
-//                handleBluetooth();
-//                break;
             case HEART:
                 handleHeart();
                 break;
@@ -1264,7 +1134,7 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
         questionView.setText(questionText);
     }
 
-    public void backQ() {
+    private void backQ() {
         currentIndex--;
         if (currentIndex < 1)
             btnBack.setEnabled(false);
@@ -1272,16 +1142,23 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
     }
 
 
-    public void nextQ() {
+    private void nextQ() {
         if(questions.get(currentIndex).getisMandatory() && answers.get(currentIndex).isEmpty()) {
             Toast.makeText(this,"This question is mandatory!",Toast.LENGTH_SHORT).show();
             return;
         }
         currentIndex++;
         if (currentIndex == questions.size()) {
-            finishalert.setCancelable(false); //Once they're done they're done
-            finishalert.show();
-            return;
+            //If we want to skip extra dialogue boxes, just finish without dialogue box.
+            if (currentsurvey.getfastTransition()){
+                finishSurvey();
+                return;
+         }
+            else {
+                finishalert.setCancelable(false); //Once they're done they're done
+                finishalert.show();
+                return;
+            }
         }
         if (currentIndex > questions.size()) return; //safety net
         btnBack.setEnabled(true);
@@ -1320,7 +1197,7 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
         map.moveCamera(CameraUpdateFactory.zoomTo(10));
 
         map.moveCamera(CameraUpdateFactory.newLatLng(coordinate)); //This oughta put our camera at the current location
-        latlong = "Lat: " + coordinate.latitude + ",  Long: " + coordinate.longitude;
+       // String latlong = "Lat: " + coordinate.latitude + ",  Long: " + coordinate.longitude;
         map.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
             public void onMapLongClick(LatLng GoogleMap) {
@@ -1329,7 +1206,6 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
                 map.clear();
                 map.addMarker(opts);
                 answers.set(currentIndex, opts.getPosition().latitude + ":" + opts.getPosition().longitude);
-                Log.d("MAP", "just set it to " + answers.get(currentIndex));
                 map.moveCamera(CameraUpdateFactory.newLatLng(GoogleMap)); //This oughta put our camera at the current location
                 map.animateCamera(CameraUpdateFactory.zoomTo(16));
             }

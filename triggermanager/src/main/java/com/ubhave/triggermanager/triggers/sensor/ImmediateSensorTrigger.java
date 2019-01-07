@@ -53,14 +53,14 @@ public class ImmediateSensorTrigger extends Trigger implements SensorDataListene
 	 * WARNING -- Obsolete
 	 */
 
-	protected ESSensorManagerInterface sensorManager;
-	protected SensorDataClassifier classifier;
+	private ESSensorManagerInterface sensorManager;
+	private SensorDataClassifier classifier;
 	private int subscriptionId;
 //	GoogleApiClient mGoogleApiClient;
 //	LocationRequest mLocationRequest;
 //	Location currentLocation;
 //	String lastUpdateTime;
-	int id;
+private int id;
 	//protected static List<Geofence> geofenceList = new ArrayList<Geofence>();
 	public ImmediateSensorTrigger(Context context, int id, TriggerReceiver listener, TriggerConfig params) throws TriggerException, ESException {
 		super(context, id, listener, params);
@@ -132,7 +132,7 @@ public class ImmediateSensorTrigger extends Trigger implements SensorDataListene
 		}
 	}
 
-	protected int getSensorType() throws TriggerException {
+	private int getSensorType() throws TriggerException {
 		if (params.containsKey(TriggerConfig.SENSOR_TYPE)) {
 			return TriggerUtils.getSensorType(params.getParameter(TriggerConfig.SENSOR_TYPE).toString());
 		} else {

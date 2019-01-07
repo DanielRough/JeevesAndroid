@@ -60,13 +60,6 @@ public class ESBluetoothDevice
 
 	public boolean equals(ESBluetoothDevice btDevice)
 	{
-		if (bluetoothDeviceAddress.equals(btDevice.getBluetoothDeviceAddress()))
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
+        return bluetoothDeviceAddress.equals(btDevice.getBluetoothDeviceAddress());
 	}
 }

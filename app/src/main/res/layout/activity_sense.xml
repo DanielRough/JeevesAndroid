@@ -7,7 +7,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.example.daniel.jeeves.com.jeeves.WelcomeActivity">
+    tools:context="com.jeevesandroid.WelcomeActivity">
 
     <LinearLayout
         android:orientation="vertical"
@@ -28,32 +28,29 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="This is the Jeeves ESM application. From here, you can edit your settings, complete missed surveys, or contact your researcher"
-            android:id="@+id/textView2"
+            android:text="@string/sense_this"
             android:layout_weight="0.04"
-            android:textSize="18dp" />
+            android:textSize="18sp" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="Missed Surveys"
-            android:id="@+id/textView4"
+            android:text="@string/sense_missed"
             android:layout_weight="0.04" />
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Complete missed surveys"
+            android:text="@string/sense_complete"
             android:id="@+id/btnSurvey"
             android:layout_weight="0.04" />
 
         <TextView
-            android:id="@+id/textView3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="0.04"
-            android:text="Self-Report"
+            android:text="@string/sense_self"
             android:textAppearance="?android:attr/textAppearanceLarge" />
 
         <Button
@@ -62,14 +59,14 @@
             android:layout_height="wrap_content"
             android:layout_weight="0.04"
             android:clickable="true"
-            android:text="Log new information" />
+            android:focusable="true"
+            android:text="@string/sense_log" />
 
         <TextView
-            android:id="@+id/textView5"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="0.04"
-            android:text="Messages"
+            android:text="@string/sense_messages"
             android:textAppearance="?android:attr/textAppearanceLarge" />
 
         <Button
@@ -77,10 +74,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="0.04"
-            android:text="Send and view messages" />
+            android:text="@string/sense_messages" />
 
         <TextView
-            android:id="@+id/txtNewMessages"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="0.04"
@@ -92,7 +88,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="0.04"
-            android:text="Heart rate" />
+            android:text="@string/sense_heart" />
 
         <Button
             android:id="@+id/btnViewData"
@@ -101,7 +97,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="75dp"
             android:layout_weight="0.1"
-            android:text="View the Jeeves Privacy Policy"
+            android:text="@string/sense_view"
             android:textAppearance="@style/TextAppearance.AppCompat.Small"
             tools:text="View the Jeeves Privacy Policy" />
 

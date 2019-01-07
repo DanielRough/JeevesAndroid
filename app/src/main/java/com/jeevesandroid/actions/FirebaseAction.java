@@ -10,12 +10,13 @@ import java.util.Map;
  * Created by Daniel on 26/05/15.
  */
 
+@SuppressWarnings("unused")
 public class FirebaseAction implements Serializable,IAction {
-    public boolean manual;
+    private boolean manual;
 
-    public List<FirebaseAction> actions;
-    public FirebaseExpression condition;
-    private String description;
+    List<FirebaseAction> actions;
+    FirebaseExpression condition;
+    // --Commented out by Inspection (1/1/2019 6:22 PM):private String description;
     private long id;
     private String name;
     private Map<String,Object> params;
@@ -24,9 +25,9 @@ public class FirebaseAction implements Serializable,IAction {
     private long yPos;
     private List<FirebaseExpression> vars;
 
-    public String getdescription() {
-        return description;
-    }
+    //public String getdescription() {
+    //    return description;
+    //}
 
     public long getid() {
         return id;
@@ -36,6 +37,9 @@ public class FirebaseAction implements Serializable,IAction {
         return name;
     }
 
+    void setname(String name){
+        this.name = name;
+    }
     public Map<String, Object> getparams() {
         return params;
     }
@@ -56,11 +60,10 @@ public class FirebaseAction implements Serializable,IAction {
         return yPos;
     }
 
-    public boolean execute(){
-    return true;
+    public void execute(){
     }
 
-    public void setvars(List<FirebaseExpression> vars){
+    void setvars(List<FirebaseExpression> vars){
         this.vars = vars;
     }
 

@@ -40,12 +40,8 @@ public class ProximityData extends SensorData
 
 	public boolean isNear()
 	{
-		if (distance == NEAR_DISTANCE)
-		{
-			return true;
-		}
-		return false;
-	}
+        return distance == NEAR_DISTANCE;
+    }
 	
 	public void setDistance(float f)
 	{

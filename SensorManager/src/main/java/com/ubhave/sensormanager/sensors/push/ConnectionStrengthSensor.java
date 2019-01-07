@@ -123,9 +123,9 @@ public class ConnectionStrengthSensor extends AbstractPushSensor
 			}
 		}
 
-	};
+	}
 
-	protected IntentFilter[] getIntentFilters()
+    protected IntentFilter[] getIntentFilters()
 	{
 		return null;
 	}

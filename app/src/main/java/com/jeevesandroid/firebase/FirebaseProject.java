@@ -8,22 +8,22 @@ import java.util.List;
  */
 public class FirebaseProject {
 
-    String description;
-    String id;
-    String name;
-    boolean isPublic;
-    String pubKey;
-    List<FirebaseSurvey> surveys = new ArrayList<>();
-    List<FirebaseTrigger> triggers = new ArrayList<>();
-    List<FirebaseUI> uidesign = new ArrayList<>();
-    List<String> sensors = new ArrayList<>();
-    String type;
-    List<UserVariable> variables = new ArrayList<>();
-    List<FirebaseExpression> expressions = new ArrayList<>();
-    long xPos;
-    long yPos;
-    String researcherno;
-    long maxNotifications;
+    private String description;
+    private String id;
+    private String name;
+    private boolean isPublic;
+    private String pubKey;
+    private final List<FirebaseSurvey> surveys = new ArrayList<>();
+    private final List<FirebaseTrigger> triggers = new ArrayList<>();
+    private final List<FirebaseUI> uidesign = new ArrayList<>();
+    private final List<String> sensors = new ArrayList<>();
+    private String type;
+    private final List<UserVariable> variables = new ArrayList<>();
+    private final List<FirebaseExpression> expressions = new ArrayList<>();
+    private long xPos;
+    private long yPos;
+    private String researcherno;
+    private long maxNotifications;
     public FirebaseProject() {
         // empty default constructor, necessary for Firebase to be able to deserialize blog posts
     }

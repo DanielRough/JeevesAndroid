@@ -9,20 +9,17 @@
         android:id="@+id/txtSender"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="adfadfadsfasd"
         android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 
     <TextView
         android:id="@+id/txtDate"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="TextView" />
+        android:layout_height="wrap_content" />
 
     <TextView
         android:id="@+id/txtMessage"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="asdfadfasf"
         android:textColor="@color/common_google_signin_btn_text_dark_focused" />
 
 </LinearLayout>

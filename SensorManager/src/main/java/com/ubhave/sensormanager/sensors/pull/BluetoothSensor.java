@@ -89,15 +89,8 @@ public class BluetoothSensor extends AbstractPullSensor
 	{
 		super(context);
 		btDevices = new ArrayList<ESBluetoothDevice>();
-		if (android.os.Build.VERSION.SDK_INT >= 18)
-		{
-			BluetoothManager bluetoothMan = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
-			bluetooth = bluetoothMan.getAdapter();
-		}
-		else
-		{
-			bluetooth = BluetoothAdapter.getDefaultAdapter();
-		}
+		BluetoothManager bluetoothMan = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
+		bluetooth = bluetoothMan.getAdapter();
 		if (bluetooth == null)
 		{
 			if (GlobalConfig.shouldLog())

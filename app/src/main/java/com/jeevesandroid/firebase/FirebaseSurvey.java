@@ -7,28 +7,33 @@ import java.util.List;
  */
 public class FirebaseSurvey {
 
-    int triggerType;
-    long timeAlive;
-    long expiryTime;
-    long timeSent;
-    long timeFinished;
-    long score;
-    long id;
-    List<FirebaseQuestion> questions;
-    String description;
-    String type;
-    String title;
-    String surveyId;
-    long xPos;
-    long yPos;
-    String encodedAnswers;
-    String encodedKey;
-    boolean begun; //Has the user begun completing the survey?
-    List<String> answers;
-    String key;
+    private int triggerType;
+    private long timeAlive;
+    private long expiryTime;
+    private long timeSent;
+    private long timeFinished;
+    private long score;
+    private long id;
+    private List<FirebaseQuestion> questions;
+    private String description;
+    private String type;
+    private String title;
+    private String surveyId;
+    private long xPos;
+    private long yPos;
+    private String encodedAnswers;
+    private String encodedKey;
+    private boolean begun; //Has the user begun completing the survey?
+    private boolean fastTransition;
+    private List<String> answers;
+    private String key;
     public FirebaseSurvey(){
 
     }
+
+    public boolean getfastTransition(){ return fastTransition;}
+
+    public void setfastTransition(boolean fast){this.fastTransition = fast;}
 
     public int gettriggerType() { return triggerType; }
 

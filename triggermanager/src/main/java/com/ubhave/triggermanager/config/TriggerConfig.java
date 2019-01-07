@@ -30,8 +30,8 @@ public class TriggerConfig
 	 * Config Keys
 	 */
 	public static final String IGNORE_USER_PREFERENCES = "ignoreCap";
-	public static final String MAX_DAILY_NOTIFICATION_CAP = "limitDailyCap";
-	public static final String TRIGGER_ENABLED = "isEnabled";
+	private static final String MAX_DAILY_NOTIFICATION_CAP = "limitDailyCap";
+	private static final String TRIGGER_ENABLED = "isEnabled";
 
 	//Start and end dates of particular triggers
 	public final static String FROM_DATE = "dateFrom";

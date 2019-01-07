@@ -10,7 +10,7 @@
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="Large Text"
         android:id="@+id/labelView"
-        android:textSize="36dp" />
+        android:textSize="36sp" />
 
     <TextView
         android:id="@+id/valueView"

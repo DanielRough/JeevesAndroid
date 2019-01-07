@@ -83,7 +83,7 @@ public class WifiSensor extends AbstractPullSensor
 	private WifiSensor(Context context)
 	{
 		super(context);
-		wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+		wifiManager = (WifiManager) context.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
 		wifiReceiver = new BroadcastReceiver()
 		{
 			public void onReceive(Context context, Intent intent)

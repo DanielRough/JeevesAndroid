@@ -35,18 +35,13 @@ public class SurveyTrigger extends Trigger {
         super.start();
         surveyName = getSurveyName();
         String sResult = getSurveyResult();
-        if(sResult.equals("completed")){
-            result = true;
-        }
-        else{
-            result = false;
-        }
+        result = sResult.equals("completed");
  //       result = Boolean.parseBoolean(getSurveyResult());
       //  numTimes = Integer.parseInt(getNumTimes());
 
 
     }
-    protected String getSurveyResult() throws TriggerException
+    private String getSurveyResult() throws TriggerException
     { if (params.containsKey(TriggerConfig.SURVEY_RESULT))
     {
         return params.getParameter(TriggerConfig.SURVEY_RESULT).toString();
@@ -72,7 +67,7 @@ public class SurveyTrigger extends Trigger {
 
     }
 
-    protected String getSurveyName() throws TriggerException
+    private String getSurveyName() throws TriggerException
     {
         if (params.containsKey(SURVEY_NAME))
         {
@@ -89,7 +84,7 @@ public class SurveyTrigger extends Trigger {
         return TRIGGER_NAME;
     }
 
-    protected int getRequestCode()
+    private int getRequestCode()
     {
         //return TriggerUtils.TYPE_CLOCK_TRIGGER_ON_INTERVAL;
         return this.triggerId;
@@ -124,14 +119,14 @@ public class SurveyTrigger extends Trigger {
                 boolean result = intent.getBooleanExtra("result", true);
                 Log.d("THISRESULT","This result is " + this.result);
                 if (result == this.result) { //then check it's the right result
-                    if (result == true) {
+                    if (result) {
                         long completedTimes = intent.getLongExtra("completed", 0);
                         Log.d("COMPLETED","And you've completed it " + completedTimes + " times");
 
                        // if (completedTimes%this.numTimes == 0)
                             sendNotification();
                     }
-                    if (result == false) {
+                    if (!result) {
                         Log.d("MISSED","Missed the survey " + survey);
                         long missedTimes = intent.getLongExtra("missed", 0);
                         Log.d("MISSED","And you've missed it " + missedTimes + " times");
