@@ -17,6 +17,7 @@ public class TriggerUtils
 	public static final int TYPE_CLOCK_TRIGGER_SETTIMES			= 10006;
 	public static final int TYPE_SENSOR_TRIGGER_BUTTON			= 10007;
 	public static final int TYPE_JEEVES_TRIGGER_ON_INTERVAL		= 10008;
+	public static final int TYPE_JEEVES_TRIGGER_WINDOW 			= 10012;
 	public static final int TYPE_SENSOR_TRIGGER_SURVEY			= 10009;
 	public static final int TYPE_SENSOR_TRIGGER_LOCATION		= 10011;
 
@@ -49,6 +50,7 @@ public class TriggerUtils
 	private static final String NAME_CLOCK_TRIGGER_SETTIMES		= "Set Times Trigger";
 	private static final String NAME_SENSOR_TRIGGER_DELAYED 		= "type_sensor_delayed";
 	private static final String NAME_JEEVES_TRIGGER_ON_INTERVAL 	= "Repeated Time Trigger";
+	private static final String NAME_JEEVES_TRIGGER_WINDOW 	= "Interval Trigger";
 	private static final String NAME_SENSOR_TRIGGER_SURVEY		= "Survey Trigger";
 	private static final String NAME_SENSOR_TRIGGER_LOCATION		= "Location Trigger";
 
@@ -85,6 +87,7 @@ public class TriggerUtils
 			NAME_CLOCK_TRIGGER_SETTIMES,
 			NAME_SENSOR_TRIGGER_BUTTON,
 			NAME_JEEVES_TRIGGER_ON_INTERVAL,
+			NAME_JEEVES_TRIGGER_WINDOW,
 			NAME_SENSOR_TRIGGER_SURVEY,
 			NAME_SENSOR_TRIGGER_LOCATION
 	};
@@ -100,6 +103,7 @@ public class TriggerUtils
 			TYPE_CLOCK_TRIGGER_SETTIMES,
 			TYPE_SENSOR_TRIGGER_BUTTON,
 			TYPE_JEEVES_TRIGGER_ON_INTERVAL,
+			TYPE_JEEVES_TRIGGER_WINDOW,
 			TYPE_SENSOR_TRIGGER_SURVEY,
 			TYPE_SENSOR_TRIGGER_LOCATION
 
@@ -130,6 +134,7 @@ public class TriggerUtils
 			case TYPE_SENSOR_TRIGGER_SURVEY: return NAME_SENSOR_TRIGGER_SURVEY;
 			case TYPE_SENSOR_TRIGGER_LOCATION: return NAME_SENSOR_TRIGGER_LOCATION;
 			case TYPE_JEEVES_TRIGGER_ON_INTERVAL: return NAME_JEEVES_TRIGGER_ON_INTERVAL;
+			case TYPE_JEEVES_TRIGGER_WINDOW: return NAME_JEEVES_TRIGGER_WINDOW;
 		default: throw new TriggerException(TriggerException.UNKNOWN_TRIGGER, "Unknown trigger: "+type);
 		}
 	}

@@ -388,6 +388,7 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 long expiryTime = currentsurvey.getexpiryTime();
+                if(expiryTime == 0)return;
                 long expiryMillis = expiryTime * 60 * 1000;
                 long deadline = timeSent + expiryMillis;
                 long timeToGo = deadline - System.currentTimeMillis();

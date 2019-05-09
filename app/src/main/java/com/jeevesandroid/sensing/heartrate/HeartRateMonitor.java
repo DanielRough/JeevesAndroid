@@ -14,9 +14,7 @@ import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.widget.TextView;
-
-import com.jeevesandroid.sensing.heart_rate_monitor.R;
-
+import com.jeevesandroid.R;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 

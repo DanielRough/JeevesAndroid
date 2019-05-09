@@ -45,7 +45,7 @@ class TriggerListener implements TriggerReceiver {
         this.triggerType = triggerType;
         this.serviceContext = c;
         this.triggerManager = ESTriggerManager.getTriggerManager(ApplicationContext.getContext());
-
+        Log.d("LISTEN","new listener of type " + triggerType);
     }
 
 

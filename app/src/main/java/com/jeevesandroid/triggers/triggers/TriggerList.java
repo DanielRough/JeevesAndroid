@@ -32,6 +32,7 @@ import com.jeevesandroid.triggers.config.TriggerConfig;
 import com.jeevesandroid.triggers.triggers.clock.BeginTrigger;
 import com.jeevesandroid.triggers.triggers.clock.IntervalTrigger;
 import com.jeevesandroid.triggers.triggers.clock.JeevesIntervalTrigger;
+import com.jeevesandroid.triggers.triggers.clock.JeevesWindowTrigger;
 import com.jeevesandroid.triggers.triggers.clock.OneTimeTrigger;
 import com.jeevesandroid.triggers.triggers.clock.RandomFrequencyTrigger;
 import com.jeevesandroid.triggers.triggers.clock.SetTimesTrigger;
@@ -54,6 +55,10 @@ public class TriggerList extends AbstractSubscriptionList<Trigger>
 		else if (type == TriggerUtils.TYPE_JEEVES_TRIGGER_ON_INTERVAL)
 		{
 			return new JeevesIntervalTrigger(context,id,listener,params);
+		}
+		else if (type == TriggerUtils.TYPE_JEEVES_TRIGGER_WINDOW)
+		{
+			return new JeevesWindowTrigger(context,id,listener,params);
 		}
 		else if (type == TriggerUtils.TYPE_CLOCK_TRIGGER_BEGIN)
 		{

@@ -197,12 +197,14 @@ public class SenseService extends Service implements GoogleApiClient.ConnectionC
         }
     };
 
+    /*
     static {
         sensorlisteners.put(SensorUtils.SENSOR_TYPE_MICROPHONE,
             new SensorListener(SensorUtils.SENSOR_TYPE_MICROPHONE));
         sensorlisteners.put(SensorUtils.SENSOR_TYPE_STEP_COUNTER,
             new SensorListener(SensorUtils.SENSOR_TYPE_STEP_COUNTER));
     }
+    */
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
@@ -448,11 +450,13 @@ public class SenseService extends Service implements GoogleApiClient.ConnectionC
     private void launchTrigger(FirebaseTrigger trigger) {
         String triggerType = trigger.getname();
         String triggerId = trigger.gettriggerId();
+        Log.d("LAUNTRIG","Launching trigger " + trigger.getname() + ", " + triggerId);
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getContext());
 
         //Awkward bit of <code></code>
         //IF we already completed this starting survey, there's no need to relaunch it again
         try {
+            Log.d("AMFIN?"," " + prefs.getBoolean(ApplicationContext.FINISHED_INTRODUCTION,false));
             if(prefs.getBoolean(ApplicationContext.FINISHED_INTRODUCTION,false)
                 && TriggerUtils.getTriggerType(triggerType) == TriggerUtils.TYPE_CLOCK_TRIGGER_BEGIN)
                 return;

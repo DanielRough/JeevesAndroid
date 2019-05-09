@@ -79,7 +79,7 @@ public class ContactActivity extends AppCompatActivity {
 //                        sms.sendTextMessage(researcherno, null, message, null, null);
 //                    }
                 final DatabaseReference firebaseFeedback = FirebaseUtils.PATIENT_REF.child(ApplicationContext.FEEDBACK).child(Long.toString(System.currentTimeMillis()));
-                firebaseFeedback.setValue("Patient: " + txtContactResearcher.getText().toString());
+                firebaseFeedback.setValue("Participant: " + txtContactResearcher.getText().toString());
 
             }
         });
@@ -94,10 +94,10 @@ public class ContactActivity extends AppCompatActivity {
             String date = message.getKey();
             String sender = message.getValue().split(":")[0];
             String messageText = message.getValue().split(":")[1];
-            if (sender.equals("Patient")) {
+            if (sender.equals("Participant")) {
                 sender = "You";
             } else {
-                sender = "Clinician";
+                sender = "Researcher";
             }
             varsList.add(date + ":" + sender + ":" + messageText);
         }

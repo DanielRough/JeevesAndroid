@@ -42,6 +42,7 @@ public class TriggerConfig
 	public static final String LIMIT_BEFORE_HOUR = "limitBeforeHour";
 	public static final String LIMIT_AFTER_HOUR = "limitAfterHour";
 	public static final String INTERVAL_TRIGGER_TIME = "intervalTriggerTime";
+	public static final String INTERVAL_TRIGGER_WINDOW = "intervalTriggerWindow";
 	public static final String FIXED_RANDOM = "fixedRandom";
 	//public static final String INTERVAL_WINDOW = "intervalWindowLength";
 //	public static final String GRANULARITY = "granularity";

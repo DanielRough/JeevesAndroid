@@ -112,8 +112,8 @@ public class DailyNotificationScheduler implements TriggerReceiver
 			else
 				scheduleNotifications();
 		}
-//		else if(trigger instanceof JeevesIntervalTrigger)
-//			scheduleIntervalTimes();
+		else if(trigger instanceof JeevesWindowTrigger)
+			scheduleWindowedTimes();
 
 		else //it's a Jeeves interval trigger!
 			scheduleNotifications(); //Schedules for the random trigger
@@ -160,6 +160,48 @@ public class DailyNotificationScheduler implements TriggerReceiver
 		}
 	}
 
+	private void scheduleWindowedTimes(){
+		int earlyLimit = params.getValueInMinutes(TriggerConfig.LIMIT_BEFORE_HOUR)/60000;
+		int lateLimit = params.getValueInMinutes(TriggerConfig.LIMIT_AFTER_HOUR)/60000;
+		int minInterval = params.getValueInMinutes(TriggerConfig.INTERVAL_TRIGGER_TIME);
+		int windowSize = params.getValueInMinutes(TriggerConfig.INTERVAL_TRIGGER_WINDOW);
+		ArrayList<Integer> times = new ArrayList<Integer>();
+
+		if(earlyLimit > lateLimit){
+			lateLimit += 1440; //Add an extra day onto the late limit so we can schedule shit overnight
+		}
+		int timeFrame = lateLimit - earlyLimit;
+		int numberOfNotifications = timeFrame / minInterval; //The max notifications we can schedule in this space
+			Log.d("Daily", "scheduleNotifications(), "+numberOfNotifications);
+		if (TriggerManagerConstants.LOG_MESSAGES)
+		{
+			Log.d("Daily Scheduler", "Attempting to schedule: "+numberOfNotifications);
+		}
+		if(earlyLimit > lateLimit)
+			lateLimit = lateLimit + 1440; //Add a new day onto things
+		while(earlyLimit < lateLimit){
+			int earlyWinTime = earlyLimit - windowSize;
+			int lateWinTime = earlyLimit + windowSize;
+			int winTime = random.nextInt(lateWinTime-earlyWinTime)+earlyWinTime;
+			if(winTime < 1440)
+				times.add((int)winTime); //Convert each JSONObject time into a minute-of-day value
+			else
+				times.add((int)(winTime-1440)); //Accounts for next-day times
+			earlyLimit += minInterval;
+			Log.d("STRTTIME: ","Start time is " + earlyLimit + " and endTime is " + lateLimit + " and interval: " + minInterval);
+
+		}
+		Calendar calendar = Calendar.getInstance();
+
+		if(times.size()>0)
+			for (Integer minuteOfDay : times) {
+				calendar.set(Calendar.HOUR_OF_DAY, (minuteOfDay / 60));
+				calendar.set(Calendar.MINUTE, (minuteOfDay % 60));
+				calendar.set(Calendar.SECOND,0);
+				trigger.subscribeTriggerFor(calendar.getTimeInMillis());
+			}
+
+	}
 	private void scheduleIntervalTimes(){
 
 		long startTime = 0;
@@ -169,14 +211,7 @@ public class DailyNotificationScheduler implements TriggerReceiver
 		if (params.containsKey(TriggerConfig.LIMIT_AFTER_HOUR))
 			endTime = Long.valueOf(params.getParameter(TriggerConfig.LIMIT_AFTER_HOUR).toString())/60000;
 		long intervalTime = 0;
-//		if (params.containsKey(TriggerConfig.INTERVAL_TRIGGER_TIME))
-//			intervalTime =  new Long(params.getParameter(TriggerConfig.INTERVAL_TRIGGER_TIME).toString());
-//		//String granularity = "";
-//	//	if (params.containsKey(TriggerConfig.INTERVAL_TRIGGER_TIME)) {
 			int numberOfNotifications = Integer.parseInt(params.getParameter(TriggerConfig.INTERVAL_TRIGGER_TIME).toString());
-			//granularity = params.getParameter(TriggerConfig.GRANULARITY).toString();
-			//if(granularity.equals("hours"))
-		//		intervalTime *= 60;
 			long totalTime = endTime - startTime;
 			long windowLength = totalTime/numberOfNotifications;
 	//	}
@@ -202,11 +237,6 @@ public class DailyNotificationScheduler implements TriggerReceiver
 				calendar.set(Calendar.HOUR_OF_DAY, (minuteOfDay / 60));
 				calendar.set(Calendar.MINUTE, (minuteOfDay % 60));
 				calendar.set(Calendar.SECOND,0);
-//				//I've added this in the hope that it can schedule random triggers for the next day
-//				if (calendar.getTimeInMillis() < System.currentTimeMillis())
-//				{
-//					calendar.add(Calendar.DATE, 1);
-//				}
 				trigger.subscribeTriggerFor(calendar.getTimeInMillis());
 			}
 	}

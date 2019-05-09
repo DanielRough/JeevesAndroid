@@ -183,6 +183,8 @@ public class WelcomeActivity extends Activity {
             }
         }
         if(!denied) { //All permissions are accepted!
+            Intent intent = new Intent(this, SenseService.class);
+            startService(intent);
             return;
         }
         boolean showRationale = false;
