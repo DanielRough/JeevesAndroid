@@ -25,7 +25,8 @@
     <string name="sense_self">Self-Report</string>
     <string name="sense_log">Log new information</string>
     <string name="sense_messages">Messages</string>
-    <string name="sense_heart">Heart rate</string>
+    <string name="finish_study">If you want to quit the app, press the button below. This will stop all notifications. </string>
+    <string name="sense_heart">Close app</string>
     <string name="sense_view">View the Jeeves Privacy Policy</string>
 
     <string name="sign_email">Email</string>

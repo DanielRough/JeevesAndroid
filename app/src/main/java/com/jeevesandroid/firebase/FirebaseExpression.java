@@ -12,7 +12,7 @@ import java.util.Map;
 @JsonTypeInfo(use=JsonTypeInfo.Id.MINIMAL_CLASS, include= JsonTypeInfo.As.PROPERTY, property="@class",defaultImpl = FirebaseExpression.class)
 public class FirebaseExpression implements Serializable{
 
-    private String description;
+ private String description;
     private long id;
     private String name;
     private String type;
@@ -25,9 +25,7 @@ public class FirebaseExpression implements Serializable{
     private long index;
     private boolean isValue;
     private boolean isCustom;
-
     public String getdescription() { return description; }
-
     public long getid() {
         return id;
     }

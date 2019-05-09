@@ -11,12 +11,13 @@ public class FirebaseUI {
     private String type;
     private long xPos;
     private long yPos;
-    private String description;
+private String description;
 
-    public String getid() {
+   public String getid() {
         return id;
-    }
 
+    }
+//
     public String getname() {
         return name;
     }
@@ -33,10 +34,12 @@ public class FirebaseUI {
         return xPos;
     }
 
+// --Commented out by Inspection START (5/8/2019 4:26 PM):
     public long getyPos() {
         return yPos;
     }
-
+//
     public String getdescription(){ return description; }
+// --Commented out by Inspection STOP (5/8/2019 4:26 PM)
 
 }

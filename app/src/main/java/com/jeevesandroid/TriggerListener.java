@@ -20,17 +20,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
+import com.jeevesandroid.actions.ActionExecutorService;
 import com.jeevesandroid.actions.ActionUtils;
-import com.jeevesandroid.actions.FirebaseAction;
-import com.ubhave.triggermanager.ESTriggerManager;
-import com.ubhave.triggermanager.TriggerException;
-import com.ubhave.triggermanager.TriggerReceiver;
-import com.ubhave.triggermanager.config.TriggerConfig;
+import com.jeevesandroid.actions.actiontypes.FirebaseAction;
+import com.jeevesandroid.triggers.ESTriggerManager;
+import com.jeevesandroid.triggers.TriggerException;
+import com.jeevesandroid.triggers.TriggerReceiver;
+import com.jeevesandroid.triggers.config.TriggerConfig;
 
 import java.util.ArrayList;
-
-import static com.jeevesandroid.ApplicationContext.TRIG_TYPE;
-import static com.jeevesandroid.actions.ActionUtils.ACTIONS;
 
 class TriggerListener implements TriggerReceiver {
 
@@ -77,9 +75,12 @@ class TriggerListener implements TriggerReceiver {
     //Here's the method that gets called when the conditions are fulfilled. It starts the 'ActionExecutorService' to begin going through dem actions
     @Override
     public void onNotificationTriggered(int triggerId) {
+        Log.d("TRIGGERED","Triggered the trigger " + triggerId);
         Intent actionIntent = new Intent(serviceContext, ActionExecutorService.class);
-        actionIntent.putExtra(ACTIONS, actionsToPerform);
-        actionIntent.putExtra(TRIG_TYPE, triggerType);
+        actionIntent.putExtra(ActionUtils.ACTIONS, actionsToPerform);
+        Log.d("SIZE","Size of actions is " + actionsToPerform.size());
+
+        actionIntent.putExtra(ApplicationContext.TRIG_TYPE, triggerType);
         serviceContext.startService(actionIntent);
     }
 

@@ -63,7 +63,7 @@ public class FirebaseQuestion {
         return questionId;
     }
 
-    public String gettype(){
+   public String gettype(){
         return type;
     }
 

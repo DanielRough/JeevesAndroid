@@ -7,14 +7,15 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
-import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.UserProfileChangeRequest;
 import com.jeevesandroid.ApplicationContext;
 import com.jeevesandroid.R;
-import com.jeevesandroid.WelcomeActivity;
+import com.jeevesandroid.mainscreens.WelcomeActivity;
 import com.jeevesandroid.firebase.FirebaseProject;
 import com.jeevesandroid.firebase.FirebaseUtils;
 import com.google.firebase.auth.FirebaseAuth;
@@ -25,16 +26,15 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import static com.jeevesandroid.ApplicationContext.STUDY_NAME;
-import static com.jeevesandroid.ApplicationContext.USERNAME;
-
 import com.crashlytics.android.Crashlytics;
 
 import io.fabric.sdk.android.Fabric;
 
 public class MainActivity extends Activity{
+    private static final int REQUEST_SIGNUP = 0;
 
-
+    FirebaseUser mFirebaseUser;
+    private FirebaseAuth mFirebaseAuth;
     private Activity getInstance() {
         return this;
     }
@@ -56,16 +56,15 @@ public class MainActivity extends Activity{
 
         //If we're not signed in, launch the sign-in activity
         if (mFirebaseUser == null) {
-            startActivity(new Intent(this, SignInActivity.class));
-            finish();
+            startActivityForResult(new Intent(this, SignUpActivity.class),REQUEST_SIGNUP);
         } else {
             SharedPreferences preferences = PreferenceManager
                     .getDefaultSharedPreferences(ApplicationContext.getContext());
-            if (preferences.contains(STUDY_NAME)) {
+            if (preferences.contains(ApplicationContext.STUDY_NAME)) {
                 final FirebaseDatabase database = FirebaseUtils.getDatabase();
                 SharedPreferences varPrefs = PreferenceManager
                         .getDefaultSharedPreferences(ApplicationContext.getContext());
-                String studyname = varPrefs.getString(STUDY_NAME, "");
+                String studyname = varPrefs.getString(ApplicationContext.STUDY_NAME, "");
                 DatabaseReference projectRef = database
                         .getReference(FirebaseUtils.PUBLIC_KEY)
                         .child(FirebaseUtils.PROJECTS_KEY)
@@ -88,14 +87,6 @@ public class MainActivity extends Activity{
                 });
 
             }
-            //Here, this is where the user has logged in previously, cleared their data and tried to sign in again.
-            //Storing their credentials independent of the study they signed up to would require restructuring the database,
-            //so for now this forces them to delete their account and start again.
-            else if(!preferences.contains(USERNAME)) {
-                Intent intent = new Intent(getInstance(), DeletedActivity.class);
-                startActivity(intent);
-                finish();
-            }
             else
                 startStudySignUp();
         }
@@ -105,5 +96,28 @@ public class MainActivity extends Activity{
         startActivity(intent);
         finish();
     }
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
 
+        if (requestCode == REQUEST_SIGNUP) {
+            if (resultCode == RESULT_OK) {
+                final String name = data.getStringExtra("name");
+                mFirebaseAuth = FirebaseAuth.getInstance();
+                mFirebaseUser = mFirebaseAuth.getCurrentUser();
+                UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
+                    .setDisplayName(name)
+                    .build();
+                mFirebaseAuth.getCurrentUser().updateProfile(profileUpdates) .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            startStudySignUp();
+                            finish();
+                        }
+                    }
+                });
+            }
+        }
+    }
 }

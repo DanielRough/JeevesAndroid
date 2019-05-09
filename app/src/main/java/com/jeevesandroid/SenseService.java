@@ -21,7 +21,6 @@ import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
@@ -31,15 +30,14 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.ActivityRecognition;
 import com.google.android.gms.location.LocationResult;
-import com.jeevesandroid.actions.FirebaseAction;
+import com.jeevesandroid.actions.actiontypes.FirebaseAction;
 import com.jeevesandroid.firebase.FirebaseExpression;
 import com.jeevesandroid.firebase.FirebaseProject;
 import com.jeevesandroid.firebase.FirebaseTrigger;
 import com.jeevesandroid.firebase.FirebaseUtils;
-import com.jeevesandroid.firebase.UserVariable;
+import com.jeevesandroid.firebase.FirebaseVariable;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.firebase.database.DataSnapshot;
@@ -47,13 +45,18 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.ubhave.sensormanager.ESException;
-import com.ubhave.sensormanager.ESSensorManager;
-import com.ubhave.sensormanager.sensors.SensorUtils;
-import com.ubhave.triggermanager.TriggerException;
-import com.ubhave.triggermanager.config.GlobalState;
-import com.ubhave.triggermanager.config.TriggerConfig;
-import com.ubhave.triggermanager.triggers.TriggerUtils;
+import com.jeevesandroid.sensing.ActivityListener;
+import com.jeevesandroid.sensing.ActivityService;
+import com.jeevesandroid.sensing.GeofenceListener;
+import com.jeevesandroid.sensing.SensorListener;
+
+import com.jeevesandroid.sensing.sensormanager.ESException;
+import com.jeevesandroid.sensing.sensormanager.ESSensorManager;
+import com.jeevesandroid.sensing.sensormanager.sensors.SensorUtils;
+import com.jeevesandroid.triggers.TriggerException;
+import com.jeevesandroid.triggers.config.GlobalState;
+import com.jeevesandroid.triggers.config.TriggerConfig;
+import com.jeevesandroid.triggers.triggers.TriggerUtils;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -63,23 +66,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import static com.jeevesandroid.ApplicationContext.FINISHED_INTRODUCTION;
-import static com.jeevesandroid.ApplicationContext.STARTACTIVITY;
-import static com.jeevesandroid.ApplicationContext.STARTLOC;
-import static com.jeevesandroid.ApplicationContext.STOPACTIVITY;
-import static com.jeevesandroid.ApplicationContext.STOPLOC;
-import static com.jeevesandroid.ApplicationContext.STOPSENSOR;
-import static com.jeevesandroid.ApplicationContext.STUDY_NAME;
-import static com.jeevesandroid.ApplicationContext.UID;
-import static com.jeevesandroid.firebase.FirebaseUtils.BOOLEAN;
-import static com.jeevesandroid.firebase.FirebaseUtils.DATE;
-import static com.jeevesandroid.firebase.FirebaseUtils.LOCATION;
-import static com.jeevesandroid.firebase.FirebaseUtils.NUMERIC;
-import static com.jeevesandroid.firebase.FirebaseUtils.PROJECTS_KEY;
-import static com.jeevesandroid.firebase.FirebaseUtils.PUBLIC_KEY;
-import static com.jeevesandroid.firebase.FirebaseUtils.TEXT;
-import static com.jeevesandroid.firebase.FirebaseUtils.TIME;
 
 public class SenseService extends Service implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener{
 
@@ -131,11 +117,11 @@ public class SenseService extends Service implements GoogleApiClient.ConnectionC
         //START THE (NOW SEPARATE) LOCATION SERVICE
         mFusedLocationClient = LocationServices
             .getFusedLocationProviderClient(this);
-        if (ActivityCompat.checkSelfPermission(this,
-            android.Manifest.permission.ACCESS_FINE_LOCATION)
+        if (ContextCompat.checkSelfPermission(this,
+            Manifest.permission.ACCESS_FINE_LOCATION)
             != PackageManager.PERMISSION_GRANTED
-            && ActivityCompat.checkSelfPermission(this,
-            android.Manifest.permission.ACCESS_COARSE_LOCATION)
+            && ContextCompat.checkSelfPermission(this,
+            Manifest.permission.ACCESS_COARSE_LOCATION)
             != PackageManager.PERMISSION_GRANTED) {
             return;
         }
@@ -173,7 +159,7 @@ public class SenseService extends Service implements GoogleApiClient.ConnectionC
     private final BroadcastReceiver activityReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if(intent.getAction().equals(STARTACTIVITY)) {
+            if(intent.getAction().equals(ApplicationContext.STARTACTIVITY)) {
                 startActivitySensing();
                 Log.d("STARTACT","Starting activity sensing");
             }
@@ -200,7 +186,7 @@ public class SenseService extends Service implements GoogleApiClient.ConnectionC
     private final BroadcastReceiver locationReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (intent.getAction().equals(STARTLOC)) {
+            if (intent.getAction().equals(ApplicationContext.STARTLOC)) {
                 createLocationRequest();
                 Log.d("LOCATION","Starting location updates");
             }
@@ -214,18 +200,6 @@ public class SenseService extends Service implements GoogleApiClient.ConnectionC
     static {
         sensorlisteners.put(SensorUtils.SENSOR_TYPE_MICROPHONE,
             new SensorListener(SensorUtils.SENSOR_TYPE_MICROPHONE));
-        sensorlisteners.put(SensorUtils.SENSOR_TYPE_BATTERY,
-            new SensorListener(SensorUtils.SENSOR_TYPE_BATTERY));
-        sensorlisteners.put(SensorUtils.SENSOR_TYPE_CONNECTION_STATE,
-            new SensorListener(SensorUtils.SENSOR_TYPE_CONNECTION_STATE));
-        sensorlisteners.put(SensorUtils.SENSOR_TYPE_PHONE_STATE,
-            new SensorListener(SensorUtils.SENSOR_TYPE_PHONE_STATE));
-        sensorlisteners.put(SensorUtils.SENSOR_TYPE_SCREEN,
-            new SensorListener(SensorUtils.SENSOR_TYPE_SCREEN));
-        sensorlisteners.put(SensorUtils.SENSOR_TYPE_SMS,
-            new SensorListener(SensorUtils.SENSOR_TYPE_SMS));
-        sensorlisteners.put(SensorUtils.SENSOR_TYPE_INTERACTION,
-            new SensorListener(SensorUtils.SENSOR_TYPE_INTERACTION));
         sensorlisteners.put(SensorUtils.SENSOR_TYPE_STEP_COUNTER,
             new SensorListener(SensorUtils.SENSOR_TYPE_STEP_COUNTER));
     }
@@ -302,17 +276,17 @@ public class SenseService extends Service implements GoogleApiClient.ConnectionC
         final FirebaseDatabase database = FirebaseUtils.getDatabase();
         SharedPreferences varPrefs = PreferenceManager
             .getDefaultSharedPreferences(ApplicationContext.getContext());
-        String studyname = varPrefs.getString(STUDY_NAME, "");
+        String studyname = varPrefs.getString(ApplicationContext.STUDY_NAME, "");
         DatabaseReference projectRef = database
-            .getReference(PUBLIC_KEY)
-            .child(PROJECTS_KEY)
+            .getReference(FirebaseUtils.PUBLIC_KEY)
+            .child(FirebaseUtils.PROJECTS_KEY)
             .child(studyname);
-        String uid = varPrefs.getString(UID, "");
-        IntentFilter mIntentFilter = new IntentFilter(STARTLOC);
-        mIntentFilter.addAction(STOPLOC);
-        IntentFilter sensIntentFilter = new IntentFilter(STOPSENSOR);
-        IntentFilter activityIntentFilter = new IntentFilter(STARTACTIVITY);
-        activityIntentFilter.addAction(STOPACTIVITY);
+        String uid = varPrefs.getString(ApplicationContext.UID, "");
+        IntentFilter mIntentFilter = new IntentFilter(ApplicationContext.STARTLOC);
+        mIntentFilter.addAction(ApplicationContext.STOPLOC);
+        IntentFilter sensIntentFilter = new IntentFilter(ApplicationContext.STOPSENSOR);
+        IntentFilter activityIntentFilter = new IntentFilter(ApplicationContext.STARTACTIVITY);
+        activityIntentFilter.addAction(ApplicationContext.STOPACTIVITY);
         //Activity and location detection are now done differently
         ApplicationContext.getContext().registerReceiver(sensorReceiver, sensIntentFilter);
         ApplicationContext.getContext().registerReceiver(locationReceiver, mIntentFilter);
@@ -356,7 +330,7 @@ public class SenseService extends Service implements GoogleApiClient.ConnectionC
     private void updateConfig(FirebaseProject app) {
 
         final List<FirebaseTrigger> triggers = app.gettriggers();
-        final List<UserVariable> variables = app.getvariables();
+        final List<FirebaseVariable> variables = app.getvariables();
         final List<String> sensors = app.getsensors();
 
         SharedPreferences varPrefs = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getContext());
@@ -367,18 +341,18 @@ public class SenseService extends Service implements GoogleApiClient.ConnectionC
         SharedPreferences.OnSharedPreferenceChangeListener mListener
             = new SharedPreferences.OnSharedPreferenceChangeListener() {
             public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
-            for (UserVariable var : variables) {
+            for (FirebaseVariable var : variables) {
                 if (var.getname().equals(key)) {
                     switch (var.getvartype()) {
-                        case LOCATION:
+                        case FirebaseUtils.LOCATION:
                             if (geofencelisteners.containsKey(var.getname())) {
                                 GeofenceListener locListener = geofencelisteners.get(var.getname());
                                 locListener.updateLocation();
                                 Log.d("UPDATELOC", "UPDATING LOCATION");
                             }
                             break;
-                        case TIME:
-                        case DATE:
+                        case FirebaseUtils.TIME:
+                        case FirebaseUtils.DATE:
                             for (FirebaseTrigger trig : triggers) {
                                 if (trig.getvariables() != null && trig.getvariables().contains(key)) {
                                     removeTrigger(trig.gettriggerId());
@@ -401,13 +375,14 @@ public class SenseService extends Service implements GoogleApiClient.ConnectionC
         Set<String> newset = (varPrefs.getStringSet("triggerids",new HashSet()));
         HashSet<String> mynewset = new HashSet<>(newset);
         ArrayList<String> triggerids = new ArrayList<>(mynewset);
-        for(UserVariable var : variables){
+        for(FirebaseVariable var : variables){
             String type = var.getvartype();
-            if(varPrefs.contains(var.getname()))continue;
+            Log.d("FOUNDVAR","Found a var called " + var.getname() + " with type " + var.getvartype());
+            //if(varPrefs.contains(var.getname()))continue;
             switch(type){
-                case TIME:
-                case DATE:
-                case NUMERIC:
+                case FirebaseUtils.TIME:
+                case FirebaseUtils.DATE:
+                case FirebaseUtils.NUMERIC:
                     if(var.getisRandom()){
                         Log.d("NAME","var name is " + var.getname());
                         Log.d("VARS","random vars are "+ var.getrandomOptions());
@@ -421,11 +396,11 @@ public class SenseService extends Service implements GoogleApiClient.ConnectionC
                         break;
                     }
                    // if(varPrefs.getLong(var.getname(),0) != 0)break;
-                case LOCATION:
+                case FirebaseUtils.LOCATION:
                     //We probably want to get their location in here
-                case TEXT:
+                case FirebaseUtils.TEXT:
                     prefseditor.putString(var.getname(),""); break;
-                case BOOLEAN:
+                case FirebaseUtils.BOOLEAN:
                     boolean defaultVal = false;
                     if(var.getisRandom()){
                         defaultVal = (Math.random() >=0.5);
@@ -478,7 +453,7 @@ public class SenseService extends Service implements GoogleApiClient.ConnectionC
         //Awkward bit of <code></code>
         //IF we already completed this starting survey, there's no need to relaunch it again
         try {
-            if(prefs.getBoolean(FINISHED_INTRODUCTION,false)
+            if(prefs.getBoolean(ApplicationContext.FINISHED_INTRODUCTION,false)
                 && TriggerUtils.getTriggerType(triggerType) == TriggerUtils.TYPE_CLOCK_TRIGGER_BEGIN)
                 return;
         } catch (TriggerException e) {
@@ -581,7 +556,6 @@ public class SenseService extends Service implements GoogleApiClient.ConnectionC
         ArrayList<FirebaseAction> toExecute = new ArrayList<>();
         for (int i = 0; i < actions.size(); i++) {
             toExecute.add( actions.get(i));
-            Log.d("AND OO","IS" + actions.get(i).toString());
 
         }
         newListener.subscribeToTrigger(config, toExecute);

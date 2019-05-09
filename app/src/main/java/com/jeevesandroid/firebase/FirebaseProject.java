@@ -18,7 +18,7 @@ public class FirebaseProject {
     private final List<FirebaseUI> uidesign = new ArrayList<>();
     private final List<String> sensors = new ArrayList<>();
     private String type;
-    private final List<UserVariable> variables = new ArrayList<>();
+    private final List<FirebaseVariable> variables = new ArrayList<>();
     private final List<FirebaseExpression> expressions = new ArrayList<>();
     private long xPos;
     private long yPos;
@@ -27,9 +27,10 @@ public class FirebaseProject {
     public FirebaseProject() {
         // empty default constructor, necessary for Firebase to be able to deserialize blog posts
     }
-
+//
+// --Commented out by Inspection START (5/8/2019 4:26 PM):
     public String getdescription() {
-        return description;
+       return description;
     }
 
     public String getid() {
@@ -39,11 +40,12 @@ public class FirebaseProject {
     public String getname() {
         return name;
     }
-
+//
     public String gettype() {
         return type;
     }
-
+//
+// --Commented out by Inspection STOP (5/8/2019 4:26 PM)
     public long getxPos() {
         return xPos;
     }
@@ -74,9 +76,9 @@ public class FirebaseProject {
         return surveys;
     }
     public List<FirebaseTrigger> gettriggers() {
-        return triggers;
+       return triggers;
     }
-    public List<UserVariable> getvariables() { return variables; }
+    public List<FirebaseVariable> getvariables() { return variables; }
     public List<FirebaseUI> getuidesign(){ return uidesign; }
     public List<FirebaseExpression> getexpressions() { return expressions; }
     public List<String> getsensors() { return sensors; }

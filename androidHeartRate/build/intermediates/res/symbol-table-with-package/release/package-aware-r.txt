@@ -1,6 +1,0 @@
-com.jwetherell.heart_rate_monitor
-id mTextField
-id surfaceView
-id text
-layout main
-string app_name

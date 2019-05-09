@@ -8,11 +8,9 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.jeevesandroid.ApplicationContext;
@@ -23,16 +21,13 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-import static com.jeevesandroid.ApplicationContext.EMAIL;
 //import static com.jeevesandroid.ApplicationContext.PHONE;
-import static com.jeevesandroid.ApplicationContext.UID;
-import static com.jeevesandroid.ApplicationContext.USERNAME;
+
 
 public class SignUpActivity extends AppCompatActivity {
 
     private EditText nameText;
     private EditText emailText;
-    private EditText passwordText;
     private Button signUpButton;
     private FirebaseAuth mFirebaseAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
@@ -49,21 +44,12 @@ public class SignUpActivity extends AppCompatActivity {
 
         nameText = findViewById(R.id.input_name);
         emailText = findViewById(R.id.input_email);
-        passwordText = findViewById(R.id.input_password);
         signUpButton = findViewById(R.id.btn_signup);
-        TextView loginLink = findViewById(R.id.link_login);
 
         signUpButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 signup();
-            }
-        });
-
-        loginLink.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
             }
         });
 
@@ -107,9 +93,8 @@ public class SignUpActivity extends AppCompatActivity {
         progressDialog.show();
 
         final String email = emailText.getText().toString();
-        String password = passwordText.getText().toString();
 
-        mFirebaseAuth.createUserWithEmailAndPassword(email, password)
+        mFirebaseAuth.createUserWithEmailAndPassword(email,"password")
             .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
@@ -134,11 +119,12 @@ public class SignUpActivity extends AppCompatActivity {
                 .getDefaultSharedPreferences(ApplicationContext.getContext());
         SharedPreferences.Editor prefsEditor = prefs.edit();
         Intent resultIntent = new Intent();
-        prefsEditor.putString(UID,userId);
-        prefsEditor.putString(USERNAME,name);
-        prefsEditor.putString(EMAIL,email);
+        prefsEditor.putString(ApplicationContext.UID,userId);
+        prefsEditor.putString(ApplicationContext.USERNAME,name);
+        prefsEditor.putString(ApplicationContext.EMAIL,email);
         prefsEditor.apply();
         setResult(RESULT_OK, resultIntent);
+
         finish();
     }
 
@@ -152,7 +138,6 @@ public class SignUpActivity extends AppCompatActivity {
 
         String name = nameText.getText().toString();
         String email = emailText.getText().toString();
-        String password = passwordText.getText().toString();
 
         if (name.isEmpty() || name.length() < 3) {
             nameText.setError("at least 3 characters");
@@ -166,13 +151,6 @@ public class SignUpActivity extends AppCompatActivity {
             valid = false;
         } else {
             emailText.setError(null);
-        }
-
-        if (password.isEmpty() || password.length() < 6 || password.length() > 10) {
-            passwordText.setError("between 6 and 10 alphanumeric characters");
-            valid = false;
-        } else {
-            passwordText.setError(null);
         }
         return valid;
     }

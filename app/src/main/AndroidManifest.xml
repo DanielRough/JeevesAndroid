@@ -57,41 +57,37 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".login.SignInActivity"
-            android:parentActivityName=".login.MainActivity"
-            android:windowSoftInputMode="stateAlwaysHidden" />
-        <activity
-            android:name=".WelcomeActivity"
+            android:name=".mainscreens.WelcomeActivity"
             android:launchMode="singleTop" />
 
         <service
-            android:name=".ActivityService"
+            android:name=".sensing.ActivityService"
             android:enabled="true"
             android:exported="true"
             android:permission="" />
         <!-- Stops it restarting -->
-        <receiver android:name=".actions.SurveyAction$MissedSurveyReceiver" />
+        <receiver android:name=".actions.actiontypes.SurveyAction$MissedSurveyReceiver" />
 
-        <service android:name=".actions.SurveyAction$NotificationActionService" />
+        <service android:name=".actions.actiontypes.SurveyAction$NotificationActionService" />
         <service
-            android:name=".ActionExecutorService"
+            android:name=".actions.ActionExecutorService"
             android:enabled="true"
             android:exported="true"
             android:permission="" />
 
         <activity
-            android:name=".ContactActivity"
-            android:parentActivityName=".WelcomeActivity"
+            android:name=".mainscreens.ContactActivity"
+            android:parentActivityName=".mainscreens.WelcomeActivity"
             android:windowSoftInputMode="stateHidden" />
         <activity
-            android:name=".MissedSurveyActivity"
-            android:parentActivityName=".WelcomeActivity" />
+            android:name=".mainscreens.MissedSurveyActivity"
+            android:parentActivityName=".mainscreens.WelcomeActivity" />
         <activity
-            android:name=".SurveyActivity"
-            android:parentActivityName=".MissedSurveyActivity" />
+            android:name=".mainscreens.SurveyActivity"
+            android:parentActivityName=".mainscreens.MissedSurveyActivity" />
         <activity
-            android:name=".MonitorActivity"
-            android:parentActivityName=".WelcomeActivity" />
+            android:name=".mainscreens.SelfReportActivity"
+            android:parentActivityName=".mainscreens.WelcomeActivity" />
         <activity
             android:name=".login.SignUpActivity"
             android:label="Jeeves"
@@ -108,21 +104,23 @@
             android:exported="true"
             android:permission="" />
 
-        <activity
-            android:name=".login.DeletedActivity"
-            android:label="Jeeves"
-            android:theme="@style/AppTheme.NoActionBar" />
 
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="f63d6f8855ad665342d5a90a1a16efb13da9cf5c" />
 
         <activity
-            android:name=".PrivacyPolicy"
+            android:name=".mainscreens.PrivacyPolicy"
             android:label="@string/title_activity_privacy_policy"
-            android:parentActivityName=".WelcomeActivity" />
+            android:parentActivityName=".mainscreens.WelcomeActivity" />
 
-        <activity android:name=".HeartActivity" />
+        <activity android:name=".sensing.HeartActivity" />
+
+        <receiver android:name=".actions.WhileLoopReceiver"  android:exported="true">
+            <intent-filter>
+                <action android:name="com.jeevesandroid.WhileLoopReceiver"/>
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

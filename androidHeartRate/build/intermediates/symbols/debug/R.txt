@@ -1,5 +1,0 @@
-int id mTextField 0x7f0c0001
-int id surfaceView 0x7f0c0002
-int id text 0x7f0c0003
-int layout main 0x7f0f0001
-int string app_name 0x7f150001

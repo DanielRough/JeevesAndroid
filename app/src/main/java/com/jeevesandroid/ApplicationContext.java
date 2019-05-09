@@ -3,7 +3,7 @@ package com.jeevesandroid;
 import android.app.Application;
 import android.content.Context;
 
-import com.jeevesandroid.actions.FirebaseAction;
+import com.jeevesandroid.actions.actiontypes.FirebaseAction;
 import com.jeevesandroid.firebase.FirebaseProject;
 
 import java.util.ArrayList;
@@ -69,12 +69,10 @@ public class ApplicationContext extends Application
     private static ApplicationContext instance;
     private static FirebaseProject currentproject;
 
-// --Commented out by Inspection START (1/1/2019 6:21 PM):
     public ApplicationContext()
     {
         instance = this;
     }
-// --Commented out by Inspection STOP (1/1/2019 6:21 PM)
 
     public static FirebaseProject getProject(){ return currentproject;}
 

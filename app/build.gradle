@@ -26,7 +26,7 @@ android {
         applicationId "com.jeevesandroid"
         minSdkVersion 19
         targetSdkVersion 27
-        versionCode 21
+        versionCode 34
         versionName "1.0"
         multiDexEnabled true
     }
@@ -58,8 +58,6 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation project(':SensorManager')
-    implementation project(path: ':triggermanager')
     implementation 'com.google.firebase:firebase-core:16.0.6'
     implementation 'com.google.firebase:firebase-auth:16.1.0'
     implementation 'com.google.firebase:firebase-database:16.0.5'
@@ -78,7 +76,6 @@ dependencies {
         transitive = true
     }
     implementation 'junit:junit:4.12'
-    implementation project(path: ':SensorDataManager')
-    implementation project(':androidHeartRate')
+    implementation 'org.apache.commons:commons-lang3:3.6'
 }
 apply plugin: 'com.google.gms.google-services'

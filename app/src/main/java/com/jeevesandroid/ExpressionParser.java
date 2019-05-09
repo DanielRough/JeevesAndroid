@@ -1,27 +1,22 @@
 package com.jeevesandroid;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.jeevesandroid.firebase.FirebaseExpression;
-import com.ubhave.sensormanager.ESException;
-import com.ubhave.sensormanager.ESSensorManager;
-import com.ubhave.sensormanager.classifier.SensorDataClassifier;
-import com.ubhave.sensormanager.config.SensorConfig;
-import com.ubhave.sensormanager.data.SensorData;
-import com.ubhave.sensormanager.sensors.SensorUtils;
+import com.jeevesandroid.sensing.sensormanager.ESException;
+import com.jeevesandroid.sensing.sensormanager.ESSensorManager;
+import com.jeevesandroid.sensing.sensormanager.classifier.SensorDataClassifier;
+import com.jeevesandroid.sensing.sensormanager.config.SensorConfig;
+import com.jeevesandroid.sensing.sensormanager.data.SensorData;
+import com.jeevesandroid.sensing.sensormanager.sensors.SensorUtils;
 
 import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
-
-import static com.jeevesandroid.ApplicationContext.BOOLEAN;
-import static com.jeevesandroid.ApplicationContext.DATE;
-import static com.jeevesandroid.ApplicationContext.LOCATION;
-import static com.jeevesandroid.ApplicationContext.NUMERIC;
-import static com.jeevesandroid.ApplicationContext.TIME;
 
 /**
  * Created by Daniel on 09/06/15.
@@ -56,7 +51,6 @@ public class ExpressionParser {
     private static final String TIME_BOUNDS_LATE = "timeBoundLate";
     private static final String DATE_BOUNDS = "dateBoundEarly";
     private static final String DATE_BOUNDS_LATE = "dateBoundLate";
-    // --Commented out by Inspection (1/1/2019 6:21 PM):private final Context appContext;
 
     public ExpressionParser() { }
 
@@ -71,16 +65,16 @@ public class ExpressionParser {
         else if(expr.getisCustom()){
             String name = (expr).getname();
             switch (expr.getvartype()) {
-                case LOCATION:
+                case ApplicationContext.LOCATION:
                     return userPrefs.getString(name, "");
-                case NUMERIC:
+                case ApplicationContext.NUMERIC:
                     return (userPrefs.getString(name,""));
-                case TIME:
+                case ApplicationContext.TIME:
                     return (userPrefs.getString(name,""));
-                case DATE:
+                case ApplicationContext.DATE:
                     return (userPrefs.getString(name,""));
-                case BOOLEAN:
-                    return userPrefs.getString(name, "false");
+                case ApplicationContext.BOOLEAN:
+                    return (userPrefs.getString(name, "false"));
             }
         }
         else if (expr.getvariables() == null) {
@@ -238,7 +232,7 @@ public class ExpressionParser {
     static class SampleOnceTask extends AsyncTask<Void, Void, SensorData> {
         private final ESSensorManager sensorManager;
         private final int sensorType;
-        // --Commented out by Inspection (1/1/2019 6:30 PM):String errorMessage;
+        String errorMessage;
 
         SampleOnceTask(int sensorType) throws ESException {
             this.sensorType = sensorType;

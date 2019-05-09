@@ -7,7 +7,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.jeevesandroid.WelcomeActivity">
+    tools:context="com.jeevesandroid.mainscreens.WelcomeActivity">
 
     <LinearLayout
         android:orientation="vertical"
@@ -82,6 +82,14 @@
             android:layout_weight="0.04"
             android:textColor="@color/colorPrimary"
             android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:layout_weight="0.04"
+            android:text="@string/finish_study"
+            android:textSize="@dimen/activity_horizontal_margin" />
 
         <Button
             android:id="@+id/btnHeart"

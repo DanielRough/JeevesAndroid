@@ -9,7 +9,6 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -18,7 +17,7 @@ import android.widget.Toast;
 
 import com.jeevesandroid.ApplicationContext;
 import com.jeevesandroid.R;
-import com.jeevesandroid.WelcomeActivity;
+import com.jeevesandroid.mainscreens.WelcomeActivity;
 import com.jeevesandroid.firebase.FirebaseProject;
 import com.jeevesandroid.firebase.FirebaseUtils;
 import com.google.firebase.auth.FirebaseAuth;
@@ -31,11 +30,6 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import static com.jeevesandroid.ApplicationContext.DEVELOPER_ID;
-import static com.jeevesandroid.ApplicationContext.EMAIL;
-import static com.jeevesandroid.ApplicationContext.STUDY_NAME;
-import static com.jeevesandroid.ApplicationContext.USERNAME;
 
 public class StudySignupActivity extends AppCompatActivity {
 
@@ -58,7 +52,7 @@ public class StudySignupActivity extends AppCompatActivity {
         TextView txtWelcome = findViewById(R.id.txtWelcome);
         SharedPreferences prefs = PreferenceManager
                 .getDefaultSharedPreferences(ApplicationContext.getContext());
-        String username = prefs.getString(USERNAME, "");
+        String username = prefs.getString(ApplicationContext.USERNAME, "");
         txtWelcome.setText(String.format(getResources().getString(R.string.welcome), username));
 
 
@@ -141,14 +135,14 @@ public class StudySignupActivity extends AppCompatActivity {
                 .getDefaultSharedPreferences(ApplicationContext.getContext());
         //Add the user's selected study to SharedPreferences
         SharedPreferences.Editor prefsEditor = varPrefs.edit();
-        prefsEditor.putString(STUDY_NAME,selectedStudy);
-        prefsEditor.putString(DEVELOPER_ID,developerid);
+        prefsEditor.putString(ApplicationContext.STUDY_NAME,selectedStudy);
+        prefsEditor.putString(ApplicationContext.DEVELOPER_ID,developerid);
         prefsEditor.apply();
 
         //Add in the initial values
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getContext());
-        String username = prefs.getString(USERNAME,"");
-        String email = prefs.getString(EMAIL,"");
+        String username = prefs.getString(ApplicationContext.USERNAME,"");
+        String email = prefs.getString(ApplicationContext.EMAIL,"");
         final String sensitiveData = username+";"+email;
 
         Map<String,Object> childMap = new HashMap<>();
