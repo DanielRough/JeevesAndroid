@@ -24,17 +24,15 @@ package com.jeevesandroid.triggers.triggers;
 
 import android.content.Context;
 
-import com.jeevesandroid.sensing.sensormanager.ESException;
 import com.jeevesandroid.triggers.AbstractSubscriptionList;
 import com.jeevesandroid.triggers.TriggerException;
 import com.jeevesandroid.triggers.TriggerReceiver;
 import com.jeevesandroid.triggers.config.TriggerConfig;
 import com.jeevesandroid.triggers.triggers.clock.BeginTrigger;
+import com.jeevesandroid.triggers.triggers.clock.DailyWakeupTrigger;
 import com.jeevesandroid.triggers.triggers.clock.IntervalTrigger;
-import com.jeevesandroid.triggers.triggers.clock.JeevesIntervalTrigger;
-import com.jeevesandroid.triggers.triggers.clock.JeevesWindowTrigger;
+import com.jeevesandroid.triggers.triggers.clock.WindowTrigger;
 import com.jeevesandroid.triggers.triggers.clock.OneTimeTrigger;
-import com.jeevesandroid.triggers.triggers.clock.RandomFrequencyTrigger;
 import com.jeevesandroid.triggers.triggers.clock.SetTimesTrigger;
 import com.jeevesandroid.triggers.triggers.sensor.ButtonTrigger;
 import com.jeevesandroid.triggers.triggers.sensor.ImmediateSensorTrigger;
@@ -42,88 +40,55 @@ import com.jeevesandroid.triggers.triggers.sensor.SurveyTrigger;
 
 public class TriggerList extends AbstractSubscriptionList<Trigger>
 {
-	public static Trigger createTrigger(Context context, int type, int id, TriggerReceiver listener, TriggerConfig params) throws TriggerException
+	public static Trigger createTrigger(Context context, int type, int id, TriggerReceiver listener,
+										TriggerConfig params) throws TriggerException
 	{
-		if (type == TriggerUtils.TYPE_CLOCK_TRIGGER_ONCE)
-		{
+		if (type == TriggerUtils.TYPE_CLOCK_TRIGGER_ONCE) {
 			return new OneTimeTrigger(context, id, listener, params);
 		}
-		else if (type == TriggerUtils.TYPE_CLOCK_TRIGGER_ON_INTERVAL)
-		{
-			return new IntervalTrigger(context, id, listener, params);
+		else if (type == TriggerUtils.TYPE_DAILY_SCHEDULER) {
+			return new DailyWakeupTrigger(context, id, listener, params);
 		}
-		else if (type == TriggerUtils.TYPE_JEEVES_TRIGGER_ON_INTERVAL)
-		{
-			return new JeevesIntervalTrigger(context,id,listener,params);
+		else if (type == TriggerUtils.TYPE_JEEVES_TRIGGER_ON_INTERVAL) {
+			return new IntervalTrigger(context,id,listener,params);
 		}
-		else if (type == TriggerUtils.TYPE_JEEVES_TRIGGER_WINDOW)
-		{
-			return new JeevesWindowTrigger(context,id,listener,params);
+		else if (type == TriggerUtils.TYPE_JEEVES_TRIGGER_WINDOW) {
+			return new WindowTrigger(context,id,listener,params);
 		}
-		else if (type == TriggerUtils.TYPE_CLOCK_TRIGGER_BEGIN)
-		{
+		else if (type == TriggerUtils.TYPE_CLOCK_TRIGGER_BEGIN) {
 			return new BeginTrigger(context,id,listener,params);
 		}
-		else if (type == TriggerUtils.TYPE_CLOCK_TRIGGER_DAILY_RANDOM)
-		{
-			return new RandomFrequencyTrigger(context, id, listener, params);
-		}
-		else if (type == TriggerUtils.TYPE_CLOCK_TRIGGER_SETTIMES)
-		{
+		else if (type == TriggerUtils.TYPE_CLOCK_TRIGGER_SETTIMES) {
 			return new SetTimesTrigger(context, id, listener, params);
 		}
-		else
-		{
+		else {
 			return getSensorTrigger(context, type, id, listener, params);
 		}
 	}
 	
-	private static Trigger getSensorTrigger(Context context, int type, int id, TriggerReceiver listener, TriggerConfig params) throws TriggerException
-	{
-	//	try
-	//	{
-			if (type == TriggerUtils.TYPE_SENSOR_TRIGGER_IMMEDIATE)
-			{
-				return new ImmediateSensorTrigger(context, id, listener, params);
-			}
-			else if (type == TriggerUtils.TYPE_SENSOR_TRIGGER_BUTTON)
-			{
-				return new ButtonTrigger(context, id, listener, params);
-			}
-			else if (type == TriggerUtils.TYPE_SENSOR_TRIGGER_SURVEY)
-			{
-				return new SurveyTrigger(context, id, listener, params);
-			}
-			else
-			{
-				throw new TriggerException(TriggerException.INVALID_STATE, "Unknown trigger.");
-			}
-//		}
-//		catch (ESException e)
-//		{
-//			throw new TriggerException(TriggerException.UNABLE_TO_ALLOCATE, "Cannot subscribe to sensor. Do you have battery permissions?");
-//		}
+	private static Trigger getSensorTrigger(Context context, int type, int id, TriggerReceiver listener,
+											TriggerConfig params) throws TriggerException {
+		if (type == TriggerUtils.TYPE_SENSOR_TRIGGER_IMMEDIATE) {
+			return new ImmediateSensorTrigger(context, id, listener, params);
+		}
+		else if (type == TriggerUtils.TYPE_SENSOR_TRIGGER_BUTTON) {
+			return new ButtonTrigger(context, id, listener, params);
+		}
+		else if (type == TriggerUtils.TYPE_SENSOR_TRIGGER_SURVEY) {
+			return new SurveyTrigger(context, id, listener, params);
+		}
+		else {
+			throw new TriggerException("Unknown trigger.");
+		}
 	}
 
 	@Override
-	public void remove(int triggerId) throws TriggerException
-	{
+	public void remove(int triggerId) throws TriggerException {
 		Trigger s = map.get(triggerId);
-		if (s != null)
-		{
+		if (s != null) {
 			s.stop();
 		}
 		super.remove(triggerId);
 	}
-	
-	public void removeAll() throws TriggerException
-	{
-		for (int i=0; i<map.size(); i++)
-		{
-			int key = map.keyAt(i);
-			Trigger trigger = map.get(key);
-			trigger.stop();
-		}
-		map.clear();
-	}
+
 }

@@ -17,7 +17,7 @@ import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.jeevesandroid.ApplicationContext;
+import com.jeevesandroid.AppContext;
 import com.jeevesandroid.R;
 import com.jeevesandroid.firebase.FirebaseSurvey;
 import com.jeevesandroid.firebase.FirebaseUtils;
@@ -32,8 +32,8 @@ import java.util.Date;
 import java.util.Locale;
 
 /**
- * This shows any surveys that the user has either ignored or partially completed, and allows the user to select them
- * for completion.
+ * This shows any surveys that the user has either ignored
+ * or partially completed, and allows the user to select them for completion.
  */
 public class MissedSurveyActivity extends AppCompatActivity {
     private ListView list;
@@ -42,13 +42,14 @@ public class MissedSurveyActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
-
         setContentView(R.layout.activity_missed_survey);
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
 
         //Get the top 10 most recently missed surveys out of here
-        Query myTopPostsQuery = FirebaseUtils.PATIENT_REF.child(ApplicationContext.INCOMPLETE).orderByChild(ApplicationContext.TIME_SENT).limitToLast(10);
+        Query myTopPostsQuery = FirebaseUtils.PATIENT_REF
+            .child(AppContext.INCOMPLETE)
+            .orderByChild(AppContext.TIME_SENT).limitToLast(10);
         myTopPostsQuery.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -58,41 +59,46 @@ public class MissedSurveyActivity extends AppCompatActivity {
                 for (DataSnapshot postSnapshot : snapshot.getChildren()) {
                     children.add(0,postSnapshot);
                 }
-                //Hopefully this should reverse them?
-                    for (DataSnapshot postSnapshot : children) {
+                for (DataSnapshot postSnapshot : children) {
                     FirebaseSurvey survey = postSnapshot.getValue(FirebaseSurvey.class);
                     String id = postSnapshot.getKey();
+                    if(survey == null){
+                        return;
+                    }
                     survey.setkey(id);
                     long expiryTime = survey.getexpiryTime();
                     long expiryMillis = expiryTime * 60 * 1000;
                     long deadline = survey.gettimeSent() + expiryMillis;
                     String name = survey.gettitle();
 
-                    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getContext());
-                    boolean isAvailable = prefs.getBoolean(survey.getsurveyId(),false); //Check whether this survey should be avaialble
+                    SharedPreferences prefs = PreferenceManager
+                        .getDefaultSharedPreferences(AppContext.getContext());
+                    boolean isAvailable = prefs.getBoolean(survey.getsurveyId(),false);
+                    //Check whether this survey should be available
                     //This way we only add the most recent survey
-                    if (!surveynames.contains(name) && isAvailable && deadline > System.currentTimeMillis() || survey.getexpiryTime() == 0) {
-                        surveys.add(survey);
-                        surveynames.add(name);
-
+                    if (!surveynames.contains(name) && isAvailable){
+                        if(deadline > System.currentTimeMillis() || survey.getexpiryTime() == 0) {
+                            surveys.add(survey);
+                            surveynames.add(name);
+                        }
                     }
 
                 }
                 list = findViewById(android.R.id.list);
                 list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
-                    public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
+                    public void onItemClick(AdapterView<?> a, View v, int pos, long l) {
+                    Intent resultIntent = new Intent(
+                        MissedSurveyActivity.this, SurveyActivity.class);
+                    FirebaseSurvey clickedSurvey = surveys.get(pos);
 
-                        Intent resultIntent = new Intent(MissedSurveyActivity.this, SurveyActivity.class);
-                        FirebaseSurvey clickedSurvey = surveys.get(position);
 
-
-                        resultIntent.putExtra(ApplicationContext.SURVEY_ID, clickedSurvey.getkey());
-                        resultIntent.putExtra(ApplicationContext.SURVEY_NAME, clickedSurvey.gettitle());
-                        resultIntent.putExtra(ApplicationContext.TIME_SENT, clickedSurvey.gettimeSent());
-                        resultIntent.putExtra(ApplicationContext.TRIG_TYPE, clickedSurvey.gettriggerType());
-                        clickedSurvey.setbegun(); //Confirm that this survey has been started
-                        startActivity(resultIntent);
+                    resultIntent.putExtra(AppContext.SURVEY_ID, clickedSurvey.getkey());
+                    resultIntent.putExtra(AppContext.SURVEY_NAME, clickedSurvey.gettitle());
+                    resultIntent.putExtra(AppContext.TIME_SENT, clickedSurvey.gettimeSent());
+                    resultIntent.putExtra(AppContext.TRIG_TYPE, clickedSurvey.gettriggerType());
+                    clickedSurvey.setbegun(); //Confirm that this survey has been started
+                    startActivity(resultIntent);
                     }
                 });
                 MissedSurveyItem adapter = new MissedSurveyItem(MissedSurveyActivity.this, surveys);
@@ -158,10 +164,14 @@ public class MissedSurveyActivity extends AppCompatActivity {
             SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss",Locale.UK);
             String dateString = formatter.format(new Date(timeSent));
             String minute_str = String.format(Locale.UK,"%d",minutes+1);
-            if (timeToGo > 0)
-                valueView.setText(String.format(getResources().getString(R.string.sent_expiring),dateString,minute_str));
-            else
-                valueView.setText(String.format(getResources().getString(R.string.sent_not_expiring),dateString));
+            if (timeToGo > 0) {
+                valueView.setText(String.format(getResources().getString(R.string.sent_expiring),
+                    dateString, minute_str));
+            }
+            else {
+                valueView.setText(String.format(
+                    getResources().getString(R.string.sent_not_expiring), dateString));
+            }
             return rowView;
         }
 

@@ -33,15 +33,15 @@ import android.widget.Toast;
 
 import com.jeevesandroid.triggers.TriggerException;
 import com.jeevesandroid.triggers.TriggerReceiver;
-import com.jeevesandroid.triggers.config.GlobalState;
 import com.jeevesandroid.triggers.config.TriggerConfig;
-import com.jeevesandroid.triggers.config.TriggerManagerConstants;
+import com.jeevesandroid.triggers.config.TriggerConstants;
 
 import java.util.Calendar;
 
 public abstract class Trigger extends BroadcastReceiver
 {
-	protected final static String TRIGGER_ID = "com.jeevesandroid.triggermanager.triggers.TRIGGER_ID";
+	protected final static String TRIGGER_ID =
+		"com.jeevesandroid.triggermanager.triggers.TRIGGER_ID";
 	
 	protected final AlarmManager alarmManager;
 	protected final PendingIntent pendingIntent;
@@ -53,7 +53,7 @@ public abstract class Trigger extends BroadcastReceiver
 	protected TriggerConfig params;
 	protected boolean isRunning;
 
-	public Trigger(Context context, int id, TriggerReceiver listener, TriggerConfig params) throws TriggerException
+	public Trigger(Context context, int id, TriggerReceiver listener, TriggerConfig params)
 	{
 		this.context = context;
 		this.triggerId = id;
@@ -61,10 +61,11 @@ public abstract class Trigger extends BroadcastReceiver
 		this.params = params;
 		this.isRunning = false;
 
-		//Log.d("MADE A TRIGGER",params.getParams().keySet().toString());
 		alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 		pendingIntent = getPendingIntent();
 	}
+
+	protected abstract void startAlarm() throws TriggerException;
 
 	protected abstract PendingIntent getPendingIntent();
 
@@ -72,79 +73,23 @@ public abstract class Trigger extends BroadcastReceiver
 	
 	protected abstract String getActionName();
 
-	protected abstract void startAlarm() throws TriggerException;
-
-	protected void sendNotification()
-	{
-		if (params.isSystemTrigger())
-		{
-			if (TriggerManagerConstants.LOG_MESSAGES)
-			{
-				Log.i(getTriggerTag(), "Sending system-level onNotificationTriggered()");
-			}
-			listener.onNotificationTriggered(triggerId);
-		}
-		else
-		{
-			//do it anyway
-			listener.onNotificationTriggered(triggerId);
-/*
-			if (globalState.areNotificationsAllowed())
-			{
-				int notificationsSent = globalState.getNotificationsSent();
-				int notificationCap = globalState.getNotificationCap();
-				if (notificationsSent < notificationCap)
-				{
-					if (isWithinAllowedTimes())
-					{
-						listener.onNotificationTriggered(triggerId);
-						globalState.incrementNotificationsSent();
-					}
-					else if (TriggerManagerConstants.LOG_MESSAGES)
-					{
-						Log.i(getTriggerTag(), "Notification scheduled outside of allowed times");
-					}
-				}
-				else if (TriggerManagerConstants.LOG_MESSAGES)
-				{
-					Log.i(getTriggerTag(), "You've sent " + notificationsSent + " and the default max is " + notificationCap);
-					Log.i(getTriggerTag(), "Notifications not allowed: daily cap has been reached.");
-				}
-			}
-			else if (TriggerManagerConstants.LOG_MESSAGES)
-			{
-// --Commented out by Inspection START (5/8/2019 4:26 PM):
-				Log.i(getTriggerTag(), "Notifications not allowed: not calling onNotificationTriggered()");
-			}*/
-		}
-	}
-
-	private boolean isWithinAllowedTimes()
-	{
-		Calendar calendar = Calendar.getInstance();
-		int currentMinute = (60 * calendar.get(Calendar.HOUR_OF_DAY)) + calendar.get(Calendar.MINUTE);
-		int earlyLimit = params.getValueInMinutes(TriggerConfig.LIMIT_AFTER_HOUR);
-		int lateLimit = params.getValueInMinutes(TriggerConfig.LIMIT_BEFORE_HOUR);
-
-		return (currentMinute < earlyLimit
-// --Commented out by Inspection STOP (5/8/2019 4:26 PM)
-				|| currentMinute > lateLimit);
+	protected void sendNotification() {
+		listener.onNotificationTriggered(triggerId);
 	}
 
 	public void stop() throws TriggerException
 	{
 		if (isRunning)
 		{
-			Log.d("STOPPED", "why the fuck did it stop!?");
-			if(pendingIntent != null) //I think pendingIntent is null for a begin trigger, don't know why
-			alarmManager.cancel(pendingIntent);
+			if(pendingIntent != null) {
+				alarmManager.cancel(pendingIntent);
+			}
 			try {
 				context.unregisterReceiver(this);
 			}
 			catch(Exception e){
-				Log.d("Unregistered", "Inexplicably got unregistered");
 			}
-				isRunning = false;
+			isRunning = false;
 		}
 	}
 
@@ -170,9 +115,7 @@ public abstract class Trigger extends BroadcastReceiver
 				sendNotification();
 			}
 		}
-		else{
-			Log.d("OH NO","OH NO ITS NULL " + triggerId);
-			Toast.makeText(context,"OH NO IT'S NULL " + triggerId,Toast.LENGTH_LONG).show();
-		}
 	}
+
+
 }

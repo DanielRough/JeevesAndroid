@@ -39,6 +39,9 @@ import com.jeevesandroid.sensing.sensormanager.config.SensorConfig;
 import com.jeevesandroid.sensing.sensormanager.data.SensorData;
 import com.jeevesandroid.sensing.sensormanager.sensors.SensorUtils;
 
+/**
+ * Class for formatting any sensed data into JSON for storage in Firebase
+ */
 public abstract class JSONFormatter
 {
 	protected final static String SENSOR_TYPE = "dataType";
@@ -156,7 +159,6 @@ public abstract class JSONFormatter
 
 	protected abstract void addSensorSpecificData(final JSONObject json, final SensorData data) throws JSONException;
 
-// --Commented out by Inspection START (5/8/2019 4:26 PM):
 	protected abstract void addSensorSpecificConfig(final JSONObject json, final SensorConfig config) throws JSONException;
 
 	protected String getString(final String key, final JSONObject data)
@@ -165,7 +167,6 @@ public abstract class JSONFormatter
 		{
 			String value = (String) data.get(key);
 			return value;
-// --Commented out by Inspection STOP (5/8/2019 4:26 PM)
 		}
 		catch (Exception e)
 		{

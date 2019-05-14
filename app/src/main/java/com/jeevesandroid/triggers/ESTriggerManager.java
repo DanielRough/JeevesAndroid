@@ -22,25 +22,21 @@ IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 package com.jeevesandroid.triggers;
 
-import android.app.PendingIntent;
 import android.content.Context;
-import android.content.Intent;
 import android.util.Log;
 
-import com.jeevesandroid.triggers.config.GlobalState;
 import com.jeevesandroid.triggers.config.TriggerConfig;
-import com.jeevesandroid.triggers.config.TriggerManagerConstants;
+import com.jeevesandroid.triggers.config.TriggerConstants;
 import com.jeevesandroid.triggers.triggers.Trigger;
 import com.jeevesandroid.triggers.triggers.TriggerList;
 import com.jeevesandroid.triggers.triggers.TriggerUtils;
 
-public class ESTriggerManager implements TriggerManagerInterface
+public class ESTriggerManager
 {
 	private static ESTriggerManager triggerManager;
 	private static final Object lock = new Object();
 
 	private final Context context;
-	private final GlobalState state;
 	private final TriggerList triggers;
 
 	public static ESTriggerManager getTriggerManager(Context context) throws TriggerException
@@ -62,17 +58,15 @@ public class ESTriggerManager implements TriggerManagerInterface
 	{
 		context = appContext;
 		triggers = new TriggerList();
-		state = GlobalState.getGlobalState(context);
 
 	}
 
-	@Override
 	public int addTrigger(int triggerType, TriggerReceiver listener, TriggerConfig parameters) throws TriggerException
 	{
 
 		int key = triggers.randomKey();
 		Trigger trigger = TriggerList.createTrigger(context, triggerType, key, listener, parameters);
-		if (TriggerManagerConstants.LOG_MESSAGES)
+		if (TriggerConstants.LOG_MESSAGES)
 		{
 			Log.d("TriggerManager", "Adding trigger type: "+TriggerUtils.getTriggerName(triggerType)+" to list, id = "+key);
 		}
@@ -81,36 +75,9 @@ public class ESTriggerManager implements TriggerManagerInterface
 		return key;
 	}
 
-	@Override
 	public void removeTrigger(int triggerId) throws TriggerException
 	{
 		triggers.remove(triggerId);
 	}
-	
-	@Override
-	public void removeAllTriggers() throws TriggerException
-	{
-		triggers.removeAll();
-	}
-	
-	@Override
-	public void resetCap()
-	{
-		state.reset();
-	}
-	
-	@Override
-	public void setNotificationCap(int value)
-	{
-		state.setNotificationCap(value);
-	}
-	
-	@Override
-	public boolean isTriggerAlive(int triggerType, int triggerId) throws TriggerException
-	{
-		String triggerName = TriggerUtils.getTriggerName(triggerType);
-		String actionName = TriggerUtils.getTriggerActionName(triggerName);
-		PendingIntent intent = PendingIntent.getBroadcast(context, triggerId, new Intent(actionName), PendingIntent.FLAG_NO_CREATE);
-		return (intent != null);
-	}
+
 }

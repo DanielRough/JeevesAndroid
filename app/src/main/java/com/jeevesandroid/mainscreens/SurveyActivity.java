@@ -55,7 +55,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.jeevesandroid.ApplicationContext;
+import com.jeevesandroid.AppContext;
 import com.jeevesandroid.R;
 import com.jeevesandroid.firebase.FirebaseQuestion;
 import com.jeevesandroid.firebase.FirebaseSurvey;
@@ -77,7 +77,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 import com.jeevesandroid.sensing.heartrate.HeartRateMonitor;
-import com.jeevesandroid.triggers.config.TriggerManagerConstants;
+import com.jeevesandroid.triggers.config.TriggerConstants;
 import com.jeevesandroid.triggers.triggers.TriggerUtils;
 
 import java.io.File;
@@ -94,20 +94,24 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
-public class SurveyActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener, OnMapReadyCallback,MediaPlayer.OnPreparedListener {
-    private static final String OPEN_ENDED = "OPEN_ENDED";
-    private static final String MULT_SINGLE = "MULT_SINGLE";
-    private static final String MULT_MANY = "MULT_MANY";
-    private static final String SCALE = "SCALE";
-    private static final String DATE = "DATE";
-    private static final String GEO = "GEO";
-    private static final String BOOLEAN = "BOOLEAN";
-    private static final String NUMERIC = "NUMERIC";
-    private static final String TIME = "TIME";
-    private static final String IMAGEPRESENT = "IMAGEPRESENT";
-    private static final String TEXTPRESENT = "TEXTPRESENT";
-    private static final String HEART = "HEART";
-    private static final String AUDIO = "AUDIO";
+import static com.jeevesandroid.AppContext.AUDIO;
+import static com.jeevesandroid.AppContext.BOOLEAN;
+import static com.jeevesandroid.AppContext.DATE;
+import static com.jeevesandroid.AppContext.GEO;
+import static com.jeevesandroid.AppContext.HEART;
+import static com.jeevesandroid.AppContext.IMAGEPRESENT;
+import static com.jeevesandroid.AppContext.MULT_MANY;
+import static com.jeevesandroid.AppContext.MULT_SINGLE;
+import static com.jeevesandroid.AppContext.NUMERIC;
+import static com.jeevesandroid.AppContext.OPEN_ENDED;
+import static com.jeevesandroid.AppContext.SCALE;
+import static com.jeevesandroid.AppContext.TEXTPRESENT;
+import static com.jeevesandroid.AppContext.TIME;
+
+public class SurveyActivity extends AppCompatActivity
+    implements GoogleApiClient.OnConnectionFailedListener,
+    OnMapReadyCallback,MediaPlayer.OnPreparedListener {
+
     private static final ArrayList<String> viewFlipperOrdering = new ArrayList<>();
     static {viewFlipperOrdering.addAll(Arrays.asList(
         OPEN_ENDED,
@@ -165,7 +169,7 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
 
     protected void onStop() {
         super.onStop();
-        if(currentsurvey != null) //Sometimes it's null if the activity is accessed from the lock screen
+        if(currentsurvey != null) //Sometimes it's null if activity is accessed from lock screen
             currentsurvey.setanswers(answers); //Save the partially completed stuff
         surveyRef.addValueEventListener(new ValueEventListener() {
             @Override
@@ -236,28 +240,28 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
         currentsurvey.setencodedKey(FirebaseUtils.getSymmetricKey());
         currentsurvey.setscore(finalscore);
 
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getContext());
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(AppContext.getContext());
 
         Map<String,Object> surveymap = new HashMap<>();
-        surveymap.put(ApplicationContext.STATUS,1);
+        surveymap.put(AppContext.STATUS,1);
         if(triggerType != TriggerUtils.TYPE_SENSOR_TRIGGER_BUTTON && initTime > timeSent) //Then this was a button trigger and the init time doesn't count
-            surveymap.put(ApplicationContext.INIT_TIME,initTime-timeSent);
-        surveymap.put(ApplicationContext.COMPLETE,System.currentTimeMillis());
-        surveymap.put(ApplicationContext.TRIG_TYPE,triggerType);
-        surveymap.put(ApplicationContext.UID,prefs.getString(ApplicationContext.UID,""));
+            surveymap.put(AppContext.INIT_TIME,initTime-timeSent);
+        surveymap.put(AppContext.COMPLETE,System.currentTimeMillis());
+        surveymap.put(AppContext.TRIG_TYPE,triggerType);
+        surveymap.put(AppContext.UID,prefs.getString(AppContext.UID,""));
         surveymap.put("encodedAnswers",currentsurvey.getencodedAnswers());
         surveymap.put("encodedKey",currentsurvey.getencodedKey());
         FirebaseUtils.SURVEY_REF.child(currentsurvey.getsurveyId()).push().setValue(surveymap);
         //Update the various Survey-relevant variables
 
         SharedPreferences.Editor editor = prefs.edit();
-        long oldscore = prefs.getLong(ApplicationContext.LAST_SURVEY_SCORE, 0);
+        long oldscore = prefs.getLong(AppContext.LAST_SURVEY_SCORE, 0);
         long difference = finalscore - oldscore;
-        editor.putLong(ApplicationContext.LAST_SURVEY_SCORE, finalscore);
-        editor.putLong(ApplicationContext.SURVEY_SCORE_DIFF, difference);
-        long totalCompletedSurveyCount = prefs.getLong(ApplicationContext.COMPLETED_SURVEYS, 0);
+        editor.putLong(AppContext.LAST_SURVEY_SCORE, finalscore);
+        editor.putLong(AppContext.SURVEY_SCORE_DIFF, difference);
+        long totalCompletedSurveyCount = prefs.getLong(AppContext.COMPLETED_SURVEYS, 0);
         totalCompletedSurveyCount++;
-        editor.putLong(ApplicationContext.COMPLETED_SURVEYS, totalCompletedSurveyCount);
+        editor.putLong(AppContext.COMPLETED_SURVEYS, totalCompletedSurveyCount);
         long thisCompletedSurveyCount = prefs.getLong(currentsurvey.gettitle() + "-Completed", 0);
         thisCompletedSurveyCount++;
         editor.putLong(currentsurvey.gettitle() + "-Completed", thisCompletedSurveyCount);
@@ -265,11 +269,11 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
 
         //SEND A BROADCAST TO LISTENING SURVEY TRIGGERS
         Intent intended = new Intent();
-        intended.setAction(TriggerManagerConstants.ACTION_NAME_SURVEY_TRIGGER);
-        intended.putExtra(ApplicationContext.SURVEY_NAME, currentsurvey.gettitle());
+        intended.setAction(TriggerConstants.ACTION_NAME_SURVEY_TRIGGER);
+        intended.putExtra(AppContext.SURVEY_NAME, currentsurvey.gettitle());
         intended.putExtra("completed", thisCompletedSurveyCount);
         intended.putExtra("result", true);
-        intended.putExtra(ApplicationContext.TIME_SENT, currentsurvey.gettimeSent());
+        intended.putExtra(AppContext.TIME_SENT, currentsurvey.gettimeSent());
         intended.putExtra("changedVariables", changedVariables);
         sendBroadcast(intended);
         surveyRef.addValueEventListener(new ValueEventListener() {
@@ -293,7 +297,7 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
         //We should write this to Shared Preferences so that,
         // if the app closes, we know we've already
         //finished the introductory survey
-        editor.putBoolean(ApplicationContext.FINISHED_INTRODUCTION,finished);
+        editor.putBoolean(AppContext.FINISHED_INTRODUCTION,finished);
         editor.commit();
         finish();
     }
@@ -312,10 +316,10 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
 
         setContentView(R.layout.activity_survey);
 
-        String surveyid = getIntent().getStringExtra(ApplicationContext.SURVEY_ID);
-        initTime = getIntent().getLongExtra(ApplicationContext.INIT_TIME,0);
-        timeSent = getIntent().getLongExtra(ApplicationContext.TIME_SENT,0);
-        triggerType = getIntent().getIntExtra(ApplicationContext.TRIG_TYPE,0);
+        String surveyid = getIntent().getStringExtra(AppContext.SURVEY_ID);
+        initTime = getIntent().getLongExtra(AppContext.INIT_TIME,0);
+        timeSent = getIntent().getLongExtra(AppContext.TIME_SENT,0);
+        triggerType = getIntent().getIntExtra(AppContext.TRIG_TYPE,0);
         //FirebaseAuth mFirebaseAuth = FirebaseAuth.getInstance();
 
         if(triggerType == TriggerUtils.TYPE_CLOCK_TRIGGER_BEGIN){
@@ -326,7 +330,7 @@ public class SurveyActivity extends AppCompatActivity implements GoogleApiClient
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setHomeButtonEnabled(true);
         }
-        prefs = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getContext());
+        prefs = PreferenceManager.getDefaultSharedPreferences(AppContext.getContext());
 
         missedRef = FirebaseUtils.SURVEY_REF.child(surveyid).child("missed");
         surveyRef = FirebaseUtils.PATIENT_REF.child("incomplete").child(surveyid);

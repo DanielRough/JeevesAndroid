@@ -6,7 +6,7 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.jeevesandroid.ApplicationContext;
+import com.jeevesandroid.AppContext;
 import com.jeevesandroid.firebase.FirebaseUtils;
 import com.google.android.gms.location.ActivityRecognitionResult;
 import com.google.android.gms.location.DetectedActivity;
@@ -18,10 +18,9 @@ import java.util.List;
 
 
 /**
- * Created by Dan on 10/27/2017.
+ * A service for continuously capturing Activity data (This is not used in the Activity-based
+ * Trigger, which instead uses the 'ActivityListener' class.
  */
-
-
 public class ActivityService extends IntentService {
 
     public ActivityService(){
@@ -36,8 +35,8 @@ public class ActivityService extends IntentService {
             result = ActivityRecognitionResult.extractResult(intent);
             int activityConfidence = result.getMostProbableActivity().getConfidence();
             activityCode = result.getMostProbableActivity().getType();
-            Toast.makeText(ApplicationContext.getContext()," ACTIVITY CODE : " + activityCode + " ACTIVITY CONFIDENCE : " + activityConfidence,Toast.LENGTH_LONG);
-            Log.d("ACTIVITY"," ACTIVITY CODE : " + activityCode + " ACTIVITY CONFIDENCE : " + activityConfidence);
+            Log.d("ACTIVITY"," ACTIVITY CODE : " + activityCode +
+                " ACTIVITY CONFIDENCE : " + activityConfidence);
             evaluateActivityResult();
         }
     }
@@ -78,16 +77,23 @@ public class ActivityService extends IntentService {
         locData.put("senseStartTimeMillis", mLastUpdateTime);
         if (activityCode == DetectedActivity.ON_FOOT) {
             DetectedActivity betterActivity = walkingOrRunning(result.getProbableActivities());
-            if (null != betterActivity)
-                switch(betterActivity.getType()){
-                    case DetectedActivity.WALKING: activityResult = "Walking"; break;
-                    case DetectedActivity.RUNNING: activityResult = "Running"; break;}
+            if (null != betterActivity) {
+                switch (betterActivity.getType()) {
+                    case DetectedActivity.WALKING:
+                        activityResult = "Walking";
+                        break;
+                    case DetectedActivity.RUNNING:
+                        activityResult = "Running";
+                        break;
+                }
+            }
         }
         locData.put("result", activityResult);
 
         if(FirebaseUtils.PATIENT_REF == null)
             return;
-        DatabaseReference patientRef = FirebaseUtils.PATIENT_REF.child("sensordata").child("Activity").push();
+        DatabaseReference patientRef = FirebaseUtils.PATIENT_REF
+            .child("sensordata").child("Activity").push();
         patientRef.setValue(locData);
 
     }
@@ -95,13 +101,13 @@ public class ActivityService extends IntentService {
             DetectedActivity myActivity = null;
             int confidence = 0;
             for (DetectedActivity activity : probableActivities) {
-                if (activity.getType() != DetectedActivity.RUNNING && activity.getType() != DetectedActivity.WALKING)
+                if (activity.getType() != DetectedActivity.RUNNING &&
+                    activity.getType() != DetectedActivity.WALKING)
                     continue;
 
                 if (activity.getConfidence() > confidence)
                     myActivity = activity;
             }
-
             return myActivity;
         }
     }

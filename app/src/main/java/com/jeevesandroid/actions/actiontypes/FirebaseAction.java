@@ -25,9 +25,6 @@ public class FirebaseAction implements Serializable {
     private long yPos;
     private List<FirebaseExpression> vars;
 
-    //public String getdescription() {
-    //    return description;
-    //}
 
     public long getid() {
         return id;

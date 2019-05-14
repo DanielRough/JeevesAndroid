@@ -26,29 +26,13 @@ public class TriggerException extends Exception
 {
 	private static final long serialVersionUID = -6952859423645368705L;
 
-	public static final int NO_CONTEXT = 8000;
-	public static final int INVALID_STATE = 8001;
-	public static final int DATE_IN_PAST = 8003;
-	public static final int UNABLE_TO_ALLOCATE = 8004;
-	public static final int MISSING_PARAMETERS = 8005;
-	public static final int UNKNOWN_TRIGGER = 8006;
-
-	private int errorCode;
 	private String message;
 
-	public TriggerException(int errorCode, String message)
+	public TriggerException(String message)
 	{
 		super(message);
-		this.errorCode = errorCode;
 		this.message = message;
 	}
-
-// --Commented out by Inspection START (5/8/2019 4:26 PM):
-	public int getErrorCode()
-	{
-		return errorCode;
-	}
-// --Commented out by Inspection STOP (5/8/2019 4:26 PM)
 
 	public String getMessage()
 	{

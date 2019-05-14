@@ -10,7 +10,7 @@ import android.os.Build;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
-import com.jeevesandroid.ApplicationContext;
+import com.jeevesandroid.AppContext;
 import com.jeevesandroid.ExpressionParser;
 import com.jeevesandroid.actions.actiontypes.FirebaseAction;
 import com.jeevesandroid.actions.actiontypes.WhileControl;
@@ -24,28 +24,33 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+/**
+ * Class that receives the update from a While Loop to re-execute the actions inside,
+ * or finish off the actions to be executed afterwards
+ */
 public class WhileLoopReceiver extends BroadcastReceiver {
+
     @Override
     public void onReceive(Context context, Intent intent) {
-        //Get condition
         ArrayList<FirebaseAction> controlactions;
-        ByteArrayInputStream bis = new ByteArrayInputStream(intent.getByteArrayExtra("loop"));
-        ByteArrayInputStream bis2 = new ByteArrayInputStream(intent.getByteArrayExtra("afteractions"));
+        ByteArrayInputStream bis =
+            new ByteArrayInputStream(intent.getByteArrayExtra("loop"));
+        ByteArrayInputStream bis2 =
+            new ByteArrayInputStream(intent.getByteArrayExtra("afteractions"));
         ObjectInput in = null;
         ObjectInput in2 = null;
         WhileControl myloop = null;
         ArrayList<FirebaseAction> afterActions = null;
-        Log.d("RECEIVED","I hate receiveth the receiver");
         try {
             in = new ObjectInputStream(bis);
             in2 = new ObjectInputStream(bis2);
             myloop = (WhileControl)in.readObject();
             afterActions = (ArrayList<FirebaseAction>)in2.readObject();
-        } catch (ClassNotFoundException e) {
+        }
+        catch (ClassNotFoundException | IOException e) {
             e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
+        }
+        finally {
             try {
                 if (in != null) {
                     in.close();
@@ -64,54 +69,45 @@ public class WhileLoopReceiver extends BroadcastReceiver {
         String granularity = null;
         expression = myloop.getcondition();
         controlactions = (ArrayList<FirebaseAction>) myloop.getactions();
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getContext());
+        SharedPreferences preferences =
+            PreferenceManager.getDefaultSharedPreferences(AppContext.getContext());
 
-        //Converting the actions into their correct types
         if (controlactions == null) {
-            Log.d("NULL","Control actions are null!");
-            executeRemainingStuff(afterActions);
+            executeRemainingActions(afterActions);
         }
-        if (expression != null && parser.evaluate(expression).equals("false")){ //expressionw will be null if we don't have an expression in the first place
-            Log.d("FALSE","Expression is false!");
-            executeRemainingStuff(afterActions);
-
-        }   //otherwise what we do is we add all the internal actions to this iterator, and carry on as normal
+        if (expression != null && parser.evaluate(expression).equals("false")){
+            executeRemainingActions(afterActions);
+        }
 
         else {
-            //Oddly the FirebaseActions lose their specific type, so this needs to be added for 'em all again
+            //FirebaseActions lose their specific type, so this needs to be re-added
             ArrayList<FirebaseAction> newControlActions = new ArrayList<>();
             for(FirebaseAction a : controlactions){
                 newControlActions.add(ActionUtils.create(a));
-                Log.d("CONTROL","adding " + a.getname());
             }
             int totalTime = 0;
             String stimeToWait = "";
-            //If we've got the snoozy var, use that to calculate the time instead kay?
-            if(intent.hasExtra("snoozyvar")){
-                snoozyvar = (HashMap<String, Object>) intent.getSerializableExtra("snoozyvar");
+
+            //We pass the snooze variable if it exists
+            //This way the loop's snoozing time can be updated if necessary (or randomised)
+            if(intent.hasExtra("snoozevar")){
+                snoozyvar = (HashMap<String, Object>) intent.getSerializableExtra("snoozevar");
                 String varname = snoozyvar.get("name").toString();
-                Log.d("VARAME","varname is " + varname);
-                //Bit of a temporary hack here
-//                    FirebaseVariable var = (FirebaseVariable)expr;
                 String randomanswer = "";
                 if((boolean)snoozyvar.get("isRandom") == true){
-                    Log.d("NAME","RANDOM var name is " + snoozyvar.get("name").toString());
-                    //Log.d("VARS","random vars are "+ var.getrandomOptions());
                     List<String> randomVals = ((List<String>)snoozyvar.get("randomOptions"));
                     double lowest = Double.parseDouble(randomVals.get(0));
                     double highest = Double.parseDouble(randomVals.get(1));
                     double range = (highest-lowest)+1;
                     randomanswer = Long.toString((long)(Math.random()*range + lowest));
-                    Log.d("PUT VAR","Put var " + snoozyvar.get("name") + " with value " + randomanswer);
                     stimeToWait = randomanswer;
                 }
                 else {
                     stimeToWait = preferences.getString(varname, "");
                 }
-                granularity = intent.getStringExtra("snoozytime");
+                granularity = intent.getStringExtra("snoozegranularity");
 
                 totalTime = Integer.parseInt(stimeToWait) * 1000;
-                Log.d("FOUNDSNOOZE","Time was " + totalTime);
 
                 if(granularity.equals("minutes")){
                     totalTime *= 60;
@@ -121,47 +117,52 @@ public class WhileLoopReceiver extends BroadcastReceiver {
                 }
             }
             else {
-                totalTime = intent.getIntExtra("loopytime", 30000);
+                totalTime = intent.getIntExtra("looptime", 30000);
             }
-            Intent actionIntent = new Intent(ApplicationContext.getContext(), ActionExecutorService.class);
+
+            //Start the ActionExecutorService to execute in-loop actions
+            Intent actionIntent = new Intent(AppContext.getContext(), ActionExecutorService.class);
             actionIntent.putExtra(ActionUtils.ACTIONS, newControlActions);
-            Log.d("SHOULDBE","Should be away to execute these things");
-            ApplicationContext.getContext().startService(actionIntent);
+            AppContext.getContext().startService(actionIntent);
 
-            AlarmManager alarmManager = (AlarmManager) ApplicationContext.getContext()
+            //Begin the whole process again
+            AlarmManager alarmManager = (AlarmManager) AppContext.getContext()
                 .getSystemService(Context.ALARM_SERVICE);
-            Intent newLoopIntent=new Intent(ApplicationContext.getContext(),WhileLoopReceiver.class);
+            Intent newLoopIntent=new Intent(AppContext.getContext(),WhileLoopReceiver.class);
 
-
-            newLoopIntent.putExtra("loopytime",totalTime);
+            newLoopIntent.putExtra("looptime",totalTime);
             if(snoozyvar != null) {
-                newLoopIntent.putExtra("snoozyvar", snoozyvar);
-                newLoopIntent.putExtra("snoozytime", granularity);
+                newLoopIntent.putExtra("snoozevar", snoozyvar);
+                newLoopIntent.putExtra("snoozegranularity", granularity);
 
             }
             newLoopIntent.putExtra("loop", intent.getByteArrayExtra("loop"));
             newLoopIntent.putExtra("afteractions", intent.getByteArrayExtra("afteractions"));
-            PendingIntent pi=PendingIntent.getBroadcast(ApplicationContext.getContext(), 234, newLoopIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            PendingIntent pi=PendingIntent.getBroadcast(AppContext.getContext(),
+                234, newLoopIntent, PendingIntent.FLAG_UPDATE_CURRENT);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + totalTime, pi);
+                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP,
+                    System.currentTimeMillis() + totalTime, pi);
             }
             else{
-                alarmManager.setExact(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + totalTime, pi);
+                alarmManager.setExact(AlarmManager.RTC_WAKEUP,
+                    System.currentTimeMillis() + totalTime, pi);
             }
-            Log.d("OKAY AGIN","It's back in the hands of God now");
         }
 
     }
-    public void executeRemainingStuff(List<FirebaseAction> remainingActions){
+
+    /**
+     * Starts a new ActionExecutorService to finish off executing post-loop actions
+     * @param remainingActions List of JSON actions that take place after the loop
+     */
+    public void executeRemainingActions(List<FirebaseAction> remainingActions){
         ArrayList<FirebaseAction> newRemainingActions = new ArrayList<>();
         for(FirebaseAction a : remainingActions){
-         //   Log.d("ACTION","this action is " + a.toString());
-          //  Log.d("ACTION","this action is " + a.getname());
             newRemainingActions.add(a);
         }
-        Intent actionIntent = new Intent(ApplicationContext.getContext(), ActionExecutorService.class);
+        Intent actionIntent = new Intent(AppContext.getContext(), ActionExecutorService.class);
         actionIntent.putExtra(ActionUtils.ACTIONS, newRemainingActions);
-        ApplicationContext.getContext().startService(actionIntent);
-        //Great now cancel the alarm
+        AppContext.getContext().startService(actionIntent);
     }
 }

@@ -6,7 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
-import com.jeevesandroid.ApplicationContext;
+import com.jeevesandroid.AppContext;
 import com.jeevesandroid.sensing.SensorListener;
 import com.jeevesandroid.SenseService;
 import com.jeevesandroid.sensing.sensormanager.ESException;
@@ -17,7 +17,8 @@ import com.jeevesandroid.sensing.sensormanager.sensors.SensorUtils;
 import java.util.Map;
 
 /**
- * Created by Daniel on 26/05/15.
+ * Functionality for sensing data from a specified sensor for
+ * a specified period of time
  */
 public class CaptureDataAction extends FirebaseAction {
 
@@ -27,19 +28,19 @@ public class CaptureDataAction extends FirebaseAction {
 
     private void startActivityUpdates(){
         Intent broadcastIntent = new Intent();
-        broadcastIntent.setAction(ApplicationContext.STARTACTIVITY);
-        ApplicationContext.getContext().sendBroadcast(broadcastIntent);
+        broadcastIntent.setAction(AppContext.STARTACTIVITY);
+        AppContext.getContext().sendBroadcast(broadcastIntent);
 
     }
     private void startLocationUpdates() {
         Intent broadcastIntent = new Intent();
-        broadcastIntent.setAction(ApplicationContext.STARTLOC);
-        ApplicationContext.getContext().sendBroadcast(broadcastIntent);
+        broadcastIntent.setAction(AppContext.STARTLOC);
+        AppContext.getContext().sendBroadcast(broadcastIntent);
 
     }
 
     public void execute() {
-        Context app = ApplicationContext.getContext();
+        Context app = AppContext.getContext();
         if(!getparams().containsKey("selectedSensor") || !getparams().containsKey("time"))return;
         String sensor = getparams().get("selectedSensor").toString();
         String startstop = getparams().get("time").toString();
@@ -56,12 +57,12 @@ public class CaptureDataAction extends FirebaseAction {
         switch (sensor) {
             case "Location":
                 startLocationUpdates();
-                broadcastIntent.setAction(ApplicationContext.STOPLOC);
+                broadcastIntent.setAction(AppContext.STOPLOC);
 
                 break;
             case "Activity":
                 startActivityUpdates();
-                broadcastIntent.setAction(ApplicationContext.STOPACTIVITY);
+                broadcastIntent.setAction(AppContext.STOPACTIVITY);
                 break;
             default:
                 try {
@@ -69,23 +70,25 @@ public class CaptureDataAction extends FirebaseAction {
                     int sensorType = SensorUtils.getSensorType(sensor);
                     SensorListener listener = SenseService.sensorlisteners.get(sensorType);
                     Log.d("Sensor", "Try and subscribe to " + sensorType);
-                    int subscriptionId = ESSensorManager.getSensorManager(app).subscribeToSensorData(sensorType, listener);
+                    int subscriptionId = ESSensorManager.getSensorManager(app)
+                        .subscribeToSensorData(sensorType, listener);
                     Log.d("SUCCESS", "Successfully subscribed to " + sensorType);
                     SenseService.subscribedSensors.put(sensorType, subscriptionId);
 
                     broadcastIntent.putExtra("sensortype", sensorType);
                     broadcastIntent.putExtra("subid", subscriptionId);
-                    broadcastIntent.setAction(ApplicationContext.STOPSENSOR);
+                    broadcastIntent.setAction(AppContext.STOPSENSOR);
                 } catch (ESException e) {
                     e.printStackTrace();
                 }
                 break;
         }
         PendingIntent pendingIntent = PendingIntent.getBroadcast(
-                ApplicationContext.getContext(), 234324243, broadcastIntent, 0);
+                AppContext.getContext(), 234324243, broadcastIntent, 0);
 
         if(timetosense > 0) {
-            AlarmManager alarmManager = (AlarmManager) ApplicationContext.getContext().getSystemService(Context.ALARM_SERVICE);
+            AlarmManager alarmManager = (AlarmManager) AppContext.getContext()
+                .getSystemService(Context.ALARM_SERVICE);
             alarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis()
                     + (timetosense), pendingIntent);
         }

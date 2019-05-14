@@ -13,7 +13,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.jeevesandroid.ApplicationContext;
+import com.jeevesandroid.AppContext;
 import com.jeevesandroid.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -21,7 +21,7 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-//import static com.jeevesandroid.ApplicationContext.PHONE;
+//import static com.jeevesandroid.AppContext.PHONE;
 
 
 public class SignUpActivity extends AppCompatActivity {
@@ -116,12 +116,12 @@ public class SignUpActivity extends AppCompatActivity {
     private void onSignupSuccess(String userId, String name, String email) {
         signUpButton.setEnabled(true);
         SharedPreferences prefs = PreferenceManager
-                .getDefaultSharedPreferences(ApplicationContext.getContext());
+                .getDefaultSharedPreferences(AppContext.getContext());
         SharedPreferences.Editor prefsEditor = prefs.edit();
         Intent resultIntent = new Intent();
-        prefsEditor.putString(ApplicationContext.UID,userId);
-        prefsEditor.putString(ApplicationContext.USERNAME,name);
-        prefsEditor.putString(ApplicationContext.EMAIL,email);
+        prefsEditor.putString(AppContext.UID,userId);
+        prefsEditor.putString(AppContext.USERNAME,name);
+        prefsEditor.putString(AppContext.EMAIL,email);
         prefsEditor.apply();
         setResult(RESULT_OK, resultIntent);
 

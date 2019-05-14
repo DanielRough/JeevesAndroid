@@ -22,24 +22,10 @@ public class FirebaseTrigger {
     private long xPos;
     private long yPos;
     private FirebaseExpression dateFrom;
-// --Commented out by Inspection START (5/8/2019 4:26 PM):
-// --Commented out by Inspection START (5/8/2019 4:26 PM):
     private FirebaseExpression dateTo;
     private FirebaseExpression timeFrom;
-// --Commented out by Inspection STOP (5/8/2019 4:26 PM)
-// --Commented out by Inspection STOP (5/8/2019 4:26 PM)
-// --Commented out by Inspection START (5/8/2019 4:26 PM):
-// --Commented out by Inspection START (5/8/2019 4:26 PM):
-// --Commented out by Inspection START (5/8/2019 4:26 PM):
-//// --Commented out by Inspection START (5/8/2019 4:26 PM):
     private FirebaseExpression timeTo;
     private FirebaseExpression location;
-// --Commented out by Inspection STOP (5/8/2019 4:26 PM)
-// --Commented out by Inspection STOP (5/8/2019 4:26 PM)
-// --Commented out by Inspection START (5/8/2019 4:26 PM):
-//// --Commented out by Inspection STOP (5/8/2019 4:26 PM)
-//// --Commented out by Inspection STOP (5/8/2019 4:26 PM)
-// --Commented out by Inspection STOP (5/8/2019 4:26 PM)
 
     public long getclocktype() {
         return clocktype;
@@ -66,29 +52,19 @@ public class FirebaseTrigger {
     }
 
     public long getxPos() {
-// --Commented out by Inspection START (5/8/2019 4:26 PM):
         return xPos;
     }
-//
-// --Commented out by Inspection START (5/8/2019 4:26 PM):
+
    public long getyPos() {
-// --Commented out by Inspection START (5/8/2019 4:26 PM):
-//// --Commented out by Inspection START (5/8/2019 4:26 PM):
         return yPos;
     }
-// --Commented out by Inspection STOP (5/8/2019 4:26 PM)
-//////
+
    public List<FirebaseAction> getactions() {
-//// --Commented out by Inspection STOP (5/8/2019 4:26 PM)
-// --Commented out by Inspection STOP (5/8/2019 4:26 PM)
-// --Commented out by Inspection STOP (5/8/2019 4:26 PM)
-// --Commented out by Inspection START (5/8/2019 4:26 PM):
        return actions;
     }
 //
     public void setvariables(List<String> variables){
         this.variables = variables;
-// --Commented out by Inspection STOP (5/8/2019 4:26 PM)
     }
 
     public List<String> getvariables(){

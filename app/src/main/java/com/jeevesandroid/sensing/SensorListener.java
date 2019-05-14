@@ -4,7 +4,7 @@ import android.content.Context;
 import android.util.Log;
 
 import com.google.firebase.database.DatabaseReference;
-import com.jeevesandroid.ApplicationContext;
+import com.jeevesandroid.AppContext;
 import com.jeevesandroid.firebase.FirebaseUtils;
 import com.jeevesandroid.sensing.jsonformatter.JSONFormatter;
 import com.jeevesandroid.sensing.sensormanager.ESException;
@@ -33,7 +33,7 @@ public class SensorListener implements SensorDataListener {
     public SensorListener(int sensorType)
     {
 
-        this.context = ApplicationContext.getContext();
+        this.context = AppContext.getContext();
 
         try
         {

@@ -21,6 +21,7 @@ import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
@@ -52,9 +53,7 @@ import com.jeevesandroid.sensing.SensorListener;
 
 import com.jeevesandroid.sensing.sensormanager.ESException;
 import com.jeevesandroid.sensing.sensormanager.ESSensorManager;
-import com.jeevesandroid.sensing.sensormanager.sensors.SensorUtils;
 import com.jeevesandroid.triggers.TriggerException;
-import com.jeevesandroid.triggers.config.GlobalState;
 import com.jeevesandroid.triggers.config.TriggerConfig;
 import com.jeevesandroid.triggers.triggers.TriggerUtils;
 
@@ -67,7 +66,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class SenseService extends Service implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener{
+public class SenseService extends Service implements
+    GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     private static final HashMap<String, TriggerListener> triggerlisteners = new HashMap<>();
     public static final HashMap<Integer, SensorListener> sensorlisteners = new HashMap<>();
@@ -75,12 +75,12 @@ public class SenseService extends Service implements GoogleApiClient.ConnectionC
     private List<String> geofenceTriggerIds = new ArrayList<>();
     private List<String> activityTriggerIds = new ArrayList<>();
     private static final HashMap<String, ActivityListener> activitylisteners = new HashMap<>();
-    public static final HashMap<Integer,Integer> subscribedSensors = new HashMap<>();
-    private static final String ACTION_1 = "action_1";
-    private static final int NOTIF_ID = 1337;
+    public static final HashMap<Integer, Integer> subscribedSensors = new HashMap<>();
+    //private static final String ACTION_1 = "action_1";
+    //private static final int NOTIF_ID = 1337;
     private static final int ACTIVE = 1234;
     private LocationCallback mLocationCallback;
-    private FusedLocationProviderClient mFusedLocationClient;
+    private FusedLocationProviderClient locClient;
     private GoogleApiClient mGoogleApiClient;
 
     private void createLocationRequest() {
@@ -91,81 +91,53 @@ public class SenseService extends Service implements GoogleApiClient.ConnectionC
         mLocationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(LocationResult locationResult) {
-            for (Location location : locationResult.getLocations()) {
-                Log.d("LOCATION","Location is " + location.getLongitude() + "," + location.getLatitude());
-                HashMap<String, Object> locData = new HashMap<>();
-                String mLastUpdateTime = new Date().toString();
-                locData.put("senseStartTimeMillis", mLastUpdateTime);
-                locData.put("latitude", location.getLatitude());
-                locData.put("longitude", location.getLongitude());
-                DatabaseReference patientRef = FirebaseUtils.PATIENT_REF.child("sensordata").child("Location").push();
-                patientRef.setValue(locData);
-            }
-
+                for (Location location : locationResult.getLocations()) {
+                    HashMap<String, Object> locData = new HashMap<>();
+                    String mLastUpdateTime = new Date().toString();
+                    locData.put("senseStartTimeMillis", mLastUpdateTime);
+                    locData.put("latitude", location.getLatitude());
+                    locData.put("longitude", location.getLongitude());
+                    DatabaseReference patientRef = FirebaseUtils.PATIENT_REF
+                        .child("sensordata").child("Location").push();
+                    patientRef.setValue(locData);
+                }
             }
 
 
         };
-        startLocationUpdates(mLocationRequest);
-
+        locClient = LocationServices.getFusedLocationProviderClient(this);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+            != PackageManager.PERMISSION_GRANTED &&
+            ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        locClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
     }
+
     @Override
     public IBinder onBind(Intent intent) {
         return null;
     }
-    private void startLocationUpdates(LocationRequest mLocationRequest) {
-        //START THE (NOW SEPARATE) LOCATION SERVICE
-        mFusedLocationClient = LocationServices
-            .getFusedLocationProviderClient(this);
-        if (ContextCompat.checkSelfPermission(this,
-            Manifest.permission.ACCESS_FINE_LOCATION)
-            != PackageManager.PERMISSION_GRANTED
-            && ContextCompat.checkSelfPermission(this,
-            Manifest.permission.ACCESS_COARSE_LOCATION)
-            != PackageManager.PERMISSION_GRANTED) {
-            return;
-        }
 
-        mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
+    private SenseService getInstance(){
+        return this;
     }
-    /*
-    public void onLocationChanged(Location location) {
-        location.getLatitude();
-        HashMap<String,Object> locData = new HashMap<>();
-        String mLastUpdateTime = new Date().toString();
-        locData.put("senseStartTimeMillis",mLastUpdateTime);
-        locData.put("latitude",location.getLatitude());
-        locData.put("longitude",location.getLongitude());
-        DatabaseReference patientRef = FirebaseUtils.PATIENT_REF.child("sensordata").child("Location").push();
-        patientRef.setValue(locData);
-    }
-*/
-    private void startActivitySensing(){
-        mGoogleApiClient = new GoogleApiClient.Builder(ApplicationContext.getContext())
-                .addApi(ActivityRecognition.API)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .build();
-        mGoogleApiClient.connect();
-    }
-
-    private void stopActivitySensing(){
-        mGoogleApiClient.disconnect();
-    }
-    private void stopLocationUpdates() {
-        mFusedLocationClient.removeLocationUpdates(mLocationCallback);
-    }
-
     private final BroadcastReceiver activityReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if(intent.getAction().equals(ApplicationContext.STARTACTIVITY)) {
-                startActivitySensing();
-                Log.d("STARTACT","Starting activity sensing");
+            if(intent.getAction().equals(AppContext.STARTACTIVITY)) {
+                mGoogleApiClient = new GoogleApiClient.Builder(AppContext.getContext())
+                    .addApi(ActivityRecognition.API)
+                    .addConnectionCallbacks(getInstance())
+                    .addOnConnectionFailedListener(getInstance())
+                    .build();
+                mGoogleApiClient.connect();
+                Log.d("Activity","Starting activity sensing");
             }
             else {
-                stopActivitySensing();
-                Log.d("STOPACT","Stopping activity sensing");
+                mGoogleApiClient.disconnect();
+                Log.d("Activity","Stopping activity sensing");
             }
         }
     };
@@ -175,7 +147,7 @@ public class SenseService extends Service implements GoogleApiClient.ConnectionC
             try {
                 int sensorType = intent.getIntExtra("sensortype",0);
                 int subid = intent.getIntExtra("subid",0);
-                ESSensorManager.getSensorManager(ApplicationContext.getContext())
+                ESSensorManager.getSensorManager(AppContext.getContext())
                     .unsubscribeFromSensorData(SenseService.subscribedSensors.get(sensorType));
                 SenseService.sensorlisteners.remove(subid);
             } catch (ESException e) {
@@ -186,25 +158,16 @@ public class SenseService extends Service implements GoogleApiClient.ConnectionC
     private final BroadcastReceiver locationReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (intent.getAction().equals(ApplicationContext.STARTLOC)) {
+            if (intent.getAction().equals(AppContext.STARTLOC)) {
                 createLocationRequest();
                 Log.d("LOCATION","Starting location updates");
             }
             else{
-                stopLocationUpdates();
+                locClient.removeLocationUpdates(mLocationCallback);
                 Log.d("LOCATIONSTOP","Stopping location updates");
             }
         }
     };
-
-    /*
-    static {
-        sensorlisteners.put(SensorUtils.SENSOR_TYPE_MICROPHONE,
-            new SensorListener(SensorUtils.SENSOR_TYPE_MICROPHONE));
-        sensorlisteners.put(SensorUtils.SENSOR_TYPE_STEP_COUNTER,
-            new SensorListener(SensorUtils.SENSOR_TYPE_STEP_COUNTER));
-    }
-    */
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
@@ -214,13 +177,13 @@ public class SenseService extends Service implements GoogleApiClient.ConnectionC
         ActivityRecognition.ActivityRecognitionApi
             .requestActivityUpdates( mGoogleApiClient, 60000, pendingIntent );
     }
-
     @Override
     public void onConnectionSuspended(int i) { }
-
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) { }
 
+
+/*
     public static class NotificationActionService extends IntentService {
         public NotificationActionService() {
             super(SenseService.NotificationActionService.class.getSimpleName());
@@ -228,14 +191,13 @@ public class SenseService extends Service implements GoogleApiClient.ConnectionC
 
         @Override
         protected void onHandleIntent(Intent intent) {
-            Context app = ApplicationContext.getContext();
+            Context app = AppContext.getContext();
             String action = intent.getAction();
             if (ACTION_1.equals(action)) {
-                //Followed by an intent to actually start our survey!
+                //Followed by an intent to actually start our survey
                 NotificationManager manager = (NotificationManager) app
                     .getSystemService(NOTIFICATION_SERVICE);
                 manager.cancel(NOTIF_ID);
-                //Set that we no longer have the notification actives
                 SharedPreferences varPrefs = PreferenceManager.getDefaultSharedPreferences(app);
                 SharedPreferences.Editor editor = varPrefs.edit();
                 editor.putBoolean("active",false);
@@ -250,21 +212,19 @@ public class SenseService extends Service implements GoogleApiClient.ConnectionC
 
         }
     }
-
-    /*
-    private SenseService getInstance(){
-        return this;
-    }
-    */
+*/
     private static final String NOTIFICATION_Service_CHANNEL_ID = "service_channel";
     @Override
     public void onCreate() {
+        //Make the 'always-on' foreground notification that stops the service being killed
         Notification n = buildForegroundNotification();
         //New code to cope with specifying the channel ID
         if(Build.VERSION.SDK_INT>=26) {
-            NotificationChannel channel = new NotificationChannel(NOTIFICATION_Service_CHANNEL_ID, "Sync Service", NotificationManager.IMPORTANCE_HIGH);
+            NotificationChannel channel = new NotificationChannel(NOTIFICATION_Service_CHANNEL_ID,
+                "Sync Service", NotificationManager.IMPORTANCE_HIGH);
             channel.setDescription("Service Name");
-            NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            NotificationManager notificationManager = (NotificationManager) getSystemService(
+                Context.NOTIFICATION_SERVICE);
             notificationManager.createNotificationChannel(channel);
 
             n = new Notification.Builder(this,NOTIFICATION_Service_CHANNEL_ID)
@@ -275,24 +235,26 @@ public class SenseService extends Service implements GoogleApiClient.ConnectionC
                 .build();
         }
         startForeground(ACTIVE, n);
+
         final FirebaseDatabase database = FirebaseUtils.getDatabase();
         SharedPreferences varPrefs = PreferenceManager
-            .getDefaultSharedPreferences(ApplicationContext.getContext());
-        String studyname = varPrefs.getString(ApplicationContext.STUDY_NAME, "");
+            .getDefaultSharedPreferences(AppContext.getContext());
+        String studyname = varPrefs.getString(AppContext.STUDY_NAME, "");
         DatabaseReference projectRef = database
             .getReference(FirebaseUtils.PUBLIC_KEY)
             .child(FirebaseUtils.PROJECTS_KEY)
             .child(studyname);
-        String uid = varPrefs.getString(ApplicationContext.UID, "");
-        IntentFilter mIntentFilter = new IntentFilter(ApplicationContext.STARTLOC);
-        mIntentFilter.addAction(ApplicationContext.STOPLOC);
-        IntentFilter sensIntentFilter = new IntentFilter(ApplicationContext.STOPSENSOR);
-        IntentFilter activityIntentFilter = new IntentFilter(ApplicationContext.STARTACTIVITY);
-        activityIntentFilter.addAction(ApplicationContext.STOPACTIVITY);
-        //Activity and location detection are now done differently
-        ApplicationContext.getContext().registerReceiver(sensorReceiver, sensIntentFilter);
-        ApplicationContext.getContext().registerReceiver(locationReceiver, mIntentFilter);
-        ApplicationContext.getContext().registerReceiver(activityReceiver, activityIntentFilter);
+
+        //Set up the receivers for location, activity, and other sensor info
+        IntentFilter mIntentFilter = new IntentFilter(AppContext.STARTLOC);
+        mIntentFilter.addAction(AppContext.STOPLOC);
+        IntentFilter sensIntentFilter = new IntentFilter(AppContext.STOPSENSOR);
+        IntentFilter activityIntentFilter = new IntentFilter(AppContext.STARTACTIVITY);
+        activityIntentFilter.addAction(AppContext.STOPACTIVITY);
+        //Activity and location detection are done through the Google API (not SensorManager)
+        AppContext.getContext().registerReceiver(sensorReceiver, sensIntentFilter);
+        AppContext.getContext().registerReceiver(locationReceiver, mIntentFilter);
+        AppContext.getContext().registerReceiver(activityReceiver, activityIntentFilter);
 
         //We also listen on the project ref in here (this is a constant listener as opposed to
         //the one in the MainActivity
@@ -300,25 +262,32 @@ public class SenseService extends Service implements GoogleApiClient.ConnectionC
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 FirebaseProject post = snapshot.getValue(FirebaseProject.class);
-                ApplicationContext.setCurrentproject(post);
+                AppContext.setCurrentproject(post);
                 if (post == null) {
                     return;
                 }
-                updateConfig(post);
+                try {
+                    updateConfig(post);
+                } catch (TriggerException e) {
+                    e.printStackTrace();
+                }
             }
-
             @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-            }
+            public void onCancelled(@NonNull DatabaseError databaseError) { }
         });
     }
+
+    /**
+     * Make the foreground notification that always runs to stop this SenseService being killed
+     * @return A Notification to be displayed
+     */
     private Notification buildForegroundNotification() {
         NotificationCompat.Builder b=new NotificationCompat.Builder(this);
 
         b.setOngoing(true)
-                .setContentTitle("Jeeves - Running")
-                .setSmallIcon(R.drawable.jeeves)
-                .setTicker("Jeeves - Running");
+            .setContentTitle("Jeeves - Running")
+            .setSmallIcon(R.drawable.jeeves)
+            .setTicker("Jeeves - Running");
         return(b.build());
     }
 
@@ -328,78 +297,67 @@ public class SenseService extends Service implements GoogleApiClient.ConnectionC
         return START_STICKY;
     }
 
-    //This is the main method in which the required project is pulled from Firebase and interpreted
-    private void updateConfig(FirebaseProject app) {
-
-        final List<FirebaseTrigger> triggers = app.gettriggers();
-        final List<FirebaseVariable> variables = app.getvariables();
-        final List<String> sensors = app.getsensors();
-
-        SharedPreferences varPrefs = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getContext());
-        SharedPreferences.Editor prefseditor = varPrefs.edit();
-
-        prefseditor.apply();
-
-        SharedPreferences.OnSharedPreferenceChangeListener mListener
-            = new SharedPreferences.OnSharedPreferenceChangeListener() {
-            public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
-            for (FirebaseVariable var : variables) {
-                if (var.getname().equals(key)) {
-                    switch (var.getvartype()) {
-                        case FirebaseUtils.LOCATION:
-                            if (geofencelisteners.containsKey(var.getname())) {
-                                GeofenceListener locListener = geofencelisteners.get(var.getname());
-                                locListener.updateLocation();
-                                Log.d("UPDATELOC", "UPDATING LOCATION");
+    /**
+     * This updates any Triggers that are dependent on variables when the value of this variable has
+     * changed. For example, if the value of a time variable has changed, any trigger that is
+     * contingent on this time must be relaunched
+     * @param triggers List of current Triggers
+     * @param variables List of current variables
+     * @param key String name of the variable that has changed
+     * @throws TriggerException
+     */
+    private void changeVarValue(List<FirebaseTrigger> triggers, List<FirebaseVariable> variables,
+                                String key) throws TriggerException {
+        for (FirebaseVariable var : variables) {
+            if (var.getname().equals(key)) {
+                switch (var.getvartype()) {
+                    case FirebaseUtils.LOCATION:
+                        if (geofencelisteners.containsKey(var.getname())) {
+                            GeofenceListener locListener = geofencelisteners.get(var.getname());
+                            locListener.updateLocation();
+                            Log.d("UPDATELOC", "UPDATING LOCATION");
+                        }
+                        break;
+                    case FirebaseUtils.TIME:
+                    case FirebaseUtils.DATE:
+                        for (FirebaseTrigger trig : triggers) {
+                            if (trig.getvariables() != null && trig.getvariables().contains(key)) {
+                                removeTrigger(trig.gettriggerId());
+                                Log.d("RELAUNCH", "Relaunching " + trig.gettriggerId());
+                                launchTrigger(trig);
                             }
-                            break;
-                        case FirebaseUtils.TIME:
-                        case FirebaseUtils.DATE:
-                            for (FirebaseTrigger trig : triggers) {
-                                if (trig.getvariables() != null && trig.getvariables().contains(key)) {
-                                    removeTrigger(trig.gettriggerId());
-                                    Log.d("RELAUNCH", "Relaunching trigger " + trig.gettriggerId());
-                                    launchTrigger(trig);
-                                }
-                            }
-                            break;
-
-                    }
+                        }
+                        break;
                 }
             }
+        }
+    }
 
-            }
-        };
-        varPrefs.registerOnSharedPreferenceChangeListener(mListener);
-
-
-        //This reloads any existing set of triggerids we have
-        Set<String> newset = (varPrefs.getStringSet("triggerids",new HashSet()));
-        HashSet<String> mynewset = new HashSet<>(newset);
-        ArrayList<String> triggerids = new ArrayList<>(mynewset);
+    /**
+     * Updates the Shared Preferences with any new variables and values added in the Jeeves spec
+     * @param variables List of updated variables in the Jeeves specification
+     */
+    private void updateVariables(List<FirebaseVariable> variables){
+        SharedPreferences varPrefs = PreferenceManager
+            .getDefaultSharedPreferences(AppContext.getContext());
+        SharedPreferences.Editor prefseditor = varPrefs.edit();
+        prefseditor.apply();
         for(FirebaseVariable var : variables){
             String type = var.getvartype();
-            Log.d("FOUNDVAR","Found a var called " + var.getname() + " with type " + var.getvartype());
-            //if(varPrefs.contains(var.getname()))continue;
             switch(type){
                 case FirebaseUtils.TIME:
                 case FirebaseUtils.DATE:
                 case FirebaseUtils.NUMERIC:
                     if(var.getisRandom()){
-                        Log.d("NAME","var name is " + var.getname());
-                        Log.d("VARS","random vars are "+ var.getrandomOptions());
                         List<String> randomVals = var.getrandomOptions();
                         double lowest = Double.parseDouble(randomVals.get(0));
                         double highest = Double.parseDouble(randomVals.get(1));
                         double range = (highest-lowest)+1;
                         String answer = Long.toString((long)(Math.random()*range + lowest));
                         prefseditor.putString(var.getname(),answer);
-                        Log.d("PUT VAR","Put var " + var.getname() + " with value " + answer);
                         break;
                     }
-                   // if(varPrefs.getLong(var.getname(),0) != 0)break;
                 case FirebaseUtils.LOCATION:
-                    //We probably want to get their location in here
                 case FirebaseUtils.TEXT:
                     prefseditor.putString(var.getname(),""); break;
                 case FirebaseUtils.BOOLEAN:
@@ -410,23 +368,52 @@ public class SenseService extends Service implements GoogleApiClient.ConnectionC
                     prefseditor.putString(var.getname(),Boolean.toString(defaultVal)); break;
             }
         }
-        Toast.makeText(ApplicationContext.getContext(),"Updated app configuration",Toast.LENGTH_SHORT).show();
+    }
+    /**
+     * This method is called whenever the project has been updated. It interprets what has been
+     * added and removed and updates the necessary triggers, sensors, and user interface elements
+     * @param app The new JSON representation of the updated project
+     */
+    private void updateConfig(FirebaseProject app) throws TriggerException {
+
+        final List<FirebaseTrigger> triggers = app.gettriggers();
+        final List<FirebaseVariable> variables = app.getvariables();
+
+        SharedPreferences varPrefs = PreferenceManager
+            .getDefaultSharedPreferences(AppContext.getContext());
+        SharedPreferences.Editor prefseditor = varPrefs.edit();
+        prefseditor.apply();
+
+        SharedPreferences.OnSharedPreferenceChangeListener mListener
+            = new SharedPreferences.OnSharedPreferenceChangeListener() {
+            public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
+                try {
+                    changeVarValue(triggers,variables,key);
+                } catch (TriggerException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+        varPrefs.registerOnSharedPreferenceChangeListener(mListener);
+        updateVariables(variables);
+
+        //This reloads any existing set of triggerids we have
+        HashSet<String> s = new HashSet<>(varPrefs.getStringSet("triggerids",new HashSet()));
+        ArrayList<String> triggerids = new ArrayList<>(s);
+
+        Toast.makeText(AppContext.getContext(),"Updated app configuration",Toast.LENGTH_SHORT).show();
         ArrayList<String> newIds = new ArrayList<>();
         for (int i = 0; i < triggers.size(); i++) {
             FirebaseTrigger triggerconfig = triggers.get(i);
-            String triggerId = triggerconfig.gettriggerId();
-            //A compromise that will refresh a trigger if its listener is null
-            newIds.add(triggerId);
-            if (!triggerids.contains(triggerId)) { //Don't relaunch an already-existing trigger
+            String tId = triggerconfig.gettriggerId();
+            newIds.add(tId);
+            if (!triggerids.contains(tId)) { //Don't relaunch an already-existing trigger
                 launchTrigger(triggerconfig);
             }
-            else if(triggerids.contains(triggerId)
-                && (triggerlisteners.get(triggerId) == null)
-//                && (sensorlisteners.get(triggerId) == null))
-                && !geofenceTriggerIds.contains(triggerId)
-                && !activityTriggerIds.contains(triggerId))
-            {
-                launchTrigger(triggerconfig);
+            else if(triggerids.contains(tId) && (triggerlisteners.get(tId) == null)) {
+                if(!geofenceTriggerIds.contains(tId) && !activityTriggerIds.contains(tId)) {
+                    launchTrigger(triggerconfig);
+                }
             }
         }
         //Find all the old Trigger IDs that are not in the 'new' Trigger IDs, and get rid of them
@@ -434,140 +421,107 @@ public class SenseService extends Service implements GoogleApiClient.ConnectionC
             if(!newIds.contains(toRemove))
                 removeTrigger(toRemove);
         }
-        triggerids = newIds;
-        //This saves our current set of triggerids
-        Set<String> triggerset = new HashSet<>(triggerids);
+        //This saves our current set of trigger IDs
+        Set<String> triggerset = new HashSet<>(newIds);
         prefseditor.putStringSet("triggerids",triggerset);
         prefseditor.commit();
-        try {
-            GlobalState triggerState = GlobalState.getGlobalState(this);
-            triggerState.setNotificationCap(199);
-        } catch (TriggerException e) {
-            e.printStackTrace();
-        }
     }
 
-    private void launchTrigger(FirebaseTrigger trigger) {
+    /**
+     * Creates a new location-based trigger based on Google's Geofencing API
+     * @param trigger JSON representation of the trigger
+     * @param actions List of JSON actions to execute
+     */
+    private void makeLocationTrigger(FirebaseTrigger trigger, List<FirebaseAction> actions){
+        String triggerId = trigger.gettriggerId();
+        Map<String, Object> params = trigger.getparams();
+        ArrayList<FirebaseAction> toExecute = new ArrayList<>(actions);
+        GeofenceListener newListener;
+        String changes = params.get("change").toString();
+        FirebaseExpression locexpr = trigger.getlocation();
+        String locationName = "";
+        if (locexpr != null) {
+            locationName = locexpr.getname();
+            newListener = new GeofenceListener(this, locationName, triggerId, changes, toExecute);
+            Log.d("Location added", "New location added to " + locexpr.getname());
+            geofencelisteners.put(locationName, newListener);
+            geofenceTriggerIds.add(triggerId);
+            newListener.addLocationTrigger();
+        }
+        return;
+    }
+
+    /**
+     * Creates a new Activity-based trigger using Google's Activity Recognition API
+     * @param trigger JSON representation of the trigger
+     * @param actions List of JSON actions to execute
+     */
+    private void makeActivityTrigger(FirebaseTrigger trigger, List<FirebaseAction> actions){
+        ActivityListener newListener;
+        String triggerId = trigger.gettriggerId();
+        Map<String, Object> params = trigger.getparams();
+        ArrayList<FirebaseAction> toExecute = new ArrayList<>(actions);
+        String activityType = params.get("result").toString();
+        newListener = new ActivityListener(this,activityType,triggerId,toExecute);
+        Log.d("New activity","Added a new activity trigger");
+        activitylisteners.put(activityType,newListener);
+        activityTriggerIds.add(triggerId);
+        newListener.addActivityTrigger();
+        return;
+    }
+
+    /**
+     * Checks the JSON to determine what type of Trigger has been passed to it, and calls the
+     * appropriate subscriber to listen on the Trigger's conditions
+     * @param trigger JSON representation of Trigger to launch
+     * @throws TriggerException
+     */
+    private void launchTrigger(FirebaseTrigger trigger) throws TriggerException {
         String triggerType = trigger.getname();
         String triggerId = trigger.gettriggerId();
-        Log.d("LAUNTRIG","Launching trigger " + trigger.getname() + ", " + triggerId);
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getContext());
+        Log.d("Trigger","Launching trigger " + trigger.getname() + ", " + triggerId);
+        SharedPreferences prefs = PreferenceManager
+            .getDefaultSharedPreferences(AppContext.getContext());
 
-        //Awkward bit of <code></code>
-        //IF we already completed this starting survey, there's no need to relaunch it again
-        try {
-            Log.d("AMFIN?"," " + prefs.getBoolean(ApplicationContext.FINISHED_INTRODUCTION,false));
-            if(prefs.getBoolean(ApplicationContext.FINISHED_INTRODUCTION,false)
-                && TriggerUtils.getTriggerType(triggerType) == TriggerUtils.TYPE_CLOCK_TRIGGER_BEGIN)
-                return;
-        } catch (TriggerException e) {
-            e.printStackTrace();
-        }
+        //If we have already launched a Begin Trigger, don't do it again
+        if(prefs.getBoolean(AppContext.FINISHED_INTRODUCTION,false)
+            && TriggerUtils.getTriggerType(triggerType) == TriggerUtils.TYPE_CLOCK_TRIGGER_BEGIN)
+            return;
+
         Map<String, Object> params = trigger.getparams();
         List<FirebaseAction> actions = new ArrayList<>();
-        if (trigger.getactions() != null)
+        if (trigger.getactions() != null) {
             actions = trigger.getactions();
-
-        //Then this is a special Location Trigger and we handle things a bit differently
-        try {
-            if (TriggerUtils.getTriggerType(triggerType) == TriggerUtils.TYPE_SENSOR_TRIGGER_LOCATION) {
-                ArrayList<FirebaseAction> toExecute = new ArrayList<>(actions);
-                GeofenceListener newListener;
-                String changes = params.get("change").toString();
-                FirebaseExpression locexpr = trigger.getlocation();
-                String locationName = "";
-                if (locexpr != null) {
-                    locationName = locexpr.getname();
-                    newListener = new GeofenceListener(this, locationName, triggerId, changes, toExecute);
-                    Log.d("NEWLISTEN", "New location added to " + locexpr.getname());
-                    Log.d("THIS IS", "in the place " + locexpr.getparams());
-                    geofencelisteners.put(locationName, newListener);
-                    geofenceTriggerIds.add(triggerId);
-                    newListener.addLocationTrigger();
-                }
-                return;
-            }
-
-            //Need to make sure it's not an Activity trigger, whih also works differently
-            if (TriggerUtils.getTriggerType(triggerType) == TriggerUtils.TYPE_SENSOR_TRIGGER_IMMEDIATE
-                && params.get("selectedSensor").equals("Activity")) {
-                ActivityListener newListener;
-                ArrayList<FirebaseAction> toExecute = new ArrayList<>(actions);
-                String activityType = params.get("result").toString();
-                newListener = new ActivityListener(this,activityType,triggerId,toExecute);
-                Log.d("New activity","Added a new activity trigger");
-                activitylisteners.put(activityType,newListener);
-                activityTriggerIds.add(triggerId);
-                newListener.addActivityTrigger();
-                return;
-            }
-
         }
-        catch (TriggerException e) {
-            e.printStackTrace();
+        if (TriggerUtils.getTriggerType(triggerType) == TriggerUtils.TYPE_SENSOR_TRIGGER_LOCATION) {
+            makeLocationTrigger(trigger,actions);
+            return;
+        }
+        if (TriggerUtils.getTriggerType(triggerType) == TriggerUtils.TYPE_SENSOR_TRIGGER_IMMEDIATE
+            && params.get("selectedSensor").equals("Activity")) {
+            makeActivityTrigger(trigger,actions);
+            return;
         }
         //Otherwise carry on as normal
-        TriggerListener newListener = null;
-        try {
-            newListener = new TriggerListener(TriggerUtils.getTriggerType(triggerType), this);
-        } catch (TriggerException e) {
-            e.printStackTrace();
-        }
+        TriggerListener newListener = new TriggerListener(
+            TriggerUtils.getTriggerType(triggerType), this);
         triggerlisteners.put(triggerId, newListener);
-
-        //The 'TriggerConfig' has all the necessary parameters to determine under what conditions we fire off this trigger
-        TriggerConfig config = new TriggerConfig();
-        SharedPreferences varPrefs = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getContext());
-
-        ArrayList<Long> times = new ArrayList<>();
-        if(trigger.gettimes() != null){
-            for(FirebaseExpression time : trigger.gettimes()){
-                if(time.getisValue()){
-                    times.add(Long.parseLong(time.getvalue()));
-                }
-                else{
-                    times.add(Long.parseLong(varPrefs.getString(time.getname(),"0")));
-                }
-            }
-            config.addParameter("times",times);
-        }
-        if(trigger.getparams() != null) {
-            for (String param : params.keySet()) {
-                Object value = params.get(param);
-                config.addParameter(param, value);
-            }
-        }
-        //Now try and find what variables we have
-        //If we have the 'dateFrom' variable for example, this overrides the 'dateFrom' value in the parameters
-        if(trigger.getdateFrom() != null){
-            String name = trigger.getdateFrom().getname();
-            config.addParameter(TriggerConfig.FROM_DATE,varPrefs.getString(name,"0"));
-        }
-        if(trigger.gettimeFrom() != null){
-            String name = trigger.gettimeFrom().getname();
-           config.addParameter(TriggerConfig.LIMIT_BEFORE_HOUR,varPrefs.getString(name,"0"));
-        }
-        if(trigger.getdateTo() != null){
-            String name = trigger.getdateTo().getname();
-           config.addParameter(TriggerConfig.TO_DATE,varPrefs.getString(name,"0"));
-        }
-        if(trigger.gettimeTo() != null){
-            String name = trigger.gettimeTo().getname();
-           config.addParameter(TriggerConfig.LIMIT_AFTER_HOUR,varPrefs.getString(name,"0"));
-        }
 
         //Here we make the list of actions that this trigger executes when it's activated
         ArrayList<FirebaseAction> toExecute = new ArrayList<>();
         for (int i = 0; i < actions.size(); i++) {
             toExecute.add( actions.get(i));
-
         }
-        newListener.subscribeToTrigger(config, toExecute);
+        newListener.subscribeToTrigger(trigger, toExecute);
     }
 
-    //TODO: IDs aren't stored in 'geofencelisteners' or 'activitylisteners so idk if they get deleted properly
+    /**
+     * Unsubscribes from an existing trigger - occurs when the trigger has been removed entirely
+     * or simply needs to be updated (in which case it is removed and re-added)
+     * @param triggerId String ID of the trigger
+     */
     private void removeTrigger(String triggerId) {
-        Log.d("TRIGREMOVE","Removing trigger " + triggerId);
+        Log.d("Remove","Removing trigger " + triggerId);
         TriggerListener toRemove = triggerlisteners.get(triggerId);
 
         if(toRemove != null) {
@@ -576,6 +530,7 @@ public class SenseService extends Service implements GoogleApiClient.ConnectionC
         }
         //It's a location or activity trigger to be removed
         else{
+            //Look in the list of Location Triggers (i.e., GeofenceListeners)
             Iterator<Map.Entry<String,GeofenceListener>> locIter = geofencelisteners.entrySet().iterator();
             while(locIter.hasNext()){
                 Map.Entry<String, GeofenceListener> listener = locIter.next();
@@ -586,6 +541,7 @@ public class SenseService extends Service implements GoogleApiClient.ConnectionC
                     return;
                 }
             }
+            //Look in the list of Activity Triggers (i.e., ActivityListeners)
             Iterator<Map.Entry<String,ActivityListener>> actIter = activitylisteners.entrySet().iterator();
             while(actIter.hasNext()){
                 Map.Entry<String,ActivityListener> listener = actIter.next();

@@ -26,9 +26,11 @@
     <string name="sense_log">Log new information</string>
     <string name="sense_messages">Messages</string>
     <string name="finish_study">If you want to quit the app, press the button below. This will stop all notifications. </string>
-    <string name="sense_heart">Close app</string>
+    <string name="quit_app">Close app</string>
     <string name="sense_view">View the Jeeves Privacy Policy</string>
-
+    <string name="permissions_title">Permissions Required</string>
+    <string name="permissions_rationale">Please accept all necessary permissions for your study to run properly.</string>
+    <string name="need_permissions">For Jeeves to run properly, you still need to enable the necessary permissions. Press OK to open the Jeeves settings, from which you can access the Permissions menu.</string>
     <string name="sign_email">Email</string>
     <string name="sign_password">Password</string>
     <string name="sign_login">Login</string>
@@ -80,4 +82,8 @@
 
     <string name="sent_expiring">Sent at %s, expiring in %s minutes</string>
     <string name="sent_not_expiring">Sent at %s</string>
+
+    <string name="snoozevar">snoozevar</string>
+    <string name="snooze_var_granularity">snoozegranularity</string>
+    <string name="looptime">looptime</string>
 </resources>

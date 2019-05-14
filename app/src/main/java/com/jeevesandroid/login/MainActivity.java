@@ -13,7 +13,7 @@ import android.widget.ProgressBar;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.UserProfileChangeRequest;
-import com.jeevesandroid.ApplicationContext;
+import com.jeevesandroid.AppContext;
 import com.jeevesandroid.R;
 import com.jeevesandroid.mainscreens.WelcomeActivity;
 import com.jeevesandroid.firebase.FirebaseProject;
@@ -59,12 +59,12 @@ public class MainActivity extends Activity{
             startActivityForResult(new Intent(this, SignUpActivity.class),REQUEST_SIGNUP);
         } else {
             SharedPreferences preferences = PreferenceManager
-                    .getDefaultSharedPreferences(ApplicationContext.getContext());
-            if (preferences.contains(ApplicationContext.STUDY_NAME)) {
+                    .getDefaultSharedPreferences(AppContext.getContext());
+            if (preferences.contains(AppContext.STUDY_NAME)) {
                 final FirebaseDatabase database = FirebaseUtils.getDatabase();
                 SharedPreferences varPrefs = PreferenceManager
-                        .getDefaultSharedPreferences(ApplicationContext.getContext());
-                String studyname = varPrefs.getString(ApplicationContext.STUDY_NAME, "");
+                        .getDefaultSharedPreferences(AppContext.getContext());
+                String studyname = varPrefs.getString(AppContext.STUDY_NAME, "");
                 DatabaseReference projectRef = database
                         .getReference(FirebaseUtils.PUBLIC_KEY)
                         .child(FirebaseUtils.PROJECTS_KEY)
@@ -74,7 +74,7 @@ public class MainActivity extends Activity{
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         FirebaseProject post = snapshot.getValue(FirebaseProject.class);
-                        ApplicationContext.setCurrentproject(post);
+                        AppContext.setCurrentproject(post);
                         if(post == null){
                             return;
                         }

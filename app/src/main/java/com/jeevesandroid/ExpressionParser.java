@@ -1,6 +1,5 @@
 package com.jeevesandroid;
 
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
@@ -19,7 +18,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Created by Daniel on 09/06/15.
+ * A class for parsing the value of complex expressions based on their variables
+ * and values.
  */
 public class ExpressionParser {
 
@@ -56,7 +56,7 @@ public class ExpressionParser {
 
     public String evaluate(FirebaseExpression expr) {
 
-        SharedPreferences userPrefs = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getContext());
+        SharedPreferences userPrefs = PreferenceManager.getDefaultSharedPreferences(AppContext.getContext());
         if(expr == null)
             return "0";
         if (expr.getisValue()) {
@@ -64,18 +64,10 @@ public class ExpressionParser {
         }
         else if(expr.getisCustom()){
             String name = (expr).getname();
-            switch (expr.getvartype()) {
-                case ApplicationContext.LOCATION:
-                    return userPrefs.getString(name, "");
-                case ApplicationContext.NUMERIC:
-                    return (userPrefs.getString(name,""));
-                case ApplicationContext.TIME:
-                    return (userPrefs.getString(name,""));
-                case ApplicationContext.DATE:
-                    return (userPrefs.getString(name,""));
-                case ApplicationContext.BOOLEAN:
-                    return (userPrefs.getString(name, "false"));
+            if(expr.getvartype() == AppContext.BOOLEAN){
+                return (userPrefs.getString(name, "false"));
             }
+            return userPrefs.getString(name, "");
         }
         else if (expr.getvariables() == null) {
             Map<String, Object> params = expr.getparams();
@@ -86,28 +78,15 @@ public class ExpressionParser {
                 try {
                     int sensortype = SensorUtils.getSensorType(sensor);
                     SampleOnceTask sampler = new SampleOnceTask(sensortype);
-
-                    //We need to irritatingly make an exception for location sensor
-
                     //This gets the last known location from our user prefs
                     //It then gets the location required in the test expression
-                    //If they are roughly equal, it returns true!
+                    //If they are roughly equal, it returns true
                     if (sensortype == SensorUtils.SENSOR_TYPE_LOCATION){
                         String lastLoc = userPrefs.getString("LastLocation", "");
                         //Stores the semantic 'last location'
-                        if (lastLoc.isEmpty()){
-                            return FALSE;
-                        }
-                        if(lastLoc.equals(returns)) {
-                            Log.d("LOCATION","Last location was " + lastLoc);
-                            return TRUE;
-                        }
-                        else {
-                            Log.d("LOCATION","Last location was " + lastLoc);
-                            return FALSE;
-                        }
-                        }
-                    //Otherwise we're looking at other sensor data (just accelerometer for now)
+                        return lastLoc.equals(returns) ? TRUE : FALSE;
+                    }
+                    //Otherwise we're looking at other sensor data
                     SensorData data = sampler.execute().get();
                     SensorDataClassifier classifier = SensorUtils.getSensorDataClassifier(sensortype);
                     if (classifier.isInteresting(data,
@@ -117,7 +96,6 @@ public class ExpressionParser {
                 } catch (Exception e){
                     e.printStackTrace();
                     return FALSE;
-
                 }
             }
             else if (params.containsKey(TIME_BOUNDS)){
@@ -126,21 +104,15 @@ public class ExpressionParser {
                 long lTimeEarly = Long.parseLong(timeEarly);
                 long lTimeLate = Long.parseLong(timeLate);
                 long millis = System.currentTimeMillis();
-
-                if(millis > lTimeEarly && millis < lTimeLate)
-                    return TRUE;
-                return FALSE;
+                return (millis > lTimeEarly && millis < lTimeLate) ? TRUE : FALSE;
             }
             else if (params.containsKey(DATE_BOUNDS)){
                 String dateEarly = params.get(DATE_BOUNDS).toString();
                 String dateLate = params.get(DATE_BOUNDS_LATE).toString();
                 long lDateEarly = Long.parseLong(dateEarly);
                 long lDateLong = Long.parseLong(dateLate);
-
                 long millis = System.currentTimeMillis();
-                if(millis > lDateEarly && millis < lDateLong)
-                    return TRUE;
-                return FALSE;
+                return (millis > lDateEarly && millis < lDateLong) ? TRUE : FALSE;
             }
             else if (params.containsKey(TIME_DIFF)) { //a timediff expression
                 String beforeAfter = params.get(BEFORE_AFTER).toString();
@@ -149,11 +121,6 @@ public class ExpressionParser {
                 long timevar = Long.parseLong(dateStr); //Milliseconds since epoch
                 Calendar c = Calendar.getInstance();
                 c.setTimeInMillis(timevar);
-                //     SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
-                Log.d("DAY/MONTH/YEAR",
-                    c.get(Calendar.DAY_OF_MONTH)
-                    + "/" + c.get(Calendar.MONTH)
-                    + "/" + c.get(Calendar.YEAR));
                 long differenceInMillis = 0;
                 long marginOfError = 0;
                 switch (timeDiff) {
@@ -167,8 +134,8 @@ public class ExpressionParser {
                         break; //Margin of error of a day
                     case DAY:
                         differenceInMillis = 24L * 3600L * 1000L;
-                        marginOfError = 24 * 3600 * 1000;
-                        break; //Margin of error of a day
+                        marginOfError = 3600 * 1000;
+                        break; //Margin of error of an hour
                 }
                 long currentTime = System.currentTimeMillis();
                 c.setTimeInMillis(currentTime);
@@ -177,27 +144,19 @@ public class ExpressionParser {
                 if (beforeAfter.equals(BEFORE)) {
                     if (diff < 0) return FALSE;
                     long error = diff - differenceInMillis;
-                    if (Math.abs(error) < marginOfError) return TRUE;
-                    return FALSE;
-
+                    return (Math.abs(error) < marginOfError) ? TRUE : FALSE;
                 } else if (beforeAfter.equals(AFTER)) {
                     if (diff > 0) return FALSE;
                     long error = (-diff) - differenceInMillis;
-                    if (Math.abs(error) < marginOfError) return TRUE;
-                    return FALSE;
-
+                    return (Math.abs(error) < marginOfError) ? TRUE : FALSE;
                 }
-
             }
             else if (params.containsKey("category")){
                 String category = params.get("category").toString();
                 String result = params.get("result").toString();
-
                 String actualValue = userPrefs.getString(category,"");
                 Log.d("VALUE","value of " + category + " IS " + actualValue);
-                if(result.equals(actualValue))
-                    return TRUE;
-                return FALSE;
+                return (result.equals(actualValue)) ? TRUE : FALSE;
             }
         }
 
@@ -228,15 +187,14 @@ public class ExpressionParser {
     }
 
 
-    //Need this to sample once in our sensor expression
+    //Sensor sampling for evaluating the Sensor Expression
     static class SampleOnceTask extends AsyncTask<Void, Void, SensorData> {
         private final ESSensorManager sensorManager;
         private final int sensorType;
-        String errorMessage;
 
         SampleOnceTask(int sensorType) throws ESException {
             this.sensorType = sensorType;
-            sensorManager = ESSensorManager.getSensorManager(ApplicationContext.getContext());
+            sensorManager = ESSensorManager.getSensorManager(AppContext.getContext());
         }
 
         @Override
@@ -248,6 +206,5 @@ public class ExpressionParser {
                 return null;
             }
         }
-
     }
 }

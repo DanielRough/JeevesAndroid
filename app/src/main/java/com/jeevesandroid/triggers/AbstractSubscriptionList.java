@@ -63,7 +63,7 @@ public abstract class AbstractSubscriptionList<H>
 		{
 			if (loopCount > 1000)
 			{
-				throw new TriggerException(TriggerException.INVALID_STATE, "Listener map >1000 key conflicts.");
+				throw new TriggerException("Listener map >1000 key conflicts.");
 			}
 			id = keyGenerator.nextInt();
 			loopCount++;

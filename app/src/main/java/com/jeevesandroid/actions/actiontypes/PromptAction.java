@@ -6,15 +6,15 @@ import android.content.Context;
 import android.graphics.Color;
 import android.os.PowerManager;
 import android.support.v4.app.NotificationCompat;
-import android.util.Log;
 
-import com.jeevesandroid.ApplicationContext;
+import com.jeevesandroid.AppContext;
 import com.jeevesandroid.R;
 
 import java.util.Map;
 
 /**
- * Created by Daniel on 26/05/15.
+ * Class representing the action block for prompting the participant
+ * (i.e., sending a notification for anything other than a survey to complete)
  */
 public class PromptAction extends FirebaseAction {
 
@@ -22,10 +22,17 @@ public class PromptAction extends FirebaseAction {
         setparams(params);
     }
     private static int count = 0;
+
+    /**
+     * The execution involves building a notification (with the message text specified
+     * in the 'msgtext' action parameter) and displaying it to the user, ensuring insofar
+     * as possible that it is noticed by vibrating if the user is not in silent mode, and
+     * turning on the screen if it is off
+     */
     @Override
     public void execute(){
         int notificationId = Integer.parseInt("8" + count++);
-        Context app = ApplicationContext.getContext();
+        Context app = AppContext.getContext();
         if(!getparams().containsKey("msgtext"))return;
         String text = getparams().get("msgtext").toString();
         NotificationManager notificationManager =
@@ -53,14 +60,17 @@ public class PromptAction extends FirebaseAction {
                 .setContentText(text);
 
         notificationManager.notify(notificationId,mBuilder.build());
-        PowerManager pm = (PowerManager)ApplicationContext.getContext().getSystemService(Context.POWER_SERVICE);
+
+        //Turn the screen on if it's not already.
+        PowerManager pm = (PowerManager) AppContext.getContext().getSystemService(Context.POWER_SERVICE);
         boolean isScreenOn = pm.isScreenOn();
-        Log.e("screen on....", ""+isScreenOn);
         if(!isScreenOn)
         {
-            PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK |PowerManager.ACQUIRE_CAUSES_WAKEUP |PowerManager.ON_AFTER_RELEASE,"app:locktag");
+            PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK |
+                PowerManager.ACQUIRE_CAUSES_WAKEUP |PowerManager.ON_AFTER_RELEASE,"app:locktag");
             wl.acquire(10000);
-            PowerManager.WakeLock wl_cpu = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,"app:cpulock");
+            PowerManager.WakeLock wl_cpu = pm.newWakeLock(
+                PowerManager.PARTIAL_WAKE_LOCK,"app:cpulock");
 
             wl_cpu.acquire(10000);
         }

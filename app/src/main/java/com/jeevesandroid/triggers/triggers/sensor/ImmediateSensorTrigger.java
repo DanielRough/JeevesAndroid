@@ -26,12 +26,9 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.location.Location;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.LocationRequest;
 import com.jeevesandroid.sensing.sensormanager.ESException;
 import com.jeevesandroid.sensing.sensormanager.ESSensorManager;
 import com.jeevesandroid.sensing.sensormanager.ESSensorManagerInterface;
@@ -43,39 +40,36 @@ import com.jeevesandroid.sensing.sensormanager.sensors.SensorUtils;
 import com.jeevesandroid.triggers.TriggerException;
 import com.jeevesandroid.triggers.TriggerReceiver;
 import com.jeevesandroid.triggers.config.TriggerConfig;
-import com.jeevesandroid.triggers.config.TriggerManagerConstants;
+import com.jeevesandroid.triggers.config.TriggerConstants;
 import com.jeevesandroid.triggers.triggers.Trigger;
 import com.jeevesandroid.triggers.triggers.TriggerUtils;
 
 
 import java.util.Random;
 
-//import com.google.android.gms.location.Geofence;
-
-public class ImmediateSensorTrigger extends Trigger implements SensorDataListener/*, GoogleApiClient.OnConnectionFailedListener, GoogleApiClient.ConnectionCallbacks, LocationListener */{
-	/*
-	 * WARNING -- Obsolete
-	 */
+/**
+ * Class representing the Jeeves 'Sensor Trigger'. Parameters consist of a sensor
+ * type and the classification considered 'interesting' to fire the trigger
+ */
+public class ImmediateSensorTrigger extends Trigger implements SensorDataListener{
 
 	private ESSensorManagerInterface sensorManager;
 	private SensorDataClassifier classifier;
 	private int subscriptionId;
-// --Commented out by Inspection START (5/8/2019 4:26 PM):
-	GoogleApiClient mGoogleApiClient;
-	LocationRequest mLocationRequest;
-	Location currentLocation;
-	String lastUpdateTime;
-private int id;
-// --Commented out by Inspection STOP (5/8/2019 4:26 PM)
-	//protected static List<Geofence> geofenceList = new ArrayList<Geofence>();
-	public ImmediateSensorTrigger(Context context, int id, TriggerReceiver listener, TriggerConfig params) throws TriggerException {
+
+	public ImmediateSensorTrigger(Context context, int id,
+	TriggerReceiver listener, TriggerConfig params){
 		super(context, id, listener, params);
-		this.id = id; //Also used to identify the geofence
+	}
+
+	@Override
+	protected void startAlarm(){
+
 	}
 
 	@Override
 	public String getActionName() {
-		return TriggerManagerConstants.ACTION_NAME_SENSOR_TRIGGER_IMMEDIATE;
+		return TriggerConstants.ACTION_NAME_SENSOR_TRIGGER_IMMEDIATE;
 	}
 
 	@Override
@@ -84,57 +78,11 @@ private int id;
 		super.start();
 		int sensorType = getSensorType();
 		try {
-//			if (getSensorType() == SensorUtils.SENSOR_TYPE_LOCATION) {
-//				createLocationRequest();
-//				mGoogleApiClient = new GoogleApiClient.Builder(context)
-//						.addConnectionCallbacks(this)
-//						.addOnConnectionFailedListener(this)
-//						.addApi(LocationServices.API)
-//						.build();
-//				mGoogleApiClient.connect();
-//
-//				if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-//					return;
-//				}
-//				if (params.containsKey(TriggerConfig.INTERESTING_VALUE)) {
-//					String value = "";
-//					value = params.getParameter(TriggerConfig.INTERESTING_VALUE).toString();
-//					SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-//					value = preferences.getString(value, ""); //If it's a location, we need to find the coordinates it corresponds to in userprefs
-//					if(value.isEmpty())return;
-//					String[] latlong = value.split(";");
-//					geofenceList.add(new Geofence.Builder()
-//						// Set the request ID of the geofence. This is a string to identify this
-//						// geofence.
-//						.setRequestId(Integer.toString(id))
-//
-//						.setCircularRegion(
-//								latlong[-],
-//								entry.getValue().longitude,
-//								Constants.GEOFENCE_RADIUS_IN_METERS
-//						)
-//						.setExpirationDuration(Constants.GEOFENCE_EXPIRATION_IN_MILLISECONDS)
-//						.setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |
-//								Geofence.GEOFENCE_TRANSITION_EXIT)
-//						.build());
-//			}
-//
-//
-//			else {
-				this.sensorManager = ESSensorManager.getSensorManager(context);
-			//	setupParams(getSensorType(), true);
-
-			//Temporary fix while I figure out how location is going to work
-//			if(sensorType == SensorUtils.SENSOR_TYPE_LOCATION)
-//				return;
-				Log.d("DOIGETHERE", "Do I get here?");
-				this.classifier = SensorClassifiers.getSensorClassifier(sensorType);
-				Log.d("HOWBOUTHERE", "And how bout here?");
-				this.subscriptionId = sensorManager.subscribeToSensorData(sensorType, this);
-				Log.d("HEEEEERE", "hmmmm");
-		//	}
+			this.sensorManager = ESSensorManager.getSensorManager(context);
+			this.classifier = SensorClassifiers.getSensorClassifier(sensorType);
+			this.subscriptionId = sensorManager.subscribeToSensorData(sensorType, this);
 		} catch (ESException e) {
-			throw new TriggerException(TriggerException.UNKNOWN_TRIGGER, "No classifier available for sensor type: " + sensorType);
+			throw new TriggerException("No classifier available for sensor type: " + sensorType);
 		}
 	}
 
@@ -142,44 +90,42 @@ private int id;
 		if (params.containsKey(TriggerConfig.SENSOR_TYPE)) {
 			return TriggerUtils.getSensorType(params.getParameter(TriggerConfig.SENSOR_TYPE).toString());
 		} else {
-			throw new TriggerException(TriggerException.MISSING_PARAMETERS, "Sensor Type not specified in parameters.");
+			throw new TriggerException("Sensor Type not specified in parameters.");
 		}
 	}
 
+	/**
+	 * Always returns default right now but can be used for firing this trigger
+	 * with a given probability
+	 * @return double representing trigger probability (currently always 100%)
+	 */
 	private double notificationProbability() {
 		if (params.containsKey(TriggerConfig.NOTIFICATION_PROBABILITY)) {
 			return (Double) params.getParameter(TriggerConfig.NOTIFICATION_PROBABILITY);
 		} else {
-			return TriggerManagerConstants.DEFAULT_NOTIFICATION_PROBABILITY;
+			return TriggerConstants.DEFAULT_NOTIFICATION_PROBABILITY;
 		}
 	}
 
 	@Override
 	public void onDataSensed(SensorData sensorData) {
-		if (TriggerManagerConstants.LOG_MESSAGES) {
-			Log.d("ImmediateSensorTrigger", "onDataSensed() " + sensorData.toString());
-		}
+		Log.d("ImmediateSensorTrigger", sensorData.toString());
 		String value = "";
 		if (params.containsKey(TriggerConfig.INTERESTING_VALUE)) {
 			value = params.getParameter(TriggerConfig.INTERESTING_VALUE).toString();
-
-			if (sensorData.getSensorType() == SensorUtils.SENSOR_TYPE_BLUETOOTH || sensorData.getSensorType() == SensorUtils.SENSOR_TYPE_WIFI) {
+			if (sensorData.getSensorType() == SensorUtils.SENSOR_TYPE_BLUETOOTH ||
+				sensorData.getSensorType() == SensorUtils.SENSOR_TYPE_WIFI) {
 				SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-
-				value = preferences.getString(value, ""); //If it's a location, we need to find the coordinates it corresponds to in userprefs
-				Log.d("VALUE", "VALUE IS " + value);
+				value = preferences.getString(value, "");
 			}
 		}
 		if (classifier.isInteresting(sensorData, sensorData.getSensorConfig(), value, true)) {
 			sendNotification();
-		} else {
-			Log.d("NAH", "Nah wasn't very interesting at all");
 		}
 	}
 
 	@Override
 	public void onCrossingLowBatteryThreshold(boolean isBelowThreshold) {
-
 	}
 
 	@Override
@@ -195,12 +141,11 @@ private int id;
 	public void stop() throws TriggerException {
 		super.stop();
 		try {
-		//	setupParams(getSensorType(), false);
 			if (sensorManager != null) {
 				sensorManager.unsubscribeFromSensorData(subscriptionId);
 			}
 		} catch (ESException e) {
-			throw new TriggerException(TriggerException.INVALID_STATE, "Cannot unsubscribe from sensor subscription.");
+			throw new TriggerException("Cannot unsubscribe from sensor subscription.");
 		}
 	}
 
@@ -217,64 +162,10 @@ private int id;
 	@Override
 	protected PendingIntent getPendingIntent() {
 		int requestCode = TriggerUtils.TYPE_CLOCK_TRIGGER_ONCE;
-		Intent intent = new Intent(TriggerManagerConstants.ACTION_NAME_ONE_TIME_TRIGGER);
-		return PendingIntent.getBroadcast(context, requestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+		Intent intent = new Intent(TriggerConstants.ACTION_NAME_ONE_TIME_TRIGGER);
+		return PendingIntent.getBroadcast(context, requestCode,
+			intent, PendingIntent.FLAG_UPDATE_CURRENT);
 	}
 
-	@Override
-	protected void startAlarm() {
-		// TODO Auto-generated method stub
-
-	}
-//
-//	@Override
-//	public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-//
-//	}
-//
-//	@Override
-//	public void onConnected(@Nullable Bundle bundle) {
-//		startLocationUpdates();
-//		Log.d("COnnected", "Google API thing is connected");
-//		if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-//			// TODO: Consider calling
-//			return;
-//		}
-//		Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
-//				mGoogleApiClient);
-//		if (mLastLocation != null) {
-//			Log.d("LOCATION", "Last location is " + mLastLocation.getLatitude() + "," + mLastLocation.getLongitude());
-//		} else {
-//			Log.d("LOCATION", "SHIT IT WAS NULL");
-//		}
-//	}
-//
-//	protected void startLocationUpdates() {
-//		if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-//			return;
-//		}
-//		LocationServices.FusedLocationApi.requestLocationUpdates(
-//				mGoogleApiClient, mLocationRequest, this);
-//		Log.d("Reuested","Now reuestling location updates");
-//	}
-//
-//	protected void createLocationRequest() {
-//		mLocationRequest = new LocationRequest();
-//		mLocationRequest.setInterval(10000);
-//		mLocationRequest.setFastestInterval(5000);
-//		mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-//	}
-//	@Override
-//	public void onConnectionSuspended(int i) {
-//
-//	}
-//
-//	@Override
-//	public void onLocationChanged(Location location) {
-//		currentLocation = location;
-//		lastUpdateTime = DateFormat.getTimeInstance().format(new Date());
-//		Log.d("UPDATE","location is " + currentLocation.getLatitude()+","+currentLocation.getLongitude());
-//		Log.d("TIMEYTIME","Updated at " + lastUpdateTime);
-//	}
 
 }

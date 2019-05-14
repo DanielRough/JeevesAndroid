@@ -3,7 +3,7 @@ package com.jeevesandroid.firebase;
 import android.util.Base64;
 import android.util.Log;
 
-import com.jeevesandroid.ApplicationContext;
+import com.jeevesandroid.AppContext;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -36,9 +36,6 @@ public class FirebaseUtils {
     public static final String PROJECTS_KEY = "projects";
     public static final String PATIENTS_KEY = "patients";
     public static final String SURVEYDATA_KEY = "surveydata";
-    public static final String SENSORS_KEY = "sensors";
-    public static String SENSORDATA_KEY = "sensordata";
-
     //Variable types
     public static final String BOOLEAN = "Boolean";
     public static final String NUMERIC = "Numeric";
@@ -48,16 +45,21 @@ public class FirebaseUtils {
     public static final String TEXT = "Text";
 
     public static DatabaseReference PATIENT_REF;
-public static DatabaseReference SURVEY_REF;
-    public static DatabaseReference SENSORS_REF;
+    public static DatabaseReference SURVEY_REF;
 
     private static String SYMMETRICKEY;
 
     public static String getSymmetricKey(){
         return encodeKey(SYMMETRICKEY);
     }
+
+    /**
+     * Encrypts a user's answers to a survey using the JeevesAndroid generated
+     * symmetric key
+     * @param answers Semicolon-delimited String of user's survey answers
+     * @return String of encrypted survey answers
+     */
     public static String symmetricEncryption(String answers){
-        Log.d("BEFORE","answers are " + answers);
         SecretKeySpec sks = null;
         try {
             SecureRandom sr = SecureRandom.getInstance("SHA1PRNG");
@@ -77,48 +79,36 @@ public static DatabaseReference SURVEY_REF;
             c.init(Cipher.ENCRYPT_MODE, sks);
             encodedBytes = c.doFinal(answers.getBytes());
             String base64 = Base64.encodeToString(encodedBytes,Base64.NO_WRAP);
-
-            byte[] decodedBytes;
-            try {
-                Cipher c2 = Cipher.getInstance("AES");
-                c2.init(Cipher.DECRYPT_MODE, sks);
-                decodedBytes = c2.doFinal(encodedBytes);
-                Log.d("DECODE","DECODED IS " + new String(decodedBytes));
-            } catch (Exception e) {
-                Log.e("er", "AES decryption error");
-            }
             return base64;
         } catch (Exception e) {
             Log.e("er", "AES encryption error");
         }
         return null;
-        // Decode the encoded data with AES
-
-
     }
 
-    //Encryption for sensitive data
+    /**
+     * Encrypts the symmetric key used by the Jeeves desktop environment using
+     * the public key published in the project specification
+     * @param symmetricKey Symmetric key generated for survey answer decryption
+     * @return Encoded key or empty String if something goes wrong
+     */
     public static String encodeKey(String symmetricKey){
-        String pubKey = ApplicationContext.getProject().getpubKey();
+        String pubKey = AppContext.getProject().getpubKey();
         byte[] keyBytes = Base64.decode(pubKey,Base64.DEFAULT);
-        //  byte[] keyBytes = Base64.decodeBase64(pubKey);
         X509EncodedKeySpec X509publicKey = new X509EncodedKeySpec(keyBytes);
         try {
             KeyFactory kf = KeyFactory.getInstance("RSA");
-            return encryptText(symmetricKey,kf.generatePublic(X509publicKey));
-        } catch (NoSuchAlgorithmException | InvalidKeySpecException | UnsupportedEncodingException | BadPaddingException | IllegalBlockSizeException | InvalidKeyException | NoSuchPaddingException e) {
+            Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+            PublicKey key = kf.generatePublic(X509publicKey);
+            cipher.init(Cipher.ENCRYPT_MODE, key);
+            return Base64.encodeToString(cipher
+                .doFinal(symmetricKey.getBytes(StandardCharsets.UTF_8)),Base64.NO_WRAP);
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException |
+            BadPaddingException | IllegalBlockSizeException |
+            InvalidKeyException | NoSuchPaddingException e) {
             e.printStackTrace();
         }
         return "";
-    }
-    private static String encryptText(String msg, PublicKey key)
-            throws NoSuchAlgorithmException, NoSuchPaddingException,
-            UnsupportedEncodingException, IllegalBlockSizeException,
-            BadPaddingException, InvalidKeyException {
-        Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
-
-        cipher.init(Cipher.ENCRYPT_MODE, key);
-        return Base64.encodeToString(cipher.doFinal(msg.getBytes(StandardCharsets.UTF_8)),Base64.NO_WRAP);
     }
 
     private static FirebaseDatabase mDatabase;

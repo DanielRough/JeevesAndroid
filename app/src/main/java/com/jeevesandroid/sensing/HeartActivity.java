@@ -15,8 +15,8 @@ import com.jeevesandroid.R;
 
 public class HeartActivity extends AppCompatActivity implements SensorEventListener {
 
-    private  SensorManager mSensorManager;
-    private  Sensor mHeartRate;
+    private SensorManager mSensorManager;
+    private Sensor mHeartRate;
     private TextView txtHeart;
     private TextView txtAcc;
 
