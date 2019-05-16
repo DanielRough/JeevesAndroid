@@ -187,8 +187,8 @@ public class ActionExecutorService extends Service {
                     continue;
                 }
             }
-            //Here I'm going to need some sort of alarm manager that periodically executes the actions in the while loop
-            //until those actions are false, and after that executes the remaining actions in the trigger.
+
+            //While loop functionality
             else if(newaction instanceof WhileControl){
                 WhileControl whileAction = (WhileControl) newaction;
                 controlactions = (ArrayList<FirebaseAction>) whileAction.getactions();
@@ -271,7 +271,6 @@ public class ActionExecutorService extends Service {
             if (newaction.getparams() == null)
                 newaction.setparams(new HashMap<String, Object>());
             newaction.getparams().put(AppContext.TRIG_TYPE, triggerType);
-
             newaction.execute();
         }
     stopSelf();
