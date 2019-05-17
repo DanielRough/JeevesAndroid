@@ -63,7 +63,6 @@ public class ScheduledTrigger extends Trigger implements TriggerReceiver
 			params.addParameter(TriggerConfig.FROM_DATE, millis);
 			int triggerId = triggerManager.addTrigger(TriggerUtils.TYPE_CLOCK_TRIGGER_ONCE, this, params);
 			randomlySelectedTriggerIds.add(triggerId);
-			Log.d(LOG_TAG, "Trigger subscribed: "+triggerId);
 		}
 		catch (TriggerException e) {
 			e.printStackTrace();

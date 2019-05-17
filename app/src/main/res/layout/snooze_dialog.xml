@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_margin="6dp"
+    android:orientation="vertical"
+    android:theme="@style/AlertDialog.AppCompat">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="86dp"
+        android:contentDescription="@string/app_name"
+        android:scaleType="center"
+        android:src="@drawable/jeeveslog" />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="14dp"
+        android:text="@string/snooze_desc"
+        android:textSize="16sp" />
+
+    <Spinner
+        android:id="@+id/mySpinner"
+        style="@style/Widget.AppCompat.Spinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="12dp"
+        android:entries="@array/snooze_options"
+        android:prompt="@string/snooze_prompt" />
+</LinearLayout>

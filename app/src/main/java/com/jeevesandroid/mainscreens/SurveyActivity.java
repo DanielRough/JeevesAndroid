@@ -83,10 +83,12 @@ import com.jeevesandroid.triggers.triggers.TriggerUtils;
 import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -199,7 +201,7 @@ public class SurveyActivity extends AppCompatActivity
             //Let's format the dates and times nicely
             switch (correspondingQuestion.getquestionType()) {
                 case DATE: {
-                    DateFormat formatter = new SimpleDateFormat("dd/MM/yyyy", Locale.UK);
+                    DateFormat formatter = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
                     Calendar calendar = Calendar.getInstance();
                     calendar.setTimeInMillis(Long.parseLong(answer));
                     concatAnswers.append(formatter.format(calendar.getTime())).append(";");
@@ -210,7 +212,7 @@ public class SurveyActivity extends AppCompatActivity
                     midnight.set(Calendar.HOUR_OF_DAY, 0);
                     midnight.set(Calendar.MINUTE, 0);
 
-                    DateFormat formatter = new SimpleDateFormat("hh:mm:ss", Locale.UK);
+                    DateFormat formatter = new SimpleDateFormat("hh:mm:ss", Locale.getDefault());
                     Calendar calendar = Calendar.getInstance();
 
                     Long millitime = Long.parseLong(answer) + midnight.getTimeInMillis();
@@ -696,7 +698,29 @@ public class SurveyActivity extends AppCompatActivity
             picker.updateDate(calendar.get(Calendar.YEAR),
                 calendar.get(Calendar.MONTH),
                 calendar.get(Calendar.DAY_OF_MONTH));
-        } else {
+        }
+        else if(questions.get(currentIndex).getassignedVar() != null){
+            String var = questions.get(currentIndex).getassignedVar();
+            Log.d("Assigned","assigned var is " + var);
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(AppContext.getContext());
+            String varval = prefs.getString(var,"");
+            if(varval.equals(""))
+                answers.set(currentIndex, Long.toString(calendar.getTimeInMillis()));
+            else{
+                //DateFormat formatter = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+                Date d = new Date();
+                d.setTime(Long.parseLong(varval));
+                    //Date savedDate = formatter.format(varval);
+                    calendar.setTime(d);
+                    answers.set(currentIndex, Long.toString(calendar.getTimeInMillis()));
+                    picker.updateDate(calendar.get(Calendar.YEAR),
+                        calendar.get(Calendar.MONTH),
+                        calendar.get(Calendar.DAY_OF_MONTH));
+
+
+            }
+        }
+        else {
             answers.set(currentIndex, Long.toString(calendar.getTimeInMillis()));
         }
     }
@@ -709,23 +733,38 @@ public class SurveyActivity extends AppCompatActivity
         midnight.set(Calendar.MINUTE, 0);
         TimePicker tpicker = findViewById(R.id.timePicker2);
         String answer = answers.get(currentIndex);
-        tpicker.setOnTimeChangedListener(new TimePicker.OnTimeChangedListener() {
-            @Override
-            public void onTimeChanged(TimePicker timePicker, int i, int i1) {
-            calendar.set(Calendar.HOUR_OF_DAY, i);
-            calendar.set(Calendar.MINUTE, i1);
-            long msFromMidnight = calendar.getTimeInMillis() - midnight.getTimeInMillis();
-            answers.set(currentIndex, Long.toString(msFromMidnight));
-            }
-        });
-
         if (!answer.isEmpty()) {
             calendar.setTimeInMillis(midnight.getTimeInMillis() + Long.parseLong(answer));
             tpicker.setHour(calendar.get(Calendar.HOUR_OF_DAY));
             tpicker.setMinute(calendar.get(Calendar.MINUTE));
-        } else {
+        }
+        else if(questions.get(currentIndex).getassignedVar() != null){
+            String var = questions.get(currentIndex).getassignedVar();
+            Log.d("Assigned","assigned var is " + var);
+
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(AppContext.getContext());
+            String varval = prefs.getString(var,"");
+            if(varval.equals(""))
+                answers.set(currentIndex, Long.toString(calendar.getTimeInMillis()- midnight.getTimeInMillis()));
+            else{
+                calendar.setTimeInMillis(midnight.getTimeInMillis() + Long.parseLong(varval));
+                answers.set(currentIndex, Long.toString(calendar.getTimeInMillis()- midnight.getTimeInMillis()));
+                tpicker.setHour(calendar.get(Calendar.HOUR_OF_DAY));
+                tpicker.setMinute(calendar.get(Calendar.MINUTE));
+            }
+        }
+        else {
             answers.set(currentIndex, Long.toString(calendar.getTimeInMillis()- midnight.getTimeInMillis()));
         }
+        tpicker.setOnTimeChangedListener(new TimePicker.OnTimeChangedListener() {
+            @Override
+            public void onTimeChanged(TimePicker timePicker, int i, int i1) {
+                calendar.set(Calendar.HOUR_OF_DAY, i);
+                calendar.set(Calendar.MINUTE, i1);
+                long msFromMidnight = calendar.getTimeInMillis() - midnight.getTimeInMillis();
+                answers.set(currentIndex, Long.toString(msFromMidnight));
+            }
+        });
 
 
     }

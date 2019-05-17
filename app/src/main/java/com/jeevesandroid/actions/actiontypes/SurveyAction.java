@@ -204,12 +204,21 @@ public class SurveyAction extends FirebaseAction {
     @Override
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     public void execute() {
+
         final Context app = AppContext.getContext();
         if(getparams().get("survey") == null) {
             return;
         }
         final String surveyname = getparams().get("survey").toString();
         int triggerType = (int)getparams().get(AppContext.TRIG_TYPE);
+        //Check we're not snoozing (button-triggered surveys and prompts can still be done)
+        SharedPreferences prefs = PreferenceManager
+            .getDefaultSharedPreferences(AppContext.getContext());
+        if(prefs.getBoolean(AppContext.SNOOZE,false)){
+            if (triggerType != TriggerUtils.TYPE_SENSOR_TRIGGER_BUTTON &&
+                triggerType != TriggerUtils.TYPE_CLOCK_TRIGGER_BEGIN)
+            return;
+        }
         List<FirebaseSurvey> surveys = AppContext.getProject().getsurveys();
         //Find the actual JSON survey that corresponds to the given name
         for (FirebaseSurvey survey : surveys) {
@@ -224,7 +233,7 @@ public class SurveyAction extends FirebaseAction {
         //Stores that the last survey with this name to be
         //sent out has not been completed. This will help keep track
         //in the Missed Surveys screen of which surveys to display
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(app);
+        prefs = PreferenceManager.getDefaultSharedPreferences(app);
         SharedPreferences.Editor editor = prefs.edit();
         editor.putBoolean(surveyId,true);
         editor.apply();

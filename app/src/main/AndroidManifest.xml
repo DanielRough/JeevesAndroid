@@ -117,6 +117,12 @@
 
         <activity android:name=".sensing.HeartActivity" />
 
+        <receiver android:name=".SnoozeListener"  android:exported="true">
+            <intent-filter>
+                <action android:name="com.jeevesandroid.SnoozeListener"/>
+            </intent-filter>
+        </receiver>
+
         <receiver android:name=".actions.WhileLoopReceiver"  android:exported="true">
             <intent-filter>
                 <action android:name="com.jeevesandroid.WhileLoopReceiver"/>

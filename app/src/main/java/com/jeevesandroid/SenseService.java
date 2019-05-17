@@ -79,6 +79,7 @@ public class SenseService extends Service implements
     //private static final String ACTION_1 = "action_1";
     //private static final int NOTIF_ID = 1337;
     private static final int ACTIVE = 1234;
+    SharedPreferences.OnSharedPreferenceChangeListener mListener; //Keeps it alive
     private LocationCallback mLocationCallback;
     private FusedLocationProviderClient locClient;
     private GoogleApiClient mGoogleApiClient;
@@ -384,7 +385,7 @@ public class SenseService extends Service implements
         SharedPreferences.Editor prefseditor = varPrefs.edit();
         prefseditor.apply();
 
-        SharedPreferences.OnSharedPreferenceChangeListener mListener
+        mListener
             = new SharedPreferences.OnSharedPreferenceChangeListener() {
             public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
                 try {

@@ -74,6 +74,7 @@ public class AppContext extends Application {
     public static final String COMPLETED_SURVEYS = "Completed Surveys";
     public static final String SURVEY_SCORE_DIFF = "Survey Score Difference";
 
+    public static final String SNOOZE = "Snooze";
     private static AppContext instance;
     private static FirebaseProject currentproject;
 

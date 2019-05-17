@@ -74,7 +74,8 @@ public class DailyWakeupTrigger extends Trigger
      */
     @Override
     protected void startAlarm() {
-        int firstTime = (int)params.getParameter(TriggerConfig.LIMIT_BEFORE_HOUR);
+        Log.d("FIRSTTIME","First time is " + params.getParameter(TriggerConfig.LIMIT_BEFORE_HOUR));
+        int firstTime = Integer.parseInt(String.valueOf(params.getParameter(TriggerConfig.LIMIT_BEFORE_HOUR)));
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.HOUR_OF_DAY, (firstTime / 60));
         calendar.set(Calendar.MINUTE, (firstTime % 60));

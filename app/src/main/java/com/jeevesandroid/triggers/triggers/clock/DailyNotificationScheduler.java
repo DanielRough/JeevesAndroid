@@ -62,6 +62,7 @@ public class DailyNotificationScheduler implements TriggerReceiver
 		dailySchedulerId = triggerManager.addTrigger(
 			TriggerUtils.TYPE_DAILY_SCHEDULER, this, params);
 		isSubscribed = true;
+		scheduleStuff();
 	}
 
 	private void scheduleStuff(){
@@ -139,6 +140,7 @@ public class DailyNotificationScheduler implements TriggerReceiver
      * windowed times.
      */
 	private void scheduleWindowedTimes(){
+		Log.d("WINDOWED","Scheduling windowed times");
 		int earlyLimit = params.getValueInMinutes(TriggerConfig.LIMIT_BEFORE_HOUR)/60000;
 		int lateLimit = params.getValueInMinutes(TriggerConfig.LIMIT_AFTER_HOUR)/60000;
 		int minInterval = params.getValueInMinutes(TriggerConfig.INTERVAL_TRIGGER_TIME);
@@ -166,7 +168,8 @@ public class DailyNotificationScheduler implements TriggerReceiver
                 calendar.set(Calendar.HOUR_OF_DAY, (minuteOfDay / 60));
                 calendar.set(Calendar.MINUTE, (minuteOfDay % 60));
                 calendar.set(Calendar.SECOND, 0);
-                trigger.subscribeTriggerFor(calendar.getTimeInMillis());
+				Log.d("WINDOWED","Scheduled time for " + calendar.getTime().toString());
+				trigger.subscribeTriggerFor(calendar.getTimeInMillis());
             }
         }
 	}
@@ -176,7 +179,7 @@ public class DailyNotificationScheduler implements TriggerReceiver
      * Scheduling these is quite straightforward
      */
 	private void scheduleIntervalTimes(){
-
+		Log.d("INTERVAL","Scheduling interval times");
         int earlyLimit = params.getValueInMinutes(TriggerConfig.LIMIT_BEFORE_HOUR)/60000;
         int lateLimit = params.getValueInMinutes(TriggerConfig.LIMIT_AFTER_HOUR)/60000;
 		int numberOfNotifications = Integer.parseInt(
@@ -202,6 +205,7 @@ public class DailyNotificationScheduler implements TriggerReceiver
 				calendar.set(Calendar.HOUR_OF_DAY, (minuteOfDay / 60));
 				calendar.set(Calendar.MINUTE, (minuteOfDay % 60));
 				calendar.set(Calendar.SECOND, 0);
+				Log.d("INTERVAL","Scheduled time for " + calendar.getTime().toString());
 				trigger.subscribeTriggerFor(calendar.getTimeInMillis());
 			}
 		}
@@ -212,6 +216,7 @@ public class DailyNotificationScheduler implements TriggerReceiver
      * at all the specified times
      */
 	private void scheduleSetTimes(){
+		Log.d("SETTIMES","Scheduling set times");
 		ArrayList<Long> times = (ArrayList<Long>)params.getParams().get("times");
 
 		Calendar calendar = Calendar.getInstance();
@@ -224,6 +229,7 @@ public class DailyNotificationScheduler implements TriggerReceiver
 			if (calendar.getTimeInMillis() < System.currentTimeMillis()) {
 				calendar.add(Calendar.DATE, 1);
 			}
+			Log.d("SETTIMES","Scheduled time for " + calendar.getTime().toString());
 			trigger.subscribeTriggerFor(calendar.getTimeInMillis());
 		}
 	}
@@ -233,6 +239,7 @@ public class DailyNotificationScheduler implements TriggerReceiver
      * the triggers randomly within this window.
      */
 	private void scheduleNotifications() {
+		Log.d("RANDOM","Scheduling random times");
 		ArrayList<Integer> times = new ArrayList<Integer>();
 		Calendar calendar = Calendar.getInstance();
 		int hour = calendar.get(Calendar.HOUR_OF_DAY);
@@ -274,6 +281,7 @@ public class DailyNotificationScheduler implements TriggerReceiver
 			if (calendar.getTimeInMillis() < System.currentTimeMillis()) {
 				calendar.add(Calendar.DATE, 1);
 			}
+			Log.d("RANDOM","Scheduled time for " + calendar.getTime().toString());
 			trigger.subscribeTriggerFor(calendar.getTimeInMillis());
 		}
 	}
