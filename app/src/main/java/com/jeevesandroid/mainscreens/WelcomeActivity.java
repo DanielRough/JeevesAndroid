@@ -30,6 +30,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.jeevesandroid.AppContext;
+import com.jeevesandroid.UncaughtExceptionHandler;
 import com.jeevesandroid.R;
 import com.jeevesandroid.SenseService;
 import com.jeevesandroid.SnoozeListener;
@@ -48,6 +49,7 @@ public class WelcomeActivity extends Activity {
     private WelcomeActivity getInstance(){
         return this;
     }
+
     private AlertDialog snoozeDialog;
     SharedPreferences.OnSharedPreferenceChangeListener mListener;
     PendingIntent wakeupSnoozepi;
@@ -106,6 +108,8 @@ public class WelcomeActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
+        Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler(AppContext.getContext()));
+
         permissionThings();
         setContentView(R.layout.activity_welcome);
         SharedPreferences prefs = PreferenceManager
@@ -216,8 +220,53 @@ public class WelcomeActivity extends Activity {
                 startActivity(intent);
             }
         });
+        final TextView textDesc = findViewById(R.id.textView);
+        if(prefs.getBoolean(AppContext.SNOOZE,false)) {
+            btnQuit.setText(R.string.unsnooze);
+            textDesc.setText(R.string.unsnooze_desc);
+            btnQuit.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    unsnooze();
+                }
+            });
+        }
+        else{
+            btnQuit.setText(R.string.snooze);
+            textDesc.setText(R.string.snooze_desc);
+        }
+        //https://stackoverflow.com/questions/2542938/
+        mListener
+            = new SharedPreferences.OnSharedPreferenceChangeListener() {
+            public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
+                Log.d("REFS","Pref change");
+                if(key.equals(AppContext.SNOOZE)){
+                    Log.d("PREFCHANGE","And it's snoooze");
+                    if(prefs.getBoolean(AppContext.SNOOZE,false)) {
+                        btnQuit.setText(R.string.unsnooze);
+                        textDesc.setText(R.string.unsnooze_desc);
+                        btnQuit.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                unsnooze();
+                            }
+                        });
+                    }
+                    else{
+                        btnQuit.setText(R.string.snooze);
+                        textDesc.setText(R.string.snooze_desc);
+                        btnQuit.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                showSnoozeDialog();
+                            }
+                        });
+                    }
+                }
+            }
+        };
+        prefs.registerOnSharedPreferenceChangeListener(mListener);
     }
-
     private void unsnooze(){
         AlarmManager alarmManager = (AlarmManager) AppContext.getContext()
             .getSystemService(ALARM_SERVICE);
@@ -297,7 +346,6 @@ public class WelcomeActivity extends Activity {
         Toast.makeText(this,"Jeeves is now snoozing " + item,Toast.LENGTH_LONG).show();
 
     }
-
     /**
      * Kill the While Loop broadcast receiver that lives on after SenseService is
      * dead, then quit the app altogether

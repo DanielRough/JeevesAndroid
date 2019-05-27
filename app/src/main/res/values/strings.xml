@@ -69,7 +69,8 @@
     <string name="survey_press">Press the button below to begin playing the audio file</string>
     <string name="survey_play">Play audio</string>
     <string name="survey_pause">Pause audio</string>
-
+    <string name="begin_time">Wake time</string>
+    <string name="end_time">Sleep time</string>
     <string name="deleted_logo">Jeeves logo</string>
     <string name="deleted_account">Account details not found</string>
     <string name="deleted_jeeves">Jeeves recognises your account but was unable to find your credentials. This could be because you cleared the application data. Please confirm your password and press the button below to reset your account.</string>
@@ -98,7 +99,7 @@
 
     <string name="startsensing">Start sensing</string>
     <string name="heartrate">Heart rate acquired</string>
-    <string name="question">Question %d</string>
+    <string name="question">Question</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
 

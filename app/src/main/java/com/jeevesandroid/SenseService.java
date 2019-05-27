@@ -1,7 +1,6 @@
 package com.jeevesandroid;
 
 import android.Manifest;
-import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -23,7 +22,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
-import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -54,7 +52,6 @@ import com.jeevesandroid.sensing.SensorListener;
 import com.jeevesandroid.sensing.sensormanager.ESException;
 import com.jeevesandroid.sensing.sensormanager.ESSensorManager;
 import com.jeevesandroid.triggers.TriggerException;
-import com.jeevesandroid.triggers.config.TriggerConfig;
 import com.jeevesandroid.triggers.triggers.TriggerUtils;
 
 import java.util.ArrayList;
@@ -83,6 +80,7 @@ public class SenseService extends Service implements
     private LocationCallback mLocationCallback;
     private FusedLocationProviderClient locClient;
     private GoogleApiClient mGoogleApiClient;
+    SharedPreferences.OnSharedPreferenceChangeListener mListener; //Keeps it alive
 
     private void createLocationRequest() {
         LocationRequest mLocationRequest = new LocationRequest();
@@ -217,6 +215,8 @@ public class SenseService extends Service implements
     private static final String NOTIFICATION_Service_CHANNEL_ID = "service_channel";
     @Override
     public void onCreate() {
+        Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler(AppContext.getContext()));
+
         //Make the 'always-on' foreground notification that stops the service being killed
         Notification n = buildForegroundNotification();
         //New code to cope with specifying the channel ID
@@ -309,6 +309,7 @@ public class SenseService extends Service implements
      */
     private void changeVarValue(List<FirebaseTrigger> triggers, List<FirebaseVariable> variables,
                                 String key) throws TriggerException {
+        Log.d("CHANGEVAR","Var that's changed is " + key);
         for (FirebaseVariable var : variables) {
             if (var.getname().equals(key)) {
                 switch (var.getvartype()) {

@@ -190,15 +190,17 @@ public class SurveyAction extends FirebaseAction {
         //Also should start straight away if this is a 'fast transition' survey
         if (triggerType == TriggerUtils.TYPE_SENSOR_TRIGGER_BUTTON ||
             triggerType == TriggerUtils.TYPE_CLOCK_TRIGGER_BEGIN
-            || currentsurvey.getfastTransition()) {
-            mBuilder.setOngoing(false);
-            mBuilder.setTimeoutAfter(3000);
+            ) {
+          //  mBuilder.setOngoing(false);
+            //mBuilder.setTimeoutAfter(3000);
+            //do nothing
         }
         else{
             mBuilder.addAction(R.drawable.ic_create_black_24dp, "Start survey", startIntent);
             mBuilder.addAction(R.drawable.ic_create_black_24dp,"I'll do it later", laterIntent);
+            nm.notify(thisActionsId, mBuilder.build());
+
         }
-        nm.notify(thisActionsId, mBuilder.build());
     }
 
     @Override
@@ -211,13 +213,14 @@ public class SurveyAction extends FirebaseAction {
         }
         final String surveyname = getparams().get("survey").toString();
         int triggerType = (int)getparams().get(AppContext.TRIG_TYPE);
+
         //Check we're not snoozing (button-triggered surveys and prompts can still be done)
         SharedPreferences prefs = PreferenceManager
             .getDefaultSharedPreferences(AppContext.getContext());
         if(prefs.getBoolean(AppContext.SNOOZE,false)){
             if (triggerType != TriggerUtils.TYPE_SENSOR_TRIGGER_BUTTON &&
                 triggerType != TriggerUtils.TYPE_CLOCK_TRIGGER_BEGIN)
-            return;
+                return;
         }
         List<FirebaseSurvey> surveys = AppContext.getProject().getsurveys();
         //Find the actual JSON survey that corresponds to the given name

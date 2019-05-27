@@ -4,6 +4,7 @@ import com.jeevesandroid.actions.actiontypes.CaptureDataAction;
 import com.jeevesandroid.actions.actiontypes.FirebaseAction;
 import com.jeevesandroid.actions.actiontypes.IfControl;
 import com.jeevesandroid.actions.actiontypes.PromptAction;
+import com.jeevesandroid.actions.actiontypes.ScheduleAction;
 import com.jeevesandroid.actions.actiontypes.SurveyAction;
 import com.jeevesandroid.actions.actiontypes.UpdateAction;
 import com.jeevesandroid.actions.actiontypes.WaitingAction;
@@ -20,6 +21,7 @@ public class ActionUtils {
     public static final String NAME_PROMPT_ACTION = "Prompt User";
     public static final String NAME_SEND_SURVEY_ACTION	= "Send Survey";
     public static final String NAME_CAPTURE_DATA_ACTION = "Sense Data";
+    public static final String NAME_SCHEDULE = "Update Waking Schedule";
     public static final String NAME_UPDATE_USER_ACTION = "Update User Attribute";
     public static final String NAME_WAIT_ACTION = "Snooze App";
     public static final String NAME_IF_CONTROL = "If Condition";
@@ -36,6 +38,7 @@ public class ActionUtils {
             case NAME_PROMPT_ACTION: return new PromptAction(baseAction.getparams());
             case NAME_SEND_SURVEY_ACTION: return new SurveyAction(baseAction.getparams());
             case NAME_CAPTURE_DATA_ACTION: return new CaptureDataAction(baseAction.getparams());
+            case NAME_SCHEDULE: return new ScheduleAction(baseAction.getparams());
             case NAME_UPDATE_USER_ACTION: return new UpdateAction(baseAction.getparams(),baseAction.getvars());
             case NAME_WAIT_ACTION: return new WaitingAction(baseAction.getparams());
             case NAME_IF_CONTROL: return new IfControl(baseAction.getparams(),baseAction.getcondition(),baseAction.getactions());

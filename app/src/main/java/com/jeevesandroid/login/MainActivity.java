@@ -9,6 +9,7 @@ import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -45,6 +46,9 @@ public class MainActivity extends Activity{
         Fabric.with(this, new Crashlytics());
         setContentView(R.layout.activity_main);
 
+        if (getIntent().hasExtra("uncaughtException")) {
+            Toast.makeText(this,"Jeeves restarted after a crash. This crash has been reported to the developers. Sorry about that!",Toast.LENGTH_LONG).show();
+        }
         ProgressBar mProgressBar = findViewById(R.id.progressBar);
         mProgressBar.setVisibility(View.VISIBLE);
 
