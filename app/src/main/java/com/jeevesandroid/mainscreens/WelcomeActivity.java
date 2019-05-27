@@ -220,7 +220,6 @@ public class WelcomeActivity extends Activity {
                 startActivity(intent);
             }
         });
-        final TextView textDesc = findViewById(R.id.textView);
         if(prefs.getBoolean(AppContext.SNOOZE,false)) {
             btnQuit.setText(R.string.unsnooze);
             textDesc.setText(R.string.unsnooze_desc);

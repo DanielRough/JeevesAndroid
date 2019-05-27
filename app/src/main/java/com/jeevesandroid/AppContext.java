@@ -84,8 +84,6 @@ public class AppContext extends Application {
     private static AppContext instance;
     private static FirebaseProject currentproject;
 
-    public static final String SNOOZE = "Snooze";
-
     public AppContext()
     {
         instance = this;

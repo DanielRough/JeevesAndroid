@@ -80,7 +80,6 @@ public class SenseService extends Service implements
     private LocationCallback mLocationCallback;
     private FusedLocationProviderClient locClient;
     private GoogleApiClient mGoogleApiClient;
-    SharedPreferences.OnSharedPreferenceChangeListener mListener; //Keeps it alive
 
     private void createLocationRequest() {
         LocationRequest mLocationRequest = new LocationRequest();
