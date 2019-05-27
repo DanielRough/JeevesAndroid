@@ -25,8 +25,30 @@
     <string name="sense_self">Self-Report</string>
     <string name="sense_log">Log new information</string>
     <string name="sense_messages">Messages</string>
-    <string name="finish_study">If you want to quit the app, press the button below. This will stop all notifications. </string>
-    <string name="quit_app">Close app</string>
+    <string name="finish_study">Snooze Jeeves - this will stop all notifications for your set time. </string>
+    <string name="quit_app">Snooze app</string>
+    <string name="unsnooze_desc">Jeeves is currently snoozing notifications.</string>
+    <string name="unsnooze">Stop snoozing</string>
+    <string name="snooze_desc">Choose how long to snooze Jeeves for. This will stop all notifications for your selected time.</string>
+    <string name="fifteen">for 15 minutes</string>
+    <string name="thirty">for 30 minutes</string>
+    <string name="hour">for 1 hour</string>
+    <string name="threehr">for 3 hours</string>
+    <string name="day">for a day</string>
+    <string name="forever">until I re-open the app</string>
+
+    <string name="snooze">SNOOZE</string>
+    <string-array name="snooze_options">
+        <item>@string/fifteen</item>
+        <item>@string/thirty</item>
+        <item>@string/hour</item>
+        <item>@string/threehr</item>
+        <item>@string/day</item>
+        <item>@string/forever</item>
+    </string-array>
+    <string name="snooze_prompt">Snooze Jeeves...</string>
+    <string name="confirm">OK</string>
+    <string name="cancel">Cancel</string>
     <string name="sense_view">View the Jeeves Privacy Policy</string>
     <string name="permissions_title">Permissions Required</string>
     <string name="permissions_rationale">Please accept all necessary permissions for your study to run properly.</string>
@@ -47,7 +69,8 @@
     <string name="survey_press">Press the button below to begin playing the audio file</string>
     <string name="survey_play">Play audio</string>
     <string name="survey_pause">Pause audio</string>
-
+    <string name="begin_time">Wake time</string>
+    <string name="end_time">Sleep time</string>
     <string name="deleted_logo">Jeeves logo</string>
     <string name="deleted_account">Account details not found</string>
     <string name="deleted_jeeves">Jeeves recognises your account but was unable to find your credentials. This could be because you cleared the application data. Please confirm your password and press the button below to reset your account.</string>
@@ -76,7 +99,7 @@
 
     <string name="startsensing">Start sensing</string>
     <string name="heartrate">Heart rate acquired</string>
-    <string name="question">Question %d</string>
+    <string name="question">Question</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
 

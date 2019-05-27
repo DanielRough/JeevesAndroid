@@ -1,5 +1,6 @@
 package com.jeevesandroid.mainscreens.questions;
 
+import android.util.Log;
 import android.view.View;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -39,6 +40,7 @@ public class MultSingleQuestion extends Question{
                 @Override
                 public void onClick(View v) {
                     answers.set(currentIndex, button.getText().toString());
+                    Log.d("ANSWER","Answer is " + button.getText().toString());
                     //If we're rapidly transitioning, skip right away
                     if(context.getIsFast())
                         context.nextQ();

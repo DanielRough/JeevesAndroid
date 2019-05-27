@@ -15,15 +15,21 @@ import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.jeevesandroid.AppContext;
+import com.jeevesandroid.UncaughtExceptionHandler;
 import com.jeevesandroid.R;
 import com.jeevesandroid.SenseService;
+import com.jeevesandroid.SnoozeListener;
 import com.jeevesandroid.actions.WhileLoopReceiver;
 import com.jeevesandroid.firebase.FirebaseProject;
 import com.jeevesandroid.firebase.FirebaseUtils;
@@ -37,7 +43,9 @@ public class WelcomeActivity extends Activity {
         return this;
     }
 
-
+    private AlertDialog snoozeDialog;
+    SharedPreferences.OnSharedPreferenceChangeListener mListener;
+    PendingIntent wakeupSnoozepi;
     /**
      * This checks that all necessary permissions have been given by the user.
      * If not, they are asked for sequentially.
@@ -93,6 +101,8 @@ public class WelcomeActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
+        Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler(AppContext.getContext()));
+
         permissionThings();
         setContentView(R.layout.activity_welcome);
         SharedPreferences prefs = PreferenceManager
@@ -119,7 +129,7 @@ public class WelcomeActivity extends Activity {
         Button btnSurveys = findViewById(R.id.btnSurvey);
         Button btnMonitor = findViewById(R.id.btnMonitor);
         Button btnViewData = findViewById(R.id.btnViewData);
-        Button btnQuit = findViewById(R.id.btnQuit);
+        final Button btnQuit = findViewById(R.id.btnQuit);
         btnViewData.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -145,19 +155,7 @@ public class WelcomeActivity extends Activity {
         btnQuit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-            new AlertDialog.Builder(getInstance())
-                .setTitle("Exit app")
-                .setMessage("If you're done with the Jeeves app for now, press 'OK' to quit.")
-                .setIcon(android.R.drawable.ic_dialog_alert)
-                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                    Intent intent = new Intent(getInstance(), SenseService.class);
-                    stopService(intent);
-                    quitApp();
-                    }})
-                .setNegativeButton(android.R.string.no, null).show();
-
+                showSnoozeDialog();
             }
         });
 
@@ -169,8 +167,132 @@ public class WelcomeActivity extends Activity {
                 startActivity(intent);
             }
         });
+        final TextView textDesc = findViewById(R.id.textView);
+        if(prefs.getBoolean(AppContext.SNOOZE,false)) {
+            btnQuit.setText(R.string.unsnooze);
+            textDesc.setText(R.string.unsnooze_desc);
+            btnQuit.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    unsnooze();
+                }
+            });
+        }
+        else{
+            btnQuit.setText(R.string.snooze);
+            textDesc.setText(R.string.snooze_desc);
+        }
+        //https://stackoverflow.com/questions/2542938/
+        mListener
+            = new SharedPreferences.OnSharedPreferenceChangeListener() {
+            public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
+                Log.d("REFS","Pref change");
+                if(key.equals(AppContext.SNOOZE)){
+                    Log.d("PREFCHANGE","And it's snoooze");
+                    if(prefs.getBoolean(AppContext.SNOOZE,false)) {
+                        btnQuit.setText(R.string.unsnooze);
+                        textDesc.setText(R.string.unsnooze_desc);
+                        btnQuit.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                unsnooze();
+                            }
+                        });
+                    }
+                    else{
+                        btnQuit.setText(R.string.snooze);
+                        textDesc.setText(R.string.snooze_desc);
+                        btnQuit.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                showSnoozeDialog();
+                            }
+                        });
+                    }
+                }
+            }
+        };
+        prefs.registerOnSharedPreferenceChangeListener(mListener);
     }
+    private void unsnooze(){
+        AlarmManager alarmManager = (AlarmManager) AppContext.getContext()
+            .getSystemService(ALARM_SERVICE);
+        alarmManager.cancel(wakeupSnoozepi);
+        SharedPreferences prefs = PreferenceManager
+            .getDefaultSharedPreferences(AppContext.getContext());
+        Toast.makeText(this,"Snooze finished",Toast.LENGTH_LONG).show();
+        SharedPreferences.Editor prefseditor = prefs.edit();
+        prefseditor.putBoolean(AppContext.SNOOZE,false);
+        prefseditor.apply();
+    }
+    private void showSnoozeDialog(){
+        final AlertDialog.Builder builder = new AlertDialog.Builder(getInstance());
+        // Get the layout inflater
+        LayoutInflater inflater = getInstance().getLayoutInflater();
+        // Inflate and set the layout for the dialog
+        // Pass null as the parent view because its going in the dialog layout
+        builder.setView(inflater.inflate(R.layout.snooze_dialog, null))
+            // Add action buttons
+            .setPositiveButton(R.string.confirm, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int id) {
+                    snoozeApp();
+                }
+            })
+            .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
 
+                }
+            });
+        snoozeDialog = builder.create();
+        snoozeDialog.show();
+    }
+    private void snoozeApp(){
+        Spinner spin = snoozeDialog.findViewById(R.id.mySpinner);
+        String item = spin.getSelectedItem().toString();
+        SharedPreferences prefs = PreferenceManager
+            .getDefaultSharedPreferences(AppContext.getContext());
+        AlarmManager alarmManager = (AlarmManager) AppContext.getContext()
+            .getSystemService(ALARM_SERVICE);
+        Intent intent=new Intent(AppContext.getContext(), SnoozeListener.class);
+        wakeupSnoozepi = PendingIntent.getBroadcast(AppContext.getContext(), 0, intent, 0);
+
+        SharedPreferences.Editor prefseditor = prefs.edit();
+        if(item.equals(getString(R.string.fifteen))) {
+            prefseditor.putBoolean(AppContext.SNOOZE,true);
+            alarmManager.setExact(AlarmManager.RTC_WAKEUP,
+                System.currentTimeMillis() + (15*60*1000), wakeupSnoozepi);
+        }
+        else if(item.equals(getString(R.string.thirty))){
+            prefseditor.putBoolean(AppContext.SNOOZE,true);
+            alarmManager.setExact(AlarmManager.RTC_WAKEUP,
+                System.currentTimeMillis() + (30*60*1000), wakeupSnoozepi);
+        }
+        else if(item.equals(getString(R.string.hour))){
+            prefseditor.putBoolean(AppContext.SNOOZE,true);
+            alarmManager.setExact(AlarmManager.RTC_WAKEUP,
+                System.currentTimeMillis() + (60*60*1000), wakeupSnoozepi);
+        }
+        else if(item.equals(getString(R.string.threehr))){
+            prefseditor.putBoolean(AppContext.SNOOZE,true);
+            alarmManager.setExact(AlarmManager.RTC_WAKEUP,
+                System.currentTimeMillis() + (180*60*1000), wakeupSnoozepi);
+        }
+        else if(item.equals(getString(R.string.day))){
+            prefseditor.putBoolean(AppContext.SNOOZE,true);
+            alarmManager.setExact(AlarmManager.RTC_WAKEUP,
+                System.currentTimeMillis() + (24*3600*1000), wakeupSnoozepi);
+        }
+        //Stop the app altogether
+        else if(item.equals(getString(R.string.forever))){
+            Intent stopIntent = new Intent(getInstance(), SenseService.class);
+            stopService(stopIntent);
+            quitApp();
+        }
+        prefseditor.apply();
+        Toast.makeText(this,"Jeeves is now snoozing " + item,Toast.LENGTH_LONG).show();
+
+    }
     /**
      * Kill the While Loop broadcast receiver that lives on after SenseService is
      * dead, then quit the app altogether

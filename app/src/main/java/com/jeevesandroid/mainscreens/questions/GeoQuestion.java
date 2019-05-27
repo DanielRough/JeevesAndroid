@@ -26,6 +26,7 @@ import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlacePicker;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
@@ -47,6 +48,7 @@ public class GeoQuestion extends Question implements GoogleApiClient.OnConnectio
     public GeoQuestion(SurveyActivity activity, List<FirebaseQuestion> questions, List<String> answers) {
         super(activity,questions,answers);
     }
+
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == PLACE_PICKER_REQUEST) {
@@ -76,7 +78,6 @@ public class GeoQuestion extends Question implements GoogleApiClient.OnConnectio
             answers.set(currentIndex,Integer.toString(result));
 
         }
-
     }
 
     @Override

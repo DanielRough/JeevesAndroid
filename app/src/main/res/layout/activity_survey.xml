@@ -51,50 +51,21 @@
     </RelativeLayout>
 
     <TextView
+        android:id="@+id/txtQuestion"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:paddingStart="20dp"
+        android:paddingTop="20dp"
+        android:paddingEnd="20dp"
+        android:paddingBottom="5dp"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
 
-    <RelativeLayout
+    <AdapterViewFlipper
+        android:id="@+id/adapterViewFlipper"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/txtQuestion"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingBottom="20dp"
-                android:paddingStart="20dp"
-                android:paddingEnd="20dp"
-                android:paddingTop="20dp"
-                android:text="Large Text"
-                android:textAppearance="?android:attr/textAppearanceLarge" />
-
-            <ScrollView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
-
-                    <AdapterViewFlipper
-                        android:id="@+id/adapterViewFlipper"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent">
-
-
-                    </AdapterViewFlipper>
-                </LinearLayout>
-    </ScrollView>
+    </AdapterViewFlipper>
 
 </LinearLayout>
-
-    </RelativeLayout>
-
-    </LinearLayout>

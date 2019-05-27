@@ -1,10 +1,13 @@
 package com.jeevesandroid.firebase;
 
+import com.google.firebase.database.IgnoreExtraProperties;
+
 import java.util.Map;
 
 /**
  * Created by Daniel on 25/05/2016.
  */
+@IgnoreExtraProperties
 public class FirebaseQuestion {
 
     private String questionId;
@@ -15,67 +18,42 @@ public class FirebaseQuestion {
     private String questionText;
     private String assignedVar;
     private boolean isMandatory;
-    private Map<String,Object> params;
-    private long xPos;
-    private long yPos;
+    private Map<String, Object> params;
 
-    public boolean getisMandatory() {return isMandatory; }
+    public boolean getisMandatory() {
+        return isMandatory;
+    }
 
-    public void setisMandatory(boolean isMandatory){ this.isMandatory = isMandatory; }
-
-    public String getquestionType(){
+    public String getquestionType() {
         return questionType;
     }
+    public void setquestionType(String type){this.questionType = type;}
 
-    public String getquestionText(){
+    public String getquestionText() {
         return questionText;
     }
+    public void setQuestionText(String text){this.questionText = text;}
 
-    public String getassignedVar(){
+    public String getassignedVar() {
         return assignedVar;
     }
+    public void setassignedVar(String var){this.assignedVar = var;}
 
-    public Map<String,Object> getparams(){
+    public Map<String, Object> getparams() {
         return params;
     }
 
-    public void setconditionQuestion(FirebaseQuestion q){
-        this.conditionQuestion = q;
-    }
-
-    public FirebaseQuestion getconditionQuestion(){
+    public FirebaseQuestion getconditionQuestion() {
         return conditionQuestion;
     }
 
-    public void setconditionConstraints(String q){
-        this.conditionConstraints = q;
-    }
-
-    public String getconditionConstraints(){
+    public String getconditionConstraints() {
         return conditionConstraints;
     }
 
-    public void setquestionId(String questionId){
-        this.questionId = questionId;
-    }
-
-    public String getquestionId(){
+    public String getquestionId() {
         return questionId;
     }
+    public void setQuestionId(String id){this.questionId = id; }
 
-   public String gettype(){
-        return type;
-    }
-
-    public void settype(String type){
-        this.type = type;
-    }
-
-    public long getxPos() {
-        return xPos;
-    }
-
-    public long getyPos() {
-        return yPos;
-    }
 }

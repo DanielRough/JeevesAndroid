@@ -8,6 +8,7 @@ import java.util.List;
 public class FirebaseVariable extends FirebaseExpression {
     private boolean isRandom = false;
     private List<String> randomOptions;
+    private boolean isCustom;
     public boolean getisRandom() {
         return isRandom;
     }
@@ -16,7 +17,6 @@ public class FirebaseVariable extends FirebaseExpression {
         return randomOptions;
     }
 
-    private boolean isCustom;
 
     public boolean getisCustom(){
         return isCustom;

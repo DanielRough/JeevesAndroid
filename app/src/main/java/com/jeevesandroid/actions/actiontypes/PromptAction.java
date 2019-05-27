@@ -3,8 +3,10 @@ package com.jeevesandroid.actions.actiontypes;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.PowerManager;
+import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 
 import com.jeevesandroid.AppContext;
@@ -31,6 +33,12 @@ public class PromptAction extends FirebaseAction {
      */
     @Override
     public void execute(){
+        //First check we're not snoozing
+        SharedPreferences prefs = PreferenceManager
+            .getDefaultSharedPreferences(AppContext.getContext());
+        if(prefs.getBoolean(AppContext.SNOOZE,false)){
+            return;
+        }
         int notificationId = Integer.parseInt("8" + count++);
         Context app = AppContext.getContext();
         if(!getparams().containsKey("msgtext"))return;

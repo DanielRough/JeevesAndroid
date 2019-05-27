@@ -27,6 +27,9 @@ import java.util.HashMap;
 public class TriggerConfig
 {	
 
+	//Constant determining whether this is a scheduled trigger
+	public final static String IS_SCHEDULED = "isScheduled";
+
 	//Start and end dates of particular triggers
 	public final static String FROM_DATE = "dateFrom";
 	public final static String TO_DATE = "dateTo";
@@ -98,7 +101,10 @@ public class TriggerConfig
 		return parameters.containsKey(key);
 	}
 
-	public int getValueInMinutes(String key)
+	public long getLongValue(String key){
+		return Long.parseLong(getParameter(key).toString());
+	}
+	public int getValue(String key)
 	{
 		return Integer.parseInt(getParameter(key).toString());
 	}

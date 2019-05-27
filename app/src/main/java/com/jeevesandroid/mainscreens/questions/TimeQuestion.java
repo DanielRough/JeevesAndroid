@@ -1,12 +1,16 @@
 package com.jeevesandroid.mainscreens.questions;
 
+import android.content.SharedPreferences;
 import android.os.Build;
+import android.preference.PreferenceManager;
 import android.support.annotation.RequiresApi;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TimePicker;
 
+import com.jeevesandroid.AppContext;
 import com.jeevesandroid.R;
 import com.jeevesandroid.firebase.FirebaseQuestion;
 import com.jeevesandroid.mainscreens.SurveyActivity;
@@ -32,6 +36,31 @@ public class TimeQuestion extends Question{
         midnight.set(Calendar.MINUTE, 0);
         TimePicker tpicker = qView.findViewById(R.id.timePicker2);
         String answer = answers.get(currentIndex);
+
+
+        if (!answer.isEmpty()) {
+            calendar.setTimeInMillis(midnight.getTimeInMillis() + Long.parseLong(answer));
+            tpicker.setHour(calendar.get(Calendar.HOUR_OF_DAY));
+            tpicker.setMinute(calendar.get(Calendar.MINUTE));
+        }
+        else if(questions.get(currentIndex).getassignedVar() != null){
+            String var = questions.get(currentIndex).getassignedVar();
+            Log.d("Assigned","assigned var is " + var);
+
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(AppContext.getContext());
+            String varval = prefs.getString(var,"");
+            if(varval.equals(""))
+                answers.set(currentIndex, Long.toString(calendar.getTimeInMillis()- midnight.getTimeInMillis()));
+            else{
+                calendar.setTimeInMillis(midnight.getTimeInMillis() + Long.parseLong(varval));
+                answers.set(currentIndex, Long.toString(calendar.getTimeInMillis()- midnight.getTimeInMillis()));
+                tpicker.setHour(calendar.get(Calendar.HOUR_OF_DAY));
+                tpicker.setMinute(calendar.get(Calendar.MINUTE));
+            }
+        }
+        else {
+            answers.set(currentIndex, Long.toString(calendar.getTimeInMillis()- midnight.getTimeInMillis()));
+        }
         tpicker.setOnTimeChangedListener(new TimePicker.OnTimeChangedListener() {
             @Override
             public void onTimeChanged(TimePicker timePicker, int i, int i1) {
@@ -41,15 +70,6 @@ public class TimeQuestion extends Question{
                 answers.set(currentIndex, Long.toString(msFromMidnight));
             }
         });
-
-        if (!answer.isEmpty()) {
-            calendar.setTimeInMillis(midnight.getTimeInMillis() + Long.parseLong(answer));
-            tpicker.setHour(calendar.get(Calendar.HOUR_OF_DAY));
-            tpicker.setMinute(calendar.get(Calendar.MINUTE));
-        } else {
-            answers.set(currentIndex, Long.toString(calendar.getTimeInMillis()- midnight.getTimeInMillis()));
-        }
-
 
     }
 

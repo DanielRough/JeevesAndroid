@@ -11,6 +11,7 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -43,23 +44,24 @@ import java.util.Objects;
 import static com.jeevesandroid.AppContext.DATE;
 import static com.jeevesandroid.AppContext.TIME;
 
-public class SurveyActivity extends AppCompatActivity {
+public class SurveyActivity extends AppCompatActivity{
 
-    private AdapterViewFlipper simpleAdapterViewFlipper;
+
+    protected AdapterViewFlipper simpleAdapterViewFlipper;
     private final Handler handler = new Handler();
-    private List<FirebaseQuestion> questions;
-    private int currentIndex = 0;
-    private List<String> answers; //For storing user's question data as we flip through
-    private Button btnNext;
-    private Button btnBack;
-    private TextView txtQNo;
-    private int currentQuestionCount = 0;
+    protected List<FirebaseQuestion> questions;
+    protected int currentIndex = 0;
+    protected List<String> answers; //For storing user's question data as we flip through
+    protected Button btnNext;
+    protected Button btnBack;
+    protected TextView txtQNo;
+    protected int currentQuestionCount = 0;
     private DatabaseReference surveyRef;
     private DatabaseReference completedSurveysRef;
     private boolean finished = false;
     private long timeSent = 0;
     private long initTime = 0;
-    private int triggerType = 0;
+    protected int triggerType = 0;
     private FirebaseSurvey currentsurvey = null;
 
     public boolean getIsFast(){
@@ -80,6 +82,9 @@ public class SurveyActivity extends AppCompatActivity {
     }
     protected void onStop() {
         super.onStop();
+        if(this instanceof ScheduleActivity){
+            return;
+        }
         if(currentsurvey != null) //Sometimes it's null if activity is accessed from lock screen
             currentsurvey.setanswers(answers); //Save the partially completed stuff
         surveyRef.addValueEventListener(new ValueEventListener() {
@@ -110,7 +115,7 @@ public class SurveyActivity extends AppCompatActivity {
      * - Push answers and survey metadata to the database
      * - Send a 'completed' broadcast to listening survey triggers
      */
-    private void finishSurvey(){
+    public void finishSurvey(){
         currentsurvey.setanswers(null); //remove the unencoded answers
         currentsurvey.settimeFinished(System.currentTimeMillis());
         ArrayList<String> changedVariables = new ArrayList<>();
@@ -121,24 +126,34 @@ public class SurveyActivity extends AppCompatActivity {
             String qType = correspondingQuestion.getquestionType();
             //Dates have a special format
             if(qType.equals(DATE)){
-                    DateFormat formatter = new SimpleDateFormat("dd/MM/yyyy", Locale.UK);
-                    Calendar calendar = Calendar.getInstance();
+                DateFormat formatter = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+                Calendar calendar = Calendar.getInstance();
+                try {
                     calendar.setTimeInMillis(Long.parseLong(answer));
-                    allAnswers.append(formatter.format(calendar.getTime())).append(";");
+                }
+                catch(NumberFormatException e){
+                    allAnswers.append(";");
+                }
+                allAnswers.append(formatter.format(calendar.getTime())).append(";");
             }
             //Format time to be number of milliseconds since midnight on that day
             else if(qType.equals(TIME)){
-                    final Calendar midnight = Calendar.getInstance();
-                    midnight.set(Calendar.HOUR_OF_DAY, 0);
-                    midnight.set(Calendar.MINUTE, 0);
-                    DateFormat formatter = new SimpleDateFormat("hh:mm:ss", Locale.UK);
-                    Calendar calendar = Calendar.getInstance();
+                final Calendar midnight = Calendar.getInstance();
+                midnight.set(Calendar.HOUR_OF_DAY, 0);
+                midnight.set(Calendar.MINUTE, 0);
+                DateFormat formatter = new SimpleDateFormat("hh:mm:ss", Locale.getDefault());
+                Calendar calendar = Calendar.getInstance();
+                try {
                     long millitime = Long.parseLong(answer) + midnight.getTimeInMillis();
                     calendar.setTimeInMillis(millitime);
-                    allAnswers.append(formatter.format(calendar.getTime())).append(";");
+                    allAnswers.append(formatter.format(calendar.getTime())).append(";");                }
+                catch(NumberFormatException e){
+                    allAnswers.append(";");
+                }
+
             }
             else{
-                    allAnswers.append(answer).append(";");
+                allAnswers.append(answer).append(";");
             }
 
             //If this answer is assign to a variable
@@ -232,8 +247,7 @@ public class SurveyActivity extends AppCompatActivity {
         setContentView(R.layout.activity_survey);
 
         String surveyid = getIntent().getStringExtra(AppContext.SURVEY_ID);
-        initTime = getIntent().getLongExtra(AppContext.INIT_TIME,0);
-        timeSent = getIntent().getLongExtra(AppContext.TIME_SENT,0);
+
         triggerType = getIntent().getIntExtra(AppContext.TRIG_TYPE,0);
 
         //If this is the Begin Trigger, there is nothing to go back to
@@ -245,14 +259,6 @@ public class SurveyActivity extends AppCompatActivity {
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setHomeButtonEnabled(true);
         }
-
-
-        DatabaseReference missedRef = FirebaseUtils.SURVEY_REF.child(surveyid).child("missed");
-        surveyRef = FirebaseUtils.PATIENT_REF.child("incomplete").child(surveyid);
-        completedSurveysRef = FirebaseUtils.PATIENT_REF.child("complete");
-        txtQNo = findViewById(R.id.txtQno);
-        txtQNo.setText(getResources().getString(R.string.question) + " " + currentQuestionCount);
-
 
         btnNext = findViewById(R.id.btnNext);
         btnBack = findViewById(R.id.btnBack);
@@ -273,11 +279,27 @@ public class SurveyActivity extends AppCompatActivity {
             }
         });
 
+        //That's all we nee to do if this is a ScheduleActivity
+        if(this instanceof ScheduleActivity){
+            return;
+        }
+        initTime = getIntent().getLongExtra(AppContext.INIT_TIME,0);
+        timeSent = getIntent().getLongExtra(AppContext.TIME_SENT,0);
+        DatabaseReference missedRef = FirebaseUtils.SURVEY_REF.child(surveyid).child("missed");
+        surveyRef = FirebaseUtils.PATIENT_REF.child("incomplete").child(surveyid);
+        completedSurveysRef = FirebaseUtils.PATIENT_REF.child("complete");
+        txtQNo = findViewById(R.id.txtQno);
+        txtQNo.setText(getResources().getString(R.string.question) + " " + currentQuestionCount);
+
+
 
 
         missedRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if(currentsurvey == null){
+                    return;
+                }
                 long expiryTime = currentsurvey.getexpiryTime();
                 if(expiryTime == 0)return;
                 long expiryMillis = expiryTime * 60 * 1000;
@@ -347,6 +369,7 @@ public class SurveyActivity extends AppCompatActivity {
         return this;
     }
 
+    boolean skipping = false;
     private void launchQuestion(FirebaseQuestion question, String direction) {
 
         String questionText = question.getquestionText();
@@ -364,6 +387,7 @@ public class SurveyActivity extends AppCompatActivity {
                 if (questions.get(i).getquestionId().equals(questionid)) {
                     conditionQuestionIndex = i;
                     conditionQuestionType = questions.get(i).getquestionType();
+                    Log.d("CONDITION","condition index is " + i + " and its type is " + conditionQuestionType);
                     break;
                 }
             }
@@ -417,12 +441,14 @@ public class SurveyActivity extends AppCompatActivity {
                     }
                 }
             if (!satisfied) {
+                skipping = true;
                 if (direction.equals("forward"))
                     nextQ();
                 else if (direction.equals("back"))
                     backQ();
                 return;
             }
+            skipping = false;
         }
         if (direction.equals("forward"))
             currentQuestionCount++;
@@ -431,7 +457,7 @@ public class SurveyActivity extends AppCompatActivity {
 
         TextView questionView = findViewById(R.id.txtQuestion);
         txtQNo.setText(getResources().getString(R.string.question) + " " + currentQuestionCount);
-        simpleAdapterViewFlipper.setDisplayedChild(currentQuestionCount-1);
+        simpleAdapterViewFlipper.setDisplayedChild(currentIndex);
         questionView.setText(questionText);
     }
 
@@ -446,7 +472,15 @@ public class SurveyActivity extends AppCompatActivity {
     public void nextQ() {
         if(currentIndex == questions.size())
             return;
-        if(questions.get(currentIndex).getisMandatory() && answers.get(currentIndex).isEmpty()) {
+        int counter = 0;
+        for(String s : answers){
+
+            Log.d("ANSER","Answer " + counter + " is " + s);
+            counter++;
+        }
+        Log.d("INDEX","current Index is " + currentIndex);
+        if(questions.get(currentIndex).getisMandatory() && answers.get(currentIndex).isEmpty() && !skipping) {
+
             Toast.makeText(this,"This question is mandatory!",Toast.LENGTH_SHORT).show();
             return;
         }

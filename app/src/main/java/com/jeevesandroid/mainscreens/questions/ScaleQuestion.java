@@ -48,7 +48,6 @@ public class ScaleQuestion extends Question{
             @Override
             public void onProgressChanged(SeekBar seekBar, int progresValue, boolean fromUser) {
                 progress = progresValue;
-                Log.d("PREOG","set rogress to " + progress);
                 answers.set(currentIndex, Integer.toString(progress));
             }
             @Override

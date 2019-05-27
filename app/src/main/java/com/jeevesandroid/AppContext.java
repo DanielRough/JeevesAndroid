@@ -21,6 +21,7 @@ public class AppContext extends Application {
     public static final String STOPSENSOR = "stopsensor";
     public static final String STARTACTIVITY = "startactivity";
     public static final String STOPACTIVITY = "stopactivity";
+
     //UIDesign constants
     public static final String BUTTON = "button";
     public static final String LABEL = "label";
@@ -31,10 +32,18 @@ public class AppContext extends Application {
     public static final String EMAIL = "email";
     public static final String UID = "uid";
     public static final String DEVELOPER_ID = "developerid";
-
     public static final String FINISHED_INTRODUCTION = "finished";
+
     //Contact
     public static final String FEEDBACK = "feedback";
+
+    //Schedule parameters
+    public static final String START_DATE = "startdate";
+    public static final String END_DATE = "enddate";
+    public static final String WAKE_TIME = "waketime";
+    public static final String SLEEP_TIME = "sleeptime";
+    public static final String SCHEDULE_PREF = "schedule_pref";
+    public static final String SCHEDULE_DAY = "schedule_day";
 
     //Survey-based constants
     //Stuff relevant to survey actions
@@ -44,6 +53,7 @@ public class AppContext extends Application {
     public static final String INIT_TIME = "initTime";
     public static final String NOTIF_ID = "notificationid";
     public static final String SURVEY_NAME = "surveyname";
+    public static final String SCHEDULE_SURVEY = "schedule_survey";
     public static final String WAS_INIT = "initialised";
     public static final String TRIG_TYPE = "triggerType";
     public static final String SURVEY_ID = "surveyId";
@@ -64,18 +74,16 @@ public class AppContext extends Application {
     public static final String TEXTPRESENT = "TEXTPRESENT";
     public static final String HEART = "HEART";
     public static final String AUDIO = "AUDIO";
-
-    //Variable constants
-    public static final String VAR_BOOLEAN = "Boolean";
+    public static final String SCHEDULE = "SCHEDULE";
 
     //Specific variable names
-    public static final String LAST_SURVEY_SCORE = "Last Survey Score";
     public static final String MISSED_SURVEYS = "Missed Surveys";
     public static final String COMPLETED_SURVEYS = "Completed Surveys";
-    public static final String SURVEY_SCORE_DIFF = "Survey Score Difference";
 
     private static AppContext instance;
     private static FirebaseProject currentproject;
+
+    public static final String SNOOZE = "Snooze";
 
     public AppContext()
     {

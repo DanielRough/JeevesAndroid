@@ -74,14 +74,10 @@ public class DailyWakeupTrigger extends Trigger
      */
     @Override
     protected void startAlarm() {
-        int firstTime = (int)params.getParameter(TriggerConfig.LIMIT_BEFORE_HOUR);
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.HOUR_OF_DAY, (firstTime / 60));
-        calendar.set(Calendar.MINUTE, (firstTime % 60));
-        calendar.set(Calendar.SECOND,0);
-        long firstAlarmTime = calendar.getTimeInMillis();
+        String time = params.getParameter(TriggerConfig.LIMIT_BEFORE_HOUR).toString();
+        long firstTime = Long.parseLong(time);
         alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,
-            firstAlarmTime, 1000 * 60 * 60 * 24, pendingIntent);
+            firstTime, 1000 * 60 * 60 * 24, pendingIntent);
     }
 
     @Override

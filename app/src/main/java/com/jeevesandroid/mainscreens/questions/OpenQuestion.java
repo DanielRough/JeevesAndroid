@@ -2,6 +2,7 @@ package com.jeevesandroid.mainscreens.questions;
 
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 
@@ -16,7 +17,6 @@ public class OpenQuestion extends Question{
     List<String> answers;
     SurveyActivity context;
     List<FirebaseQuestion> questions;
-    int currentIndex;
 
     public OpenQuestion(SurveyActivity activity, List<FirebaseQuestion> questions, List<String> answers) {
         super(activity,questions,answers);
@@ -45,6 +45,8 @@ public class OpenQuestion extends Question{
             @Override
             public void afterTextChanged(Editable s) {
                 answers.set(currentIndex, txtOpenEnded.getText().toString());
+                Log.d("SETTING","setting " + currentIndex + " to " + txtOpenEnded.getText().toString());
+
             }
         });
         txtOpenEnded.setOnFocusChangeListener(new View.OnFocusChangeListener() {

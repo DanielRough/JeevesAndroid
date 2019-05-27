@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -139,6 +140,7 @@ public class AudioQuestion extends Question implements MediaPlayer.OnPreparedLis
 
                 }
                 catch(IOException e){
+                    Log.d("FAIL","Failed to do this thing");
                     e.printStackTrace();
                 }
             }
@@ -151,6 +153,7 @@ public class AudioQuestion extends Question implements MediaPlayer.OnPreparedLis
                 mediaPlayer.setOnPreparedListener(getInstance());
                 mediaPlayer.prepareAsync(); // prepare async to not block main thread
             } catch (IOException e) {
+                Log.d("FAIL","Failed to exist");
                 e.printStackTrace();
             }
             return;
@@ -162,12 +165,14 @@ public class AudioQuestion extends Question implements MediaPlayer.OnPreparedLis
                     mediaPlayer.setDataSource(context.getApplicationContext(), myUri);
                     mediaPlayer.setOnPreparedListener(getInstance());
                     mediaPlayer.prepareAsync(); // prepare async to not block main thread
+                    Log.d("FAIL","Failed to set data source");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }                }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception exception) {
+                Log.d("FAIL","Failed to get local file");
                 exception.printStackTrace();
             }
         });

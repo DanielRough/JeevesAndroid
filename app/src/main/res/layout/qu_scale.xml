@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout android:layout_width="match_parent"
+<LinearLayout xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
@@ -12,10 +13,9 @@
         android:layout_height="wrap_content"
         android:max="10"
         android:progress="3"
-        android:thumb="@drawable/thumb_image"
-        android:progressBackgroundTint="@android:color/holo_green_dark"
-        android:progressTint="@android:color/holo_red_dark"
         android:theme="@style/MySeekBar"
+        android:thumb="@drawable/thumb"
+        app:tickMark="@color/place_autocomplete_separator"
         tools:targetApi="lollipop" />
 
     <LinearLayout

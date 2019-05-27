@@ -57,6 +57,12 @@ class TriggerListener implements TriggerReceiver {
             .getDefaultSharedPreferences(AppContext.getContext());
         Map<String, Object> params = trigger.getparams();
 
+        Map<String,Object> scheduleVars = AppContext.getProject().getscheduleAttrs();
+        String fromTime = scheduleVars.get(AppContext.WAKE_TIME).toString();
+        String toTime = scheduleVars.get(AppContext.SLEEP_TIME).toString();
+        Log.d("FROMTO","From time is " + fromTime + " and to time is " + toTime);
+
+        //This is for the set-times trigger I think
         ArrayList<Long> times = new ArrayList<>();
         if(trigger.gettimes() != null){
             for(FirebaseExpression time : trigger.gettimes()){
@@ -64,6 +70,8 @@ class TriggerListener implements TriggerReceiver {
                     times.add(Long.parseLong(time.getvalue()));
                 }
                 else{
+                    if(time.getname().equals(fromTime) || time.getname().equals(toTime))
+                        config.addParameter(TriggerConfig.IS_SCHEDULED,true);
                     times.add(Long.parseLong(varPrefs.getString(time.getname(),"0")));
                 }
             }
@@ -75,6 +83,8 @@ class TriggerListener implements TriggerReceiver {
                 config.addParameter(param, value);
             }
         }
+
+
         //Now try and find what variables we have
         if(trigger.getdateFrom() != null){
             String name = trigger.getdateFrom().getname();
@@ -82,6 +92,10 @@ class TriggerListener implements TriggerReceiver {
         }
         if(trigger.gettimeFrom() != null){
             String name = trigger.gettimeFrom().getname();
+            Log.d("TRIGFROM","Trig from is " + name);
+            if(name.equals(fromTime)){
+                config.addParameter(TriggerConfig.IS_SCHEDULED,true);
+            }
             config.addParameter(TriggerConfig.LIMIT_BEFORE_HOUR,varPrefs.getString(name,"0"));
         }
         if(trigger.getdateTo() != null){
@@ -90,6 +104,10 @@ class TriggerListener implements TriggerReceiver {
         }
         if(trigger.gettimeTo() != null){
             String name = trigger.gettimeTo().getname();
+            Log.d("TRIGTO","Trig to is " + name);
+            if(name.equals(toTime)){
+                config.addParameter(TriggerConfig.IS_SCHEDULED,true);
+            }
             config.addParameter(TriggerConfig.LIMIT_AFTER_HOUR,varPrefs.getString(name,"0"));
         }
         try {

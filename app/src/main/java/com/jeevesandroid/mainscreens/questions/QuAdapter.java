@@ -1,15 +1,13 @@
 package com.jeevesandroid.mainscreens.questions;
 
-import android.content.Context;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
 import com.jeevesandroid.firebase.FirebaseQuestion;
+import com.jeevesandroid.mainscreens.ScheduleActivity;
 import com.jeevesandroid.mainscreens.SurveyActivity;
 
-import java.sql.Time;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,16 +23,21 @@ import static com.jeevesandroid.AppContext.MULT_SINGLE;
 import static com.jeevesandroid.AppContext.NUMERIC;
 import static com.jeevesandroid.AppContext.OPEN_ENDED;
 import static com.jeevesandroid.AppContext.SCALE;
+import static com.jeevesandroid.AppContext.SCHEDULE;
 import static com.jeevesandroid.AppContext.TEXTPRESENT;
 import static com.jeevesandroid.AppContext.TIME;
 
 public class QuAdapter extends BaseAdapter {
 
-    final List<FirebaseQuestion> questions;
+    List<FirebaseQuestion> questions;
     List<String> answers;
     final SurveyActivity context;
     Map<String,Question> questionTypes;
 
+    public void updateQsandAs(List<FirebaseQuestion> questions,List<String> answers){
+        this.questions = questions;
+        this.answers = answers;
+    }
     public QuAdapter(SurveyActivity activity, List<FirebaseQuestion> questions, List<String> answers){
         context = activity;
         this.questions = questions;
@@ -53,6 +56,8 @@ public class QuAdapter extends BaseAdapter {
         questionTypes.put(AUDIO,new AudioQuestion(activity,questions,answers));
         questionTypes.put(IMAGEPRESENT,new ImageQuestion(activity,questions,answers));
         questionTypes.put(TEXTPRESENT,new TextQuestion(activity,questions,answers));
+        if(activity instanceof ScheduleActivity)
+            questionTypes.put(SCHEDULE,new DayScheduleQuestion(activity,questions,answers));
     }
     @Override
     public int getCount() {
