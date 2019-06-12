@@ -48,6 +48,7 @@ public class ScheduledTrigger extends Trigger implements TriggerReceiver
 							TriggerConfig params) throws TriggerException {
 		super(context, id, listener, params);
 		this.triggerManager = ESTriggerManager.getTriggerManager(context);
+
 		this.dailySchedulerAlarm = new DailyNotificationScheduler(context, params, this);
 		this.randomlySelectedTriggerIds = new HashSet<>();
 	}

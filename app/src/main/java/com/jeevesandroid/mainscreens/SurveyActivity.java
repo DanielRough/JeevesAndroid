@@ -20,6 +20,12 @@ import android.widget.AdapterViewFlipper;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.ui.PlacePicker;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.jeevesandroid.AppContext;
 import com.jeevesandroid.R;
 import com.jeevesandroid.firebase.FirebaseQuestion;
@@ -63,6 +69,7 @@ public class SurveyActivity extends AppCompatActivity{
     private long initTime = 0;
     protected int triggerType = 0;
     private FirebaseSurvey currentsurvey = null;
+    QuAdapter customAdapter;
 
     public boolean getIsFast(){
         return currentsurvey.getfastTransition();
@@ -105,7 +112,13 @@ public class SurveyActivity extends AppCompatActivity{
         super.onDestroy();
     }
 
-
+    /**
+     * Results from Geo and Heart questions are returned here so the questions must be notified of
+     * this to update properly.
+     */
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        customAdapter.handleResult(requestCode,resultCode,data);
+    }
     /**
      * All the functions that need to be performed when the user finishes a survey.
      *
@@ -353,7 +366,7 @@ public class SurveyActivity extends AppCompatActivity{
                         for (int i = 0; i < questions.size(); i++)
                             answers.add("");
                     }
-                    QuAdapter customAdapter = new QuAdapter(getInstance(), questions, answers);
+                    customAdapter = new QuAdapter(getInstance(), questions, answers);
                     simpleAdapterViewFlipper.setAdapter(customAdapter);
                     currentsurvey.setbegun(); //Confirm that this survey has been started
                     launchQuestion(questions.get(0), "forward");

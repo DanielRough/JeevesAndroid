@@ -1,5 +1,6 @@
 package com.jeevesandroid.mainscreens.questions;
 
+import android.content.Intent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -33,7 +34,10 @@ public class QuAdapter extends BaseAdapter {
     List<String> answers;
     final SurveyActivity context;
     Map<String,Question> questionTypes;
-
+    int currentPos;
+    public void handleResult(int requestCode, int resultCode, Intent data){
+        ((Question)getItem(currentPos)).handleActivityResult(requestCode,resultCode,data);
+    }
     public void updateQsandAs(List<FirebaseQuestion> questions,List<String> answers){
         this.questions = questions;
         this.answers = answers;
@@ -77,6 +81,7 @@ public class QuAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
+        currentPos = position;
         String questionType = questions.get(position).getquestionType();
         return questionTypes.get(questionType).getView(position,context.getCurrentIndex(),parent);
     }

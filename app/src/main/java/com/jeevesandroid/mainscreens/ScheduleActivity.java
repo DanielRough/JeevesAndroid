@@ -8,9 +8,12 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.firebase.database.DatabaseReference;
 import com.jeevesandroid.AppContext;
 import com.jeevesandroid.R;
 import com.jeevesandroid.firebase.FirebaseQuestion;
+import com.jeevesandroid.firebase.FirebaseUtils;
 import com.jeevesandroid.mainscreens.questions.QuAdapter;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -24,6 +27,7 @@ public class ScheduleActivity extends SurveyActivity{
     public int getCurrentIndex(){
         return currentIndex;
     }
+    private DatabaseReference scheduleRef;
 
     /**
      * At any point we can cut the survey short and just save the updates we have
@@ -46,10 +50,14 @@ public class ScheduleActivity extends SurveyActivity{
     }
 
      public void finishSurvey(){
-        for (int i = 0; i < answers.size(); i++) {
+         List<String> schedList = new ArrayList<>();
+         for (int i = 0; i < answers.size(); i++) {
             String answer = answers.get(i);
             FirebaseQuestion correspondingQuestion = questions.get(i);
 
+            if(i>1 && !answers.get(i).isEmpty()){
+                schedList.add(answer);
+            }
             //For the date questions
             if (correspondingQuestion.getassignedVar() != null) {
                 SharedPreferences prefs = PreferenceManager
@@ -77,16 +85,20 @@ public class ScheduleActivity extends SurveyActivity{
                 editor.commit();
             }
         }
+        scheduleRef.setValue(schedList);
         finish();
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d("SCHEDULE","Away to begin scheduling");
         String startDateVar = getIntent().getStringExtra(AppContext.START_DATE);
         String endDateVar = getIntent().getStringExtra(AppContext.END_DATE);
         startTimeVar = getIntent().getStringExtra(AppContext.WAKE_TIME);
         endTimeVar = getIntent().getStringExtra(AppContext.SLEEP_TIME);
+        scheduleRef = FirebaseUtils.PATIENT_REF.child("schedule");
+
 
         questions = new ArrayList<>();
         FirebaseQuestion startDate = new FirebaseQuestion();

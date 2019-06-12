@@ -92,6 +92,9 @@
             android:name=".mainscreens.SelfReportActivity"
             android:parentActivityName=".mainscreens.WelcomeActivity" />
         <activity
+            android:name=".sensing.heartrate.HeartRateMonitor"
+            android:parentActivityName=".mainscreens.SurveyActivity" />
+        <activity
             android:name=".login.SignUpActivity"
             android:label="Jeeves"
             android:windowSoftInputMode="stateAlwaysHidden" />
@@ -117,7 +120,6 @@
             android:label="@string/title_activity_privacy_policy"
             android:parentActivityName=".mainscreens.WelcomeActivity" />
 
-        <activity android:name=".sensing.HeartActivity" />
 
         <receiver android:name=".actions.WhileLoopReceiver"  android:exported="true">
             <intent-filter>

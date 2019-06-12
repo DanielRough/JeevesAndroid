@@ -100,6 +100,18 @@ public class DailyNotificationScheduler implements TriggerReceiver
     private void scheduleStuff(){
         long fromDay = 0;
         long toDay = 0;
+        Log.d("HERE","Are we even here " + trigger.toString());
+        if(trigger instanceof BeginTrigger){
+            Calendar c = Calendar.getInstance();
+            trigger.subscribeTriggerFor(c.getTimeInMillis() + 3000);
+            Log.d("SUBBEG","This morning");
+            try {
+                stop();
+                Log.d("STOPPED","That's the end of Begin");
+            } catch (TriggerException e) {
+                e.printStackTrace();
+            }
+        }
         if (params.containsKey(TriggerConfig.FROM_DATE)) {
 
             fromDay = Long.valueOf(params.getParameter(TriggerConfig.FROM_DATE).toString()) /
@@ -136,6 +148,9 @@ public class DailyNotificationScheduler implements TriggerReceiver
         }
         else if(trigger instanceof WindowTrigger) {
             scheduleWindowedTimes();
+        }
+        else if(trigger instanceof BeginTrigger){
+            trigger.subscribeTriggerFor(0);
         }
     }
 

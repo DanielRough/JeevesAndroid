@@ -1,6 +1,7 @@
 package com.jeevesandroid.mainscreens.questions;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -34,6 +35,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.jeevesandroid.R;
 import com.jeevesandroid.firebase.FirebaseQuestion;
 import com.jeevesandroid.mainscreens.SurveyActivity;
+import com.jeevesandroid.sensing.heartrate.HeartRateMonitor;
 
 import java.util.List;
 
@@ -49,8 +51,8 @@ public class GeoQuestion extends Question implements GoogleApiClient.OnConnectio
         super(activity,questions,answers);
     }
 
-
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    @Override
+    public void handleActivityResult(int requestCode, int resultCode, Intent data){
         if (requestCode == PLACE_PICKER_REQUEST) {
             if (resultCode == RESULT_OK) {
                 Place place = PlacePicker.getPlace(data, context);
@@ -67,16 +69,6 @@ public class GeoQuestion extends Question implements GoogleApiClient.OnConnectio
                 String answer = coords.latitude + ":" + coords.longitude + ";";
                 answers.set(currentIndex, answer);
             }
-        }
-        if(requestCode == 1234){ //code i've defined for heart but cba making a constant
-            Button btnStart = qView.findViewById(R.id.btnStart);
-            btnStart.setText(context.getResources().getString(R.string.heartrate));
-            btnStart.setEnabled(false);
-            PhotoView heartview = qView.findViewById(R.id.heartview);
-            heartview.setImageResource(R.drawable.fingerdone);
-            int result = data.getIntExtra("result",0);
-            answers.set(currentIndex,Integer.toString(result));
-
         }
     }
 
