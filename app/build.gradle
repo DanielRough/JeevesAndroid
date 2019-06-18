@@ -26,8 +26,8 @@ android {
         applicationId "com.jeevesandroid"
         minSdkVersion 19
         targetSdkVersion 27
-        versionCode 44
-        versionName "1.5"
+        versionCode 45
+        versionName "1.6"
         multiDexEnabled true
     }
     buildTypes {

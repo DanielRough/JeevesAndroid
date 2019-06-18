@@ -195,7 +195,9 @@ public class SurveyActivity extends AppCompatActivity{
         //Then this was a button trigger and the init time doesn't count
         if(triggerType != TriggerUtils.TYPE_SENSOR_TRIGGER_BUTTON && initTime > timeSent)
             surveymap.put(AppContext.INIT_TIME,initTime-timeSent);
-        surveymap.put(AppContext.COMPLETE,System.currentTimeMillis());
+        else
+            surveymap.put(AppContext.INIT_TIME,0);
+        surveymap.put(AppContext.COMPLETE,System.currentTimeMillis()-initTime);
         surveymap.put(AppContext.TRIG_TYPE,triggerType);
         surveymap.put(AppContext.UID,prefs.getString(AppContext.UID,""));
         surveymap.put("encodedAnswers",currentsurvey.getencodedAnswers());
@@ -229,6 +231,8 @@ public class SurveyActivity extends AppCompatActivity{
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 DatabaseReference newPostRef = completedSurveysRef.push();
+                //currentsurvey.set
+
                 newPostRef.setValue(currentsurvey); //Maybe this needs tobe made explicit?
                 surveyRef.removeEventListener(this);
                 surveyRef.removeValue();

@@ -29,21 +29,6 @@ public class ScheduleActivity extends SurveyActivity{
     }
     private DatabaseReference scheduleRef;
 
-    /**
-     * At any point we can cut the survey short and just save the updates we have
-     */
-//    public void saveAndReturn(){
-//        AlertDialog.Builder finishalert = new AlertDialog.Builder(this);
-//        finishalert.setTitle("Your schedule has been updated");
-//        finishalert.setPositiveButton("Return", new DialogInterface.OnClickListener() {
-//            public void onClick(DialogInterface dialog, int whichButton) {
-//                finishSurvey();
-//            }
-//        });
-//        finishalert.setCancelable(false); //Once they're done they're done
-//        finishalert.show();
-//        return;
-//    }
     @Override
     public void onDestroy(){
         super.onDestroy();

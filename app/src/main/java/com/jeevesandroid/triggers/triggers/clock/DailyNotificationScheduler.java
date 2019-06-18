@@ -77,7 +77,7 @@ public class DailyNotificationScheduler implements TriggerReceiver
             calendar.setTimeInMillis(startDelay);
         }
         else {
-            if (time > 1440) {
+            if (time >= 1440) {
                 calendar.add(Calendar.DATE, 1); //Increment for next day values
                 time -= 1440;
             }
@@ -104,10 +104,8 @@ public class DailyNotificationScheduler implements TriggerReceiver
         if(trigger instanceof BeginTrigger){
             Calendar c = Calendar.getInstance();
             trigger.subscribeTriggerFor(c.getTimeInMillis() + 3000);
-            Log.d("SUBBEG","This morning");
             try {
                 stop();
-                Log.d("STOPPED","That's the end of Begin");
             } catch (TriggerException e) {
                 e.printStackTrace();
             }
@@ -124,6 +122,7 @@ public class DailyNotificationScheduler implements TriggerReceiver
         long daysSinceEpoch = System.currentTimeMillis() / (24 * 3600 * 1000);
         if (/*(fromDay != 0 || toDay != 0) && */(daysSinceEpoch < fromDay || daysSinceEpoch > toDay)) {
             try {
+                Log.d("DAYS","Since epoch? " + daysSinceEpoch + ". From day and to day are " + fromDay + "," + toDay);
                 Log.d("Removal","Removing daily notification scheduler");
                 triggerManager.removeTrigger(dailySchedulerId);
                 return;
@@ -222,10 +221,23 @@ public class DailyNotificationScheduler implements TriggerReceiver
         int windowSize = params.getValue(TriggerConfig.INTERVAL_TRIGGER_WINDOW);
         ArrayList<Long> times = new ArrayList<Long>();
 
+
         if(earlyLimit > lateLimit){
             lateLimit += 1440; //Add an extra day onto the late limit so we can schedule overnight
         }
-
+        //Here I need to check that the latest possible time isn't before 'now'
+        //Because that's a thing that can happen now...
+        Calendar calendar = Calendar.getInstance();
+        int curMinutes = calendar.get(Calendar.HOUR_OF_DAY)*60 + calendar.get(Calendar.MINUTE);
+        if(curMinutes >= lateLimit){
+            Log.d("TOOLATE","Too late today, try again tomorrow");
+            try {
+                updateDailyScheduler(1440);
+            } catch (TriggerException e) {
+                e.printStackTrace();
+            }
+            return;
+        }
         while(earlyLimit < lateLimit){
             long earlyWinTime = earlyLimit - windowSize;
             long lateWinTime = earlyLimit + windowSize;
@@ -233,7 +245,6 @@ public class DailyNotificationScheduler implements TriggerReceiver
             times.add(winTime); //Convert each JSONObject time into a minute-of-day value
             earlyLimit += minInterval;
         }
-        Calendar calendar = Calendar.getInstance();
 
         boolean nextDay = false;
 
@@ -285,6 +296,18 @@ public class DailyNotificationScheduler implements TriggerReceiver
             params.getParameter(TriggerConfig.INTERVAL_TRIGGER_TIME).toString());
         if(earlyLimit > lateLimit)
             lateLimit = lateLimit + 1440; //Add a new day onto things
+
+        Calendar calendar = Calendar.getInstance();
+        int curMinutes = calendar.get(Calendar.HOUR_OF_DAY)*60 + calendar.get(Calendar.MINUTE);
+        if(curMinutes >= lateLimit){
+            Log.d("TOOLATE","Too late today, try again tomorrow");
+            try {
+                updateDailyScheduler(1440);
+            } catch (TriggerException e) {
+                e.printStackTrace();
+            }
+            return;
+        }
         long totalTime = lateLimit - earlyLimit;
         long windowLength = totalTime/numberOfNotifications;
         Log.d("WindowLEngth","It is " + windowLength);
@@ -295,7 +318,7 @@ public class DailyNotificationScheduler implements TriggerReceiver
             times.add(earlyLimit);
             earlyLimit += windowLength;
         }
-        Calendar calendar = Calendar.getInstance();
+        //Calendar calendar = Calendar.getInstance();
         boolean nextDay = false;
         if(times.size()>0) {
             for (int i = 0; i < times.size(); i++){
@@ -339,6 +362,17 @@ public class DailyNotificationScheduler implements TriggerReceiver
         ArrayList<Long> times = (ArrayList<Long>)params.getParams().get("times");
 
         Calendar calendar = Calendar.getInstance();
+        //Calendar calendar = Calendar.getInstance();
+        int curMinutes = calendar.get(Calendar.HOUR_OF_DAY)*60 + calendar.get(Calendar.MINUTE);
+        if(curMinutes >= times.get(times.size() - 1)){
+            Log.d("TOOLATE","Too late today, try again tomorrow");
+            try {
+                updateDailyScheduler(1440);
+            } catch (TriggerException e) {
+                e.printStackTrace();
+            }
+            return;
+        }
         if(times == null)return;
         for (Long minuteOfDay : times) {
             //Straightforward
@@ -396,6 +430,17 @@ public class DailyNotificationScheduler implements TriggerReceiver
         int minInterval = 1;
         if(earlyLimit > lateLimit){
             lateLimit += 1440; //Add an extra day onto the late limit so we can schedule shit overnight
+        }
+        //Calendar calendar = Calendar.getInstance();
+        int curMinutes = calendar.get(Calendar.HOUR_OF_DAY)*60 + calendar.get(Calendar.MINUTE);
+        if(curMinutes >= lateLimit){
+            Log.d("TOOLATE","Too late today, try again tomorrow");
+            try {
+                updateDailyScheduler(1440);
+            } catch (TriggerException e) {
+                e.printStackTrace();
+            }
+            return;
         }
         Log.d("EARLATE","early is " + earlyLimit + " and late is " + lateLimit);
         for (int t=0; t<numberOfNotifications; t++) {
