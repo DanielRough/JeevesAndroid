@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -91,17 +92,22 @@ public class StudySignupActivity extends AppCompatActivity {
         });
 
         DatabaseReference projectsRef = database
-                .getReference(FirebaseUtils.PUBLIC_KEY)
-                .child(FirebaseUtils.PROJECTS_KEY);
+                .getReference(FirebaseUtils.PUBLIC_KEY);
+                //.child(FirebaseUtils.PROJECTS_KEY);
         ValueEventListener postListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 // Get Post object and use the values to update the UI
                 Iterable<DataSnapshot> post = dataSnapshot.getChildren();
                 for (DataSnapshot aPost : post) {
-                    FirebaseProject proj = aPost.getValue(FirebaseProject.class);
-                    String name = proj.getname();
-                    projectMap.put(name, proj);
+                    DataSnapshot projPost = aPost.child("projects");
+                    Iterable<DataSnapshot> allProjects = projPost.getChildren();
+                    for (DataSnapshot aProject : allProjects) {
+                        FirebaseProject proj = aProject.getValue(FirebaseProject.class);
+                        String name = proj.getname();
+                        projectMap.put(name, proj);
+                        Log.d("PUTPROJ","Put project " + name);
+                    }
                 }
             }
 
