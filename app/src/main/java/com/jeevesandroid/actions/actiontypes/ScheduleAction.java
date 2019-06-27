@@ -27,6 +27,8 @@ public class ScheduleAction extends FirebaseAction {
 
     @Override
     public void execute() {
+        Log.d("SCHED","We scheduling?");
+
         final Context app = AppContext.getContext();
 
         Map<String,Object> scheduleVars = AppContext.getProject().getscheduleAttrs();

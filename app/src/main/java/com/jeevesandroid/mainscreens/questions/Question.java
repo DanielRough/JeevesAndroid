@@ -1,5 +1,7 @@
 package com.jeevesandroid.mainscreens.questions;
 
+import android.content.Intent;
+import android.view.InflateException;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,13 +28,22 @@ public abstract class Question {
     public View getView(int position, int currentIndex, ViewGroup parent) {
         LayoutInflater inflater = (LayoutInflater) context
             .getSystemService(LAYOUT_INFLATER_SERVICE);
-        View qView = inflater.inflate(getLayoutId(), parent, false);
+        //View qView = null;
+        try {
+            qView = inflater.inflate(getLayoutId(), parent, false);
+        }
+        catch (InflateException e) {
+            /* map is already there, just return view as it is */
+        }
         this.currentIndex = currentIndex;
         this.qView = qView;
         handle(position);
         return qView;
     }
 
+    public void handleActivityResult(int requestCode, int resultCode, Intent data){
+        //Do nothing
+    }
     public abstract void handle(int position);
     public abstract int getLayoutId();
 }

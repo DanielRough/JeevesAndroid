@@ -41,8 +41,8 @@ public class AudioQuestion extends Question implements MediaPlayer.OnPreparedLis
     public void onPrepared(final MediaPlayer player) {
         final Button btnStart = qView.findViewById(R.id.audioBtnStart);
         final Button btnPause = qView.findViewById(R.id.audioBtnPause);
-        PhotoView audioview = qView.findViewById(R.id.audioPhotoview);
-        audioview.setImageResource(R.drawable.audio);
+        //PhotoView audioview = qView.findViewById(R.id.audioPhotoview);
+        //audioview.setImageResource(R.drawable.audio);
         btnStart.setEnabled(true);
         btnStart.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -177,8 +177,8 @@ public class AudioQuestion extends Question implements MediaPlayer.OnPreparedLis
             }
         });
 
-        PhotoView audio = qView.findViewById(R.id.audioPhotoview);
-        audio.setImageResource(R.drawable.finger);
+        //PhotoView audio = qView.findViewById(R.id.audioPhotoview);
+        //audio.setImageResource(R.drawable.finger);
     }
 
     @Override

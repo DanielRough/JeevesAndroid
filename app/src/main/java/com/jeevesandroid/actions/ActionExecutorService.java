@@ -153,6 +153,7 @@ public class ActionExecutorService extends Service {
     }
     private void executeActions() {
         int count;
+        Log.d("EXEC","Loopcount is " + loopcount + " and size is " + actions.size());
         for (int i = loopcount; i < actions.size(); i++) {
             FirebaseAction newaction = actions.get(i);
             Log.d("ACTION","this action is " + newaction.getname());
@@ -270,6 +271,7 @@ public class ActionExecutorService extends Service {
             //Execute next action as normal
             if (newaction.getparams() == null)
                 newaction.setparams(new HashMap<String, Object>());
+            Log.d("AMHERE","Away to do the thing");
             newaction.getparams().put(AppContext.TRIG_TYPE, triggerType);
             newaction.execute();
         }

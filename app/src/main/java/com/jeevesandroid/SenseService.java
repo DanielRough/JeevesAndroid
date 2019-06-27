@@ -29,6 +29,8 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.ActivityRecognition;
 import com.google.android.gms.location.LocationResult;
+import com.jeevesandroid.actions.ActionExecutorService;
+import com.jeevesandroid.actions.ActionUtils;
 import com.jeevesandroid.actions.actiontypes.FirebaseAction;
 import com.jeevesandroid.firebase.FirebaseExpression;
 import com.jeevesandroid.firebase.FirebaseProject;
@@ -240,11 +242,14 @@ public class SenseService extends Service implements
         SharedPreferences varPrefs = PreferenceManager
             .getDefaultSharedPreferences(AppContext.getContext());
         String studyname = varPrefs.getString(AppContext.STUDY_NAME, "");
+        String researcherno = varPrefs.getString(AppContext.DEVELOPER_ID, "");
         DatabaseReference projectRef = database
             .getReference(FirebaseUtils.PUBLIC_KEY)
+            .child(researcherno)
             .child(FirebaseUtils.PROJECTS_KEY)
             .child(studyname);
 
+        DatabaseReference scheduleRef = FirebaseUtils.PATIENT_REF.child("schedule");
         //Set up the receivers for location, activity, and other sensor info
         IntentFilter mIntentFilter = new IntentFilter(AppContext.STARTLOC);
         mIntentFilter.addAction(AppContext.STOPLOC);
@@ -272,6 +277,35 @@ public class SenseService extends Service implements
                     e.printStackTrace();
                 }
             }
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) { }
+        });
+        //Listen for schedule updates, then update the relevant attributes
+        scheduleRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                Log.d("SCHED","Schedule changed");
+                List<String> schedule = (List<String>)dataSnapshot.getValue();
+                if(schedule == null)return;
+                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(AppContext.getContext());
+                SharedPreferences.Editor editor = prefs.edit();
+                int scheduleDay = prefs.getInt(AppContext.SCHEDULE_DAY, 1);
+                for(int i = 1; i <= schedule.size(); i++){
+                    editor.putString(AppContext.SCHEDULE_PREF + i,schedule.get(i-1));
+                    //If the current day's wake/sleep times have changed, need to update the
+                    //wake/sleep attributes
+                    String[] wakeSleep = schedule.get(i-1).split(":");
+                    if(i == scheduleDay){
+                        Map<String,Object> scheduleVars = AppContext.getProject().getscheduleAttrs();
+                        String wakeVarName = scheduleVars.get(AppContext.WAKE_TIME).toString();
+                        String sleepVarName = scheduleVars.get(AppContext.SLEEP_TIME).toString();
+                        editor.putString(wakeVarName,wakeSleep[0]);
+                        editor.putString(sleepVarName,wakeSleep[1]);
+                    }
+                }
+                editor.commit();
+            }
+
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) { }
         });
@@ -513,6 +547,16 @@ public class SenseService extends Service implements
         for (int i = 0; i < actions.size(); i++) {
             toExecute.add( actions.get(i));
         }
+        //If this is our begin trigger, just start it from here rather than going through the
+        //rigmarole of subscribing and unsubscribing
+//        if(TriggerUtils.getTriggerType(triggerType) == TriggerUtils.TYPE_CLOCK_TRIGGER_BEGIN) {
+//            Intent actionIntent = new Intent(this, ActionExecutorService.class);
+//            actionIntent.putExtra(ActionUtils.ACTIONS, toExecute);
+//            actionIntent.putExtra(AppContext.TRIG_TYPE, TriggerUtils.getTriggerType(triggerType));
+//            startService(actionIntent);
+//            Log.d("BEGIN","Beginning");
+//            return;
+//        }
         newListener.subscribeToTrigger(trigger, toExecute);
     }
 
