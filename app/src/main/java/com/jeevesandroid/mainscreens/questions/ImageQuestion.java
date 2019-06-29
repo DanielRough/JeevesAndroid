@@ -41,8 +41,9 @@ public class ImageQuestion extends Question{
         Map<String, Object> options = (Map<String, Object>) myparams.get("options");
         String imageName = (String)options.get("image");
         FirebaseStorage storage = FirebaseStorage.getInstance();
-        StorageReference gsReference = storage
-            .getReferenceFromUrl("gs://jeeves-27914.appspot.com/" + imageName);
+        StorageReference gsReference = storage.getReference().child(imageName);
+        //StorageReference gsReference = storage
+        //    .getReferenceFromUrl("gs://jeeves-27914.appspot.com/" + imageName);
         final File localFile;
         File externalDir = context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS);
         if(!externalDir.exists())

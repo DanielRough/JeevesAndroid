@@ -242,11 +242,11 @@ public class SenseService extends Service implements
         SharedPreferences varPrefs = PreferenceManager
             .getDefaultSharedPreferences(AppContext.getContext());
         String studyname = varPrefs.getString(AppContext.STUDY_NAME, "");
-        String researcherno = varPrefs.getString(AppContext.DEVELOPER_ID, "");
+        //String researcherno = varPrefs.getString(AppContext.DEVELOPER_ID, "");
         DatabaseReference projectRef = database
-            .getReference(FirebaseUtils.PUBLIC_KEY)
-            .child(researcherno)
-            .child(FirebaseUtils.PROJECTS_KEY)
+           // .getReference(FirebaseUtils.PUBLIC_KEY)
+           // .child(researcherno)
+            .getReference(FirebaseUtils.PROJECTS_KEY)
             .child(studyname);
 
         DatabaseReference scheduleRef = FirebaseUtils.PATIENT_REF.child("schedule");

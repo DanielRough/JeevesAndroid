@@ -27,11 +27,12 @@ public class AppContext extends Application {
     public static final String LABEL = "label";
 
     //Other important constants
+    public static final String CONFIG = "configfile";
     public static final String STUDY_NAME = "studyname";
     public static final String USERNAME = "username";
     public static final String EMAIL = "email";
     public static final String UID = "uid";
-    public static final String DEVELOPER_ID = "developerid";
+    //public static final String DEVELOPER_ID = "developerid";
     public static final String FINISHED_INTRODUCTION = "finished";
 
     //Contact

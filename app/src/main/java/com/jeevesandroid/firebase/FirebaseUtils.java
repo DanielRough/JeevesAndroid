@@ -31,10 +31,10 @@ import javax.crypto.spec.SecretKeySpec;
 public class FirebaseUtils {
 
     //Database keys
-    public static final String PUBLIC_KEY = "public";
-    public static final String PRIVATE_KEY = "private";
+  //  public static final String PUBLIC_KEY = "public";
+   // public static final String PRIVATE_KEY = "private";
     public static final String PROJECTS_KEY = "projects";
-    public static final String PATIENTS_KEY = "patients";
+    public static final String PATIENTS_KEY = "users";
     public static final String SURVEYDATA_KEY = "surveydata";
     //Variable types
     public static final String BOOLEAN = "Boolean";
@@ -46,7 +46,7 @@ public class FirebaseUtils {
 
     public static DatabaseReference PATIENT_REF;
     public static DatabaseReference SURVEY_REF;
-
+    public static String STORAGE_URL;
     private static String SYMMETRICKEY;
 
     public static String getSymmetricKey(){
@@ -119,5 +119,6 @@ public class FirebaseUtils {
                 mDatabase.setPersistenceEnabled(true);
             }
             return mDatabase;
+
         }
 }
