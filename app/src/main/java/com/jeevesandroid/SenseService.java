@@ -245,7 +245,7 @@ public class SenseService extends Service implements
         String researcherno = varPrefs.getString(AppContext.DEVELOPER_ID, "");
         DatabaseReference projectRef = database
             .getReference(FirebaseUtils.PUBLIC_KEY)
-            .child(researcherno)
+            //.child(researcherno)
             .child(FirebaseUtils.PROJECTS_KEY)
             .child(studyname);
 

@@ -92,23 +92,22 @@ public class StudySignupActivity extends AppCompatActivity {
         });
 
         DatabaseReference projectsRef = database
-                .getReference(FirebaseUtils.PUBLIC_KEY);
-                //.child(FirebaseUtils.PROJECTS_KEY);
+                .getReference(FirebaseUtils.PUBLIC_KEY)
+                .child(FirebaseUtils.PROJECTS_KEY);
         ValueEventListener postListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 // Get Post object and use the values to update the UI
-                Iterable<DataSnapshot> post = dataSnapshot.getChildren();
-                for (DataSnapshot aPost : post) {
-                    DataSnapshot projPost = aPost.child("projects");
-                    Iterable<DataSnapshot> allProjects = projPost.getChildren();
+                //Iterable<DataSnapshot> post = dataSnapshot.getChildren();
+                //for (DataSnapshot aPost : post) {
+                    Iterable<DataSnapshot> allProjects = dataSnapshot.getChildren();
                     for (DataSnapshot aProject : allProjects) {
                         FirebaseProject proj = aProject.getValue(FirebaseProject.class);
                         String name = proj.getname();
                         projectMap.put(name, proj);
                         Log.d("PUTPROJ","Put project " + name);
                     }
-                }
+                //}
             }
 
             @Override

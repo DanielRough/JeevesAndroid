@@ -2,6 +2,7 @@ package com.jeevesandroid;
 
 import android.app.Application;
 import android.content.Context;
+import android.util.Log;
 
 import com.jeevesandroid.actions.actiontypes.FirebaseAction;
 import com.jeevesandroid.firebase.FirebaseProject;
@@ -93,6 +94,7 @@ public class AppContext extends Application {
 
     public static void setCurrentproject(FirebaseProject proj){
         currentproject = proj;
+        Log.d("ISNULL","null?" + (proj==null));
     }
 
 
