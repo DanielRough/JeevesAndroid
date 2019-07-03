@@ -72,7 +72,7 @@ public class MainActivity extends Activity{
                 String researcherno = varPrefs.getString(AppContext.DEVELOPER_ID, "");
                 DatabaseReference projectRef = database
                         .getReference(FirebaseUtils.PUBLIC_KEY)
-                        .child(researcherno)
+                       // .child(researcherno)
                         .child(FirebaseUtils.PROJECTS_KEY)
                         .child(studyname);
 
