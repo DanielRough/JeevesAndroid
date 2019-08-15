@@ -73,8 +73,10 @@ public class AudioQuestion extends Question implements MediaPlayer.OnPreparedLis
         Map<String, Object> options = (Map<String, Object>) myparams.get("options");
         final String audioName = (String)options.get("audio");
         FirebaseStorage storage = FirebaseStorage.getInstance();
-        StorageReference gsReference = storage
-            .getReferenceFromUrl("gs://jeeves-27914.appspot.com/" + audioName);
+        StorageReference gsReference = storage.getReference().child(audioName);
+
+     //   StorageReference gsReference = storage
+       //     .getReferenceFromUrl("gs://jeeves-27914.appspot.com/" + audioName);
         final File localFile;
         final File externalDir = context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS);
         if(!externalDir.exists())

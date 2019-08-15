@@ -7,12 +7,15 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
+import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.FirebaseOptions;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.jeevesandroid.AppContext;
 import com.jeevesandroid.R;
@@ -33,7 +36,7 @@ import io.fabric.sdk.android.Fabric;
 
 public class MainActivity extends Activity{
     private static final int REQUEST_SIGNUP = 0;
-
+    private static final int REQUEST_CONFIG = 1;
     FirebaseUser mFirebaseUser;
     private FirebaseAuth mFirebaseAuth;
     private Activity getInstance() {
@@ -54,47 +57,53 @@ public class MainActivity extends Activity{
 
         LinearLayoutManager mLinearLayoutManager = new LinearLayoutManager(this);
         mLinearLayoutManager.setStackFromEnd(true);
+        SharedPreferences preferences = PreferenceManager
+            .getDefaultSharedPreferences(AppContext.getContext());
+        if (!preferences.contains(AppContext.CONFIG)) {
+            Intent i = new Intent(getInstance(),ConfigActivity.class);
+            startActivity(i);
+            Log.d("CONFIG","starting config stuff");
+            finish();
+        }
+        else {
+            FirebaseAuth mFirebaseAuth = FirebaseAuth.getInstance();
+            FirebaseUser mFirebaseUser = mFirebaseAuth.getCurrentUser();
 
-        FirebaseAuth mFirebaseAuth = FirebaseAuth.getInstance();
-        FirebaseUser mFirebaseUser = mFirebaseAuth.getCurrentUser();
-
-        //If we're not signed in, launch the sign-in activity
-        if (mFirebaseUser == null) {
-            startActivityForResult(new Intent(this, SignUpActivity.class),REQUEST_SIGNUP);
-        } else {
-            SharedPreferences preferences = PreferenceManager
-                    .getDefaultSharedPreferences(AppContext.getContext());
-            if (preferences.contains(AppContext.STUDY_NAME)) {
-                final FirebaseDatabase database = FirebaseUtils.getDatabase();
-                SharedPreferences varPrefs = PreferenceManager
+            //If we're not signed in, launch the sign-in activity
+            if (mFirebaseUser == null) {
+                Log.d("LOGIN", "Starting login stuff");
+                startActivityForResult(new Intent(this, SignUpActivity.class), REQUEST_SIGNUP);
+            } else {
+                if (preferences.contains(AppContext.STUDY_NAME)) {
+                    final FirebaseDatabase database = FirebaseUtils.getDatabase();
+                    SharedPreferences varPrefs = PreferenceManager
                         .getDefaultSharedPreferences(AppContext.getContext());
-                String studyname = varPrefs.getString(AppContext.STUDY_NAME, "");
-                String researcherno = varPrefs.getString(AppContext.DEVELOPER_ID, "");
-                DatabaseReference projectRef = database
-                        .getReference(FirebaseUtils.PUBLIC_KEY)
-                       // .child(researcherno)
-                        .child(FirebaseUtils.PROJECTS_KEY)
+                    String studyname = varPrefs.getString(AppContext.STUDY_NAME, "");
+                    DatabaseReference projectRef = database
+                        .getReference(FirebaseUtils.PROJECTS_KEY)
                         .child(studyname);
 
-                projectRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        FirebaseProject post = snapshot.getValue(FirebaseProject.class);
-                        AppContext.setCurrentproject(post);
-                        if(post == null){
-                            return;
+                    projectRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            FirebaseProject post = snapshot.getValue(FirebaseProject.class);
+                            AppContext.setCurrentproject(post);
+                            if (post == null) {
+                                return;
+                            }
+                            Intent intent = new Intent(getInstance(), WelcomeActivity.class);
+                            startActivity(intent);
+                            finish();
                         }
-                        Intent intent = new Intent(getInstance(), WelcomeActivity.class);
-                        startActivity(intent);
-                        finish();
-                    }
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {}
-                });
 
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
+                        }
+                    });
+
+                } else
+                    startStudySignUp();
             }
-            else
-                startStudySignUp();
         }
     }
     private void startStudySignUp() {
@@ -106,6 +115,9 @@ public class MainActivity extends Activity{
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
+        if(requestCode == REQUEST_CONFIG){
+
+        }
         if (requestCode == REQUEST_SIGNUP) {
             if (resultCode == RESULT_OK) {
                 final String name = data.getStringExtra("name");

@@ -26,8 +26,8 @@ android {
         applicationId "com.jeevesandroid"
         minSdkVersion 19
         targetSdkVersion 27
-        versionCode 45
-        versionName "1.6"
+        versionCode 46
+        versionName "2.0"
         multiDexEnabled true
     }
     buildTypes {
@@ -74,4 +74,5 @@ dependencies {
     implementation 'junit:junit:4.12'
     implementation 'org.apache.commons:commons-lang3:3.6'
 }
-apply plugin: 'com.google.gms.google-services'
+//apply plugin: 'com.google.gms.google-services'
+

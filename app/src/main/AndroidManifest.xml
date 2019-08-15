@@ -32,13 +32,14 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
+        <activity
+            android:name=".login.ConfigActivity"
+            android:label="@string/title_activity_config"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
         <!-- For the maps -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyB1I4mF6dGlLQRN_53F-uTmYbAu7PvFIrI" />
-
-        <!-- Start the Main Activity again on reboot -->
+            android:value="AIzaSyB1I4mF6dGlLQRN_53F-uTmYbAu7PvFIrI" /> <!-- Start the Main Activity again on reboot -->
         <receiver
             android:name=".login.StartUpReceiver"
             android:enabled="true"
@@ -65,8 +66,7 @@
             android:name=".sensing.ActivityService"
             android:enabled="true"
             android:exported="true"
-            android:permission="" />
-        <!-- Stops it restarting -->
+            android:permission="" /> <!-- Stops it restarting -->
         <receiver android:name=".actions.actiontypes.SurveyAction$MissedSurveyReceiver" />
 
         <service android:name=".actions.actiontypes.SurveyAction$NotificationActionService" />
@@ -86,8 +86,7 @@
         <activity
             android:name=".mainscreens.SurveyActivity"
             android:parentActivityName=".mainscreens.MissedSurveyActivity" />
-        <activity
-            android:name=".mainscreens.ScheduleActivity" />
+        <activity android:name=".mainscreens.ScheduleActivity" />
         <activity
             android:name=".mainscreens.SelfReportActivity"
             android:parentActivityName=".mainscreens.WelcomeActivity" />
@@ -101,15 +100,12 @@
         <activity
             android:name=".login.StudySignupActivity"
             android:label="Jeeves"
-            android:windowSoftInputMode="adjustNothing" />
-
-        <!--<service android:name=".SenseService$NotificationActionService" />-->
+            android:windowSoftInputMode="adjustNothing" /> <!-- <service android:name=".SenseService$NotificationActionService" /> -->
         <service
             android:name=".SenseService"
             android:enabled="true"
             android:exported="true"
             android:permission="" />
-
 
         <meta-data
             android:name="io.fabric.ApiKey"
@@ -120,22 +116,18 @@
             android:label="@string/title_activity_privacy_policy"
             android:parentActivityName=".mainscreens.WelcomeActivity" />
 
-
-        <receiver android:name=".SnoozeListener"  android:exported="true">
+        <receiver
+            android:name=".actions.WhileLoopReceiver"
+            android:exported="true">
             <intent-filter>
-                <action android:name="com.jeevesandroid.SnoozeListener"/>
+                <action android:name="com.jeevesandroid.WhileLoopReceiver" />
             </intent-filter>
         </receiver>
-
-        <receiver android:name=".actions.WhileLoopReceiver"  android:exported="true">
+        <receiver
+            android:name=".SnoozeListener"
+            android:exported="true">
             <intent-filter>
-                <action android:name="com.jeevesandroid.WhileLoopReceiver"/>
-            </intent-filter>
-        </receiver>
-
-        <receiver android:name=".SnoozeListener"  android:exported="true">
-            <intent-filter>
-                <action android:name="com.jeevesandroid.SnoozeListener"/>
+                <action android:name="com.jeevesandroid.SnoozeListener" />
             </intent-filter>
         </receiver>
     </application>

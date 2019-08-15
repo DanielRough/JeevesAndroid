@@ -92,22 +92,18 @@ public class StudySignupActivity extends AppCompatActivity {
         });
 
         DatabaseReference projectsRef = database
-                .getReference(FirebaseUtils.PUBLIC_KEY)
-                .child(FirebaseUtils.PROJECTS_KEY);
+                .getReference(FirebaseUtils.PROJECTS_KEY);
         ValueEventListener postListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 // Get Post object and use the values to update the UI
-                //Iterable<DataSnapshot> post = dataSnapshot.getChildren();
-                //for (DataSnapshot aPost : post) {
-                    Iterable<DataSnapshot> allProjects = dataSnapshot.getChildren();
-                    for (DataSnapshot aProject : allProjects) {
-                        FirebaseProject proj = aProject.getValue(FirebaseProject.class);
+                Iterable<DataSnapshot> post = dataSnapshot.getChildren();
+                for (DataSnapshot aPost : post) {
+                        FirebaseProject proj = aPost.getValue(FirebaseProject.class);
                         String name = proj.getname();
                         projectMap.put(name, proj);
                         Log.d("PUTPROJ","Put project " + name);
-                    }
-                //}
+                }
             }
 
             @Override
@@ -123,15 +119,15 @@ public class StudySignupActivity extends AppCompatActivity {
 
         String developerid = selectedProject.getresearcherno();
         FirebaseUtils.SURVEY_REF = database
-                .getReference(FirebaseUtils.PRIVATE_KEY)
-                .child(developerid)
-                .child(FirebaseUtils.PROJECTS_KEY)
+               // .getReference(FirebaseUtils.PRIVATE_KEY)
+                //.child(developerid)
+                .getReference(FirebaseUtils.PROJECTS_KEY)
                 .child(selectedStudy)
                 .child(FirebaseUtils.SURVEYDATA_KEY);
         FirebaseUtils.PATIENT_REF = database
-                .getReference(FirebaseUtils.PRIVATE_KEY)
-                .child(developerid)
-                .child(FirebaseUtils.PATIENTS_KEY)
+               // .getReference(FirebaseUtils.PRIVATE_KEY)
+               // .child(developerid)
+                .getReference(FirebaseUtils.PATIENTS_KEY)
                 .child(mFirebaseUser.getUid());
 
 
@@ -141,7 +137,7 @@ public class StudySignupActivity extends AppCompatActivity {
         //Add the user's selected study to SharedPreferences
         SharedPreferences.Editor prefsEditor = varPrefs.edit();
         prefsEditor.putString(AppContext.STUDY_NAME,selectedStudy);
-        prefsEditor.putString(AppContext.DEVELOPER_ID,developerid);
+        //prefsEditor.putString(AppContext.DEVELOPER_ID,developerid);
         prefsEditor.apply();
 
         //Add in the initial values
