@@ -5,9 +5,12 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.media.AudioAttributes;
+import android.media.RingtoneManager;
 import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
+import android.util.Log;
 
 import com.jeevesandroid.AppContext;
 import com.jeevesandroid.R;
@@ -45,8 +48,16 @@ public class PromptAction extends FirebaseAction {
         String text = getparams().get("msgtext").toString();
         NotificationManager notificationManager =
                 (NotificationManager) app.getSystemService(Context.NOTIFICATION_SERVICE);
-        String channelId = "default_channel_id";
+        String channelId = "asdflllw";
         String channelDescription = "Default Channel";
+        AudioAttributes attributes = null;
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+            attributes = new AudioAttributes.Builder()
+                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+                .build();
+        }
         //Check if notification channel exists and if not create one
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             NotificationChannel notificationChannel = notificationManager.getNotificationChannel(channelId);
@@ -55,16 +66,21 @@ public class PromptAction extends FirebaseAction {
                 notificationChannel = new NotificationChannel(channelId, channelDescription, importance);
                 notificationChannel.setLightColor(Color.GREEN);
                 notificationChannel.enableVibration(true);
+                notificationChannel.setSound(RingtoneManager
+                    .getDefaultUri(RingtoneManager.TYPE_NOTIFICATION),attributes);
+                Log.d("SOUND IS",RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION) + "");
                 notificationManager.createNotificationChannel(notificationChannel);
+                Log.d("SOUNDOFF","One two");
             }
         }
 
 
-        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(app)
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(app,channelId)
                 .setVibrate(new long[]{0, 1000})
                 .setSmallIcon(R.drawable.ic_action_search)
                 .setContentTitle("Jeeves")
-                .setChannelId(channelId)
+            .setSound(RingtoneManager
+                .getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
                 .setContentText(text);
 
         notificationManager.notify(notificationId,mBuilder.build());

@@ -152,10 +152,11 @@ public class SurveyAction extends FirebaseAction {
         final NotificationManager nm = (NotificationManager) app
             .getSystemService(Context.NOTIFICATION_SERVICE);
 
-        String channelId = "default_channel_id";
+        String channelId = "adfd";
         AudioAttributes attributes = null;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             attributes = new AudioAttributes.Builder()
+                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
                 .setUsage(AudioAttributes.USAGE_NOTIFICATION)
                 .build();
         }
@@ -164,19 +165,23 @@ public class SurveyAction extends FirebaseAction {
             NotificationChannel nchannel = nm.getNotificationChannel(channelId);
             if (nchannel == null) {
                 int importance = NotificationManager.IMPORTANCE_HIGH;
-                nchannel = new NotificationChannel(channelId, "default", importance);
+                nchannel = new NotificationChannel(channelId, "default4", importance);
                 nchannel.setLightColor(Color.GREEN);
                 nchannel.enableVibration(true);
                 nchannel.setSound(RingtoneManager
                     .getDefaultUri(RingtoneManager.TYPE_NOTIFICATION),attributes);
                 nm.createNotificationChannel(nchannel);
+                Log.d("SOUNDOFF","One two");
+
             }
         }
-        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(app)
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(app,channelId)
             .setContentTitle("You have a new survey available")
             .setVibrate(new long[]{0, 1000})
             .setSmallIcon(R.drawable.ic_action_search)
             .setContentText(AppContext.getContext().getString(R.string.app_name))
+            .setSound(RingtoneManager
+                .getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
             .setPriority(Notification.PRIORITY_HIGH)
             .setChannelId(channelId)
             .setWhen(0);
