@@ -79,7 +79,7 @@ public class OneTimeTrigger extends Trigger
             }
         }
         else {
-            throw new TriggerException("Scheduled time is in the past: "+calendar.getTime().toString());
+           Log.e("Past yo", "Scheduled time is in the past: "+calendar.getTime().toString());
         }
     }
 

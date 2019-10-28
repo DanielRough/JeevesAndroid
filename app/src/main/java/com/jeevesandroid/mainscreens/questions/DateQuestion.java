@@ -34,6 +34,8 @@ public class DateQuestion extends Question{
     @Override
     public void handle(int position) {
         final Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY,0);
+        calendar.set(Calendar.MINUTE,0);
         final DatePicker picker = qView.findViewById(R.id.datePicker2);
 
         String answer = answers.get(currentIndex);

@@ -3,6 +3,7 @@ package com.jeevesandroid.login;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
@@ -52,23 +53,43 @@ public class MainActivity extends Activity{
         if (getIntent().hasExtra("uncaughtException")) {
             Toast.makeText(this,"Jeeves restarted after a crash. This crash has been reported to the developers. Sorry about that!",Toast.LENGTH_LONG).show();
         }
+
         ProgressBar mProgressBar = findViewById(R.id.progressBar);
         mProgressBar.setVisibility(View.VISIBLE);
 
         LinearLayoutManager mLinearLayoutManager = new LinearLayoutManager(this);
         mLinearLayoutManager.setStackFromEnd(true);
-        SharedPreferences preferences = PreferenceManager
-            .getDefaultSharedPreferences(AppContext.getContext());
-        if (!preferences.contains(AppContext.CONFIG)) {
-            Intent i = new Intent(getInstance(),ConfigActivity.class);
-            startActivity(i);
-            Log.d("CONFIG","starting config stuff");
-            finish();
-        }
-        else {
+
+
+        //I think we always need to do the config thing.
+        //I guess we could do it as a 'STartActivityForResult'
+//        if (!preferences.contains(AppContext.CONFIG)) {
+//            Intent i = new Intent(getInstance(),ConfigActivity.class);
+//            startActivity(i);
+//            Log.d("CONFIG","starting config stuff");
+//            finish();
+//        }
+        startActivityForResult(new Intent(this, ConfigActivity.class), REQUEST_CONFIG);
+
+     //   else {
+
+     //   }
+    }
+    private void startStudySignUp() {
+        Intent intent = new Intent(this, StudySignupActivity.class);
+        startActivity(intent);
+        finish();
+    }
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if(requestCode == REQUEST_CONFIG){
+            Log.d("HEY HO","Hey ho a daddy o");
             FirebaseAuth mFirebaseAuth = FirebaseAuth.getInstance();
             FirebaseUser mFirebaseUser = mFirebaseAuth.getCurrentUser();
-
+            SharedPreferences preferences = PreferenceManager
+                .getDefaultSharedPreferences(AppContext.getContext());
             //If we're not signed in, launch the sign-in activity
             if (mFirebaseUser == null) {
                 Log.d("LOGIN", "Starting login stuff");
@@ -78,7 +99,8 @@ public class MainActivity extends Activity{
                     final FirebaseDatabase database = FirebaseUtils.getDatabase();
                     SharedPreferences varPrefs = PreferenceManager
                         .getDefaultSharedPreferences(AppContext.getContext());
-                    String studyname = varPrefs.getString(AppContext.STUDY_NAME, "");
+                    String studyname = preferences.getString(AppContext.STUDY_NAME, "");
+                    Log.d("STUDYNAME","Study name is " + studyname);
                     DatabaseReference projectRef = database
                         .getReference(FirebaseUtils.PROJECTS_KEY)
                         .child(studyname);
@@ -89,7 +111,9 @@ public class MainActivity extends Activity{
                             FirebaseProject post = snapshot.getValue(FirebaseProject.class);
                             AppContext.setCurrentproject(post);
                             if (post == null) {
-                                return;
+                                Log.d("NULL","Oh deary me it's null");
+                                startStudySignUp();
+                                finish();
                             }
                             Intent intent = new Intent(getInstance(), WelcomeActivity.class);
                             startActivity(intent);
@@ -104,19 +128,6 @@ public class MainActivity extends Activity{
                 } else
                     startStudySignUp();
             }
-        }
-    }
-    private void startStudySignUp() {
-        Intent intent = new Intent(this, StudySignupActivity.class);
-        startActivity(intent);
-        finish();
-    }
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if(requestCode == REQUEST_CONFIG){
-
         }
         if (requestCode == REQUEST_SIGNUP) {
             if (resultCode == RESULT_OK) {

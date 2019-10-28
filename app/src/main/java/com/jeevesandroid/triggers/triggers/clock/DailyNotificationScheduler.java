@@ -72,7 +72,13 @@ public class DailyNotificationScheduler implements TriggerReceiver
         TriggerConfig params = new TriggerConfig();
         Calendar calendar = Calendar.getInstance();
         long startDelay = 0;
-        if(isScheduledTrigger){
+        /*
+        The >100000 is a cheap hack because in these methods the time is frequently set to 1440 to
+        represent that we should start scheduling again 24 hours from now. However, if it's a
+        scheduled trigger, this sets the daily scheduler to 1440ms after the epoch, which we don't
+        want.
+         */
+        if(isScheduledTrigger && time > 100000){
             startDelay = time;
             calendar.setTimeInMillis(startDelay);
         }
@@ -184,14 +190,18 @@ public class DailyNotificationScheduler implements TriggerReceiver
                 if(currentTo < c.getTimeInMillis()) {
                     SharedPreferences.Editor editor = prefs.edit();
                     int scheduleDay = prefs.getInt(AppContext.SCHEDULE_DAY, 1);
+
+                    scheduleDay++;
+
                     Log.d("SCHEDDAY", "Schedule day is " + scheduleDay);
                     String answer = prefs.getString(AppContext.SCHEDULE_PREF + scheduleDay, "");
                     if (answer.isEmpty())
                         return; //Something's gone wrong
-                    scheduleDay++;
                     editor.putInt(AppContext.SCHEDULE_DAY, scheduleDay);
                     String[] startEndTimes = answer.split(":");
 
+                    Log.d("OLDFROM","old from : " + prefs.getString(fromTime,""));
+                    Log.d("OLDTO","old to " + prefs.getString(toTime,""));
                     editor.putString(fromTime, startEndTimes[0]);
                     editor.putString(toTime, startEndTimes[1]);
                     Log.d("NEWFROM", "name: " + fromTime + " and value: " + startEndTimes[0]);

@@ -59,6 +59,10 @@ public class WelcomeActivity extends Activity {
      */
     private void permissionThings(){
         FirebaseProject currentProj = AppContext.getProject();
+        //It can happen...
+        if(currentProj == null){
+            return;
+        }
         List<String> sensors = currentProj.getsensors();
         List<String> requestList = new ArrayList<>();
         for(String sensor : sensors){
@@ -138,6 +142,7 @@ public class WelcomeActivity extends Activity {
         Button btnSurveys = findViewById(R.id.btnSurvey);
         Button btnMonitor = findViewById(R.id.btnMonitor);
         Button btnViewData = findViewById(R.id.btnViewData);
+        Button btnTriggers = findViewById(R.id.btnTriggers);
         final Button btnQuit = findViewById(R.id.btnQuit);
         btnViewData.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -158,6 +163,13 @@ public class WelcomeActivity extends Activity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getInstance(), MissedSurveyActivity.class);
+                startActivity(intent);
+            }
+        });
+        btnTriggers.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getInstance(), TriggerViewActivity.class);
                 startActivity(intent);
             }
         });
@@ -187,7 +199,7 @@ public class WelcomeActivity extends Activity {
         mListener
             = new SharedPreferences.OnSharedPreferenceChangeListener() {
             public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
-                Log.d("REFS","Pref change");
+               // Log.d("REFS","Pref change");
                 if(key.equals(AppContext.SNOOZE)){
                     Log.d("PREFCHANGE","And it's snoooze");
                     if(prefs.getBoolean(AppContext.SNOOZE,false)) {
@@ -240,7 +252,7 @@ public class WelcomeActivity extends Activity {
         mListener
             = new SharedPreferences.OnSharedPreferenceChangeListener() {
             public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
-                Log.d("REFS","Pref change");
+               // Log.d("REFS","Pref change");
                 if(key.equals(AppContext.SNOOZE)){
                     Log.d("PREFCHANGE","And it's snoooze");
                     if(prefs.getBoolean(AppContext.SNOOZE,false)) {

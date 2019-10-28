@@ -1,5 +1,6 @@
 package com.jeevesandroid.mainscreens.questions;
 
+import android.view.Gravity;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.LinearLayout;
@@ -34,7 +35,12 @@ public class MultManyQuestion extends Question {
             String option = o.toString();
             CheckBox box = new CheckBox(context);
             box.setText(option);
-            box.setTextSize(40);
+            box.setGravity(Gravity.FILL);
+            box.setTextSize(32);
+            box.setPadding(box.getPaddingLeft(),
+                box.getPaddingTop() - 10,
+                box.getPaddingRight(),
+                box.getPaddingBottom());
             grpMultMany.addView(box);
             allBoxes.add(box);
             box.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {

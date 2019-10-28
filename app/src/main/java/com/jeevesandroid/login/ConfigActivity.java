@@ -54,15 +54,72 @@ public class ConfigActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_config);
         final Button findFile = findViewById(R.id.btnFindFile);
+        SharedPreferences preferences = PreferenceManager
+            .getDefaultSharedPreferences(AppContext.getContext());
         findFile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 performFileSearch();
             }
         });
-
+        Log.d("HEYCONFIG111","INitlaising config");
+        if (preferences.contains(AppContext.CONFIG)) {
+            String jsonConfig = preferences.getString(AppContext.CONFIG,"");
+            try {
+                Log.d("HEYCONFIG","INitlaising config");
+                initialiseConfig(jsonConfig);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            //Log.d("CONFIG","starting config stuff");
+        }
     }
-
+    @Override
+    public void onBackPressed() {
+        moveTaskToBack(true);
+    }
+    public void initialiseConfig(String jsonConfig) throws JSONException {
+        Log.d("Config","Config file is " + jsonConfig);
+        JSONObject reader = new JSONObject(jsonConfig);
+        JSONObject projinfo = reader.getJSONObject("project_info");
+        JSONObject client = reader.getJSONArray("client").getJSONObject(0);
+        String firebase_database_url = projinfo.getString("firebase_url");
+        String gcm_defaultSenderId = projinfo.getString("project_number");
+        String google_api_key = client.getJSONArray("api_key").getJSONObject(0).getString("current_key");
+        String google_app_id = client.getJSONObject("client_info").getString("mobilesdk_app_id");
+        String google_storage_bucket = projinfo.getString("storage_bucket");
+        String project_id = projinfo.getString("project_id");
+        FirebaseOptions options = new FirebaseOptions.Builder()
+            .setApplicationId(google_app_id) // Required for Analytics.
+            .setApiKey(google_api_key) // Required for Auth.
+            .setDatabaseUrl(firebase_database_url)
+            .setStorageBucket(google_storage_bucket)
+            .setGcmSenderId(gcm_defaultSenderId)
+            .setProjectId(project_id)
+            .build();
+//        if (FirebaseApp.getApps(getApplicationContext()).isEmpty()) {
+//            FirebaseApp.initializeApp(getApplicationContext(),options);
+//         //   FirebaseAPp.initi
+//        }
+        for(FirebaseApp app : FirebaseApp.getApps(getInstance())){
+           if(!app.getOptions().getApiKey().equals(google_api_key)) {
+               app.delete();
+               FirebaseApp.initializeApp(getApplicationContext(), options);
+                break;
+           }
+     //       Log.d("APPNAME",app.getName());
+       //     Log.d("KEY",app.getOptions().getApiKey());
+        }
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getInstance());
+        SharedPreferences.Editor prefsEditor = prefs.edit();
+        prefsEditor.putString(AppContext.CONFIG,jsonConfig);
+        prefsEditor.apply();
+        Intent resultIntent = new Intent();
+        setResult(RESULT_OK,resultIntent);
+       // Intent i = new Intent(getInstance(),MainActivity.class);
+       // startActivity(i);
+        finish();
+    }
     private static final int READ_REQUEST_CODE = 42;
     /**
      * Fires an intent to spin up the "file chooser" UI and select an image.
@@ -70,7 +127,7 @@ public class ConfigActivity extends AppCompatActivity {
     public void performFileSearch() {
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
-        intent.setType("application/json");
+        intent.setType("application/*");
         startActivityForResult(intent, READ_REQUEST_CODE);
     }
     @Override
@@ -82,34 +139,7 @@ public class ConfigActivity extends AppCompatActivity {
                 uri = resultData.getData();
                 try {
                     String jsonConfig = readTextFromUri(uri);
-                    JSONObject reader = new JSONObject(jsonConfig);
-                    JSONObject projinfo = reader.getJSONObject("project_info");
-                    JSONObject client = reader.getJSONArray("client").getJSONObject(0);
-                    String firebase_database_url = projinfo.getString("firebase_url");
-                    String gcm_defaultSenderId = projinfo.getString("project_number");
-                    String google_api_key = client.getJSONArray("api_key").getJSONObject(0).getString("current_key");
-                    String google_app_id = client.getJSONObject("client_info").getString("mobilesdk_app_id");
-                    String google_storage_bucket = projinfo.getString("storage_bucket");
-                    String project_id = projinfo.getString("project_id");
-                    FirebaseOptions options = new FirebaseOptions.Builder()
-                        .setApplicationId(google_app_id) // Required for Analytics.
-                        .setApiKey(google_api_key) // Required for Auth.
-                        .setDatabaseUrl(firebase_database_url)
-                        .setStorageBucket(google_storage_bucket)
-                        .setGcmSenderId(gcm_defaultSenderId)
-                        .setProjectId(project_id)
-                        .build();
-                    for(FirebaseApp app : FirebaseApp.getApps(getInstance())){
-                        app.delete();
-                    }
-                    FirebaseApp.initializeApp(getApplicationContext(), options);
-                    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getInstance());
-                    SharedPreferences.Editor prefsEditor = prefs.edit();
-                    prefsEditor.putString(AppContext.CONFIG,jsonConfig);
-                    prefsEditor.apply();
-                    Intent i = new Intent(getInstance(),MainActivity.class);
-                    startActivity(i);
-                    finish();
+                    initialiseConfig(jsonConfig);
                 } catch (IOException | JSONException e) {
                     Toast.makeText(getInstance(),"Not a valid config file",Toast.LENGTH_SHORT).show();
                 }

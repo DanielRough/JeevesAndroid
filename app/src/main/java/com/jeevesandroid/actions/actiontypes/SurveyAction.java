@@ -91,12 +91,13 @@ public class SurveyAction extends FirebaseAction {
             editor.apply();
 
             //Send a broadcast that gets picked up somewhere. I can't remember where.
-            //TODO: Try and figure out where this gets picked up
+            //In the SURVEY TRIGGER
             Intent intended = new Intent();
             intended.setAction(TriggerConstants.ACTION_NAME_SURVEY_TRIGGER);
             intended.putExtra(AppContext.SURVEY_ID, intent.getStringExtra(AppContext.SURVEY_ID));
             intended.putExtra("result", false);
             intended.putExtra("missed", surveyMissed);
+            intended.putExtra(AppContext.SURVEY_NAME,intent.getStringExtra(AppContext.SURVEY_NAME));
             context.sendBroadcast(intended);
             Context app = AppContext.getContext();
 
@@ -111,6 +112,8 @@ public class SurveyAction extends FirebaseAction {
             surveymap.put(AppContext.INIT_TIME,initTime-timeSent);
             surveymap.put(AppContext.TRIG_TYPE,
                 intent.getIntExtra(AppContext.TRIG_TYPE,0));
+            String surveyid = intent.getStringExtra(AppContext.SURVEY_ID);
+            if(surveyid == null)surveyid = "null";
             FirebaseUtils.SURVEY_REF.child(intent.getStringExtra(AppContext.SURVEY_ID))
                 .child("missed").push().setValue(surveymap);
         }
@@ -303,6 +306,7 @@ public class SurveyAction extends FirebaseAction {
             Intent intent = new Intent(app, MissedSurveyReceiver.class);
             intent.putExtra(AppContext.SURVEY_NAME, surveyname);
             intent.putExtra(AppContext.NOTIF_ID, thisActionsId);
+            Log.d("NEWPOSTREF","Noew postref is " + newPostRefId);
             intent.putExtra(AppContext.SURVEY_ID, newPostRefId);
 
             intent.putExtra(AppContext.WAS_INIT,false);

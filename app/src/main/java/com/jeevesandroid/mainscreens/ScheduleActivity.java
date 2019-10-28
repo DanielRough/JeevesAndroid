@@ -56,19 +56,27 @@ public class ScheduleActivity extends SurveyActivity{
                 editor.apply();
             }
             //Cheap hack to get the answer to the first day schedule question
-            else if(i == 2){
-                SharedPreferences prefs = PreferenceManager
-                    .getDefaultSharedPreferences(AppContext.getContext());
-                SharedPreferences.Editor editor = prefs.edit();
-                String[] startEndTimes = answer.split(":");
-                editor.putString(startTimeVar,startEndTimes[0]);
-                editor.putString(endTimeVar,startEndTimes[1]);
-                Log.d("PREFCHANGE","name: " + startTimeVar + " and value: " + startEndTimes[0]);
-                Log.d("PREFCHANGE","name: " + endTimeVar + " and value: " + startEndTimes[1]);
-                //Must be 'commit' rather than 'apply', otherwise it may continue to write these
-                //changes every time the schedule survey is run.
-                editor.commit();
-            }
+             //@DJR I've got rid of this now because when the schedule is updated the startTimeVar and endTimeVar
+             //also get updated too so we don't want this to happen twice!
+
+//            else if(i == 2){
+//                SharedPreferences prefs = PreferenceManager
+//                    .getDefaultSharedPreferences(AppContext.getContext());
+//                SharedPreferences.Editor editor = prefs.edit();
+//                String[] startEndTimes = answer.split(":");
+//                editor.putString(startTimeVar,startEndTimes[0]);
+//                editor.putString(endTimeVar,startEndTimes[1]);
+//                Log.d("PREFCHANGE","name: " + startTimeVar + " and value: " + startEndTimes[0]);
+//                Log.d("PREFCHANGE","name: " + endTimeVar + " and value: " + startEndTimes[1]);
+//                //Must be 'commit' rather than 'apply', otherwise it may continue to write these
+//                //changes every time the schedule survey is run.
+//                editor.commit();
+//            }
+             SharedPreferences prefs = PreferenceManager
+                 .getDefaultSharedPreferences(AppContext.getContext());
+             SharedPreferences.Editor editor = prefs.edit();
+             editor.putInt(AppContext.SCHEDULE_DAY,1);
+             editor.apply();
         }
         scheduleRef.setValue(schedList);
         finish();
@@ -107,6 +115,7 @@ public class ScheduleActivity extends SurveyActivity{
 
      public void launchQuestion(FirebaseQuestion question) {
         String questionText = question.getquestionText();
+        Log.d("BUTHERE","Current index is " + currentIndex);
         TextView questionView = findViewById(R.id.txtQuestion);
         questionView.setText(questionText);
         simpleAdapterViewFlipper.setDisplayedChild(currentIndex);
@@ -133,10 +142,11 @@ public class ScheduleActivity extends SurveyActivity{
             Calendar now = Calendar.getInstance();
             now.set(Calendar.HOUR_OF_DAY,0);
             now.set(Calendar.MINUTE,0);
-            if(then.compareTo(now) < 0){
-                Toast.makeText(this,"Your start date cannot be in the past",Toast.LENGTH_SHORT).show();
-                return;
-            }
+            //Why not? I don't really care.
+//            if(then.compareTo(now) < 0){
+//                Toast.makeText(this,"Your start date cannot be in the past",Toast.LENGTH_SHORT).show();
+//                return;
+//            }
         }
         if(currentIndex == 1){
             //Get rid of all previously created schedule questions, if any
@@ -216,7 +226,19 @@ public class ScheduleActivity extends SurveyActivity{
         }
 
         currentIndex++;
-        if (currentIndex >= questions.size()) return; //safety net
+        Log.d("CURINDEX","cur index is " + currentIndex);
+        if (currentIndex >= questions.size()){
+            AlertDialog.Builder finishalert = new AlertDialog.Builder(this);
+            finishalert.setTitle("Your schedule has been updated");
+            finishalert.setPositiveButton("Return", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+                    finishSurvey();
+                }
+            });
+            finishalert.setCancelable(false); //Once they're done they're done
+            finishalert.show();
+            return; //safety net
+        }
         btnBack.setEnabled(true);
         launchQuestion(questions.get(currentIndex));
     }

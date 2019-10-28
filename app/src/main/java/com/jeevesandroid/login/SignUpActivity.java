@@ -8,11 +8,13 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.google.firebase.FirebaseApp;
 import com.jeevesandroid.AppContext;
 import com.jeevesandroid.R;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -55,19 +57,48 @@ public class SignUpActivity extends AppCompatActivity {
 
     }
 
-
+    @Override
+    public void onBackPressed() {
+        moveTaskToBack(true);
+    }
     @Override
     public void onResume(){
         super.onResume();
+        for(FirebaseApp app : FirebaseApp.getApps(getInstance())){
+            //app.delete();
+            Log.d("APPNAME",app.getName());
+            Log.d("KEY",app.getOptions().getApiKey());
+        }
         mFirebaseAuth = FirebaseAuth.getInstance();
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getInstance());
             FirebaseUser user = firebaseAuth.getCurrentUser();
+
+            //This needs to happen when app is closed before study signup
             if (user != null) {
                 final String name = nameText.getText().toString();
                 final String email = emailText.getText().toString();
                 onSignupSuccess(user.getUid(),name,email);
+            }
+            else if(prefs.contains(AppContext.UID)){
+                final String uid = prefs.getString(AppContext.UID,"");
+                final String name = prefs.getString(AppContext.USERNAME,"");
+                final String email = prefs.getString(AppContext.EMAIL,"");
+                firebaseAuth.signInWithEmailAndPassword(email,"password").addOnCompleteListener(getInstance(), new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            Log.d("SIGNIN","Signing in");
+                            onSignupSuccess(uid,name,email);
+
+                        } else {
+                            Log.d("KEY", FirebaseApp.getInstance().getOptions().getApiKey());
+                            Log.d("ERror", "signInWithEmail:failure", task.getException());
+                        }
+                    }
+                });
             }
             }
         };
@@ -114,6 +145,8 @@ public class SignUpActivity extends AppCompatActivity {
 
 
     private void onSignupSuccess(String userId, String name, String email) {
+        Log.d("YESKEY", FirebaseApp.getInstance().getOptions().getApiKey());
+
         signUpButton.setEnabled(true);
         SharedPreferences prefs = PreferenceManager
                 .getDefaultSharedPreferences(AppContext.getContext());

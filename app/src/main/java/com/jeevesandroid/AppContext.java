@@ -36,6 +36,8 @@ public class AppContext extends Application {
     //public static final String DEVELOPER_ID = "developerid";
     public static final String FINISHED_INTRODUCTION = "finished";
 
+    public static final String TRIGGER_TIME_LIST = "triglist";
+
     //Contact
     public static final String FEEDBACK = "feedback";
 

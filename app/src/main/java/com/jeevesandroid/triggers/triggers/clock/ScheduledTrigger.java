@@ -22,10 +22,14 @@ IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 package com.jeevesandroid.triggers.triggers.clock;
 
+import android.app.Application;
 import android.app.PendingIntent;
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
+import com.jeevesandroid.AppContext;
 import com.jeevesandroid.triggers.ESTriggerManager;
 import com.jeevesandroid.triggers.TriggerException;
 import com.jeevesandroid.triggers.TriggerReceiver;
@@ -34,7 +38,10 @@ import com.jeevesandroid.triggers.config.TriggerConstants;
 import com.jeevesandroid.triggers.triggers.Trigger;
 import com.jeevesandroid.triggers.triggers.TriggerUtils;
 
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashSet;
+import java.util.Set;
 
 public class ScheduledTrigger extends Trigger implements TriggerReceiver
 {
@@ -62,8 +69,21 @@ public class ScheduledTrigger extends Trigger implements TriggerReceiver
 		try {
 			TriggerConfig params = new TriggerConfig();
 			params.addParameter(TriggerConfig.FROM_DATE, millis);
+			SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(AppContext.getContext());
+			SharedPreferences.Editor prefsEditor = prefs.edit();
+			//This reloads any existing set of triggerids we have
+			HashSet<String> s = new HashSet<>( prefs.getStringSet(AppContext.TRIGGER_TIME_LIST,new HashSet()));
+			ArrayList<String> triggerids = new ArrayList<>(s);
+
 			int triggerId = triggerManager.addTrigger(TriggerUtils.TYPE_CLOCK_TRIGGER_ONCE, this, params);
 			randomlySelectedTriggerIds.add(triggerId);
+
+			Calendar calendar = Calendar.getInstance();
+			calendar.setTimeInMillis(millis);
+			triggerids.add(triggerId + ";" + calendar.getTime().toString());
+			Set<String> triggerset = new HashSet<>(triggerids);
+			prefsEditor.putStringSet(AppContext.TRIGGER_TIME_LIST,triggerset);
+			prefsEditor.commit();
 		}
 		catch (TriggerException e) {
 			e.printStackTrace();
@@ -85,6 +105,7 @@ public class ScheduledTrigger extends Trigger implements TriggerReceiver
 			for (Integer triggerId : this.randomlySelectedTriggerIds) {
 				try {
 					triggerManager.removeTrigger(triggerId);
+					removeScheduledTime(triggerId);
 				}
 				catch (TriggerException e) {
 					e.printStackTrace();
@@ -100,6 +121,7 @@ public class ScheduledTrigger extends Trigger implements TriggerReceiver
 			try {
 				listener.onNotificationTriggered(this.triggerId);
 				triggerManager.removeTrigger(alarmId);
+				removeScheduledTime(alarmId);
 			}
 			catch (Exception e) {
 				e.printStackTrace();
@@ -107,6 +129,25 @@ public class ScheduledTrigger extends Trigger implements TriggerReceiver
 		}
 	}
 
+	private void removeScheduledTime(int alarmId){
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(AppContext.getContext());
+		SharedPreferences.Editor prefsEditor = prefs.edit();
+		HashSet<String> s = new HashSet<>( prefs.getStringSet(AppContext.TRIGGER_TIME_LIST,new HashSet()));
+		ArrayList<String> triggerids = new ArrayList<>(s);
+		ArrayList<String> updated = new ArrayList<>();
+		//Remove this trigger from the scheduled list
+		for(String trig : triggerids){
+			String[] idAndTime = trig.split(";");
+			if(idAndTime[0].equals(Integer.toString(alarmId))){
+				continue;
+			}
+			updated.add(trig);
+		}
+		//Update the list in Shared preferences
+		Set<String> triggerset = new HashSet<>(updated);
+		prefsEditor.putStringSet(AppContext.TRIGGER_TIME_LIST,triggerset);
+		prefsEditor.commit();
+	}
 	@Override
 	protected String getTriggerTag() {
 		return LOG_TAG;

@@ -249,6 +249,15 @@ public class SenseService extends Service implements
             .getReference(FirebaseUtils.PROJECTS_KEY)
             .child(studyname);
 
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(AppContext.getContext());
+        //It can happen...
+        if(FirebaseUtils.PATIENT_REF == null){
+            FirebaseUtils.PATIENT_REF = database
+                //.getReference(FirebaseUtils.PRIVATE_KEY)
+                //.child(prefs.getString(AppContext.DEVELOPER_ID, ""))
+                .getReference(FirebaseUtils.PATIENTS_KEY)
+                .child(prefs.getString(AppContext.UID, ""));
+        }
         DatabaseReference scheduleRef = FirebaseUtils.PATIENT_REF.child("schedule");
         //Set up the receivers for location, activity, and other sensor info
         IntentFilter mIntentFilter = new IntentFilter(AppContext.STARTLOC);
@@ -281,6 +290,7 @@ public class SenseService extends Service implements
             public void onCancelled(@NonNull DatabaseError databaseError) { }
         });
         //Listen for schedule updates, then update the relevant attributes
+        //But I feel like this should only happen when updated from the GUI end. Not from the user's end.
         scheduleRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -345,6 +355,7 @@ public class SenseService extends Service implements
         Log.d("CHANGEVAR","Var that's changed is " + key);
         for (FirebaseVariable var : variables) {
             if (var.getname().equals(key)) {
+                Log.d("Type","var type of " + key + " is " + var.getvartype());
                 switch (var.getvartype()) {
                     case FirebaseUtils.LOCATION:
                         if (geofencelisteners.containsKey(var.getname())) {
@@ -423,7 +434,9 @@ public class SenseService extends Service implements
             = new SharedPreferences.OnSharedPreferenceChangeListener() {
             public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
                 try {
-                    changeVarValue(triggers,variables,key);
+                    if(!key.equals(AppContext.TRIGGER_TIME_LIST)) {
+                        changeVarValue(triggers, variables, key);
+                    }
                 } catch (TriggerException e) {
                     e.printStackTrace();
                 }
@@ -436,7 +449,7 @@ public class SenseService extends Service implements
         HashSet<String> s = new HashSet<>(varPrefs.getStringSet("triggerids",new HashSet()));
         ArrayList<String> triggerids = new ArrayList<>(s);
 
-        Toast.makeText(AppContext.getContext(),"Updated app configuration",Toast.LENGTH_SHORT).show();
+        //Toast.makeText(AppContext.getContext(),"Updated app configuration",Toast.LENGTH_SHORT).show();
         ArrayList<String> newIds = new ArrayList<>();
         for (int i = 0; i < triggers.size(); i++) {
             FirebaseTrigger triggerconfig = triggers.get(i);

@@ -109,6 +109,17 @@
             android:textAppearance="@style/TextAppearance.AppCompat.Small"
             tools:text="View the Jeeves Privacy Policy" />
 
+        <Button
+            android:id="@+id/btnTriggers"
+            style="@style/Base.Widget.AppCompat.Button.Borderless"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.04"
+            android:text="Triggers"
+            android:textAlignment="viewStart"
+            android:textAllCaps="false"
+            android:textColor="@color/place_autocomplete_search_hint" />
+
     </LinearLayout>
 
 </RelativeLayout>
