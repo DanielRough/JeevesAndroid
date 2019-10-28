@@ -119,14 +119,10 @@ public class StudySignupActivity extends AppCompatActivity {
 
         String developerid = selectedProject.getresearcherno();
         FirebaseUtils.SURVEY_REF = database
-               // .getReference(FirebaseUtils.PRIVATE_KEY)
-                //.child(developerid)
                 .getReference(FirebaseUtils.PROJECTS_KEY)
                 .child(selectedStudy)
                 .child(FirebaseUtils.SURVEYDATA_KEY);
         FirebaseUtils.PATIENT_REF = database
-               // .getReference(FirebaseUtils.PRIVATE_KEY)
-               // .child(developerid)
                 .getReference(FirebaseUtils.PATIENTS_KEY)
                 .child(mFirebaseUser.getUid());
 

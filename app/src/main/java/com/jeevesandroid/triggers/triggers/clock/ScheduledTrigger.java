@@ -80,10 +80,12 @@ public class ScheduledTrigger extends Trigger implements TriggerReceiver
 
 			Calendar calendar = Calendar.getInstance();
 			calendar.setTimeInMillis(millis);
-			triggerids.add(triggerId + ";" + calendar.getTime().toString());
-			Set<String> triggerset = new HashSet<>(triggerids);
-			prefsEditor.putStringSet(AppContext.TRIGGER_TIME_LIST,triggerset);
-			prefsEditor.commit();
+			if (millis > System.currentTimeMillis()) {
+				triggerids.add(triggerId + ";" + calendar.getTime().toString());
+				Set<String> triggerset = new HashSet<>(triggerids);
+				prefsEditor.putStringSet(AppContext.TRIGGER_TIME_LIST, triggerset);
+				prefsEditor.commit();
+			}
 		}
 		catch (TriggerException e) {
 			e.printStackTrace();
@@ -139,8 +141,10 @@ public class ScheduledTrigger extends Trigger implements TriggerReceiver
 		for(String trig : triggerids){
 			String[] idAndTime = trig.split(";");
 			if(idAndTime[0].equals(Integer.toString(alarmId))){
+				Log.d("REMOVE","Removing old trigger with tim e" + idAndTime[1]);
 				continue;
 			}
+
 			updated.add(trig);
 		}
 		//Update the list in Shared preferences

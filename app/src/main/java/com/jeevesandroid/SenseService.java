@@ -253,8 +253,6 @@ public class SenseService extends Service implements
         //It can happen...
         if(FirebaseUtils.PATIENT_REF == null){
             FirebaseUtils.PATIENT_REF = database
-                //.getReference(FirebaseUtils.PRIVATE_KEY)
-                //.child(prefs.getString(AppContext.DEVELOPER_ID, ""))
                 .getReference(FirebaseUtils.PATIENTS_KEY)
                 .child(prefs.getString(AppContext.UID, ""));
         }
@@ -434,6 +432,7 @@ public class SenseService extends Service implements
             = new SharedPreferences.OnSharedPreferenceChangeListener() {
             public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
                 try {
+                    //bit of a hack to stop this happening repeatedly in a loop
                     if(!key.equals(AppContext.TRIGGER_TIME_LIST)) {
                         changeVarValue(triggers, variables, key);
                     }

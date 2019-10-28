@@ -43,17 +43,17 @@ public class ScheduleActivity extends SurveyActivity{
             if(i>1 && !answers.get(i).isEmpty()){
                 schedList.add(answer);
             }
+             SharedPreferences prefs = PreferenceManager
+                 .getDefaultSharedPreferences(AppContext.getContext());
+             SharedPreferences.Editor editor = prefs.edit();
             //For the date questions
             if (correspondingQuestion.getassignedVar() != null) {
-                SharedPreferences prefs = PreferenceManager
-                    .getDefaultSharedPreferences(AppContext.getContext());
                 String varname = correspondingQuestion.getassignedVar();
-                SharedPreferences.Editor editor = prefs.edit();
                 if (!answer.isEmpty()) {
                     editor.putString(varname, answer); //Put the variable into the var
                     Log.d("PREFCHANGE","name: " + varname + " and value: " + answer);
                 }
-                editor.apply();
+            //    editor.apply();
             }
             //Cheap hack to get the answer to the first day schedule question
              //@DJR I've got rid of this now because when the schedule is updated the startTimeVar and endTimeVar
@@ -72,9 +72,7 @@ public class ScheduleActivity extends SurveyActivity{
 //                //changes every time the schedule survey is run.
 //                editor.commit();
 //            }
-             SharedPreferences prefs = PreferenceManager
-                 .getDefaultSharedPreferences(AppContext.getContext());
-             SharedPreferences.Editor editor = prefs.edit();
+
              editor.putInt(AppContext.SCHEDULE_DAY,1);
              editor.apply();
         }

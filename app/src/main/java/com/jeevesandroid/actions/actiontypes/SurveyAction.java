@@ -22,6 +22,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
+import com.google.firebase.database.FirebaseDatabase;
 import com.jeevesandroid.AppContext;
 import com.jeevesandroid.R;
 import com.jeevesandroid.mainscreens.SurveyActivity;
@@ -113,6 +114,14 @@ public class SurveyAction extends FirebaseAction {
             surveymap.put(AppContext.TRIG_TYPE,
                 intent.getIntExtra(AppContext.TRIG_TYPE,0));
             String surveyid = intent.getStringExtra(AppContext.SURVEY_ID);
+            SharedPreferences prefs = PreferenceManager
+                .getDefaultSharedPreferences(AppContext.getContext());
+            //Reset these if the app has been closed and then opened again
+            FirebaseDatabase database = FirebaseUtils.getDatabase();
+            FirebaseUtils.SURVEY_REF = database
+                .getReference(FirebaseUtils.PROJECTS_KEY)
+                .child(prefs.getString(AppContext.STUDY_NAME, ""))
+                .child(FirebaseUtils.SURVEYDATA_KEY);
             if(surveyid == null)surveyid = "null";
             FirebaseUtils.SURVEY_REF.child(intent.getStringExtra(AppContext.SURVEY_ID))
                 .child("missed").push().setValue(surveymap);
@@ -245,6 +254,10 @@ public class SurveyAction extends FirebaseAction {
         editor.apply();
 
         final long timeSent = System.currentTimeMillis();
+        FirebaseDatabase database = FirebaseUtils.getDatabase();
+        FirebaseUtils.PATIENT_REF = database
+            .getReference(FirebaseUtils.PATIENTS_KEY)
+            .child(prefs.getString(AppContext.UID, ""));
         DatabaseReference myRef = FirebaseUtils.PATIENT_REF.child(AppContext.INCOMPLETE);
         DatabaseReference newPostRef = myRef.push();
         currentsurvey.settimeSent(timeSent);

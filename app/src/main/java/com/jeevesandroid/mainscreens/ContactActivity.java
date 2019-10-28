@@ -1,8 +1,10 @@
 package com.jeevesandroid.mainscreens;
 
 import android.app.Activity;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -17,6 +19,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.google.firebase.database.FirebaseDatabase;
 import com.jeevesandroid.AppContext;
 import com.jeevesandroid.R;
 import com.jeevesandroid.firebase.FirebaseUtils;
@@ -41,7 +44,11 @@ public class ContactActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(AppContext.getContext());
+        FirebaseDatabase database = FirebaseUtils.getDatabase();
+        FirebaseUtils.PATIENT_REF = database
+            .getReference(FirebaseUtils.PATIENTS_KEY)
+            .child(prefs.getString(AppContext.UID, ""));
         //Add a listener that checks whether the researcher sends feedback to the participant
         DatabaseReference patientRef = FirebaseUtils.PATIENT_REF.child(AppContext.FEEDBACK);
         patientRef.addValueEventListener(new ValueEventListener() {

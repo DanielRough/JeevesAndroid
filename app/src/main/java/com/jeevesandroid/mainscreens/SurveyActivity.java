@@ -26,6 +26,7 @@ import com.google.android.gms.location.places.ui.PlacePicker;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.database.FirebaseDatabase;
 import com.jeevesandroid.AppContext;
 import com.jeevesandroid.R;
 import com.jeevesandroid.firebase.FirebaseQuestion;
@@ -204,6 +205,12 @@ public class SurveyActivity extends AppCompatActivity{
         surveymap.put(AppContext.UID,prefs.getString(AppContext.UID,""));
         surveymap.put("encodedAnswers",currentsurvey.getencodedAnswers());
         surveymap.put("encodedKey",currentsurvey.getencodedKey());
+        //Reset these if the app has been closed and then opened again
+        FirebaseDatabase database = FirebaseUtils.getDatabase();
+        FirebaseUtils.SURVEY_REF = database
+            .getReference(FirebaseUtils.PROJECTS_KEY)
+            .child(prefs.getString(AppContext.STUDY_NAME, ""))
+            .child(FirebaseUtils.SURVEYDATA_KEY);
         FirebaseUtils.SURVEY_REF.child(currentsurvey.getsurveyId()).push().setValue(surveymap);
         //Update the various Survey-relevant variables
 
@@ -304,6 +311,17 @@ public class SurveyActivity extends AppCompatActivity{
         }
         initTime = getIntent().getLongExtra(AppContext.INIT_TIME,0);
         timeSent = getIntent().getLongExtra(AppContext.TIME_SENT,0);
+        SharedPreferences prefs = PreferenceManager
+            .getDefaultSharedPreferences(AppContext.getContext());
+        //Reset these if the app has been closed and then opened again
+        FirebaseDatabase database = FirebaseUtils.getDatabase();
+        FirebaseUtils.SURVEY_REF = database
+            .getReference(FirebaseUtils.PROJECTS_KEY)
+            .child(prefs.getString(AppContext.STUDY_NAME, ""))
+            .child(FirebaseUtils.SURVEYDATA_KEY);
+        FirebaseUtils.PATIENT_REF = database
+            .getReference(FirebaseUtils.PATIENTS_KEY)
+            .child(prefs.getString(AppContext.UID, ""));
         DatabaseReference missedRef = FirebaseUtils.SURVEY_REF.child(surveyid).child("missed");
         surveyRef = FirebaseUtils.PATIENT_REF.child("incomplete").child(surveyid);
         completedSurveysRef = FirebaseUtils.PATIENT_REF.child("complete");

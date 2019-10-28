@@ -17,6 +17,7 @@ import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.google.firebase.database.FirebaseDatabase;
 import com.jeevesandroid.AppContext;
 import com.jeevesandroid.R;
 import com.jeevesandroid.firebase.FirebaseSurvey;
@@ -45,7 +46,15 @@ public class MissedSurveyActivity extends AppCompatActivity {
         setContentView(R.layout.activity_missed_survey);
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
+        final FirebaseDatabase database = FirebaseUtils.getDatabase();
 
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(AppContext.getContext());
+        //It can happen...
+        if(FirebaseUtils.PATIENT_REF == null){
+            FirebaseUtils.PATIENT_REF = database
+                .getReference(FirebaseUtils.PATIENTS_KEY)
+                .child(prefs.getString(AppContext.UID, ""));
+        }
         //Get the top 10 most recently missed surveys out of here
         Query myTopPostsQuery = FirebaseUtils.PATIENT_REF
             .child(AppContext.INCOMPLETE)

@@ -122,14 +122,10 @@ public class WelcomeActivity extends Activity {
         if (FirebaseUtils.PATIENT_REF == null) {
             FirebaseDatabase database = FirebaseUtils.getDatabase();
             FirebaseUtils.SURVEY_REF = database
-                //.getReference(FirebaseUtils.PRIVATE_KEY)
-                //.child(prefs.getString(AppContext.DEVELOPER_ID, ""))
                 .getReference(FirebaseUtils.PROJECTS_KEY)
                 .child(prefs.getString(AppContext.STUDY_NAME, ""))
                 .child(FirebaseUtils.SURVEYDATA_KEY);
             FirebaseUtils.PATIENT_REF = database
-                //.getReference(FirebaseUtils.PRIVATE_KEY)
-                //.child(prefs.getString(AppContext.DEVELOPER_ID, ""))
                 .getReference(FirebaseUtils.PATIENTS_KEY)
                 .child(prefs.getString(AppContext.UID, ""));
         }
