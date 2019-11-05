@@ -79,6 +79,7 @@ public class AppContext extends Application {
     public static final String HEART = "HEART";
     public static final String AUDIO = "AUDIO";
     public static final String SCHEDULE = "SCHEDULE";
+    public static final String TIMELIST = "TIMELIST";
 
     //Specific variable names
     public static final String MISSED_SURVEYS = "Missed Surveys";

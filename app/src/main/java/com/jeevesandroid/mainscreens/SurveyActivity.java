@@ -522,6 +522,7 @@ public class SurveyActivity extends AppCompatActivity{
             return;
         }
         currentIndex++;
+        skipping = false;
         if (currentIndex == questions.size()) {
             //If we want to skip extra dialogue boxes, just finish without dialogue box.
             if (currentsurvey.getfastTransition()){

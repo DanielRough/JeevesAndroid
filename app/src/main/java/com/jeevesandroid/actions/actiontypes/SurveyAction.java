@@ -123,7 +123,7 @@ public class SurveyAction extends FirebaseAction {
                 .child(prefs.getString(AppContext.STUDY_NAME, ""))
                 .child(FirebaseUtils.SURVEYDATA_KEY);
             if(surveyid == null)surveyid = "null";
-            FirebaseUtils.SURVEY_REF.child(intent.getStringExtra(AppContext.SURVEY_ID))
+            FirebaseUtils.SURVEY_REF.child(surveyid)
                 .child("missed").push().setValue(surveymap);
         }
     }

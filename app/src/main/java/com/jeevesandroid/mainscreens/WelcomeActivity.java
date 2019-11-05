@@ -279,6 +279,10 @@ public class WelcomeActivity extends Activity {
     private void unsnooze(){
         AlarmManager alarmManager = (AlarmManager) AppContext.getContext()
             .getSystemService(ALARM_SERVICE);
+        if(wakeupSnoozepi == null){
+            Intent intent=new Intent(AppContext.getContext(), SnoozeListener.class);
+            wakeupSnoozepi = PendingIntent.getBroadcast(AppContext.getContext(), 0, intent, 0);
+        }
         alarmManager.cancel(wakeupSnoozepi);
         SharedPreferences prefs = PreferenceManager
             .getDefaultSharedPreferences(AppContext.getContext());

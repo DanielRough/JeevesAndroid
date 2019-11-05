@@ -27,6 +27,7 @@ import static com.jeevesandroid.AppContext.SCALE;
 import static com.jeevesandroid.AppContext.SCHEDULE;
 import static com.jeevesandroid.AppContext.TEXTPRESENT;
 import static com.jeevesandroid.AppContext.TIME;
+import static com.jeevesandroid.AppContext.TIMELIST;
 
 public class QuAdapter extends BaseAdapter {
 
@@ -60,6 +61,7 @@ public class QuAdapter extends BaseAdapter {
         questionTypes.put(AUDIO,new AudioQuestion(activity,questions,answers));
         questionTypes.put(IMAGEPRESENT,new ImageQuestion(activity,questions,answers));
         questionTypes.put(TEXTPRESENT,new TextQuestion(activity,questions,answers));
+        questionTypes.put(TIMELIST,new TimeListQuestion(activity,questions,answers));
         if(activity instanceof ScheduleActivity)
             questionTypes.put(SCHEDULE,new DayScheduleQuestion(activity,questions,answers));
     }

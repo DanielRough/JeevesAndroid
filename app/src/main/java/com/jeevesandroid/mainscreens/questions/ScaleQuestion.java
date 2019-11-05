@@ -63,7 +63,7 @@ public class ScaleQuestion extends Question{
             seekBar.setProgress(Integer.parseInt(answer));
         else {
             seekBar.setProgress(entries / 2);
-            answers.set(currentIndex, Integer.toString(entries/2));
+            answers.set(currentIndex, "");
         }
 
     }

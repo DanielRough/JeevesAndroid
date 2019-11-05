@@ -77,6 +77,8 @@ public class SurveyTrigger extends Trigger {
     public void onReceive(final Context context, final Intent intent) {
         if(listener != null){
             String survey = intent.getStringExtra("surveyname");
+            if(survey == null)
+                return;
             if(survey.equals(surveyName)) { //first check it's the right survey
                 boolean result = intent.getBooleanExtra("result", true);
                 if (result == this.result) { //then check it's the right result

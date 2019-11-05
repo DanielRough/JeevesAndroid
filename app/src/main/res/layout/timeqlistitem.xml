@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/listItemTime"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content" >
+
+    <TextView
+        android:id="@+id/txtFoodTime"
+        android:layout_width="87dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:hint="08:00"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        android:visibility="visible"
+        tools:text="@tools:sample/date/hhmm"
+        tools:visibility="visible" />
+
+    <EditText
+        android:id="@+id/txtFoodQuant"
+        android:layout_width="88dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:ems="10"
+        android:inputType="text"
+        android:text="1" />
+
+    <EditText
+        android:id="@+id/txtFoodType"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:ems="10"
+        android:inputType="textPersonName" />
+</LinearLayout>
