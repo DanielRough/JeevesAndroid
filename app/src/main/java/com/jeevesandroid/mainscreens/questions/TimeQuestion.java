@@ -27,7 +27,6 @@ public class TimeQuestion extends Question{
     }
 
 
-    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     public void handle(int position) {
         final Calendar calendar = Calendar.getInstance();

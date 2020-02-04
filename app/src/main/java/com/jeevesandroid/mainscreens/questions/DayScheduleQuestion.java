@@ -30,7 +30,6 @@ public class DayScheduleQuestion extends Question{
     }
 
 
-    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     public void handle(int position) {
         FirebaseQuestion question = questions.get(position);
@@ -97,12 +96,24 @@ public class DayScheduleQuestion extends Question{
             calendar_end.setTimeInMillis(Long.parseLong(start_end[1]));
 
             datePickerWake.updateDate(calendar_start.get(Calendar.YEAR),calendar_start.get(Calendar.MONTH),calendar_start.get(Calendar.DAY_OF_MONTH));
-            tpicker_start.setHour(calendar_start.get(Calendar.HOUR_OF_DAY));
-            tpicker_start.setMinute(calendar_start.get(Calendar.MINUTE));
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                tpicker_start.setHour(calendar_start.get(Calendar.HOUR_OF_DAY));
+                tpicker_start.setMinute(calendar_start.get(Calendar.MINUTE));
+            }
+            else{
+                tpicker_start.setCurrentHour(calendar_start.get(Calendar.HOUR_OF_DAY));
+                tpicker_start.setCurrentMinute(calendar_start.get(Calendar.MINUTE));
+            }
 
             datePickerSleep.updateDate(calendar_end.get(Calendar.YEAR),calendar_end.get(Calendar.MONTH),calendar_end.get(Calendar.DAY_OF_MONTH));
-            tpicker_end.setHour(calendar_end.get(Calendar.HOUR_OF_DAY));
-            tpicker_end.setMinute(calendar_end.get(Calendar.MINUTE));
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                tpicker_end.setHour(calendar_end.get(Calendar.HOUR_OF_DAY));
+                tpicker_end.setMinute(calendar_end.get(Calendar.MINUTE));
+            }
+            else{
+                tpicker_end.setCurrentHour(calendar_end.get(Calendar.HOUR_OF_DAY));
+                tpicker_end.setCurrentMinute(calendar_end.get(Calendar.MINUTE));
+            }
         }
         //Day schedule questions work slightly differently - they are not stored in user attributes,
         //but instead are stored in shared preferences
@@ -129,10 +140,19 @@ public class DayScheduleQuestion extends Question{
                         ":" + (calendar_end.getTimeInMillis()));
                 datePickerWake.updateDate(calendar_start.get(Calendar.YEAR),calendar_start.get(Calendar.MONTH),calendar_start.get(Calendar.DAY_OF_MONTH));
                 datePickerSleep.updateDate(calendar_end.get(Calendar.YEAR),calendar_end.get(Calendar.MONTH),calendar_end.get(Calendar.DAY_OF_MONTH));
-                tpicker_start.setHour(calendar_start.get(Calendar.HOUR_OF_DAY));
-                tpicker_start.setMinute(calendar_start.get(Calendar.MINUTE));
-                tpicker_end.setHour(calendar_end.get(Calendar.HOUR_OF_DAY));
-                tpicker_end.setMinute(calendar_end.get(Calendar.MINUTE));
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    tpicker_start.setHour(calendar_start.get(Calendar.HOUR_OF_DAY));
+                    tpicker_start.setMinute(calendar_start.get(Calendar.MINUTE));
+                    tpicker_end.setHour(calendar_end.get(Calendar.HOUR_OF_DAY));
+                    tpicker_end.setMinute(calendar_end.get(Calendar.MINUTE));
+                }
+                else{
+                    tpicker_start.setCurrentHour(calendar_start.get(Calendar.HOUR_OF_DAY));
+                    tpicker_start.setCurrentMinute(calendar_start.get(Calendar.MINUTE));
+                    tpicker_end.setCurrentHour(calendar_end.get(Calendar.HOUR_OF_DAY));
+                    tpicker_end.setCurrentMinute(calendar_end.get(Calendar.MINUTE));
+                }
+
             }
         }
 
