@@ -103,7 +103,7 @@
             style="@style/Widget.AppCompat.Button.Borderless"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="75dp"
+            android:layout_marginTop="0"
             android:layout_weight="0.1"
             android:text="@string/sense_view"
             android:textAppearance="@style/TextAppearance.AppCompat.Small"

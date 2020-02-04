@@ -195,6 +195,13 @@ public class SurveyAction extends FirebaseAction {
         NotificationCompat.InboxStyle inboxStyle =
             new NotificationCompat.InboxStyle();
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+
+            mBuilder.setSound(
+                    RingtoneManager
+                            .getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
+            );
+        }
         mBuilder.setAutoCancel(true);
         mBuilder.setOngoing(true);
         mBuilder.setStyle(inboxStyle);

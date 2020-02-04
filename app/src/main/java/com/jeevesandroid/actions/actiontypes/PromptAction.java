@@ -5,6 +5,8 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.media.RingtoneManager;
+import android.os.Build;
 import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
@@ -66,7 +68,13 @@ public class PromptAction extends FirebaseAction {
                 .setContentTitle("Jeeves")
                 .setChannelId(channelId)
                 .setContentText(text);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 
+            mBuilder.setSound(
+                    RingtoneManager
+                            .getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
+            );
+        }
         notificationManager.notify(notificationId,mBuilder.build());
 
         //Turn the screen on if it's not already.
