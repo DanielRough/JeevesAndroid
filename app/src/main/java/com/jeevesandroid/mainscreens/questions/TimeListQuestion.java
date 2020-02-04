@@ -174,7 +174,7 @@ public class TimeListQuestion extends Question {
             mTimePicker = new TimePickerDialog(context, android.R.style.Theme_Holo_Light_Dialog, new TimePickerDialog.OnTimeSetListener() {
                 @Override
                 public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
-                    t.setText( selectedHour + ":" + selectedMinute);
+                    t.setText( pad(selectedHour) + ":" + pad(selectedMinute));
                     String listItem = t.getText() + "|" + q.getText() + "|" + i.getText();
                     result.set(pos,listItem);
                     StringBuilder sb = new StringBuilder();
@@ -191,6 +191,11 @@ public class TimeListQuestion extends Question {
            // mTimePicker.set
             mTimePicker.show();
 
+        }
+        private String pad(int c){
+            if(c >= 10)
+                return String.valueOf(c);
+            return "0" + c;
         }
     }
 

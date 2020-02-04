@@ -521,6 +521,27 @@ public class SurveyActivity extends AppCompatActivity{
             Toast.makeText(this,"This question is mandatory!",Toast.LENGTH_SHORT).show();
             return;
         }
+        //25/11/19 add in a hacky new condition for time list questions
+        else if(questions.get(currentIndex).getquestionType().equals(AppContext.TIMELIST)&& !skipping){
+            Log.d("HURRAY","A time list question indeed!");
+            String ans = answers.get(currentIndex);
+            String[] listy = ans.split(",,");
+            for(String item : listy){
+                String[] result = item.split("\\|");
+                for(String resultitem : result) {
+                    Log.d("An item","Item is " + resultitem);
+                    if (resultitem.length()==0) {
+                        Toast.makeText(this, "Every entry must have a time and item", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                }
+                if(result.length < 3){
+                    Toast.makeText(this, "Every entry must have a time and item", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+            }
+
+        }
         currentIndex++;
         skipping = false;
         if (currentIndex == questions.size()) {
