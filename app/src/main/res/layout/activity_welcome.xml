@@ -9,117 +9,122 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.jeevesandroid.mainscreens.WelcomeActivity">
 
-    <LinearLayout
-        android:orientation="vertical"
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:weightSum="1"
-        android:textAlignment="center"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true">
+        android:layout_height="match_parent">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:id="@+id/txtWelcome"
-            android:layout_weight="0.04" />
-
-        <TextView
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/sense_this"
-            android:layout_weight="0.04"
-            android:textSize="18sp" />
+            android:layout_marginBottom="32dp"
+            android:orientation="vertical"
+            android:textAlignment="center"
+            android:weightSum="1">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="@string/sense_missed"
-            android:layout_weight="0.04" />
+            <TextView
+                android:id="@+id/txtWelcome"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.04"
+                android:textAppearance="?android:attr/textAppearanceLarge" />
 
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/sense_complete"
-            android:id="@+id/btnSurvey"
-            android:layout_weight="0.04" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.04"
+                android:text="@string/sense_this"
+                android:textSize="18sp" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.04"
-            android:text="@string/sense_self"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.04"
+                android:text="@string/sense_missed"
+                android:textAppearance="?android:attr/textAppearanceLarge" />
 
-        <Button
-            android:id="@+id/btnMonitor"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.04"
-            android:clickable="true"
-            android:focusable="true"
-            android:text="@string/sense_log" />
+            <Button
+                android:id="@+id/btnSurvey"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.04"
+                android:text="@string/sense_complete" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.04"
-            android:text="@string/sense_messages"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.04"
+                android:text="@string/sense_self"
+                android:textAppearance="?android:attr/textAppearanceLarge" />
 
-        <Button
-            android:id="@+id/btnContact"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.04"
-            android:text="@string/sense_messages" />
+            <Button
+                android:id="@+id/btnMonitor"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.04"
+                android:clickable="true"
+                android:focusable="true"
+                android:text="@string/sense_log" />
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.04"
-            android:textColor="@color/colorPrimary"
-            android:textStyle="bold" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.04"
+                android:text="@string/sense_messages"
+                android:textAppearance="?android:attr/textAppearanceLarge" />
 
-        <TextView
-            android:id="@+id/textView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.04"
-            android:text="@string/finish_study"
-            android:textSize="@dimen/activity_horizontal_margin" />
+            <Button
+                android:id="@+id/btnContact"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.04"
+                android:text="@string/sense_messages" />
 
-        <Button
-            android:id="@+id/btnQuit"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.04"
-            android:text="@string/quit_app" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.04"
+                android:textColor="@color/colorPrimary"
+                android:textStyle="bold" />
 
-        <Button
-            android:id="@+id/btnViewData"
-            style="@style/Widget.AppCompat.Button.Borderless"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="0"
-            android:layout_weight="0.1"
-            android:text="@string/sense_view"
-            android:textAppearance="@style/TextAppearance.AppCompat.Small"
-            tools:text="View the Jeeves Privacy Policy" />
+            <TextView
+                android:id="@+id/textView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.04"
+                android:text="@string/finish_study"
+                android:textSize="@dimen/activity_horizontal_margin" />
 
-        <Button
-            android:id="@+id/btnTriggers"
-            style="@style/Base.Widget.AppCompat.Button.Borderless"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.04"
-            android:text="Triggers"
-            android:textAlignment="viewStart"
-            android:textAllCaps="false"
-            android:textColor="@color/place_autocomplete_search_hint" />
+            <Button
+                android:id="@+id/btnQuit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.04"
+                android:text="@string/quit_app" />
 
-    </LinearLayout>
+            <Button
+                android:id="@+id/btnTriggers"
+                style="@style/Base.Widget.AppCompat.Button.Borderless"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.1"
+                android:text="Triggers"
+                android:textAlignment="viewStart"
+                android:textAllCaps="false"
+                android:textSize="20dp" />
+
+            <Button
+                android:id="@+id/btnViewData"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.1"
+                android:text="@string/sense_view"
+                android:textAllCaps="false"
+                android:textSize="20dp"
+                tools:text="View the Jeeves Privacy Policy" />
+
+
+        </LinearLayout>
+    </ScrollView>
 
 </RelativeLayout>

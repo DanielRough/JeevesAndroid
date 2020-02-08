@@ -5,6 +5,7 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.media.AudioAttributes;
 import android.media.RingtoneManager;
 import android.os.Build;
 import android.os.PowerManager;
@@ -49,6 +50,12 @@ public class PromptAction extends FirebaseAction {
                 (NotificationManager) app.getSystemService(Context.NOTIFICATION_SERVICE);
         String channelId = "default_channel_id";
         String channelDescription = "Default Channel";
+        AudioAttributes attributes = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+            attributes = new AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+                    .build();
+        }
         //Check if notification channel exists and if not create one
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             NotificationChannel notificationChannel = notificationManager.getNotificationChannel(channelId);
@@ -57,6 +64,8 @@ public class PromptAction extends FirebaseAction {
                 notificationChannel = new NotificationChannel(channelId, channelDescription, importance);
                 notificationChannel.setLightColor(Color.GREEN);
                 notificationChannel.enableVibration(true);
+                notificationChannel.setSound(RingtoneManager
+                        .getDefaultUri(RingtoneManager.TYPE_NOTIFICATION),attributes);
                 notificationManager.createNotificationChannel(notificationChannel);
             }
         }
