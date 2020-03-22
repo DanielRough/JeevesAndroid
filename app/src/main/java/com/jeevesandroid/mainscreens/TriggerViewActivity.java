@@ -4,11 +4,8 @@ import android.app.Activity;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,15 +17,11 @@ import android.widget.TextView;
 
 import com.jeevesandroid.AppContext;
 import com.jeevesandroid.R;
-import com.jeevesandroid.firebase.FirebaseSurvey;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashSet;
-import java.util.Locale;
-import java.util.Set;
+
 
 public class TriggerViewActivity extends AppCompatActivity {
     private ListView lstTriggers;
@@ -49,7 +42,6 @@ public class TriggerViewActivity extends AppCompatActivity {
         ArrayList<String> triggerids = new ArrayList<>(s);
         ArrayList<String> trigtimes = new ArrayList<>();
         for(String trig : triggerids){
-            Log.d("TRGGG",trig);
             trigtimes.add(trig.split(";")[1]);
         }
         Collections.sort(trigtimes);

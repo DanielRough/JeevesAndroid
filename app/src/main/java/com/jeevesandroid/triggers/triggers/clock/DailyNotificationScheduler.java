@@ -129,9 +129,12 @@ public class DailyNotificationScheduler implements TriggerReceiver
         if (/*(fromDay != 0 || toDay != 0) && */(daysSinceEpoch < fromDay || daysSinceEpoch > toDay)) {
             try {
                 Log.d("DAYS","Since epoch? " + daysSinceEpoch + ". From day and to day are " + fromDay + "," + toDay);
-                Log.d("Removal","Removing daily notification scheduler");
-                triggerManager.removeTrigger(dailySchedulerId);
-                return;
+                //I don't think we should remove the scheduler if we're waiting for the day to come
+                if(daysSinceEpoch > toDay) {
+                    Log.d("Removal", "Removing daily notification scheduler");
+                    triggerManager.removeTrigger(dailySchedulerId);
+                    return;
+                }
             } catch (TriggerException e) {
                 e.printStackTrace();
             }

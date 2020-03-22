@@ -75,8 +75,6 @@ public class SenseService extends Service implements
     private List<String> activityTriggerIds = new ArrayList<>();
     private static final HashMap<String, ActivityListener> activitylisteners = new HashMap<>();
     public static final HashMap<Integer, Integer> subscribedSensors = new HashMap<>();
-    //private static final String ACTION_1 = "action_1";
-    //private static final int NOTIF_ID = 1337;
     private static final int ACTIVE = 1234;
     SharedPreferences.OnSharedPreferenceChangeListener mListener; //Keeps it alive
     private LocationCallback mLocationCallback;
@@ -182,37 +180,6 @@ public class SenseService extends Service implements
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) { }
 
-
-/*
-    public static class NotificationActionService extends IntentService {
-        public NotificationActionService() {
-            super(SenseService.NotificationActionService.class.getSimpleName());
-        }
-
-        @Override
-        protected void onHandleIntent(Intent intent) {
-            Context app = AppContext.getContext();
-            String action = intent.getAction();
-            if (ACTION_1.equals(action)) {
-                //Followed by an intent to actually start our survey
-                NotificationManager manager = (NotificationManager) app
-                    .getSystemService(NOTIFICATION_SERVICE);
-                manager.cancel(NOTIF_ID);
-                SharedPreferences varPrefs = PreferenceManager.getDefaultSharedPreferences(app);
-                SharedPreferences.Editor editor = varPrefs.edit();
-                editor.putBoolean("active",false);
-                editor.apply();
-                //
-                Intent resultIntent = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                resultIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                sendBroadcast(new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS));
-                this.startActivity(resultIntent);
-
-            }
-
-        }
-    }
-*/
     private static final String NOTIFICATION_Service_CHANNEL_ID = "service_channel";
     @Override
     public void onCreate() {
@@ -238,16 +205,27 @@ public class SenseService extends Service implements
         }
         startForeground(ACTIVE, n);
 
+
         final FirebaseDatabase database = FirebaseUtils.getDatabase();
         SharedPreferences varPrefs = PreferenceManager
             .getDefaultSharedPreferences(AppContext.getContext());
         String studyname = varPrefs.getString(AppContext.STUDY_NAME, "");
-        //String researcherno = varPrefs.getString(AppContext.DEVELOPER_ID, "");
         DatabaseReference projectRef = database
-           // .getReference(FirebaseUtils.PUBLIC_KEY)
-           // .child(researcherno)
             .getReference(FirebaseUtils.PROJECTS_KEY)
             .child(studyname);
+
+        //Okay let's delete old scheduled triggers here instead I think that should be okay
+        Set<String> activeTrigs = varPrefs.getStringSet(AppContext.TRIGGER_TIME_LIST,null);
+        if(activeTrigs != null) {
+            for (String toRemove : activeTrigs) {
+                String trigId = toRemove.split(";")[0];
+                removeTrigger(trigId);
+            }
+        }
+        SharedPreferences.Editor editor = varPrefs.edit();
+        Set<String> emptySet = new HashSet<>();
+        editor.putStringSet(AppContext.TRIGGER_TIME_LIST,emptySet);
+        editor.commit();
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(AppContext.getContext());
         //It can happen...
@@ -289,6 +267,7 @@ public class SenseService extends Service implements
         });
         //Listen for schedule updates, then update the relevant attributes
         //But I feel like this should only happen when updated from the GUI end. Not from the user's end.
+        //Why do I feel this? I don't know. Do I still feel this?
         scheduleRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -297,6 +276,8 @@ public class SenseService extends Service implements
                 if(schedule == null)return;
                 SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(AppContext.getContext());
                 SharedPreferences.Editor editor = prefs.edit();
+//                Set<String> emptySet = new HashSet<>();
+  //              editor.putStringSet(AppContext.TRIGGER_TIME_LIST,emptySet);
                 int scheduleDay = prefs.getInt(AppContext.SCHEDULE_DAY, 1);
                 for(int i = 1; i <= schedule.size(); i++){
                     editor.putString(AppContext.SCHEDULE_PREF + i,schedule.get(i-1));
@@ -309,6 +290,7 @@ public class SenseService extends Service implements
                         String sleepVarName = scheduleVars.get(AppContext.SLEEP_TIME).toString();
                         editor.putString(wakeVarName,wakeSleep[0]);
                         editor.putString(sleepVarName,wakeSleep[1]);
+                        Log.d("AREWE","Happening a lot!?");
                     }
                 }
                 editor.commit();
@@ -425,6 +407,11 @@ public class SenseService extends Service implements
 
         SharedPreferences varPrefs = PreferenceManager
             .getDefaultSharedPreferences(AppContext.getContext());
+        //I have a feeling it then has loads and loads of listeners assigned every time something
+        //updates which could be causing a memory surge.
+        if(mListener != null) {
+            varPrefs.unregisterOnSharedPreferenceChangeListener(mListener);
+        }
         SharedPreferences.Editor prefseditor = varPrefs.edit();
         prefseditor.apply();
 
@@ -559,16 +546,6 @@ public class SenseService extends Service implements
         for (int i = 0; i < actions.size(); i++) {
             toExecute.add( actions.get(i));
         }
-        //If this is our begin trigger, just start it from here rather than going through the
-        //rigmarole of subscribing and unsubscribing
-//        if(TriggerUtils.getTriggerType(triggerType) == TriggerUtils.TYPE_CLOCK_TRIGGER_BEGIN) {
-//            Intent actionIntent = new Intent(this, ActionExecutorService.class);
-//            actionIntent.putExtra(ActionUtils.ACTIONS, toExecute);
-//            actionIntent.putExtra(AppContext.TRIG_TYPE, TriggerUtils.getTriggerType(triggerType));
-//            startService(actionIntent);
-//            Log.d("BEGIN","Beginning");
-//            return;
-//        }
         newListener.subscribeToTrigger(trigger, toExecute);
     }
 

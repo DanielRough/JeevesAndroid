@@ -21,8 +21,8 @@ import java.util.List;
 
 public class ScheduleActivity extends SurveyActivity{
 
-    String startTimeVar;
-    String endTimeVar;
+   // String startTimeVar;
+   // String endTimeVar;
     QuAdapter customAdapter;
     public int getCurrentIndex(){
         return currentIndex;
@@ -53,25 +53,7 @@ public class ScheduleActivity extends SurveyActivity{
                     editor.putString(varname, answer); //Put the variable into the var
                     Log.d("PREFCHANGE","name: " + varname + " and value: " + answer);
                 }
-            //    editor.apply();
             }
-            //Cheap hack to get the answer to the first day schedule question
-             //@DJR I've got rid of this now because when the schedule is updated the startTimeVar and endTimeVar
-             //also get updated too so we don't want this to happen twice!
-
-//            else if(i == 2){
-//                SharedPreferences prefs = PreferenceManager
-//                    .getDefaultSharedPreferences(AppContext.getContext());
-//                SharedPreferences.Editor editor = prefs.edit();
-//                String[] startEndTimes = answer.split(":");
-//                editor.putString(startTimeVar,startEndTimes[0]);
-//                editor.putString(endTimeVar,startEndTimes[1]);
-//                Log.d("PREFCHANGE","name: " + startTimeVar + " and value: " + startEndTimes[0]);
-//                Log.d("PREFCHANGE","name: " + endTimeVar + " and value: " + startEndTimes[1]);
-//                //Must be 'commit' rather than 'apply', otherwise it may continue to write these
-//                //changes every time the schedule survey is run.
-//                editor.commit();
-//            }
 
              editor.putInt(AppContext.SCHEDULE_DAY,1);
              editor.apply();
@@ -83,29 +65,27 @@ public class ScheduleActivity extends SurveyActivity{
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d("SCHEDULE","Away to begin scheduling");
         String startDateVar = getIntent().getStringExtra(AppContext.START_DATE);
         String endDateVar = getIntent().getStringExtra(AppContext.END_DATE);
-        startTimeVar = getIntent().getStringExtra(AppContext.WAKE_TIME);
-        endTimeVar = getIntent().getStringExtra(AppContext.SLEEP_TIME);
+       // startTimeVar = getIntent().getStringExtra(AppContext.WAKE_TIME);
+        //endTimeVar = getIntent().getStringExtra(AppContext.SLEEP_TIME);
         scheduleRef = FirebaseUtils.PATIENT_REF.child("schedule");
-
 
         questions = new ArrayList<>();
         FirebaseQuestion startDate = new FirebaseQuestion();
         startDate.setquestionType(AppContext.DATE);
-        startDate.setQuestionText("Enter your scheduled start date");
+        startDate.setQuestionText("Enter your scheduled START date");
         startDate.setassignedVar(startDateVar);
         questions.add(startDate);
         FirebaseQuestion endDate = new FirebaseQuestion();
         endDate.setquestionType(AppContext.DATE);
-        endDate.setQuestionText("Enter your scheduled end date");
+        endDate.setQuestionText("Now enter your scheduled END date");
         endDate.setassignedVar(endDateVar);
         questions.add(endDate);
         answers = new ArrayList<>();
-        for (int i = 0; i < questions.size(); i++)
+        for (int i = 0; i < questions.size(); i++) {
             answers.add("");
-
+        }
         customAdapter = new QuAdapter(this, questions, answers);
         simpleAdapterViewFlipper.setAdapter(customAdapter);
         launchQuestion(questions.get(0));
@@ -113,13 +93,12 @@ public class ScheduleActivity extends SurveyActivity{
 
      public void launchQuestion(FirebaseQuestion question) {
         String questionText = question.getquestionText();
-        Log.d("BUTHERE","Current index is " + currentIndex);
         TextView questionView = findViewById(R.id.txtQuestion);
         questionView.setText(questionText);
         simpleAdapterViewFlipper.setDisplayedChild(currentIndex);
          txtQNo = findViewById(R.id.txtQno);
          if(currentIndex > 1)
-             txtQNo.setText("Day " + (currentIndex-1));
+             txtQNo.setText(AppContext.NUMBERNAMES[currentIndex-2] + " day");//"Day " + (currentIndex-1));
          else
              txtQNo.setText("Update schedule");
     }
@@ -133,19 +112,6 @@ public class ScheduleActivity extends SurveyActivity{
 
     public void nextQ() {
         //Here this means that we're on the 'end date' question and away to move forward
-        if(currentIndex == 0){
-            String startDateStr = answers.get(0);
-            Calendar then = Calendar.getInstance();
-            then.setTimeInMillis(Long.parseLong(startDateStr));
-            Calendar now = Calendar.getInstance();
-            now.set(Calendar.HOUR_OF_DAY,0);
-            now.set(Calendar.MINUTE,0);
-            //Why not? I don't really care.
-//            if(then.compareTo(now) < 0){
-//                Toast.makeText(this,"Your start date cannot be in the past",Toast.LENGTH_SHORT).show();
-//                return;
-//            }
-        }
         if(currentIndex == 1){
             //Get rid of all previously created schedule questions, if any
             List dateQs = new ArrayList();
@@ -174,7 +140,7 @@ public class ScheduleActivity extends SurveyActivity{
             do {
                 FirebaseQuestion scheduleQ = new FirebaseQuestion();
                 scheduleQ.setquestionType(AppContext.SCHEDULE);
-                scheduleQ.setQuestionText("Please enter your wake and sleep times for day " + count);
+                scheduleQ.setQuestionText("Please enter your wake and sleep times for your " + AppContext.NUMBERNAMES[count-1] + " day ");
                 scheduleQ.setQuestionId(Integer.toString(count));
 
                 questions.add(scheduleQ);
@@ -224,7 +190,6 @@ public class ScheduleActivity extends SurveyActivity{
         }
 
         currentIndex++;
-        Log.d("CURINDEX","cur index is " + currentIndex);
         if (currentIndex >= questions.size()){
             AlertDialog.Builder finishalert = new AlertDialog.Builder(this);
             finishalert.setTitle("Your schedule has been updated");

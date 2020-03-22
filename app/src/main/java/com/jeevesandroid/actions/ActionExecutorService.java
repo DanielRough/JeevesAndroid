@@ -51,10 +51,6 @@ public class ActionExecutorService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction("customreceiveraction");
-//        GeofencingEvent geofencingEvent = GeofencingEvent.fromIntent(intent);
-//        if (!geofencingEvent.hasError()) {
-//            int geofenceTransition = geofencingEvent.getGeofenceTransition();
-//        }
         List<FirebaseAction> remainingActions = (ArrayList<FirebaseAction>) intent
             .getExtras().get(ActionUtils.ACTIONS);
 
@@ -63,8 +59,6 @@ public class ActionExecutorService extends Service {
             ActivityTransitionResult result = ActivityTransitionResult.extractResult(intent);
             remainingActions = AppContext.getActivityActions()
                 .get(intent.getStringExtra(ActionUtils.ACTIONSETID));
-//            this.actions = remainingActions;
-//            executeActions();
         }
         //This is a Location trigger
         if(remainingActions == null) { //Then try to get it from the global location action sets
