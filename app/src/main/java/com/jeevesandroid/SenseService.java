@@ -1,18 +1,25 @@
 package com.jeevesandroid;
 
 import android.Manifest;
+import android.app.Activity;
+import android.app.AlarmManager;
+import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.app.TaskStackBuilder;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Location;
+import android.media.AudioAttributes;
+import android.media.RingtoneManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -32,6 +39,7 @@ import com.google.android.gms.location.LocationResult;
 import com.jeevesandroid.actions.ActionExecutorService;
 import com.jeevesandroid.actions.ActionUtils;
 import com.jeevesandroid.actions.actiontypes.FirebaseAction;
+import com.jeevesandroid.actions.actiontypes.SurveyAction;
 import com.jeevesandroid.firebase.FirebaseExpression;
 import com.jeevesandroid.firebase.FirebaseProject;
 import com.jeevesandroid.firebase.FirebaseTrigger;
@@ -46,6 +54,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.jeevesandroid.mainscreens.ContactActivity;
+import com.jeevesandroid.mainscreens.SurveyActivity;
 import com.jeevesandroid.sensing.ActivityListener;
 import com.jeevesandroid.sensing.ActivityService;
 import com.jeevesandroid.sensing.GeofenceListener;
@@ -56,7 +66,9 @@ import com.jeevesandroid.sensing.sensormanager.ESSensorManager;
 import com.jeevesandroid.triggers.TriggerException;
 import com.jeevesandroid.triggers.triggers.TriggerUtils;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -64,6 +76,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 public class SenseService extends Service implements
     GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
@@ -299,9 +312,99 @@ public class SenseService extends Service implements
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) { }
         });
+
+        //Add a listener that checks whether the researcher sends feedback to the participant
+        DatabaseReference patientRef = FirebaseUtils.PATIENT_REF.child(AppContext.FEEDBACK);
+        patientRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if(dataSnapshot.getValue() == null)
+                    return;
+                WeakReference<Activity> ref = AppContext.getCurrentActivityReference();
+                if(ref.get() instanceof ContactActivity){
+                    //Don't want any notifications when we're actually viewing/sending messages
+                    return;
+                };
+                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(AppContext.getContext());
+                long numMessages = prefs.getLong(AppContext.MSG_COUNT,0);
+                if(dataSnapshot.getChildrenCount() == numMessages){
+                    return;
+                }
+                SharedPreferences.Editor editor = prefs.edit();
+                editor.putLong(AppContext.MSG_COUNT,dataSnapshot.getChildrenCount());
+                editor.commit();
+                buildFeedbackNotification();
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {}
+        });
     }
 
     /**
+     * Builds the survey notification and the actions that occur when the user starts/dismisses
+     * the survey
+     */
+    private int feedbackId = 0;
+    private void buildFeedbackNotification(){
+        final Context app = AppContext.getContext();
+        final NotificationManager nm = (NotificationManager) app
+            .getSystemService(Context.NOTIFICATION_SERVICE);
+
+        String channelId = "default_channel_id";
+        AudioAttributes attributes = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+            attributes = new AudioAttributes.Builder()
+                .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+                .build();
+        }
+        //Check if notification channel exists and if not create one
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            NotificationChannel nchannel = nm.getNotificationChannel(channelId);
+            if (nchannel == null) {
+                int importance = NotificationManager.IMPORTANCE_HIGH;
+                nchannel = new NotificationChannel(channelId, "default", importance);
+                nchannel.setLightColor(Color.GREEN);
+                nchannel.enableVibration(true);
+                nchannel.setSound(RingtoneManager
+                    .getDefaultUri(RingtoneManager.TYPE_NOTIFICATION),attributes);
+                nm.createNotificationChannel(nchannel);
+            }
+        }
+        // Create an Intent for the activity you want to start
+        Intent resultIntent = new Intent(this, ContactActivity.class);
+        // Create the TaskStackBuilder and add the intent, which inflates the back stack
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+        stackBuilder.addNextIntentWithParentStack(resultIntent);
+        // Get the PendingIntent containing the entire back stack
+        PendingIntent feedbackIntent =
+            stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(app)
+            .setContentTitle("You have a new researcher message")
+            .setVibrate(new long[]{0, 1000})
+            .setSmallIcon(R.drawable.baseline_email_white_18)
+            .setContentText(AppContext.getContext().getString(R.string.app_name))
+            .setPriority(Notification.PRIORITY_HIGH)
+            .setContentIntent(feedbackIntent)
+            .setChannelId(channelId)
+            .setWhen(0);
+        NotificationCompat.InboxStyle inboxStyle =
+            new NotificationCompat.InboxStyle();
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            mBuilder.setSound(
+                RingtoneManager
+                    .getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
+            );
+        }
+        mBuilder.setAutoCancel(true);
+      //  mBuilder.setOngoing(true);
+        mBuilder.setStyle(inboxStyle);
+        nm.notify(feedbackId++, mBuilder.build());
+    }
+
+    /**
+     *
      * Make the foreground notification that always runs to stop this SenseService being killed
      * @return A Notification to be displayed
      */

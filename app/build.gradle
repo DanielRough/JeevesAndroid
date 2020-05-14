@@ -26,9 +26,11 @@ android {
         applicationId "com.jeevesandroid"
         minSdkVersion 19
         targetSdkVersion 28
-        versionCode 69
+        versionCode 70
         versionName "3.2"
         multiDexEnabled true
+        vectorDrawables.useSupportLibrary = true
+
     }
     buildTypes {
         release {
