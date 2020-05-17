@@ -139,6 +139,14 @@ public class WelcomeActivity extends Activity {
         Button btnMonitor = findViewById(R.id.btnMonitor);
         Button btnViewData = findViewById(R.id.btnViewData);
         Button btnTriggers = findViewById(R.id.btnTriggers);
+        FirebaseProject currentProj = AppContext.getProject();
+
+        if(currentProj.getisDebug()){
+            btnTriggers.setVisibility(View.VISIBLE);
+        }
+        else{
+            btnTriggers.setVisibility(View.INVISIBLE);
+        }
         final Button btnQuit = findViewById(R.id.btnQuit);
         btnViewData.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -24,6 +24,8 @@ public class FirebaseProject {
     private String researcherno;
     private boolean hasSchedule;
     private Map<String,Object> scheduleAttrs;
+    private boolean isDebug;
+
 
     public FirebaseProject() {
         // empty default constructor, necessary for Firebase to be able to deserialize
@@ -59,4 +61,9 @@ public class FirebaseProject {
     public boolean gethasSchedule(){ return hasSchedule; }
 
     public Map<String,Object> getscheduleAttrs(){ return scheduleAttrs; }
+
+    public boolean getisDebug(){ return isDebug;}
+
 }
+
+
