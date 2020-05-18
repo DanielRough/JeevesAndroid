@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -14,67 +15,60 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
         android:orientation="vertical"
-        android:padding="10dp"
-        android:textAlignment="center"
-        android:weightSum="1">
+        android:textAlignment="center">
+
+        <ImageView
+            android:id="@+id/imageView3"
+            android:layout_width="215dp"
+            android:layout_height="99dp"
+            android:layout_gravity="center"
+            app:srcCompat="@drawable/jeeveslog" />
 
         <TextView
-            android:id="@+id/txtWelcome"
-            android:layout_width="wrap_content"
+            android:id="@+id/txtStudyName"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="0.04"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
+            android:layout_marginTop="30dp"
+            android:text="Study Name"
+            android:textSize="24sp" />
 
         <TextView
+            android:id="@+id/txtStudyDescription"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="0.04"
-            android:paddingBottom="10dp"
-            android:paddingTop="10dp"
-            android:text="@string/signup_you" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.04"
-            android:orientation="horizontal">
-
-            <EditText
-                android:id="@+id/textStudyId"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:ems="10"
-                android:hint="@string/signup_study"
-                android:autofillHints="@string/signup_study"
-                android:inputType="textPersonName"
-                tools:targetApi="o"
-                tools:ignore="NestedWeights" />
-
-            <Button
-                android:id="@+id/btnBeginStudy"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/signup_begin" />
-        </LinearLayout>
+            android:text="study description"
+            android:textSize="18sp" />
 
         <TextView
+            android:id="@+id/txtResearcher"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="0.04"
-            android:paddingBottom="10dp"
-            android:paddingTop="10dp"
-            android:text="@string/signup_if"
-            android:visibility="invisible" />
+            android:text="Researcher info"
+            android:textSize="18sp" />
 
-        <ListView
+        <TextView
+            android:id="@+id/textView12"
             android:layout_width="match_parent"
-            android:layout_height="276dp"
-            android:visibility="invisible" />
+            android:layout_height="wrap_content"
+            android:layout_marginTop="50dp"
+            android:text="Please enter your email address and click the Sign Up button to begin"
+            android:textSize="18sp" />
 
+        <EditText
+            android:id="@+id/txtEmail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="Your email address"
+            android:inputType="textEmailAddress" />
+
+        <Button
+            android:id="@+id/btnSignup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Sign Up" />
     </LinearLayout>
+
 </RelativeLayout>
