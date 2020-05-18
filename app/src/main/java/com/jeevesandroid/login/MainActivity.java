@@ -71,9 +71,6 @@ public class MainActivity extends Activity{
         SharedPreferences preferences = PreferenceManager
             .getDefaultSharedPreferences(AppContext.getContext());
         //If we're not signed in, launch the sign-in activity
-        if (mFirebaseUser == null) {
-            startActivityForResult(new Intent(this, SignUpActivity.class), REQUEST_SIGNUP);
-        } else {
             if (preferences.contains(AppContext.STUDY_NAME)) {
                 final FirebaseDatabase database = FirebaseUtils.getDatabase();
                 SharedPreferences varPrefs = PreferenceManager
@@ -106,6 +103,5 @@ public class MainActivity extends Activity{
 
             } else
                 startStudySignUp();
-        }
     }
 }

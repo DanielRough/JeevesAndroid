@@ -41,10 +41,6 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.jeevesandroid.mainscreens.WelcomeActivity" />
         </activity>
-        <activity
-            android:name=".login.ConfigActivity"
-            android:label="@string/title_activity_config"
-            android:theme="@style/AppTheme.NoActionBar" /> <!-- For the maps -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyB1I4mF6dGlLQRN_53F-uTmYbAu7PvFIrI" /> <!-- Start the Main Activity again on reboot -->
