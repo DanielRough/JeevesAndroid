@@ -48,26 +48,11 @@
             android:text="Researcher info"
             android:textSize="18sp" />
 
-        <TextView
-            android:id="@+id/textView12"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="50dp"
-            android:text="Please enter your email address and click the Sign Up button to begin"
-            android:textSize="18sp" />
-
-        <EditText
-            android:id="@+id/txtEmail"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:hint="Your email address"
-            android:inputType="textEmailAddress" />
-
         <Button
             android:id="@+id/btnSignup"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="100px"
             android:text="Sign Up" />
     </LinearLayout>
 

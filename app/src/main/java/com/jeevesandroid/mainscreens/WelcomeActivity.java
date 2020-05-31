@@ -141,6 +141,7 @@ public class WelcomeActivity extends Activity {
         Button btnTriggers = findViewById(R.id.btnTriggers);
         FirebaseProject currentProj = AppContext.getProject();
 
+
         if(currentProj.getisDebug()){
             btnTriggers.setVisibility(View.VISIBLE);
         }
