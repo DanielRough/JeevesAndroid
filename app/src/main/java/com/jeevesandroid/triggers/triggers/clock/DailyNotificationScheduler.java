@@ -284,7 +284,7 @@ public class DailyNotificationScheduler implements TriggerReceiver
             }
             try {
                 if(times.size() > 0)
-                    updateDailyScheduler(times.get(times.size()-1));
+                    updateDailyScheduler(lateLimit);
             } catch (TriggerException e) {
                 e.printStackTrace();
             }
