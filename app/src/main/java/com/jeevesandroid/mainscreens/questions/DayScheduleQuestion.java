@@ -37,19 +37,13 @@ public class DayScheduleQuestion extends Question{
         final Calendar calendar_start = Calendar.getInstance();
         final Calendar calendar_end = Calendar.getInstance();
         final Calendar midnight = Calendar.getInstance();
-        //Will cause problems
-//        final Button btnReturn = qView.findViewById(R.id.btnReturn);
-//        btnReturn.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                activity.saveAndReturn();
-//            }
-//        });
         midnight.set(Calendar.HOUR_OF_DAY, 0);
         midnight.set(Calendar.MINUTE, 0);
 
+
         DatePicker datePickerWake = qView.findViewById(R.id.datePickerWake);
         DatePicker datePickerSleep = qView.findViewById(R.id.datePickerSleep);
+
         datePickerWake.init(calendar_start.get(Calendar.YEAR),calendar_start.get(Calendar.MONTH),calendar_start.get(Calendar.DAY_OF_MONTH),new DatePicker.OnDateChangedListener() {
             @Override
             public void onDateChanged(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
@@ -87,7 +81,7 @@ public class DayScheduleQuestion extends Question{
         final TimePicker tpicker_end = qView.findViewById(R.id.timePickerEnd);
         tpicker_end.setIs24HourView(true);
         String answer = answers.get(currentIndex);
-
+        String prevAnswer = (currentIndex <= 2 ? "" : answers.get(currentIndex-1));
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(AppContext.getContext());
 
         if (!answer.isEmpty()) {
@@ -115,21 +109,38 @@ public class DayScheduleQuestion extends Question{
                 tpicker_end.setCurrentMinute(calendar_end.get(Calendar.MINUTE));
             }
         }
+        //Some duplicate code in here but all it does is update our dates/times to be the previous answer + 1 day
+        else if(!prevAnswer.isEmpty()){
+            String[] start_end = prevAnswer.split(":");
+            calendar_start.setTimeInMillis(Long.parseLong(start_end[0]) + (24*3600*1000));
+            calendar_end.setTimeInMillis(Long.parseLong(start_end[1]) + (24*3600*1000));
+            datePickerWake.updateDate(calendar_start.get(Calendar.YEAR),calendar_start.get(Calendar.MONTH),calendar_start.get(Calendar.DAY_OF_MONTH));
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                tpicker_start.setHour(calendar_start.get(Calendar.HOUR_OF_DAY));
+                tpicker_start.setMinute(calendar_start.get(Calendar.MINUTE));
+            }
+            else{
+                tpicker_start.setCurrentHour(calendar_start.get(Calendar.HOUR_OF_DAY));
+                tpicker_start.setCurrentMinute(calendar_start.get(Calendar.MINUTE));
+            }
+
+            datePickerSleep.updateDate(calendar_end.get(Calendar.YEAR),calendar_end.get(Calendar.MONTH),calendar_end.get(Calendar.DAY_OF_MONTH));
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                tpicker_end.setHour(calendar_end.get(Calendar.HOUR_OF_DAY));
+                tpicker_end.setMinute(calendar_end.get(Calendar.MINUTE));
+            }
+            else{
+                tpicker_end.setCurrentHour(calendar_end.get(Calendar.HOUR_OF_DAY));
+                tpicker_end.setCurrentMinute(calendar_end.get(Calendar.MINUTE));
+            }
+        }
         //Day schedule questions work slightly differently - they are not stored in user attributes,
         //but instead are stored in shared preferences
         else{
+
             //Pref is something like 'schedule_pref1' or 'schedule_pref77'
             String scheduleTimeStr = prefs.getString(AppContext.SCHEDULE_PREF + scheduleDay,"");
-
-            if(scheduleTimeStr.equals("")) {
-                answers.set(currentIndex,calendar_start.getTimeInMillis() + ":" + calendar_end.getTimeInMillis());
-                SharedPreferences.Editor editor = prefs.edit();
-                long msStart = calendar_start.getTimeInMillis();
-                long msEnd = calendar_end.getTimeInMillis();
-                editor.putString(AppContext.SCHEDULE_PREF + scheduleDay,msStart + ":" + msEnd);
-                editor.apply();
-            }
-                else{
+            if(!scheduleTimeStr.equals("")) {
                 String[] scheduleTimes = scheduleTimeStr.split(":");
                 String startTime = scheduleTimes[0];
                 String endTime = scheduleTimes[1];
@@ -152,7 +163,27 @@ public class DayScheduleQuestion extends Question{
                     tpicker_end.setCurrentHour(calendar_end.get(Calendar.HOUR_OF_DAY));
                     tpicker_end.setCurrentMinute(calendar_end.get(Calendar.MINUTE));
                 }
+            }
+            else{
 
+                answers.set(currentIndex,calendar_start.getTimeInMillis() + ":" + calendar_end.getTimeInMillis());
+                SharedPreferences.Editor editor = prefs.edit();
+                long msStart = calendar_start.getTimeInMillis();
+                long msEnd = calendar_end.getTimeInMillis();
+                editor.putString(AppContext.SCHEDULE_PREF + scheduleDay,msStart + ":" + msEnd);
+                editor.apply();
+            }
+            //Here we'll check what the original start date was and set calendar_start to that.
+            String startDate = answers.get(0);
+            Calendar newCalendar = Calendar.getInstance();
+            newCalendar.setTimeInMillis(Long.parseLong(startDate));
+            if(currentIndex == 2 && calendar_start.get(Calendar.DAY_OF_MONTH) != newCalendar.get(Calendar.DAY_OF_MONTH)){
+                datePickerWake.updateDate(newCalendar.get(Calendar.YEAR),
+                    newCalendar.get(Calendar.MONTH),
+                    newCalendar.get(Calendar.DAY_OF_MONTH));
+                datePickerSleep.updateDate(newCalendar.get(Calendar.YEAR),
+                    newCalendar.get(Calendar.MONTH),
+                    newCalendar.get(Calendar.DAY_OF_MONTH));
             }
         }
 

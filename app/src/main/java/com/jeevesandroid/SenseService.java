@@ -1,18 +1,25 @@
 package com.jeevesandroid;
 
 import android.Manifest;
+import android.app.Activity;
+import android.app.AlarmManager;
+import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.app.TaskStackBuilder;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Location;
+import android.media.AudioAttributes;
+import android.media.RingtoneManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -32,6 +39,7 @@ import com.google.android.gms.location.LocationResult;
 import com.jeevesandroid.actions.ActionExecutorService;
 import com.jeevesandroid.actions.ActionUtils;
 import com.jeevesandroid.actions.actiontypes.FirebaseAction;
+import com.jeevesandroid.actions.actiontypes.SurveyAction;
 import com.jeevesandroid.firebase.FirebaseExpression;
 import com.jeevesandroid.firebase.FirebaseProject;
 import com.jeevesandroid.firebase.FirebaseTrigger;
@@ -46,6 +54,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.jeevesandroid.mainscreens.ContactActivity;
+import com.jeevesandroid.mainscreens.SurveyActivity;
 import com.jeevesandroid.sensing.ActivityListener;
 import com.jeevesandroid.sensing.ActivityService;
 import com.jeevesandroid.sensing.GeofenceListener;
@@ -56,7 +66,9 @@ import com.jeevesandroid.sensing.sensormanager.ESSensorManager;
 import com.jeevesandroid.triggers.TriggerException;
 import com.jeevesandroid.triggers.triggers.TriggerUtils;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -64,6 +76,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 public class SenseService extends Service implements
     GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
@@ -75,8 +88,6 @@ public class SenseService extends Service implements
     private List<String> activityTriggerIds = new ArrayList<>();
     private static final HashMap<String, ActivityListener> activitylisteners = new HashMap<>();
     public static final HashMap<Integer, Integer> subscribedSensors = new HashMap<>();
-    //private static final String ACTION_1 = "action_1";
-    //private static final int NOTIF_ID = 1337;
     private static final int ACTIVE = 1234;
     SharedPreferences.OnSharedPreferenceChangeListener mListener; //Keeps it alive
     private LocationCallback mLocationCallback;
@@ -182,37 +193,6 @@ public class SenseService extends Service implements
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) { }
 
-
-/*
-    public static class NotificationActionService extends IntentService {
-        public NotificationActionService() {
-            super(SenseService.NotificationActionService.class.getSimpleName());
-        }
-
-        @Override
-        protected void onHandleIntent(Intent intent) {
-            Context app = AppContext.getContext();
-            String action = intent.getAction();
-            if (ACTION_1.equals(action)) {
-                //Followed by an intent to actually start our survey
-                NotificationManager manager = (NotificationManager) app
-                    .getSystemService(NOTIFICATION_SERVICE);
-                manager.cancel(NOTIF_ID);
-                SharedPreferences varPrefs = PreferenceManager.getDefaultSharedPreferences(app);
-                SharedPreferences.Editor editor = varPrefs.edit();
-                editor.putBoolean("active",false);
-                editor.apply();
-                //
-                Intent resultIntent = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                resultIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                sendBroadcast(new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS));
-                this.startActivity(resultIntent);
-
-            }
-
-        }
-    }
-*/
     private static final String NOTIFICATION_Service_CHANNEL_ID = "service_channel";
     @Override
     public void onCreate() {
@@ -238,16 +218,27 @@ public class SenseService extends Service implements
         }
         startForeground(ACTIVE, n);
 
+
         final FirebaseDatabase database = FirebaseUtils.getDatabase();
         SharedPreferences varPrefs = PreferenceManager
             .getDefaultSharedPreferences(AppContext.getContext());
         String studyname = varPrefs.getString(AppContext.STUDY_NAME, "");
-        //String researcherno = varPrefs.getString(AppContext.DEVELOPER_ID, "");
         DatabaseReference projectRef = database
-           // .getReference(FirebaseUtils.PUBLIC_KEY)
-           // .child(researcherno)
             .getReference(FirebaseUtils.PROJECTS_KEY)
             .child(studyname);
+
+        //Okay let's delete old scheduled triggers here instead I think that should be okay
+        Set<String> activeTrigs = varPrefs.getStringSet(AppContext.TRIGGER_TIME_LIST,null);
+        if(activeTrigs != null) {
+            for (String toRemove : activeTrigs) {
+                String trigId = toRemove.split(";")[0];
+                removeTrigger(trigId);
+            }
+        }
+        SharedPreferences.Editor editor = varPrefs.edit();
+        Set<String> emptySet = new HashSet<>();
+        editor.putStringSet(AppContext.TRIGGER_TIME_LIST,emptySet);
+        editor.commit();
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(AppContext.getContext());
         //It can happen...
@@ -289,6 +280,7 @@ public class SenseService extends Service implements
         });
         //Listen for schedule updates, then update the relevant attributes
         //But I feel like this should only happen when updated from the GUI end. Not from the user's end.
+        //Why do I feel this? I don't know. Do I still feel this?
         scheduleRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -297,6 +289,8 @@ public class SenseService extends Service implements
                 if(schedule == null)return;
                 SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(AppContext.getContext());
                 SharedPreferences.Editor editor = prefs.edit();
+//                Set<String> emptySet = new HashSet<>();
+  //              editor.putStringSet(AppContext.TRIGGER_TIME_LIST,emptySet);
                 int scheduleDay = prefs.getInt(AppContext.SCHEDULE_DAY, 1);
                 for(int i = 1; i <= schedule.size(); i++){
                     editor.putString(AppContext.SCHEDULE_PREF + i,schedule.get(i-1));
@@ -309,6 +303,7 @@ public class SenseService extends Service implements
                         String sleepVarName = scheduleVars.get(AppContext.SLEEP_TIME).toString();
                         editor.putString(wakeVarName,wakeSleep[0]);
                         editor.putString(sleepVarName,wakeSleep[1]);
+                        Log.d("AREWE","Happening a lot!?");
                     }
                 }
                 editor.commit();
@@ -317,9 +312,99 @@ public class SenseService extends Service implements
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) { }
         });
+
+        //Add a listener that checks whether the researcher sends feedback to the participant
+        DatabaseReference patientRef = FirebaseUtils.PATIENT_REF.child(AppContext.FEEDBACK);
+        patientRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if(dataSnapshot.getValue() == null)
+                    return;
+                WeakReference<Activity> ref = AppContext.getCurrentActivityReference();
+                if(ref.get() instanceof ContactActivity){
+                    //Don't want any notifications when we're actually viewing/sending messages
+                    return;
+                };
+                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(AppContext.getContext());
+                long numMessages = prefs.getLong(AppContext.MSG_COUNT,0);
+                if(dataSnapshot.getChildrenCount() == numMessages){
+                    return;
+                }
+                SharedPreferences.Editor editor = prefs.edit();
+                editor.putLong(AppContext.MSG_COUNT,dataSnapshot.getChildrenCount());
+                editor.commit();
+                buildFeedbackNotification();
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {}
+        });
     }
 
     /**
+     * Builds the survey notification and the actions that occur when the user starts/dismisses
+     * the survey
+     */
+    private int feedbackId = 0;
+    private void buildFeedbackNotification(){
+        final Context app = AppContext.getContext();
+        final NotificationManager nm = (NotificationManager) app
+            .getSystemService(Context.NOTIFICATION_SERVICE);
+
+        String channelId = "default_channel_id";
+        AudioAttributes attributes = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+            attributes = new AudioAttributes.Builder()
+                .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+                .build();
+        }
+        //Check if notification channel exists and if not create one
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            NotificationChannel nchannel = nm.getNotificationChannel(channelId);
+            if (nchannel == null) {
+                int importance = NotificationManager.IMPORTANCE_HIGH;
+                nchannel = new NotificationChannel(channelId, "default", importance);
+                nchannel.setLightColor(Color.GREEN);
+                nchannel.enableVibration(true);
+                nchannel.setSound(RingtoneManager
+                    .getDefaultUri(RingtoneManager.TYPE_NOTIFICATION),attributes);
+                nm.createNotificationChannel(nchannel);
+            }
+        }
+        // Create an Intent for the activity you want to start
+        Intent resultIntent = new Intent(this, ContactActivity.class);
+        // Create the TaskStackBuilder and add the intent, which inflates the back stack
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+        stackBuilder.addNextIntentWithParentStack(resultIntent);
+        // Get the PendingIntent containing the entire back stack
+        PendingIntent feedbackIntent =
+            stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(app)
+            .setContentTitle("You have a new researcher message")
+            .setVibrate(new long[]{0, 1000})
+            .setSmallIcon(R.drawable.baseline_email_white_18)
+            .setContentText(AppContext.getContext().getString(R.string.app_name))
+            .setPriority(Notification.PRIORITY_HIGH)
+            .setContentIntent(feedbackIntent)
+            .setChannelId(channelId)
+            .setWhen(0);
+        NotificationCompat.InboxStyle inboxStyle =
+            new NotificationCompat.InboxStyle();
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            mBuilder.setSound(
+                RingtoneManager
+                    .getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
+            );
+        }
+        mBuilder.setAutoCancel(true);
+      //  mBuilder.setOngoing(true);
+        mBuilder.setStyle(inboxStyle);
+        nm.notify(feedbackId++, mBuilder.build());
+    }
+
+    /**
+     *
      * Make the foreground notification that always runs to stop this SenseService being killed
      * @return A Notification to be displayed
      */
@@ -425,6 +510,11 @@ public class SenseService extends Service implements
 
         SharedPreferences varPrefs = PreferenceManager
             .getDefaultSharedPreferences(AppContext.getContext());
+        //I have a feeling it then has loads and loads of listeners assigned every time something
+        //updates which could be causing a memory surge.
+        if(mListener != null) {
+            varPrefs.unregisterOnSharedPreferenceChangeListener(mListener);
+        }
         SharedPreferences.Editor prefseditor = varPrefs.edit();
         prefseditor.apply();
 
@@ -559,16 +649,6 @@ public class SenseService extends Service implements
         for (int i = 0; i < actions.size(); i++) {
             toExecute.add( actions.get(i));
         }
-        //If this is our begin trigger, just start it from here rather than going through the
-        //rigmarole of subscribing and unsubscribing
-//        if(TriggerUtils.getTriggerType(triggerType) == TriggerUtils.TYPE_CLOCK_TRIGGER_BEGIN) {
-//            Intent actionIntent = new Intent(this, ActionExecutorService.class);
-//            actionIntent.putExtra(ActionUtils.ACTIONS, toExecute);
-//            actionIntent.putExtra(AppContext.TRIG_TYPE, TriggerUtils.getTriggerType(triggerType));
-//            startService(actionIntent);
-//            Log.d("BEGIN","Beginning");
-//            return;
-//        }
         newListener.subscribeToTrigger(trigger, toExecute);
     }
 

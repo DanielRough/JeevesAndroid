@@ -126,12 +126,19 @@ public class DailyNotificationScheduler implements TriggerReceiver
                 (1000 * 60 * 60 * 24);
         }
         long daysSinceEpoch = System.currentTimeMillis() / (24 * 3600 * 1000);
+        Log.d("DAYS","Since epoch? " + daysSinceEpoch + ". From day and to day are " + fromDay + "," + toDay);
+
         if (/*(fromDay != 0 || toDay != 0) && */(daysSinceEpoch < fromDay || daysSinceEpoch > toDay)) {
             try {
-                Log.d("DAYS","Since epoch? " + daysSinceEpoch + ". From day and to day are " + fromDay + "," + toDay);
-                Log.d("Removal","Removing daily notification scheduler");
-                triggerManager.removeTrigger(dailySchedulerId);
-                return;
+                //I don't think we should remove the scheduler if we're waiting for the day to come
+                if(daysSinceEpoch > toDay) {
+                    Log.d("Removal", "Removing daily notification scheduler");
+                    triggerManager.removeTrigger(dailySchedulerId);
+                    return;
+                }
+                else{
+                    return; //just leave without deleting notif scheduler
+                }
             } catch (TriggerException e) {
                 e.printStackTrace();
             }
@@ -248,11 +255,15 @@ public class DailyNotificationScheduler implements TriggerReceiver
             }
             return;
         }
-        while(earlyLimit < lateLimit){
+        while(earlyLimit <= lateLimit){
             long earlyWinTime = earlyLimit - windowSize;
             long lateWinTime = earlyLimit + windowSize;
-            long winTime = random.nextInt((int)(lateWinTime-earlyWinTime))+earlyWinTime;
-            times.add(winTime); //Convert each JSONObject time into a minute-of-day value
+            if(windowSize > 0) {
+                long winTime = random.nextInt((int) (lateWinTime - earlyWinTime)) + earlyWinTime;
+                times.add(winTime); //Convert each JSONObject time into a minute-of-day value
+            }
+            else if(windowSize == 0)
+                times.add(earlyWinTime);
             earlyLimit += minInterval;
         }
 

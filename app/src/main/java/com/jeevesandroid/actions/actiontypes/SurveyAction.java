@@ -210,9 +210,6 @@ public class SurveyAction extends FirebaseAction {
         if (triggerType == TriggerUtils.TYPE_SENSOR_TRIGGER_BUTTON ||
             triggerType == TriggerUtils.TYPE_CLOCK_TRIGGER_BEGIN
             ) {
-          //  mBuilder.setOngoing(false);
-            //mBuilder.setTimeoutAfter(3000);
-            //do nothing
         }
         else{
             mBuilder.addAction(R.drawable.ic_create_black_24dp, "Start survey", startIntent);

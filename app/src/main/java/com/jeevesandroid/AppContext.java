@@ -1,12 +1,15 @@
 package com.jeevesandroid;
 
+import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
+import android.os.Bundle;
 import android.util.Log;
 
 import com.jeevesandroid.actions.actiontypes.FirebaseAction;
 import com.jeevesandroid.firebase.FirebaseProject;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -15,7 +18,12 @@ import java.util.TreeMap;
 /**
  * Application class to provide the global context.
  */
-public class AppContext extends Application {
+public class AppContext extends Application implements Application.ActivityLifecycleCallbacks {
+
+    //Mappery for the schedule question
+    public static final String[] NUMBERNAMES = {"first","second","third","fourth","fifth","sixth",
+    "seventh","eigth","ninth","tenth","eleventh","twelvth","thirteenth","fourteenth","fifteenth",
+    "sixteenth","seventeenth","eighteenth","nineteenth","twentieth"};
     //STart stop location
     public static final String STARTLOC = "startloc";
     public static final String STOPLOC = "stoploc";
@@ -33,13 +41,13 @@ public class AppContext extends Application {
     public static final String USERNAME = "username";
     public static final String EMAIL = "email";
     public static final String UID = "uid";
-    //public static final String DEVELOPER_ID = "developerid";
     public static final String FINISHED_INTRODUCTION = "finished";
 
     public static final String TRIGGER_TIME_LIST = "triglist";
 
     //Contact
     public static final String FEEDBACK = "feedback";
+    public static final String MSG_COUNT = "msgcount";
 
     //Schedule parameters
     public static final String START_DATE = "startdate";
@@ -57,7 +65,6 @@ public class AppContext extends Application {
     public static final String INIT_TIME = "initTime";
     public static final String NOTIF_ID = "notificationid";
     public static final String SURVEY_NAME = "surveyname";
-    public static final String SCHEDULE_SURVEY = "schedule_survey";
     public static final String WAS_INIT = "initialised";
     public static final String TRIG_TYPE = "triggerType";
     public static final String SURVEY_ID = "surveyId";
@@ -101,7 +108,17 @@ public class AppContext extends Application {
         Log.d("ISNULL","null?" + (proj==null));
     }
 
+    private static WeakReference<Activity>
+        currentActivityReference;
 
+    public static WeakReference<Activity> getCurrentActivityReference(){
+        return currentActivityReference;
+    }
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        this.registerActivityLifecycleCallbacks(this);
+    }
     public static Context getContext()
     {
         return instance;
@@ -137,4 +154,38 @@ public class AppContext extends Application {
         return locationActions;
     }
 
+    @Override
+    public void onActivityCreated(Activity activity, Bundle bundle) {
+
+    }
+
+    @Override
+    public void onActivityStarted(Activity activity) {
+
+    }
+
+    @Override
+    public void onActivityResumed(Activity activity) {
+        currentActivityReference =
+            new WeakReference<>(activity);
+    }
+    @Override
+    public void onActivityPaused(Activity activity) {
+        currentActivityReference = null;
+    }
+
+    @Override
+    public void onActivityStopped(Activity activity) {
+
+    }
+
+    @Override
+    public void onActivitySaveInstanceState(Activity activity, Bundle bundle) {
+
+    }
+
+    @Override
+    public void onActivityDestroyed(Activity activity) {
+
+    }
 }
