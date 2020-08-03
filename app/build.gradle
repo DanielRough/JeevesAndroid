@@ -26,8 +26,8 @@ android {
         applicationId "com.jeevesandroid"
         minSdkVersion 19
         targetSdkVersion 28
-        versionCode 73
-        versionName "3.3"
+        versionCode 75
+        versionName "3.4"
         multiDexEnabled true
         vectorDrawables.useSupportLibrary = true
 
