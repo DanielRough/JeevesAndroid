@@ -65,7 +65,8 @@ public class StudySignupActivity extends AppCompatActivity {
                 String studyId = txtStudyId.getText().toString();
                 boolean found = false;
                 for (FirebaseProject firebaseProject : projectMap.values()) {
-                    if(firebaseProject.getid().equals(studyId)){
+                    Log.d("ID","The id is " + firebaseProject.getid());
+                    if(firebaseProject.getid() != null && firebaseProject.getid().equals(studyId)){
                         found = true;
                         selectedStudy = firebaseProject.getname();
                         beginStudy();
