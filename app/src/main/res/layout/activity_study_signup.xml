@@ -10,7 +10,7 @@
     android:paddingTop="@dimen/activity_vertical_margin"
 
     android:visibility="visible"
-    tools:context="com.jeevesandroid.login.StudySignupActivity">
+    tools:context="com.jeeves.login.StudySignupActivity">
 
     <LinearLayout
         android:layout_width="match_parent"

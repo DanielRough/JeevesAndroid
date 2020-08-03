@@ -23,11 +23,11 @@ android {
     compileSdkVersion 28
 
     defaultConfig {
-        applicationId "com.jeevesandroid"
+        applicationId "com.jeeves"
         minSdkVersion 19
         targetSdkVersion 28
-        versionCode 71
-        versionName "3.2"
+        versionCode 3
+        versionName "2.0"
         multiDexEnabled true
         vectorDrawables.useSupportLibrary = true
 
