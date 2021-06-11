@@ -1,0 +1,123 @@
+<resources>
+    <string name="app_name">Jeeves</string>
+    <string name="sign_out">Sign Out</string>
+    <string name="invite_menu_label">Invite</string>
+    <string name="fresh_config">Fresh Config</string>
+    <string name="cause_crash">Cause Crash</string>
+
+    <string name="auth_failed">Authentication failed</string>
+    <string name="loading">Loading…</string>
+    <string name="desc_firebase_lockup">Firebase logo and name</string>
+    <string name="no_account"><u>No account yet? Create one</u></string>
+    <string name="already_member"><u>Already a member? Log in</u></string>
+    <string name="title_activity_privacy_policy">PrivacyPolicy</string>
+
+    <string name="contact_messages">Messages</string>
+    <string name="contact_please_enter">Please enter a message to send in the box below and press &quot;Send&quot;</string>
+    <string name="contact_enter">Enter your message here</string>
+    <string name="contact_send">Send</string>
+
+    <string name="missed_listed">Listed below are the surveys that you have missed. Please select one to complete it now</string>
+
+    <string name="sense_this">This is the Jeeves ESM application. From here, you can edit your settings, complete missed surveys, or contact your researcher</string>
+    <string name="sense_missed">Missed Surveys</string>
+    <string name="sense_complete">Complete missed surveys</string>
+    <string name="sense_self">Self-Report</string>
+    <string name="sense_log">Log new information</string>
+    <string name="sense_messages">Messages</string>
+    <string name="finish_study">Snooze Jeeves - this will stop all notifications for your set time. </string>
+    <string name="quit_app">Snooze app</string>
+    <string name="unsnooze_desc">Jeeves is currently snoozing notifications.</string>
+    <string name="unsnooze">Stop snoozing</string>
+    <string name="snooze_desc">Choose how long to snooze Jeeves for. This will stop all notifications for your selected time.</string>
+    <string name="fifteen">for 15 minutes</string>
+    <string name="thirty">for 30 minutes</string>
+    <string name="hour">for 1 hour</string>
+    <string name="threehr">for 3 hours</string>
+    <string name="day">for a day</string>
+    <string name="forever">until I re-open the app</string>
+
+    <string name="snooze">SNOOZE</string>
+    <string-array name="snooze_options">
+        <item>@string/fifteen</item>
+        <item>@string/thirty</item>
+        <item>@string/hour</item>
+        <item>@string/threehr</item>
+        <item>@string/day</item>
+        <item>@string/forever</item>
+    </string-array>
+    <string name="snooze_prompt">Snooze Jeeves...</string>
+    <string name="confirm">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="sense_view">View the Jeeves Privacy Policy</string>
+    <string name="permissions_title">Permissions Required</string>
+    <string name="permissions_rationale">Please accept all necessary permissions for your study to run properly.</string>
+    <string name="need_permissions">For Jeeves to run properly, you still need to enable the necessary permissions. Press OK to open the Jeeves settings, from which you can access the Permissions menu.</string>
+    <string name="sign_email">Email</string>
+    <string name="sign_password">Password</string>
+    <string name="sign_login">Login</string>
+
+    <string name="signup_you">You are not currently signed up to any studies. If you have a Study ID, please enter it here and your study will begin.</string>
+    <string name="signup_study">Study ID</string>
+    <string name="signup_begin">Begin Study</string>
+    <string name="signup_if">If you are just trying out the app, please select one of the open studies below!</string>
+
+    <string name="survey_enter">Enter answer here</string>
+    <string name="survey_open">Open Location Picker</string>
+    <string name="survey_place">Place your index finger lightly over the camera lens as shown. Hold your phone steady and press \'Start sensing\' when ready</string>
+    <string name="survey_start">Start sensing</string>
+    <string name="survey_press">Press the button below to begin playing the audio file</string>
+    <string name="survey_play">Play audio</string>
+    <string name="survey_pause">Pause audio</string>
+    <string name="begin_time">Wake time</string>
+    <string name="end_time">Sleep time</string>
+    <string name="deleted_logo">Jeeves logo</string>
+    <string name="deleted_account">Account details not found</string>
+    <string name="deleted_jeeves">Jeeves recognises your account but was unable to find your credentials. This could be because you cleared the application data. Please confirm your password and press the button below to reset your account.</string>
+    <string name="deleted_reset">Reset my account</string>
+
+    <string name="privacy_privacy">Privacy Policy</string>
+    <string name="privacy_contact">Contact Information</string>
+    <string name="privacy_if">If you have any questions regarding data sensitivity and protection, please contact Daniel Rough at djr53@st-andrews.ac.uk</string>
+    <string name="privacy_required">Required Permissions</string>
+    <string name="privacy_permission">Permission is required to allow the app to send SMS messages automatically. This functionality is at the discretion of the researcher who has designed the study you have been assigned to, and contact information and SMSs sent cannot be viewed by us (the developers).</string>
+    <string name="privacy_depending">Depending on the researcher\'s study design, the app may also track your location. A researcher may wish to geotag your survey responses. As before, this data will not be available to us (the developers) and will only be available to the researcher who has designed your study.</string>
+    <string name="privacy_you">You will be required to register and create login credentials (including your first name, surname, email address and password). This personally identifiable information is encrypted through Google\'s Firebase database, is accessible only to the researcher who has designed the study you sign up to, and is not available to us (the developers).</string>
+    <string name="privacy_location">Depending on the researcher\'s study design, the app may also track your activity. This information is limited to determing whether you are stationary, walking, running, driving etc, and no more specific activity information will be collected. As before, this data will not be available to us (the developers) and will only be available to the researcher who has designed your study.</string>
+    <string name="privacy_with">With the exception of the researcher who has designed the study you sign up to, no other third party, including us (the developers) have access to any personally identifiable information.</string>
+    <string name="privacy_the">The application also uses RSA public/private key encryption so that all data is encrypted using the java.security and javax.crypto packages, before being sent through HTTP to an online database.</string>
+    <string name="privacy_withdrawal">Withdrawal of consent and deletion of data</string>
+    <string name="privacy_we">We as app developers have no access to any personally identifiable information. We have \'write-only\' access, meaning that we can delete your data but cannot read it. You have full rights to have your data removed. If you wish for data collected on you to be removed, please contact us using the contact details above and this will be done.</string>
+
+    <string name="signup_email">Email</string>
+    <string name="signup_password">Password</string>
+    <string name="signup_create">Create Account</string>
+
+    <string name="partially_completed">Partially completed</string>
+
+    <string name="welcome">Welcome, %s</string>
+
+    <string name="startsensing">Start sensing</string>
+    <string name="heartrate">Heart rate acquired</string>
+    <string name="question">Question</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+
+    <string name="sent_expiring">Sent at %s, expiring in %s minutes</string>
+    <string name="sent_not_expiring">Sent at %s</string>
+
+    <string name="snoozevar">snoozevar</string>
+    <string name="snooze_var_granularity">snoozegranularity</string>
+    <string name="looptime">looptime</string>
+
+    <string name="default_web_client_id" translatable="false">459733229057-jukn4h3codhr8ocpija843qjonn9ll3v.apps.googleusercontent.com</string>
+    <string name="firebase_database_url" translatable="false">https://myjeevesproject-66ea6.firebaseio.com</string>
+    <string name="gcm_defaultSenderId" translatable="false">459733229057</string>
+    <string name="google_api_key" translatable="false">AIzaSyD840jj0mWkuYTTLx0ITdkSX4g6Nv7IMOY</string>
+    <string name="google_app_id" translatable="false">1:459733229057:android:90700fd63b846a5a</string>
+    <string name="google_crash_reporting_api_key" translatable="false">AIzaSyD840jj0mWkuYTTLx0ITdkSX4g6Nv7IMOY</string>
+    <string name="google_storage_bucket" translatable="false">myjeevesproject-66ea6.appspot.com</string>
+    <string name="project_id" translatable="false">myjeevesproject-66ea6</string>
+    <string name="title_activity_config">ConfigActivity</string>
+    <string name="title_activity_trigger_view">TriggerViewActivity</string>
+</resources>
