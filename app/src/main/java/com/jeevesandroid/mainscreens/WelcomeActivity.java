@@ -18,6 +18,7 @@ import android.provider.Settings;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -37,7 +38,6 @@ import com.jeevesandroid.actions.WhileLoopReceiver;
 import com.jeevesandroid.firebase.FirebaseProject;
 import com.jeevesandroid.firebase.FirebaseUtils;
 import com.google.firebase.database.FirebaseDatabase;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -305,6 +305,7 @@ public class WelcomeActivity extends Activity {
             // Add action buttons
             .setPositiveButton(R.string.confirm, new DialogInterface.OnClickListener() {
                 @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+
                 @Override
                 public void onClick(DialogInterface dialog, int id) {
                     snoozeApp();
@@ -319,6 +320,7 @@ public class WelcomeActivity extends Activity {
         snoozeDialog.show();
     }
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+
     private void snoozeApp(){
         Spinner spin = snoozeDialog.findViewById(R.id.mySpinner);
         String item = spin.getSelectedItem().toString();

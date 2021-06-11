@@ -7,9 +7,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.preference.PreferenceManager;
-
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
+
 import android.util.Log;
 
 import com.jeevesandroid.AppContext;

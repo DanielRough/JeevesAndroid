@@ -1,7 +1,6 @@
 package com.jeevesandroid.firebase;
 
 import com.google.firebase.database.IgnoreExtraProperties;
-//import com.shaded.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import java.io.Serializable;
 import java.util.List;

@@ -2,6 +2,7 @@ package com.jeevesandroid;
 
 import android.Manifest;
 import android.app.Activity;
+
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -31,11 +32,13 @@ import androidx.core.app.NotificationCompat;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.ActivityRecognition;
 import com.google.android.gms.location.LocationResult;
 import com.jeevesandroid.actions.actiontypes.FirebaseAction;
+
 import com.jeevesandroid.firebase.FirebaseExpression;
 import com.jeevesandroid.firebase.FirebaseProject;
 import com.jeevesandroid.firebase.FirebaseTrigger;
@@ -51,6 +54,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.jeevesandroid.mainscreens.ContactActivity;
+
 import com.jeevesandroid.sensing.ActivityListener;
 import com.jeevesandroid.sensing.ActivityService;
 import com.jeevesandroid.sensing.GeofenceListener;
@@ -63,6 +67,7 @@ import com.jeevesandroid.triggers.triggers.TriggerUtils;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -70,6 +75,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 
 public class SenseService extends Service implements
     GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {

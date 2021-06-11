@@ -9,6 +9,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
@@ -55,7 +56,6 @@ import java.util.Map;
 import java.util.Objects;
 import static com.jeevesandroid.AppContext.DATE;
 import static com.jeevesandroid.AppContext.TIME;
-
 public class SurveyActivity extends AppCompatActivity {
 
 

@@ -26,9 +26,8 @@ public class TimeQuestion extends Question{
     public TimeQuestion(SurveyActivity activity, List<FirebaseQuestion> questions, List<String> answers) {
         super(activity,questions,answers);
     }
-
-
     @RequiresApi(api = Build.VERSION_CODES.M)
+
     @Override
     public void handle(int position) {
         final Calendar calendar = Calendar.getInstance();

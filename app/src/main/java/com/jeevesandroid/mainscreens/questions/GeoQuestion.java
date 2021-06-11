@@ -1,12 +1,8 @@
 package com.jeevesandroid.mainscreens.questions;
 
 import android.Manifest;
-import android.content.Context;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.location.Criteria;
-import android.location.Location;
-import android.location.LocationManager;
+import android.app.Activity;
+
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
