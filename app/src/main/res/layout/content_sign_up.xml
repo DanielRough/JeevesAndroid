@@ -24,7 +24,7 @@
             android:layout_gravity="center_horizontal" />
 
         <!--  Name Label -->
-        <android.support.design.widget.TextInputLayout
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
@@ -34,10 +34,10 @@
                 android:layout_height="wrap_content"
                 android:inputType="textCapWords"
                 android:autofillHints="" />
-        </android.support.design.widget.TextInputLayout>
+        </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Email Label -->
-        <android.support.design.widget.TextInputLayout
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
@@ -48,13 +48,13 @@
                 android:inputType="textEmailAddress"
                 android:hint="@string/signup_email"
                 android:autofillHints="" />
-        </android.support.design.widget.TextInputLayout>
+        </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Password Label -->
 
         <!-- Signup Button -->
 
-        <android.support.v7.widget.AppCompatButton
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btn_signup"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"

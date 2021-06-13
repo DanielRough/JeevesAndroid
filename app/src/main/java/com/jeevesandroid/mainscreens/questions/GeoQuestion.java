@@ -5,8 +5,16 @@ import android.app.Activity;
 
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationManager;
+import android.os.Build;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -66,6 +74,7 @@ public class GeoQuestion extends Question implements GoogleApiClient.OnConnectio
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     public void onMapReady(GoogleMap googleMap) {
         this.map = googleMap;
