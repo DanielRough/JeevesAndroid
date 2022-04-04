@@ -5,14 +5,14 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.google.gms:google-services:4.3.10'
+        //classpath 'com.google.gms:google-services:4.3.10'
         classpath 'com.google.firebase:firebase-crashlytics-gradle:2.8.1'
     }
 
 }
 apply plugin: 'com.android.application'
 apply plugin: 'com.google.firebase.crashlytics'
-apply plugin: 'com.google.gms.google-services'
+//apply plugin: 'com.google.gms.google-services'
 
 repositories {
     maven { url 'https://maven.fabric.io/public' }
