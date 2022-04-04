@@ -3,7 +3,7 @@ package com.jeeves.mainscreens.questions;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Environment;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.view.View;
 
 import com.github.chrisbanes.photoview.PhotoView;

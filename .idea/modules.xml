@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/JeevesAndroid.iml" filepath="$PROJECT_DIR$/JeevesAndroid.iml" group="JeevesAndroid" />
-      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" group="JeevesAndroid/app" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/JeevesAndroid.iml" filepath="$PROJECT_DIR$/.idea/modules/JeevesAndroid.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/JeevesAndroid.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/JeevesAndroid.app.iml" />
     </modules>
   </component>
 </project>
