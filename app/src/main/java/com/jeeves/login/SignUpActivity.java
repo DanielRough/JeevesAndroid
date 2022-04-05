@@ -1,6 +1,8 @@
 package com.jeeves.login;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.firebase.auth.ActionCodeSettings;
 import com.jeeves.R;
 
 public class SignUpActivity extends AppCompatActivity {

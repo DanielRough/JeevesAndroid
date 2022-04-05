@@ -15,6 +15,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
+import com.google.firebase.auth.ActionCodeSettings;
 import com.jeeves.AppContext;
 import com.jeeves.R;
 import com.jeeves.mainscreens.WelcomeActivity;
@@ -73,6 +74,18 @@ public class StudySignupActivity extends AppCompatActivity {
             URL url = null;
             try {
                 url = new URL(study_url);
+                ActionCodeSettings actionCodeSettings =
+                        ActionCodeSettings.newBuilder()
+                                // URL you want to redirect back to. The domain (www.example.com) for this
+                                // URL must be whitelisted in the Firebase Console.
+                                .setUrl(study_url)
+                                // This must be true
+                                .setHandleCodeInApp(true)
+                                .setAndroidPackageName(
+                                        "com.jeeves.android",
+                                        true, /* installIfNotAvailable */
+                                        "19"    /* minimumVersion */)
+                                .build();
             } catch (MalformedURLException e) {
                 e.printStackTrace();
             }
