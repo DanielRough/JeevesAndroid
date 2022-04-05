@@ -127,9 +127,11 @@ public class StudySignupActivity extends AppCompatActivity {
             if(!app.getOptions().getApiKey().equals(google_api_key)) {
                 app.delete();
             FirebaseApp.initializeApp(getApplicationContext(), options);
+            Log.d("INITIALISING", "We are initialising an app hurray!");
                 break;
             }
         }
+        Log.d("DATABASE","away to set the database now");
         database = FirebaseUtils.getDatabase();
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getInstance());
