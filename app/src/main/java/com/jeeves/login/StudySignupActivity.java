@@ -46,6 +46,7 @@ public class StudySignupActivity extends AppCompatActivity {
     TextView txtStudyTitle;
     TextView txtStudyDescription;
     TextView txtStudyResearcher;
+    ActionCodeSettings actionCodeSettings;
     private Activity getInstance(){
         return this;
     }
@@ -74,7 +75,7 @@ public class StudySignupActivity extends AppCompatActivity {
             URL url = null;
             try {
                 url = new URL(study_url);
-                ActionCodeSettings actionCodeSettings =
+                 actionCodeSettings =
                         ActionCodeSettings.newBuilder()
                                 // URL you want to redirect back to. The domain (www.example.com) for this
                                 // URL must be whitelisted in the Firebase Console.
@@ -82,7 +83,7 @@ public class StudySignupActivity extends AppCompatActivity {
                                 // This must be true
                                 .setHandleCodeInApp(true)
                                 .setAndroidPackageName(
-                                        "com.jeeves.android",
+                                        "com.jeevesandroid",
                                         true, /* installIfNotAvailable */
                                         "19"    /* minimumVersion */)
                                 .build();
