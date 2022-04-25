@@ -10,7 +10,7 @@
     android:paddingTop="@dimen/activity_vertical_margin"
 
     android:visibility="visible"
-    tools:context="com.jeeves.login.StudySignupActivity">
+    tools:context="com.jeevesx.login.StudySignupActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -47,6 +47,23 @@
             android:layout_height="wrap_content"
             android:text="Researcher info"
             android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/textView7"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="50dp"
+            android:text="@string/signup_explanation"
+            android:textSize="20sp" />
+
+        <EditText
+            android:id="@+id/txtEmail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="@string/enter_email"
+            android:inputType="textEmailAddress"
+            android:minHeight="48dp" />
 
         <Button
             android:id="@+id/btnSignup"

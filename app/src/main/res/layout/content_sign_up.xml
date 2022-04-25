@@ -4,7 +4,7 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:fitsSystemWindows="true"
-    tools:context="com.jeeves.login.SignUpActivity"
+    tools:context="com.jeevesx.login.SignUpActivity"
     tools:showIn="@layout/activity_sign_up">
 
 
@@ -27,7 +27,7 @@
             android:id="@+id/textView10"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Thank you for downloading the Jeeves app! To begin a study you can use the URL given to you by the study's researcher, or generated from the Jeeves desktop application available at http://danielrough.net"
+            android:text="Thank you for downloading the Jeeves app! To begin a study you can use the URL given to you by the study's researcher"
             android:textSize="24sp" />
 
         <!--  Name Label -->

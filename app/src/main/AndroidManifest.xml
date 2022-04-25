@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.jeeves"
+    package="com.jeevesx"
     tools:ignore="GoogleAppIndexingWarning">
 
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
@@ -27,25 +27,25 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <application
-        android:name="com.jeeves.AppContext"
+        android:name="com.jeevesx.AppContext"
         android:allowBackup="true"
         android:icon="@mipmap/jeeves_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name="com.jeeves.mainscreens.TriggerViewActivity"
+            android:name="com.jeevesx.mainscreens.TriggerViewActivity"
             android:label="@string/title_activity_trigger_view"
-            android:parentActivityName="com.jeeves.mainscreens.WelcomeActivity">
+            android:parentActivityName="com.jeevesx.mainscreens.WelcomeActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.jeeves.mainscreens.WelcomeActivity" />
+                android:value="com.jeevesx.mainscreens.WelcomeActivity" />
         </activity>
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyB1I4mF6dGlLQRN_53F-uTmYbAu7PvFIrI" /> <!-- Start the Main Activity again on reboot -->
         <receiver
-            android:name="com.jeeves.login.StartUpReceiver"
+            android:name="com.jeevesx.login.StartUpReceiver"
             android:enabled="true"
             android:permission="android.permission.RECEIVE_BOOT_COMPLETED"
             android:exported="true">
@@ -56,7 +56,7 @@
             </intent-filter>
         </receiver>
 
-        <activity android:name="com.jeeves.login.MainActivity"
+        <activity android:name="com.jeevesx.login.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -65,49 +65,59 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.jeeves.mainscreens.WelcomeActivity"
-            android:launchMode="singleTop" />
+            android:name="com.jeevesx.mainscreens.WelcomeActivity"
+            android:launchMode="singleTop"
+            android:exported="true">
+        </activity>
 
         <service
-            android:name="com.jeeves.sensing.ActivityService"
+            android:name="com.jeevesx.sensing.ActivityService"
             android:enabled="true"
             android:exported="true"
             android:permission="" /> <!-- Stops it restarting -->
-        <receiver android:name="com.jeeves.actions.actiontypes.SurveyAction$MissedSurveyReceiver" />
+        <receiver android:name="com.jeevesx.actions.actiontypes.SurveyAction$MissedSurveyReceiver" />
 
-        <service android:name="com.jeeves.actions.actiontypes.SurveyAction$NotificationActionService" />
+        <service android:name="com.jeevesx.actions.actiontypes.SurveyAction$NotificationActionService" />
         <service
-            android:name="com.jeeves.actions.ActionExecutorService"
+            android:name="com.jeevesx.actions.ActionExecutorService"
             android:enabled="true"
             android:exported="true"
             android:permission="" />
 
         <activity
-            android:name="com.jeeves.mainscreens.ContactActivity"
-            android:parentActivityName="com.jeeves.mainscreens.WelcomeActivity"
+            android:name="com.jeevesx.mainscreens.ContactActivity"
+            android:parentActivityName="com.jeevesx.mainscreens.WelcomeActivity"
             android:windowSoftInputMode="stateHidden" />
         <activity
-            android:name="com.jeeves.mainscreens.MissedSurveyActivity"
-            android:parentActivityName="com.jeeves.mainscreens.WelcomeActivity" />
+            android:name="com.jeevesx.mainscreens.MissedSurveyActivity"
+            android:parentActivityName="com.jeevesx.mainscreens.WelcomeActivity" />
         <activity
-            android:name="com.jeeves.mainscreens.SurveyActivity"
-            android:parentActivityName="com.jeeves.mainscreens.MissedSurveyActivity" />
-        <activity android:name="com.jeeves.mainscreens.ScheduleActivity" />
+            android:name="com.jeevesx.mainscreens.SurveyActivity"
+            android:parentActivityName="com.jeevesx.mainscreens.MissedSurveyActivity" />
+        <activity android:name="com.jeevesx.mainscreens.ScheduleActivity" />
         <activity
-            android:name="com.jeeves.mainscreens.SelfReportActivity"
-            android:parentActivityName="com.jeeves.mainscreens.WelcomeActivity" />
+            android:name="com.jeevesx.mainscreens.SelfReportActivity"
+            android:parentActivityName="com.jeevesx.mainscreens.WelcomeActivity" />
         <activity
-            android:name="com.jeeves.sensing.heartrate.HeartRateMonitor"
-            android:parentActivityName="com.jeeves.mainscreens.SurveyActivity" />
+            android:name="com.jeevesx.sensing.heartrate.HeartRateMonitor"
+            android:parentActivityName="com.jeevesx.mainscreens.SurveyActivity" />
         <activity
-            android:name="com.jeeves.login.SignUpActivity"
+            android:name="com.jeevesx.login.SignUpActivity"
             android:label="Jeeves"
             android:windowSoftInputMode="stateAlwaysHidden" />
         <activity
-            android:name="com.jeeves.login.StudySignupActivity"
+            android:name="com.jeevesx.login.StudySignupActivity"
             android:label="Jeeves"
             android:windowSoftInputMode="adjustNothing"
             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data
+                    android:host="jeevesx.page.link"
+                    android:scheme="https"/>
+            </intent-filter>
         <intent-filter>
             <action android:name="android.intent.action.VIEW" />
 
@@ -122,7 +132,7 @@
         </intent-filter>
         </activity>
         <service
-            android:name="com.jeeves.SenseService"
+            android:name="com.jeevesx.SenseService"
             android:enabled="true"
             android:exported="true"
             android:permission="" />
@@ -132,19 +142,19 @@
             android:value="f63d6f8855ad665342d5a90a1a16efb13da9cf5c" />
 
         <activity
-            android:name="com.jeeves.mainscreens.PrivacyPolicy"
+            android:name="com.jeevesx.mainscreens.PrivacyPolicy"
             android:label="@string/title_activity_privacy_policy"
-            android:parentActivityName="com.jeeves.mainscreens.WelcomeActivity" />
+            android:parentActivityName="com.jeevesx.mainscreens.WelcomeActivity" />
 
         <receiver
-            android:name="com.jeeves.actions.WhileLoopReceiver"
+            android:name="com.jeevesx.actions.WhileLoopReceiver"
             android:exported="true">
             <intent-filter>
                 <action android:name="com.jeevesandroid.WhileLoopReceiver" />
             </intent-filter>
         </receiver>
         <receiver
-            android:name="com.jeeves.SnoozeListener"
+            android:name="com.jeevesx.SnoozeListener"
             android:exported="true">
             <intent-filter>
                 <action android:name="com.jeevesandroid.SnoozeListener" />

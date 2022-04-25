@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "689630764873",
+    "firebase_url": "https://jeeves-2b569-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "jeeves-2b569",
+    "storage_bucket": "jeeves-2b569.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:689630764873:android:dfb74e588653fdbf580498",
+        "android_client_info": {
+          "package_name": "com.jeevesx"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "689630764873-52i0oq7rhvd5bjd3ov1ba7h2iof3hglt.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.jeevesx",
+            "certificate_hash": "3b2046e774727881ae1ec4327bc4038c859062ed"
+          }
+        },
+        {
+          "client_id": "689630764873-d0k31p02dviudsv66l136qvr5vn5g7p8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBBPG6To0uMzAmJ99x9lmvXSlbQUCwh_ZQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "689630764873-d0k31p02dviudsv66l136qvr5vn5g7p8.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
