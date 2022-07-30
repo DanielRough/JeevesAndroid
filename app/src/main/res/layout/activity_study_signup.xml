@@ -35,13 +35,6 @@
             android:textSize="24sp" />
 
         <TextView
-            android:id="@+id/txtStudyDescription"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="study description"
-            android:textSize="18sp" />
-
-        <TextView
             android:id="@+id/txtResearcher"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

@@ -7,6 +7,8 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
+
+import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -56,6 +58,7 @@ public class MainActivity extends Activity{
                     .getDefaultSharedPreferences(AppContext.getContext());
             //If we're not signed in, launch the sign-in activity
             if (preferences.contains(AppContext.STUDY_NAME)) {
+                Log.d("HOODABOGA","jaimerais le jambon");
                 final FirebaseDatabase database = FirebaseUtils.getDatabase();
                 String studyname = preferences.getString(AppContext.STUDY_NAME, "");
                 DatabaseReference projectRef = database

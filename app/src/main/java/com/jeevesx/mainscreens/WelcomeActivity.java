@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
@@ -85,7 +86,11 @@ public class WelcomeActivity extends Activity {
         }
         else{
             Intent intent = new Intent(this, SenseService.class);
-            startService(intent);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                startForegroundService(intent);
+            }
+            else
+                startService(intent);
         }
     }
     /**
@@ -396,12 +401,16 @@ public class WelcomeActivity extends Activity {
         }
         if(!denied) { //All permissions are accepted! Start our Sensing Service
             Intent intent = new Intent(this, SenseService.class);
-            startService(intent);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                startForegroundService(intent);
+            }
+            else
+                startService(intent);
             return;
         }
 
         boolean showRationale = false;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             showRationale = shouldShowRequestPermissionRationale(deniedpermission);
         }
         if (! showRationale) {

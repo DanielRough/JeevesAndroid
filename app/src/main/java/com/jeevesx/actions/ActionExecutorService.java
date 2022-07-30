@@ -148,6 +148,7 @@ public class ActionExecutorService extends Service {
         for (int i = loopcount; i < actions.size(); i++) {
             FirebaseAction newaction = actions.get(i);
             Log.d("ACTION","this action is " + newaction.getname());
+            Log.d("ACTYPE","this action's type is " + newaction.getClass());
             //Suspend execution
             if (newaction instanceof WaitingAction && newaction.getparams() != null &&
                 newaction.getparams().containsKey("time")) {
@@ -157,12 +158,15 @@ public class ActionExecutorService extends Service {
             }
             ArrayList<FirebaseAction> controlactions;
             if (newaction instanceof IfControl) {
+                Log.d("IF","We have an if!");
                 count = 1;
                 IfControl ifAction = (IfControl) newaction;
                 ExpressionParser parser = new ExpressionParser();
                 FirebaseExpression expression;
                 expression = ifAction.getcondition();
                 controlactions = (ArrayList<FirebaseAction>) ifAction.getactions();
+
+
                 if (controlactions == null) {
                     continue; //It might be null if we've got nothing inside
                 }
@@ -173,6 +177,7 @@ public class ActionExecutorService extends Service {
                 //otherwise add all the internal actions to the iterator, and carry on as normal
                 else {
                     for (FirebaseAction action : controlactions) {
+                        Log.d("INSIDE","Inside is " + action.getname());
                         actions.add(i + count, ActionUtils.create(action));
                         count++;
                     }

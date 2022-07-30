@@ -28,6 +28,7 @@ import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -185,30 +186,10 @@ public class SenseService extends Service implements
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) { }
 
     private static final String NOTIFICATION_Service_CHANNEL_ID = "service_channel";
+
     @Override
     public void onCreate() {
         Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler(AppContext.getContext()));
-
-        //Make the 'always-on' foreground notification that stops the service being killed
-        Notification n = buildForegroundNotification();
-        //New code to cope with specifying the channel ID
-        if(Build.VERSION.SDK_INT>=26) {
-            NotificationChannel channel = new NotificationChannel(NOTIFICATION_Service_CHANNEL_ID,
-                "Sync Service", NotificationManager.IMPORTANCE_HIGH);
-            channel.setDescription("Service Name");
-            NotificationManager notificationManager = (NotificationManager) getSystemService(
-                Context.NOTIFICATION_SERVICE);
-            notificationManager.createNotificationChannel(channel);
-
-            n = new Notification.Builder(this,NOTIFICATION_Service_CHANNEL_ID)
-                .setContentTitle("Jeeves - Running")
-                .setSmallIcon(R.drawable.jeeves)
-                .setTicker("Jeeves - Running")
-                .setOngoing(true)
-                .build();
-        }
-        startForeground(ACTIVE, n);
-
 
         final FirebaseDatabase database = FirebaseUtils.getDatabase();
         SharedPreferences varPrefs = PreferenceManager
@@ -398,6 +379,7 @@ public class SenseService extends Service implements
     /**
      *
      * Make the foreground notification that always runs to stop this SenseService being killed
+     * This is only for versions below Oreo
      * @return A Notification to be displayed
      */
     private Notification buildForegroundNotification() {
@@ -413,6 +395,29 @@ public class SenseService extends Service implements
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        //Make the 'always-on' foreground notification that stops the service being killed
+        Notification n = buildForegroundNotification();
+        //New code to cope with specifying the channel ID
+        if(Build.VERSION.SDK_INT>=26) {
+            Log.d("MAKEIT","FUCKINGPERMANENT");
+            NotificationChannel channel = new NotificationChannel(NOTIFICATION_Service_CHANNEL_ID,
+                    "Sync Service", NotificationManager.IMPORTANCE_HIGH);
+            channel.setDescription("Service Name");
+            NotificationManager notificationManager = (NotificationManager) getSystemService(
+                    Context.NOTIFICATION_SERVICE);
+            notificationManager.createNotificationChannel(channel);
+
+            n = new Notification.Builder(this,NOTIFICATION_Service_CHANNEL_ID)
+                    .setContentTitle("Jeeves - Running")
+                    .setSmallIcon(R.drawable.jeeves)
+                    .setTicker("Jeeves - Running")
+                    .setOngoing(true)
+                    .build();
+        }
+        startForeground(ACTIVE, n);
+
+
+
         return START_STICKY;
     }
 
@@ -683,5 +688,9 @@ public class SenseService extends Service implements
             }
         }
     }
-
+    @Override
+    public void onDestroy() {
+        Toast.makeText(this, "service done", Toast.LENGTH_SHORT).show();
+        Log.d("DESTROY","SENSE SERVICE DESTROYED INNIT");
+    }
 }

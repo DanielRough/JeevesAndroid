@@ -134,6 +134,7 @@
         <service
             android:name="com.jeevesx.SenseService"
             android:enabled="true"
+            android:foregroundServiceType="dataSync"
             android:exported="true"
             android:permission="" />
 
