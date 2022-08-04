@@ -65,6 +65,7 @@ public class ScheduleActivity extends SurveyActivity{
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d("AND SO", "IT BEGINS");
         String startDateVar = getIntent().getStringExtra(AppContext.START_DATE);
         String endDateVar = getIntent().getStringExtra(AppContext.END_DATE);
        // startTimeVar = getIntent().getStringExtra(AppContext.WAKE_TIME);

@@ -26,6 +26,7 @@ public class ScheduleAction extends FirebaseAction {
 
         Map<String,Object> scheduleVars = AppContext.getProject().getscheduleAttrs();
         if(scheduleVars == null){
+            Log.d("NOPEE","Returning from schedule");
             return;
         }
         String startDate = scheduleVars.get(AppContext.START_DATE).toString();

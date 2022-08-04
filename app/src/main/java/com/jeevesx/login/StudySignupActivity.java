@@ -22,7 +22,6 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
-import com.google.firebase.auth.ActionCodeSettings;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.jeevesx.AppContext;
@@ -46,7 +45,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 public class StudySignupActivity extends AppCompatActivity {
 
@@ -63,11 +61,23 @@ public class StudySignupActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onStop() {
+        super.onStop();
+        Log.d("STOPP","Studysignupactivity stopped");
+    }
+
+    @Override
+    protected void onResume(){
+        super.onResume();
+        Log.d("RESUUME","Studysignupactivity resumed!");
+    }
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         projectMap = new HashMap<>();
         setContentView(R.layout.activity_study_signup);
 
+        Log.d("STUDYSI","Study sign up activity");
         final Button beginStudy = findViewById(R.id.btnSignup);
         beginStudy.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -349,6 +359,7 @@ public class StudySignupActivity extends AppCompatActivity {
                 FirebaseUtils.PATIENT_REF.setValue(childMap);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
+                projectsRef.removeEventListener(this); //BLOODY IMPORTANT
                 finish();
             }
 

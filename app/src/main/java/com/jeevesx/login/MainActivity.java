@@ -34,6 +34,7 @@ public class MainActivity extends Activity{
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d("MAIN","Main activity again");
         setContentView(R.layout.activity_main);
 
         if (getIntent().hasExtra("uncaughtException")) {
