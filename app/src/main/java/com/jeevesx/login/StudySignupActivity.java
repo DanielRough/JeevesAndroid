@@ -354,7 +354,8 @@ public class StudySignupActivity extends AppCompatActivity {
                 childMap.put("currentStudy", selectedStudy);
                 childMap.put("completed", 0);
                 childMap.put("missed", 0);
-                String email = prefs.getString("UserEmail", "");
+                //String email = prefs.getString("UserEmail", "");
+                String email = txtEmail.getText().toString();
                 childMap.put("email", FirebaseUtils.encodeKey(email));
                 FirebaseUtils.PATIENT_REF.setValue(childMap);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
