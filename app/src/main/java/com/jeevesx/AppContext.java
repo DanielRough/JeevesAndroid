@@ -21,7 +21,7 @@ import java.util.TreeMap;
 public class AppContext extends Application implements Application.ActivityLifecycleCallbacks {
 
     //Mappery for the schedule question
-    public static final String[] NUMBERNAMES = {"first","second","third","fourth","fifth","sixth",
+    public static final String[] NUMBERNAMES = {"First","Second","Third","fourth","fifth","sixth",
     "seventh","eigth","ninth","tenth","eleventh","twelvth","thirteenth","fourteenth","fifteenth",
     "sixteenth","seventeenth","eighteenth","nineteenth","twentieth"};
     //STart stop location

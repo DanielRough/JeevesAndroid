@@ -171,9 +171,14 @@ public class DayScheduleQuestion extends Question{
                 editor.apply();
             }
             //Here we'll check what the original start date was and set calendar_start to that.
+            //But if that start date is before today's date, then we'll set it to today instead.
             String startDate = answers.get(0);
             Calendar newCalendar = Calendar.getInstance();
-            newCalendar.setTimeInMillis(Long.parseLong(startDate));
+            long startTime = Long.parseLong(startDate);
+            long curTime = Calendar.getInstance().getTimeInMillis();
+
+            //Whichever is latest, is greatest
+            newCalendar.setTimeInMillis(Math.max(startTime,curTime));
             if(currentIndex == 2 && calendar_start.get(Calendar.DAY_OF_MONTH) != newCalendar.get(Calendar.DAY_OF_MONTH)){
                 datePickerWake.updateDate(newCalendar.get(Calendar.YEAR),
                     newCalendar.get(Calendar.MONTH),

@@ -15,8 +15,12 @@ import com.jeevesx.R;
 import com.jeevesx.firebase.FirebaseQuestion;
 import com.jeevesx.firebase.FirebaseUtils;
 import com.jeevesx.mainscreens.questions.QuAdapter;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 public class ScheduleActivity extends SurveyActivity{
@@ -28,6 +32,7 @@ public class ScheduleActivity extends SurveyActivity{
         return currentIndex;
     }
     private DatabaseReference scheduleRef;
+    private long startMillis;
 
     @Override
     public void onDestroy(){
@@ -98,9 +103,23 @@ public class ScheduleActivity extends SurveyActivity{
         questionView.setText(questionText);
         simpleAdapterViewFlipper.setDisplayedChild(currentIndex);
          txtQNo = findViewById(R.id.txtQno);
-         if(currentIndex > 1)
-             txtQNo.setText(AppContext.NUMBERNAMES[currentIndex-2] + " day");//"Day " + (currentIndex-1));
-         else
+         Calendar questionCalendar = Calendar.getInstance();
+         questionCalendar.setTimeInMillis(startMillis);
+         if(currentIndex > 1) {
+             questionCalendar.add(Calendar.DAY_OF_MONTH,currentIndex-2);
+             Date thisDate = questionCalendar.getTime();
+             String dayOfWeek = new SimpleDateFormat("EE").format(thisDate);
+             String dayOfMonth = new SimpleDateFormat("d").format(thisDate);
+             String suffix;
+             switch(dayOfMonth.substring(dayOfMonth.length()-1)){
+                 case "1": suffix = "st"; break;
+                 case "2": suffix = "nd"; break;
+                 case "3": suffix = "rd"; break;
+                 default: suffix = "th";
+             }
+             txtQNo.setText(dayOfWeek + " " + dayOfMonth + suffix);//"Day " + (currentIndex-1));
+         }
+             else
              txtQNo.setText("Update schedule");
     }
 
@@ -133,7 +152,17 @@ public class ScheduleActivity extends SurveyActivity{
             //Calculate the number of day-schedule questions needed
             final Calendar calendarStart = Calendar.getInstance();
             final Calendar calendarEnd = Calendar.getInstance();
-            calendarStart.setTimeInMillis(Long.parseLong(startDateStr));
+            final Calendar calendarNow = Calendar.getInstance();
+            long startTime = Long.parseLong(startDateStr);
+            long currentTime = calendarNow.getTimeInMillis();
+            //Don't ask for wake/sleep times of days we've already passed
+            if(startTime < currentTime){
+                calendarStart.setTimeInMillis(currentTime);
+            }
+            else {
+                calendarStart.setTimeInMillis(startTime);
+            }
+            startMillis = calendarStart.getTimeInMillis();
             calendarEnd.setTimeInMillis(Long.parseLong(endDateStr));
             int count = 1;
 
@@ -141,7 +170,9 @@ public class ScheduleActivity extends SurveyActivity{
             do {
                 FirebaseQuestion scheduleQ = new FirebaseQuestion();
                 scheduleQ.setquestionType(AppContext.SCHEDULE);
-                scheduleQ.setQuestionText("Please enter your wake and sleep times for your " + AppContext.NUMBERNAMES[count-1] + " day ");
+                Date currentDate = calendarStart.getTime();
+                String dateStr = DateFormat.getDateInstance().format(currentDate);
+                scheduleQ.setQuestionText("Please enter your wake and sleep times for " + dateStr);
                 scheduleQ.setQuestionId(Integer.toString(count));
 
                 questions.add(scheduleQ);
