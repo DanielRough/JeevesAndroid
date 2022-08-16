@@ -173,7 +173,9 @@ public class ScheduleActivity extends SurveyActivity{
                 Date currentDate = calendarStart.getTime();
                 String dateStr = DateFormat.getDateInstance().format(currentDate);
                 scheduleQ.setQuestionText("Please enter your wake and sleep times for " + dateStr);
-                scheduleQ.setQuestionId(Integer.toString(count));
+                String dayId = calendarStart.get(Calendar.MONTH) + "/" + calendarStart.get(Calendar.DAY_OF_MONTH);
+                // scheduleQ.setQuestionId(Integer.toString(count));
+                scheduleQ.setQuestionId(dayId);
 
                 questions.add(scheduleQ);
                 answers.add("");
