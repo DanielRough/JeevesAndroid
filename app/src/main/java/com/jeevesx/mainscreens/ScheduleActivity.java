@@ -164,6 +164,9 @@ public class ScheduleActivity extends SurveyActivity{
             }
             startMillis = calendarStart.getTimeInMillis();
             calendarEnd.setTimeInMillis(Long.parseLong(endDateStr));
+            //Ensure we always ask about the last day
+            calendarEnd.set(Calendar.HOUR_OF_DAY,23);
+            calendarEnd.set(Calendar.MINUTE,59);
             int count = 1;
 
             //Add however many schedle qusetions we need between the start and end dates.

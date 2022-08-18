@@ -43,6 +43,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -354,6 +355,8 @@ public class StudySignupActivity extends AppCompatActivity {
                 childMap.put("currentStudy", selectedStudy);
                 childMap.put("completed", 0);
                 childMap.put("missed", 0);
+                //New signup time thing
+                childMap.put("signuptime", Calendar.getInstance().getTimeInMillis());
                 //String email = prefs.getString("UserEmail", "");
                 String email = txtEmail.getText().toString();
                 childMap.put("email", FirebaseUtils.encodeKey(email));
