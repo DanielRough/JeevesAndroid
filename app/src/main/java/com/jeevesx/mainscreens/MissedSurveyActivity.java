@@ -8,6 +8,8 @@ import android.preference.PreferenceManager;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -74,6 +76,7 @@ public class MissedSurveyActivity extends AppCompatActivity {
                     if(survey == null){
                         return;
                     }
+                    Log.d("MISSED","A missed survey APPEARED");
                     survey.setkey(id);
                     long expiryTime = survey.getexpiryTime();
                     long expiryMillis = expiryTime * 60 * 1000;
@@ -85,7 +88,8 @@ public class MissedSurveyActivity extends AppCompatActivity {
                     boolean isAvailable = prefs.getBoolean(survey.getsurveyId(),false);
                     //Check whether this survey should be available
                     //This way we only add the most recent survey
-                    if (!surveynames.contains(name) && isAvailable){
+                    if (isAvailable){
+                   // if (!surveynames.contains(name) && isAvailable){
                         if(deadline > System.currentTimeMillis() || survey.getexpiryTime() == 0) {
                             surveys.add(survey);
                             surveynames.add(name);
