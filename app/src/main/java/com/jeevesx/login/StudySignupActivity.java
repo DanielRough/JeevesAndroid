@@ -232,9 +232,9 @@ public class StudySignupActivity extends AppCompatActivity {
         prefsEditor.putString(AppContext.STUDY_NAME, studyinfo.getString("title"));
         prefsEditor.apply();
 
-        txtStudyTitle.setText("Study Name: " + studyinfo.getString("title"));
+        //txtStudyTitle.setText("Study Name: " + studyinfo.getString("title"));
         //   txtStudyDescription.setText(studyinfo.getString("description"));
-        txtStudyResearcher.setText("Study Researcher: " + studyinfo.getString("researcher"));
+        //txtStudyResearcher.setText("Study Researcher: " + studyinfo.getString("researcher"));
 
         prefsEditor.putString(AppContext.CONFIG, jsonConfig);
         prefsEditor.apply();
