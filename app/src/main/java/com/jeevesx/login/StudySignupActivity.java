@@ -337,7 +337,7 @@ public class StudySignupActivity extends AppCompatActivity {
                 prefsEditor.apply();
 
                 FirebaseProject selectedProject = projectMap.get(selectedStudy);
-                Log.d("PROJ", "project selected is " + selectedProject.getname() + " " + selectedProject.getisDebug());
+              //  Log.d("PROJ", "project selected is " + selectedProject.getname() + " " + selectedProject.getisDebug());
                 AppContext.setCurrentproject(selectedProject);
 
                 FirebaseUtils.SURVEY_REF = database
