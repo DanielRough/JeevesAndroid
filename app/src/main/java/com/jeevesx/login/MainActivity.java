@@ -62,6 +62,7 @@ public class MainActivity extends Activity{
                 Log.d("HOODABOGA","jaimerais le jambon");
                 final FirebaseDatabase database = FirebaseUtils.getDatabase();
                 String studyname = preferences.getString(AppContext.STUDY_NAME, "");
+                Log.d("StUDY NAME","It's name is " + studyname);
                 DatabaseReference projectRef = database
                         .getReference(FirebaseUtils.PROJECTS_KEY)
                         .child(studyname);
@@ -70,6 +71,8 @@ public class MainActivity extends Activity{
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         FirebaseProject post = snapshot.getValue(FirebaseProject.class);
+                        if(post == null)
+                            return;
                         AppContext.setCurrentproject(post);
                         Intent intent = new Intent(getInstance(), WelcomeActivity.class);
                         startActivity(intent);

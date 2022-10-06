@@ -236,12 +236,14 @@ public class SenseService extends Service implements
         projectRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                Toast.makeText(AppContext.getContext(),"PROJECTREF UPDATED",Toast.LENGTH_LONG).show();
                 FirebaseProject post = snapshot.getValue(FirebaseProject.class);
-                AppContext.setCurrentproject(post);
+                Log.d("I WONDER","Are you happening!?");
                 if (post == null) {
                     return;
                 }
                 try {
+                    AppContext.setCurrentproject(post);
                     updateConfig(post);
                 } catch (TriggerException e) {
                     e.printStackTrace();
